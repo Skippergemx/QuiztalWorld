@@ -102,7 +102,7 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
 
   private checkAnswer(selected: string, correct: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selected === correct;
-    const reward = isCorrect ? Phaser.Math.FloatBetween(0.1, 3) : 0;
+    const reward = isCorrect ? Phaser.Math.FloatBetween(0.01, 0.5) : 0;
 
     this.scene.time.delayedCall(500, () => {
       showDialog(this.scene, [

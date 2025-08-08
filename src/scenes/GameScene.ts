@@ -15,6 +15,10 @@ export default class GameScene extends Phaser.Scene {
   private mintGirl!: MintGirl;
   private baseSage!: BaseSage;
   private mrGemx!: MrGemx;
+  private joyStick?: Phaser.GameObjects.Image;
+  private joyStickBase?: Phaser.GameObjects.Image;
+  private interactButton?: Phaser.GameObjects.Image;
+  private isMobile: boolean = false;
 
   constructor() {
     super({ key: "GameScene" });
@@ -63,6 +67,11 @@ export default class GameScene extends Phaser.Scene {
         frameHeight: 53,
       });
     });
+
+    // Load virtual gamepad assets
+    this.load.image('joystick', 'assets/ui/joystick.png');
+    this.load.image('joystick-base', 'assets/ui/joystick-base.png');
+    this.load.image('button-interact', 'assets/ui/button-interact.png');
   }
 
   create() {
@@ -106,15 +115,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
     Object.values(layers).forEach((layer) => {
-      if (layer) this.physics.add.collider(this.player, layer);
+      if (layer) {
+        this.physics.add.collider(this.player, layer);
+      }
     });
 
+    // Initialize keyboard controls
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
       up: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
       down: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       left: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      right: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     };
 
     // ✅ Instantiate all NPCs
@@ -159,6 +171,103 @@ export default class GameScene extends Phaser.Scene {
         console.log("Player not in range of any NPC");
       }
     });
+
+    this.createMobileControls();
+  }
+
+  private createMobileControls() {
+    // Check if we're on mobile or touch is enabled
+    this.isMobile = this.game.device.os.android || 
+                    this.game.device.os.iOS || 
+                    this.game.device.input.touch;
+    
+    if (!this.isMobile) return;
+
+    const screenWidth = this.cameras.main.width;
+    const screenHeight = this.cameras.main.height;
+
+    // Create joystick (positioned bottom-left)
+    const joystickX = screenWidth * 0.2; // 20% from left edge
+    const joystickY = screenHeight * 0.8; // 80% from top (near bottom)
+
+    this.joyStickBase = this.add.image(joystickX, joystickY, 'joystick-base')
+        .setScrollFactor(0)
+        .setDepth(100)
+        .setAlpha(0.7)
+        .setScale(1.2) // Make it slightly larger
+        .setInteractive();
+
+    this.joyStick = this.add.image(joystickX, joystickY, 'joystick')
+        .setScrollFactor(0)
+        .setDepth(101)
+        .setAlpha(0.7)
+        .setScale(0.8); // Make the stick slightly smaller than base
+
+    // Create interact button (positioned bottom-right)
+    const buttonX = screenWidth - (screenWidth * 0.15); // 15% from right edge
+    const buttonY = screenHeight * 0.8; // 80% from top
+
+    this.interactButton = this.add.image(buttonX, buttonY, 'button-interact')
+        .setScrollFactor(0)
+        .setDepth(100)
+        .setAlpha(0.8)
+        .setScale(1.3) // Make it easier to tap
+        .setInteractive();
+
+    // Add touch controls
+    this.joyStickBase.on('pointerdown', this.handleJoystickStart, this);
+    this.joyStickBase.on('pointermove', this.handleJoystickMove, this);
+    this.joyStickBase.on('pointerup', this.handleJoystickEnd, this);
+    this.joyStickBase.on('pointerout', this.handleJoystickEnd, this);
+
+    this.interactButton.on('pointerdown', () => {
+        const keyEvent = new KeyboardEvent('keydown', { key: 'c' });
+        this.input.keyboard?.emit('keydown-C', keyEvent);
+    });
+  }
+
+  private handleJoystickStart(pointer: Phaser.Input.Pointer) {
+    if (!this.joyStick || !this.joyStickBase) return;
+    this.handleJoystickMove(pointer);
+  }
+
+  private handleJoystickMove(pointer: Phaser.Input.Pointer) {
+    if (!this.joyStick || !this.joyStickBase || !pointer.isDown) return;
+
+    const baseX = this.joyStickBase.x;
+    const baseY = this.joyStickBase.y;
+    const angle = Phaser.Math.Angle.Between(baseX, baseY, pointer.x, pointer.y);
+    const distance = Phaser.Math.Distance.Between(baseX, baseY, pointer.x, pointer.y);
+    const maxDistance = 50;
+
+    let moveX = Math.cos(angle) * Math.min(distance, maxDistance);
+    let moveY = Math.sin(angle) * Math.min(distance, maxDistance);
+
+    this.joyStick.x = baseX + moveX;
+    this.joyStick.y = baseY + moveY;
+
+    // Adjust the velocity multiplier (160 matches keyboard movement speed)
+    const speedMultiplier = 200/50; // Convert joystick distance to match keyboard speed
+    this.player.setVelocity(
+        moveX * speedMultiplier, 
+        moveY * speedMultiplier
+    );
+
+    // Update animation direction
+    const direction = Math.abs(moveX) > Math.abs(moveY) 
+        ? (moveX < 0 ? 'left' : 'right')
+        : (moveY < 0 ? 'up' : 'down');
+    
+    this.player.play(`walk-${direction}`, true);
+    this.lastDirection = direction;
+  }
+
+  private handleJoystickEnd() {
+    if (!this.joyStick || !this.joyStickBase) return;
+    this.joyStick.x = this.joyStickBase.x;
+    this.joyStick.y = this.joyStickBase.y;
+    this.player.setVelocity(0);
+    this.player.play(`idle-${this.lastDirection}`, true);
   }
 
   createAnimations() {
@@ -197,6 +306,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   handlePlayerMovement() {
+    if (this.isMobile) return; // Add missing parentheses
+    
     const { left, right, up, down } = this.cursors;
     const wasd = this.wasd;
 

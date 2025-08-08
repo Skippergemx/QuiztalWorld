@@ -20,6 +20,11 @@ export default class LoginCharacterScene extends Phaser.Scene {
   private loadingBar!: Phaser.GameObjects.Graphics;
   private loadingText!: Phaser.GameObjects.Text;
 
+  // Add new properties
+  private leftArrow!: Phaser.GameObjects.Image;
+  private rightArrow!: Phaser.GameObjects.Image;
+  private confirmButton!: Phaser.GameObjects.Image;
+
   constructor() {
     super({ key: "LoginCharacterScene" });
   }
@@ -103,6 +108,13 @@ export default class LoginCharacterScene extends Phaser.Scene {
     });
   }
 
+  preload() {
+    // ...existing preload code...
+    this.load.image('arrow-left', 'assets/ui/arrow-left.png');
+    this.load.image('arrow-right', 'assets/ui/arrow-right.png');
+    this.load.image('button-confirm', 'assets/ui/button-confirm.png');
+  }
+
   startCharacterSelection() {
     this.add
       .text(this.scale.width / 2, 100, `Welcome, ${this.user.displayName || "Traveler"}`, {
@@ -138,16 +150,64 @@ export default class LoginCharacterScene extends Phaser.Scene {
       return sprite;
     });
 
-    this.add
-      .text(this.scale.width / 2, this.scale.height - 100, "← → to Change | ENTER to Select", {
-        fontSize: "18px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
+    // Remove the keyboard instructions text
+    // Add touch controls instead
+    this.createTouchControls();
 
+    // Keep keyboard controls for desktop
     this.input.keyboard!.on("keydown-LEFT", this.selectPrevious, this);
     this.input.keyboard!.on("keydown-RIGHT", this.selectNext, this);
     this.input.keyboard!.on("keydown-ENTER", this.confirmSelection, this);
+  }
+
+  // Add new method for touch controls
+  private createTouchControls() {
+    const padding = 20;
+    
+    // Add left arrow
+    this.leftArrow = this.add.image(padding * 2, this.scale.height - 100, 'arrow-left')
+      .setInteractive()
+      .setScrollFactor(0)
+      .setDepth(100)
+      .setAlpha(0.8)
+      .setScale(1.2);
+
+    // Add right arrow
+    this.rightArrow = this.add.image(this.scale.width - (padding * 2), this.scale.height - 100, 'arrow-right')
+      .setInteractive()
+      .setScrollFactor(0)
+      .setDepth(100)
+      .setAlpha(0.8)
+      .setScale(1.2);
+
+    // Add confirm button
+    this.confirmButton = this.add.image(this.scale.width / 2, this.scale.height - 70, 'button-confirm')
+      .setInteractive()
+      .setScrollFactor(0)
+      .setDepth(100)
+      .setAlpha(0.8)
+      .setScale(1.3);
+
+    // Add touch events
+    this.leftArrow.on('pointerdown', () => {
+      this.selectPrevious();
+      this.leftArrow.setAlpha(0.6);
+    });
+
+    this.rightArrow.on('pointerdown', () => {
+      this.selectNext();
+      this.rightArrow.setAlpha(0.6);
+    });
+
+    this.confirmButton.on('pointerdown', () => {
+      this.confirmSelection();
+      this.confirmButton.setAlpha(0.6);
+    });
+
+    // Add pointerup events to restore alpha
+    this.leftArrow.on('pointerup', () => this.leftArrow.setAlpha(0.8));
+    this.rightArrow.on('pointerup', () => this.rightArrow.setAlpha(0.8));
+    this.confirmButton.on('pointerup', () => this.confirmButton.setAlpha(0.8));
   }
 
   update(_time: number, delta: number) {
@@ -271,5 +331,13 @@ export default class LoginCharacterScene extends Phaser.Scene {
 
     this.loadingBar.fillStyle(0x00ff00, 1);
     this.loadingBar.fillRect(x, y, barWidth * percent, barHeight);
+  }
+
+  // Optional: Add cleanup in scene shutdown
+  shutdown() {
+    // ...existing cleanup code...
+    if (this.leftArrow) this.leftArrow.destroy();
+    if (this.rightArrow) this.rightArrow.destroy();
+    if (this.confirmButton) this.confirmButton.destroy();
   }
 }

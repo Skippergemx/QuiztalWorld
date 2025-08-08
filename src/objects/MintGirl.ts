@@ -109,7 +109,7 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
   }
 
   private calculateReward(isCorrect: boolean): number {
-    return isCorrect ? parseFloat(Phaser.Math.FloatBetween(0.1, 2).toFixed(2)) : 0;
+    return isCorrect ? parseFloat(Phaser.Math.FloatBetween(0.01, 0.5).toFixed(2)) : 0;
   }
 
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
