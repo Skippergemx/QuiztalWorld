@@ -6,6 +6,7 @@ import WalletVerificationScene from "./scenes/WalletVerificationScene";
 import GameScene from "./scenes/GameScene";
 import UIScene from "./scenes/UIScene";
 import GoogleLoginScene from "./scenes/GoogleLoginScene";
+import InventoryScene from "./scenes/InventoryScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -21,7 +22,8 @@ const config: Phaser.Types.Core.GameConfig = {
     WalletVerificationScene,
     LoginCharacterScene,
     GameScene,
-    UIScene
+    UIScene,
+    InventoryScene
   ],
   scale: {
     mode: Phaser.Scale.RESIZE,

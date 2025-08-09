@@ -111,6 +111,8 @@ export default class UIScene extends Phaser.Scene {
   private openInventory() {
     console.log('🎒 Opening Inventory...');
     this.scene.launch('InventoryScene');
+    // Optional: Pause the game scene while inventory is open
+    this.scene.pause('GameScene');
   }
 
   private loadPlayerBalance() {
