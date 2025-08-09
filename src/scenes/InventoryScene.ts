@@ -34,26 +34,8 @@ export default class InventoryScene extends Phaser.Scene {
     const panelHeight = isMobile ? height * 0.8 : 400;
 
     // Semi-transparent dark background with blur effect
-    const bg = this.add.rectangle(0, 0, width, height, 0x000000, 0.8)
-      .setOrigin(0)
-      .setInteractive()
-      .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        // Close inventory when clicking outside the panel
-        if (pointer.y < (height - panelHeight) / 2 || 
-            pointer.y > (height + panelHeight) / 2) {
-          this.scene.stop();
-        }
-      });
 
     // Stylish inventory panel with gradient
-    const panel = this.add.rectangle(
-      width / 2,
-      height / 2,
-      panelWidth,
-      panelHeight,
-      0x1a1a1a
-    )
-    .setStrokeStyle(2, 0x4a4a4a);
 
     // Add panel glow effect
     this.add.rectangle(
@@ -66,13 +48,6 @@ export default class InventoryScene extends Phaser.Scene {
     );
 
     // Inventory header with icon
-    const headerBg = this.add.rectangle(
-      width / 2,
-      height / 2 - (panelHeight / 2) + 30,
-      panelWidth,
-      60,
-      0x2c3e50
-    );
 
     this.add.text(
       width / 2,
