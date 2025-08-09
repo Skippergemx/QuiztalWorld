@@ -1,15 +1,28 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
-  root: '.',  
+  root: '.',
+  resolve: {
+    alias: {
+      process: 'process/browser',
+      util: 'util',
+      stream: 'stream-browserify',
+    },
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis',
+  },
   server: {
-    port: 5173, 
+    port: 5173,
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          phaser: ['phaser'] // ✅ Moves Phaser into a separate chunk
+          phaser: ['phaser'],
+          web3: ['ethers', 'web3modal']
         }
       }
     }

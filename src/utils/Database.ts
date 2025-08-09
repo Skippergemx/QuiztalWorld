@@ -49,3 +49,23 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     console.error("❌ Error saving quiztals to database:", error);
   }
 }
+
+/**
+ * Save wallet address to player's document in Firestore
+ * @param playerId The player's unique ID
+ * @param walletAddress The connected wallet address
+ */
+export async function saveWalletAddress(playerId: string, walletAddress: string) {
+  try {
+    const playerRef = doc(db, "players", playerId);
+    await setDoc(playerRef, {
+      walletAddress: walletAddress,
+      lastWalletUpdate: Date.now()
+    }, { merge: true });
+
+    console.log(`✅ Updated player "${playerId}" with wallet address: ${walletAddress}`);
+  } catch (error) {
+    console.error("❌ Error saving wallet address:", error);
+    throw error;
+  }
+}

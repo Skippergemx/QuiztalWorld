@@ -2,12 +2,7 @@
 import Phaser from "phaser";
 import { auth, db } from "../utils/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 export default class LoginCharacterScene extends Phaser.Scene {
   private user: any = null;
@@ -19,8 +14,6 @@ export default class LoginCharacterScene extends Phaser.Scene {
   private colorShiftTimer: number = 0;
   private loadingBar!: Phaser.GameObjects.Graphics;
   private loadingText!: Phaser.GameObjects.Text;
-
-  // Add new properties
   private leftArrow!: Phaser.GameObjects.Image;
   private rightArrow!: Phaser.GameObjects.Image;
   private confirmButton!: Phaser.GameObjects.Image;
@@ -30,24 +23,27 @@ export default class LoginCharacterScene extends Phaser.Scene {
   }
 
   async create() {
+    // Load user data
+    const playerData = localStorage.getItem("quiztal-player");
+    if (!playerData) {
+      this.scene.start("GoogleLoginScene");
+      return;
+    }
+    
+    this.user = JSON.parse(playerData);
     this.gradientOverlay = this.add.graphics();
     this.drawGradient(0x001a33, 0x330066);
-
-    this.add
-      .text(this.scale.width / 2, 40, "Quiztal World", {
-        fontSize: "32px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    this.checkLogin();
+    
+    // Start character selection immediately
+    this.startCharacterSelection();
   }
 
   async checkLogin() {
     const playerData = localStorage.getItem("quiztal-player");
     if (playerData) {
       this.user = JSON.parse(playerData);
-      this.startCharacterSelection();
+      // Start wallet verification scene
+      this.scene.start('WalletVerificationScene');
     } else {
       this.showLoginButton();
     }
@@ -68,43 +64,47 @@ export default class LoginCharacterScene extends Phaser.Scene {
       this.showLoadingBar();
       this.updateLoadingProgress(0.2);
 
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      this.updateLoadingProgress(0.4);
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        this.updateLoadingProgress(0.4);
 
-      const user = result.user;
+        const user = result.user;
+        const playerRef = doc(db, "players", user.uid);
+        const playerSnap = await getDoc(playerRef);
 
-      const playerRef = doc(db, "players", user.uid);
-      const playerSnap = await getDoc(playerRef);
-      if (!playerSnap.exists()) {
-        await setDoc(playerRef, {
-          quiztals: 100,
-          character: "",
-          createdAt: Date.now(),
+        if (!playerSnap.exists()) {
+          await setDoc(playerRef, {
+            quiztals: 100,
+            character: "",
+            createdAt: Date.now(),
+            displayName: user.displayName || "Unknown Adventurer",
+          });
+        }
+
+        this.updateLoadingProgress(0.7);
+
+        const playerObj = {
+          uid: user.uid,
+          character: this.selectedCharacter,
+          email: user.email,
           displayName: user.displayName || "Unknown Adventurer",
-        });
-        console.log("🪙 New player created with 100 quiztals!");
-      } else {
-        console.log("👤 Player already exists.");
+        };
+        localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
+        this.user = playerObj;
+
+        this.updateLoadingProgress(1);
+
+        // Cleanup and move to wallet verification
+        button.destroy();
+        this.loadingBar.destroy();
+        this.loadingText.destroy();
+        
+        this.scene.start('WalletVerificationScene');
+      } catch (error) {
+        console.error("Login failed:", error);
+        this.showError("Login failed. Please try again.");
       }
-
-      this.updateLoadingProgress(0.7);
-
-      const playerObj = {
-        uid: user.uid,
-        character: this.selectedCharacter,
-        email: user.email,
-        displayName: user.displayName || "Unknown Adventurer",
-      };
-      localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
-      this.user = playerObj;
-
-      this.updateLoadingProgress(1);
-
-      button.destroy();
-      this.loadingBar.destroy();
-      this.loadingText.destroy();
-      this.startCharacterSelection();
     });
   }
 
@@ -333,11 +333,22 @@ export default class LoginCharacterScene extends Phaser.Scene {
     this.loadingBar.fillRect(x, y, barWidth * percent, barHeight);
   }
 
-  // Optional: Add cleanup in scene shutdown
+
+  // Show error message on screen
+  private showError(message: string) {
+    this.add.text(this.scale.width / 2, this.scale.height / 2 + 100, message, {
+      fontSize: "20px",
+      color: "#ff3333",
+      backgroundColor: "#fff",
+      padding: { left: 20, right: 20, top: 10, bottom: 10 },
+    }).setOrigin(0.5);
+  }
+
+  // Update shutdown to clean up
   shutdown() {
-    // ...existing cleanup code...
     if (this.leftArrow) this.leftArrow.destroy();
     if (this.rightArrow) this.rightArrow.destroy();
     if (this.confirmButton) this.confirmButton.destroy();
+    if (this.gradientOverlay) this.gradientOverlay.destroy();
   }
 }

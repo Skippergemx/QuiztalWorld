@@ -1,9 +1,11 @@
 //main.ts
 import Phaser from "phaser";
 import BootScene from "./scenes/BootScene";
-import LoginCharacterScene from "./scenes/LoginCharacterScene"; // ✅ New Scene
+import LoginCharacterScene from "./scenes/LoginCharacterScene";
+import WalletVerificationScene from "./scenes/WalletVerificationScene";
 import GameScene from "./scenes/GameScene";
 import UIScene from "./scenes/UIScene";
+import GoogleLoginScene from "./scenes/GoogleLoginScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -13,7 +15,14 @@ const config: Phaser.Types.Core.GameConfig = {
     default: "arcade",
     arcade: { debug: false },
   },
-  scene: [BootScene, LoginCharacterScene, GameScene, UIScene], // ✅ UIScene added
+  scene: [
+    BootScene,
+    GoogleLoginScene,
+    WalletVerificationScene,
+    LoginCharacterScene,
+    GameScene,
+    UIScene
+  ],
   scale: {
     mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
