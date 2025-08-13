@@ -1,3 +1,5 @@
+import AudioManager from '../managers/AudioManager';
+
 export default class BootScene extends Phaser.Scene {
   constructor() {
     super({ key: "BootScene" });
@@ -5,6 +7,12 @@ export default class BootScene extends Phaser.Scene {
 
   preload() {
     console.log("🔄 Loading Assets...");
+
+    // Add audio loading
+    this.load.audio('bgm', [
+        'assets/audio/background_music.mp3',
+        'assets/audio/background_music.ogg'
+    ]);
 
     // ✅ Load Tileset & Map
     this.load.image("tiles", "assets/tilesets/tileset.png");
@@ -33,9 +41,25 @@ export default class BootScene extends Phaser.Scene {
 
     this.load.once("complete", () => {
       console.log("✅ All assets loaded!");
+      this.startBackgroundMusic();
       this.scene.start("LoginCharacterScene");
     });
 
     this.load.start();
+  }
+
+  private startBackgroundMusic() {
+    const music = this.sound.add('bgm', {
+        volume: 0.5,
+        loop: true
+    });
+    
+    // Check if audio is supported
+    if (music) {
+        AudioManager.getInstance().setMusic(music);
+        music.play();
+    } else {
+        console.warn('Audio not supported in this environment');
+    }
   }
 }

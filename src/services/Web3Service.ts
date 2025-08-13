@@ -1,16 +1,27 @@
 import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
 
+interface NFTData {
+    tokenId: string;
+    image: string;
+    name: string;
+    description: string;
+}
+
 export class Web3Service {
+  private provider: ethers.providers.Web3Provider | null = null;
+  private signer: ethers.Signer | null = null;
   private web3Modal: Web3Modal;
-  private provider: any;
   private ethersProvider: ethers.providers.Web3Provider | null = null;
-  private signer: any;
+  
   private readonly BASE_MAINNET_ID = '0x2105';
   // Replace with your actual NFT contract address
   private readonly NFT_CONTRACT_ADDRESS = '0x927d34c13bfC41145763f7b12ceB6F93Ff3b3334';
   private NFT_ABI = [
     "function balanceOf(address owner) view returns (uint256)",
+    "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+    "function tokenURI(uint256 tokenId) view returns (string)",
+    "function ownerOf(uint256 tokenId) view returns (address)"
   ];
   private isConnected: boolean = false;
   private readonly BASE_NETWORK_CONFIG = {
@@ -43,8 +54,9 @@ export class Web3Service {
 
   async connectWallet(): Promise<{ success: boolean; message: string }> {
     try {
-      this.provider = await this.web3Modal.connect();
-      this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
+      const web3Provider = await this.web3Modal.connect();
+      this.ethersProvider = new ethers.providers.Web3Provider(web3Provider);
+      this.provider = this.ethersProvider;
       
       // Check network
       const network = await this.ethersProvider.getNetwork();
@@ -58,8 +70,6 @@ export class Web3Service {
             message: 'Please switch to Base network to continue' 
           };
         }
-        // Refresh provider after network switch
-        this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
       }
 
       this.signer = this.ethersProvider.getSigner();
@@ -71,6 +81,7 @@ export class Web3Service {
       };
     } catch (error: any) {
       this.isConnected = false;
+      this.provider = null;
       this.ethersProvider = null;
       return { 
         success: false, 
@@ -126,21 +137,25 @@ export class Web3Service {
 
   private async switchToBaseNetwork(): Promise<boolean> {
     try {
-      if (!this.provider) return false;
+      if (!window.ethereum) return false;
 
-      await this.provider.request({
+      await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: this.BASE_MAINNET_ID }],
       });
 
-      // Refresh provider after switch
-      this.ethersProvider = new ethers.providers.Web3Provider(this.provider);
+      if (this.ethersProvider) {
+        const web3Provider = await this.web3Modal.connect();
+        this.ethersProvider = new ethers.providers.Web3Provider(web3Provider);
+        this.provider = this.ethersProvider;
+      }
       return true;
 
     } catch (switchError: any) {
       if (switchError.code === 4902) {
         try {
-          await this.provider.request({
+          if (!window.ethereum) return false;
+          await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [this.BASE_NETWORK_CONFIG],
           });
@@ -189,6 +204,81 @@ export class Web3Service {
     } catch (error) {
       console.error('Error getting network:', error);
       return { chainId: '', name: '' };
+    }
+  }
+
+  public isWalletInstalled(): boolean {
+    return typeof window !== 'undefined' && 
+           typeof window.ethereum !== 'undefined';
+  }
+
+  public getWalletInstallLink(): string {
+    // Return MetaMask install link as default
+    return 'https://metamask.io/download/';
+  }
+
+  public async getNFTsData(): Promise<NFTData[]> {
+    try {
+      if (!this.ethersProvider || !this.signer) {
+        console.log('Provider or signer not initialized');
+        return [];
+      }
+      
+      const contract = new ethers.Contract(
+        this.NFT_CONTRACT_ADDRESS,
+        this.NFT_ABI,
+        this.signer
+      );
+      
+      const address = await this.getWalletAddress();
+      if (!address) {
+        console.log('No wallet address available');
+        return [];
+      }
+
+      const balance = await contract.balanceOf(address);
+      console.log('NFT Balance:', balance.toString());
+      
+      const nfts: NFTData[] = [];
+      
+      for (let i = 0; i < balance.toNumber(); i++) {
+        try {
+          const tokenId = await contract.tokenOfOwnerByIndex(address, i);
+          console.log(`Fetching NFT ${i + 1}/${balance}, TokenID: ${tokenId}`);
+          
+          const uri = await contract.tokenURI(tokenId);
+          console.log(`Token URI: ${uri}`);
+          
+          // Handle IPFS URLs
+          const formattedUri = uri.startsWith('ipfs://')
+            ? `https://ipfs.io/ipfs/${uri.slice(7)}`
+            : uri;
+
+          const response = await fetch(formattedUri);
+          const metadata = await response.json();
+          
+          // Handle IPFS images
+          const imageUrl = metadata.image?.startsWith('ipfs://')
+            ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
+            : metadata.image;
+
+          nfts.push({
+            tokenId: tokenId.toString(),
+            image: imageUrl || '',
+            name: metadata.name || `NFT #${tokenId}`,
+            description: metadata.description || 'No description available'
+          });
+        } catch (error) {
+          console.warn(`Error fetching NFT at index ${i}:`, error);
+          continue;
+        }
+      }
+      
+      console.log(`Successfully fetched ${nfts.length} NFTs`);
+      return nfts;
+    } catch (error) {
+      console.error("Error fetching NFTs:", error);
+      return [];
     }
   }
 }
