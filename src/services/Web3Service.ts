@@ -6,6 +6,7 @@ interface NFTData {
     image: string;
     name: string;
     description: string;
+    collectionType: 'erc721' | 'erc1155';  // Add this field
 }
 
 export class Web3Service {
@@ -22,6 +23,13 @@ export class Web3Service {
     "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
     "function tokenURI(uint256 tokenId) view returns (string)",
     "function ownerOf(uint256 tokenId) view returns (address)"
+  ];
+  // Add ERC1155 contract info
+  private readonly GEMANTE_NFT_ADDRESS = '0xcb12994BCFeCdfa014e26C0b001FC4C2c29E2178';
+  private readonly GEMANTE_NFT_ABI = [
+      "function balanceOf(address account, uint256 id) view returns (uint256)",
+      "function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])",
+      "function uri(uint256 tokenId) view returns (string)"
   ];
   private isConnected: boolean = false;
   private readonly BASE_NETWORK_CONFIG = {
@@ -223,40 +231,119 @@ export class Web3Service {
         console.log('Provider or signer not initialized');
         return [];
       }
-      
-      const contract = new ethers.Contract(
-        this.NFT_CONTRACT_ADDRESS,
-        this.NFT_ABI,
-        this.signer
-      );
-      
+
       const address = await this.getWalletAddress();
       if (!address) {
         console.log('No wallet address available');
         return [];
       }
 
-      const balance = await contract.balanceOf(address);
-      console.log('NFT Balance:', balance.toString());
-      
+      // Get NFTs from both collections
+      const [erc721NFTs, erc1155NFTs] = await Promise.all([
+        this.getERC721NFTs(address),
+        this.getERC1155NFTs(address)
+      ]);
+
+      return [...erc721NFTs, ...erc1155NFTs];
+    } catch (error) {
+      console.error("Error fetching NFTs:", error);
+      return [];
+    }
+  }
+
+  private async getERC1155NFTs(address: string): Promise<NFTData[]> {
+    try {
+        if (!this.ethersProvider) {
+            throw new Error('Provider not initialized');
+        }
+        
+        // Use provider instead of signer for read operations
+        const contract = new ethers.Contract(
+            this.GEMANTE_NFT_ADDRESS,
+            this.GEMANTE_NFT_ABI,
+            this.ethersProvider
+        );
+
+        // For Gemante collection, we need to check specific token IDs
+        // These are the actual token IDs that exist in the collection
+        const tokenIds = [1, 2, 3, 4, 5, 6, 7, 8]; // Update with actual Gemante token IDs
+        const accounts = Array(tokenIds.length).fill(address);
+        
+        const balances = await contract.balanceOfBatch(accounts, tokenIds);
+        const nfts: NFTData[] = [];
+
+        for (let i = 0; i < tokenIds.length; i++) {
+            if (balances[i].gt(0)) {
+                try {
+                    const tokenId = tokenIds[i];
+                    const baseUri = await contract.uri(tokenId);
+                    
+                    // Use direct gateway URL for better GIF support
+                    const tokenUri = baseUri.replace('{id}', tokenId.toString());
+                    const formattedUri = tokenUri.startsWith('ipfs://')
+                        ? `https://nftstorage.link/ipfs/${tokenUri.slice(7)}`  // Changed gateway
+                        : tokenUri;
+
+                    console.log('Fetching Gemante metadata from:', formattedUri);
+
+                    const response = await fetch(formattedUri);
+                    const metadata = await response.json();
+
+                    // Use better IPFS gateway for GIFs
+                    const imageUrl = metadata.image?.startsWith('ipfs://')
+                        ? `https://nftstorage.link/ipfs/${metadata.image.slice(7)}`  // Changed gateway
+                        : metadata.image;
+
+                    console.log('Gemante image URL:', imageUrl); // Debug log
+
+                    nfts.push({
+                        tokenId: tokenId.toString(),
+                        image: imageUrl || '',
+                        name: metadata.name || `Gemante #${tokenId}`,
+                        description: metadata.description || 'Gemante NFT Collection',
+                        collectionType: 'erc1155'
+                    });
+                } catch (error) {
+                    console.warn(`Error fetching Gemante NFT metadata for token ${tokenIds[i]}:`, error);
+                    continue;
+                }
+            }
+        }
+
+        return nfts;
+    } catch (error) {
+        console.error("Error fetching Gemante NFTs:", error);
+        return [];
+    }
+  }
+
+  private async getERC721NFTs(address: string): Promise<NFTData[]> {
+    try {
+      if (!this.signer) {
+        throw new Error('Signer not initialized');
+      }
+      const contract = new ethers.Contract(
+        this.NFT_CONTRACT_ADDRESS,
+        this.NFT_ABI,
+        this.signer
+      );
+
+      // Get the balance of NFTs owned by the address
+      const balance: ethers.BigNumber = await contract.balanceOf(address);
       const nfts: NFTData[] = [];
-      
+
       for (let i = 0; i < balance.toNumber(); i++) {
         try {
-          const tokenId = await contract.tokenOfOwnerByIndex(address, i);
-          console.log(`Fetching NFT ${i + 1}/${balance}, TokenID: ${tokenId}`);
-          
-          const uri = await contract.tokenURI(tokenId);
-          console.log(`Token URI: ${uri}`);
-          
+          const tokenId: ethers.BigNumber = await contract.tokenOfOwnerByIndex(address, i);
+          const tokenUri: string = await contract.tokenURI(tokenId);
           // Handle IPFS URLs
-          const formattedUri = uri.startsWith('ipfs://')
-            ? `https://ipfs.io/ipfs/${uri.slice(7)}`
-            : uri;
+          const formattedUri = tokenUri.startsWith('ipfs://')
+            ? `https://ipfs.io/ipfs/${tokenUri.slice(7)}`
+            : tokenUri;
 
           const response = await fetch(formattedUri);
           const metadata = await response.json();
-          
+
           // Handle IPFS images
           const imageUrl = metadata.image?.startsWith('ipfs://')
             ? `https://ipfs.io/ipfs/${metadata.image.slice(7)}`
@@ -266,18 +353,18 @@ export class Web3Service {
             tokenId: tokenId.toString(),
             image: imageUrl || '',
             name: metadata.name || `NFT #${tokenId}`,
-            description: metadata.description || 'No description available'
+            description: metadata.description || 'An ERC721 NFT',
+            collectionType: 'erc721'
           });
         } catch (error) {
-          console.warn(`Error fetching NFT at index ${i}:`, error);
+          console.warn(`Error fetching ERC721 NFT at index ${i}:`, error);
           continue;
         }
       }
-      
-      console.log(`Successfully fetched ${nfts.length} NFTs`);
+
       return nfts;
     } catch (error) {
-      console.error("Error fetching NFTs:", error);
+      console.error("Error fetching ERC721 NFTs:", error);
       return [];
     }
   }

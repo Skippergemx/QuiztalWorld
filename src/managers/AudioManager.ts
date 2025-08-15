@@ -1,6 +1,8 @@
 export default class AudioManager {
     private static instance: AudioManager;
     private music?: Phaser.Sound.BaseSound;
+    private correctSound?: Phaser.Sound.BaseSound;
+    private wrongSound?: Phaser.Sound.BaseSound;
     private isMuted: boolean = false;
     private lastVolume: number = 0.5;
 
@@ -11,6 +13,23 @@ export default class AudioManager {
             AudioManager.instance = new AudioManager();
         }
         return AudioManager.instance;
+    }
+
+    initSounds(scene: Phaser.Scene) {
+        this.correctSound = scene.sound.add('Correct_Answer');
+        this.wrongSound = scene.sound.add('Wrong_Answer');
+    }
+
+    playCorrectSound() {
+        if (!this.isMuted && this.correctSound) {
+            this.correctSound.play({ volume: this.lastVolume });
+        }
+    }
+
+    playWrongSound() {
+        if (!this.isMuted && this.wrongSound) {
+            this.wrongSound.play({ volume: this.lastVolume });
+        }
     }
 
     setMusic(music: Phaser.Sound.BaseSound) {

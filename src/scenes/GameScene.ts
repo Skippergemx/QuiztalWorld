@@ -4,6 +4,9 @@ import MintGirl from "../objects/MintGirl";
 import BaseSage from "../objects/BaseSage"; // ✅ Base Sage instead of AlchemyProf
 import MrGemx from "../objects/MrGemx";
 import { showDialog } from "../utils/SimpleDialogBox";
+import { getPlayerTitle } from '../utils/TitleUtils';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../utils/firebase';
 
 export default class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -19,6 +22,10 @@ export default class GameScene extends Phaser.Scene {
   private joyStickBase?: Phaser.GameObjects.Image;
   private interactButton?: Phaser.GameObjects.Image;
   private isMobile: boolean = false;
+  private playerTitle?: Phaser.GameObjects.Text;
+  private titleAura?: Phaser.GameObjects.Group; // Reference to the aura effect group
+  private playerNameText?: Phaser.GameObjects.Text; // Add new property for player name text
+  private playerGlow?: Phaser.GameObjects.Sprite; // Add this to your class properties
 
   constructor() {
     super({ key: "GameScene" });
@@ -173,7 +180,175 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.createMobileControls();
+    this.createPlayerTitle();
+    this.createPlayerName();
   }
+
+  private createPlayerTitle(): void {
+    // Add debug check at the start of the method
+    if (!this.textures.exists('player-glow')) {
+        console.error('player-glow texture not found!');
+        return;
+    }
+
+    const nftsStr = localStorage.getItem('quiztal-nfts');
+    if (!nftsStr) return;
+
+    const nfts = JSON.parse(nftsStr);
+    const titleConfig = getPlayerTitle(nfts);
+
+    if (!titleConfig.text) return;
+
+    // Create player glow with adjusted parameters
+    this.playerGlow = this.add.sprite(this.player.x, this.player.y, 'player-glow')
+        .setScale(2)           
+        .setAlpha(0.5)        
+        .setBlendMode(Phaser.BlendModes.ADD)
+        .setDepth(0)          // Set to lowest depth to ensure it's behind everything
+        .setOrigin(0.5)       // Center the glow
+        .setTint(parseInt(titleConfig.auraColor.replace('#', ''), 16));
+
+    // Move the glow behind the player
+    this.children.moveBelow(this.playerGlow, this.player);
+
+    // Add debug visualization
+    console.log('Glow created:', {
+        exists: this.playerGlow !== undefined,
+        visible: this.playerGlow?.visible,
+        alpha: this.playerGlow?.alpha,
+        scale: this.playerGlow?.scale,
+        position: {x: this.playerGlow?.x, y: this.playerGlow?.y},
+        depth: this.playerGlow?.depth,
+        playerDepth: this.player.depth
+    });
+
+    // Adjust pulsing animation
+    this.tweens.add({
+        targets: this.playerGlow,
+        alpha: { from: 0.5, to: 0.3 },    
+        scale: { from: 2, to: 2.2 },      // Increased scale range
+        duration: 1200,                    
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+    });
+
+    // Create aura effect with increased font size
+    const auraGroup = this.add.group();
+    for (let i = 0; i < 3; i++) {
+        const aura = this.add.text(
+            this.player.x,
+            this.player.y - 40,
+            titleConfig.text,
+            {
+                fontSize: '11px',
+                fontStyle: 'bold',
+                color: titleConfig.auraColor,
+                stroke: titleConfig.auraColor,
+                strokeThickness: 1,
+            }
+        ).setOrigin(0.5).setAlpha(0.3 - (i * 0.1));
+        auraGroup.add(aura);
+    }
+
+    // Assign the aura group to the class property
+    this.titleAura = auraGroup;  // Add this line
+
+    // Create main title text with increased font size
+    this.playerTitle = this.add.text(
+        this.player.x,
+        this.player.y - 40,
+        titleConfig.text,
+        {
+            fontSize: '11px',  // Increased from 7px by ~50%
+            fontStyle: 'bold',
+            color: titleConfig.color,
+            stroke: titleConfig.glowColor,
+            strokeThickness: 2,
+            shadow: {
+                offsetX: 1,
+                offsetY: 1,
+                color: '#000000',
+                blur: 1,
+                stroke: true,
+                fill: true
+            }
+        }
+    ).setOrigin(0.5);
+
+    // Animate aura
+    this.tweens.add({
+        targets: auraGroup.getChildren(),
+        scaleX: 1.1,
+        scaleY: 1.1,
+        duration: 1500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+        delay: function(i: number) { return i * 150; }
+    });
+
+    // Fix the setPosition error by casting the aura GameObject to Text
+    // Update title and aura positions
+    if (this.playerTitle && this.titleAura) {
+        const baseY = this.player.y - 40 + Math.sin(this.time.now / 1500) * 2;
+        this.playerTitle.setPosition(this.player.x, baseY);
+        
+        this.titleAura.getChildren().forEach(aura => {
+            (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
+        });
+    }
+}
+
+  private async createPlayerName(): Promise<void> {
+    const userStr = localStorage.getItem('quiztal-player');
+    if (!userStr) return;
+
+    try {
+        const user = JSON.parse(userStr);
+        if (!user?.uid) {
+            console.warn('No user UID found');
+            return;
+        }
+
+        // Fetch player data from Firestore
+        const playerRef = doc(db, "players", user.uid);
+        const playerDoc = await getDoc(playerRef);
+
+        if (playerDoc.exists()) {
+            const playerData = playerDoc.data();
+            const displayName = playerData.displayName || 'Unknown Adventurer';
+
+            this.playerNameText = this.add.text(
+                this.player.x,
+                this.player.y + 35,
+                displayName,
+                {
+                    fontSize: '10px',
+                    fontStyle: 'bold',
+                    color: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 2,
+                    shadow: {
+                        offsetX: 1,
+                        offsetY: 1,
+                        color: '#000000',
+                        blur: 1,
+                        stroke: true,
+                        fill: true
+                    }
+                }
+            ).setOrigin(0.5)
+             .setDepth(100);
+
+            console.log('Player name set:', displayName);
+        } else {
+            console.warn('No player document found in Firestore');
+        }
+    } catch (e) {
+        console.error("Error fetching player name:", e);
+    }
+}
 
   private createMobileControls() {
     // Check if we're on mobile or touch is enabled
@@ -276,25 +451,33 @@ export default class GameScene extends Phaser.Scene {
     const playerIdleKey = `player_${this.selectedCharacter}_idle_1`;
 
     directions.forEach((dir, index) => {
-      this.anims.create({
-        key: `walk-${dir}`,
-        frames: this.anims.generateFrameNumbers(playerWalkKey, {
-          start: index * 6,
-          end: index * 6 + 5,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      });
+        const walkKey = `walk-${dir}`;
+        const idleKey = `idle-${dir}`;
 
-      this.anims.create({
-        key: `idle-${dir}`,
-        frames: this.anims.generateFrameNumbers(playerIdleKey, {
-          start: index * 6,
-          end: index * 6 + 5,
-        }),
-        frameRate: 3,
-        repeat: -1,
-      });
+        // Only create animation if it doesn't exist
+        if (!this.anims.exists(walkKey)) {
+            this.anims.create({
+                key: walkKey,
+                frames: this.anims.generateFrameNumbers(playerWalkKey, {
+                    start: index * 6,
+                    end: index * 6 + 5,
+                }),
+                frameRate: 10,
+                repeat: -1,
+            });
+        }
+
+        if (!this.anims.exists(idleKey)) {
+            this.anims.create({
+                key: idleKey,
+                frames: this.anims.generateFrameNumbers(playerIdleKey, {
+                    start: index * 6,
+                    end: index * 6 + 5,
+                }),
+                frameRate: 3,
+                repeat: -1,
+            });
+        }
     });
   }
 
@@ -303,6 +486,32 @@ export default class GameScene extends Phaser.Scene {
     if (!user) return;
     if (!this.cursors || !this.wasd) return;
     this.handlePlayerMovement();
+
+    // Update title and aura positions
+    if (this.playerTitle && this.titleAura) {
+        const baseY = this.player.y - 40 + Math.sin(this.time.now / 1500) * 2;
+        this.playerTitle.setPosition(this.player.x, baseY);
+        
+        this.titleAura.getChildren().forEach(aura => {
+            (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
+        });
+    }
+
+    // Update player name position
+    if (this.playerNameText) {
+        this.playerNameText.setPosition(this.player.x, this.player.y + 35);
+    }
+
+    // Update glow position and depth
+    if (this.playerGlow) {
+        this.playerGlow
+            .setPosition(this.player.x, this.player.y)
+            .setDepth(0)      // Keep it at lowest depth
+            .setVisible(true);
+            
+        // Move below player each frame to ensure it stays behind
+        this.children.moveBelow(this.playerGlow, this.player);
+    }
   }
 
   handlePlayerMovement() {

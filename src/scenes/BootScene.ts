@@ -13,6 +13,8 @@ export default class BootScene extends Phaser.Scene {
         'assets/audio/background_music.mp3',
         'assets/audio/background_music.ogg'
     ]);
+    this.load.audio('Correct_Answer', 'assets/audio/Correct_Answer.wav');
+    this.load.audio('Wrong_Answer', 'assets/audio/Wrong_Answer.wav');
 
     // ✅ Load Tileset & Map
     this.load.image("tiles", "assets/tilesets/tileset.png");
@@ -39,6 +41,9 @@ export default class BootScene extends Phaser.Scene {
       );
     });
 
+    // Load effects (update the path if needed)
+    this.load.image('player-glow', 'assets/effects/glow.png');
+
     this.load.once("complete", () => {
       console.log("✅ All assets loaded!");
       this.startBackgroundMusic();
@@ -61,5 +66,10 @@ export default class BootScene extends Phaser.Scene {
     } else {
         console.warn('Audio not supported in this environment');
     }
+  }
+
+  create() {
+    // Initialize the audio manager after loading
+    AudioManager.getInstance().initSounds(this);
   }
 }

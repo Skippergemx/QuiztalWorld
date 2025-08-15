@@ -2,6 +2,7 @@
 import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
+import AudioManager from '../managers/AudioManager'; // Import AudioManager
 
 export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
   private directions = ["right", "up", "left", "down"];
@@ -248,6 +249,14 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
   private checkAnswer(selected: string, correct: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selected === correct;
     const reward = isCorrect ? Phaser.Math.FloatBetween(0.01, 0.5) : 0;
+
+    // Play sound based on answer
+    const audioManager = AudioManager.getInstance();
+    if (isCorrect) {
+        audioManager.playCorrectSound();
+    } else {
+        audioManager.playWrongSound();
+    }
 
     this.scene.time.delayedCall(500, () => {
       showDialog(this.scene, [

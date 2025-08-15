@@ -2,6 +2,7 @@
 import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
+import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 
 export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   private directions = ["right", "up", "left", "down"];
@@ -319,9 +320,17 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
     ]);
   }
 
-  private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
-    const isCorrect = selectedOption === correctAnswer;
+  private checkAnswer(selected: string, correct: string, player: Phaser.Physics.Arcade.Sprite) {
+    const isCorrect = selected === correct;
     const reward = this.calculateReward(isCorrect);
+
+    // Play sound based on answer
+    const audioManager = AudioManager.getInstance();
+    if (isCorrect) {
+        audioManager.playCorrectSound();
+    } else {
+        audioManager.playWrongSound();
+    }
 
     console.log(isCorrect ? "Correct answer!" : "Wrong answer.");
 
@@ -331,7 +340,7 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
         {
           text: isCorrect 
             ? `🎉 Correct! You’ve earned ${reward.toFixed(2)} $Quiztals!`
-            : `❌ Oops! Correct answer was: "${correctAnswer}". Better luck next time.`,
+            : `❌ Oops! Correct answer was: "${correct}". Better luck next time.`,
           avatar: "npc_huntboy_avatar",
           isExitDialog: true
         }

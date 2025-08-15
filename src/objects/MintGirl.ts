@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
+import AudioManager from '../managers/AudioManager';
 
 export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
   private nameLabel: Phaser.GameObjects.Text;
@@ -304,21 +305,29 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selectedOption === correctAnswer;
     const reward = this.calculateReward(isCorrect);
+    
+    // Play sound based on answer
+    const audioManager = AudioManager.getInstance();
+    if (isCorrect) {
+        audioManager.playCorrectSound();
+    } else {
+        audioManager.playWrongSound();
+    }
 
     this.scene.time.delayedCall(500, () => {
-      showDialog(this.scene, [
-        {
-          text: isCorrect
-            ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Mint Club!`
-            : `🌪️ Nope! The correct answer was "${correctAnswer}". Try again later!`,
-          avatar: "npc_mintgirl_avatar",
-          isExitDialog: true
-        }
-      ]);
+        showDialog(this.scene, [
+            {
+                text: isCorrect
+                    ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Mint Club!`
+                    : `🌪️ Nope! The correct answer was "${correctAnswer}". Try again later!`,
+                avatar: "npc_mintgirl_avatar",
+                isExitDialog: true
+            }
+        ]);
     });
 
     if (isCorrect) {
-      this.saveRewardToDatabase(player, reward);
+        this.saveRewardToDatabase(player, reward);
     }
   }
 
