@@ -54,18 +54,6 @@ export default class WalletVerificationScene extends Phaser.Scene {
                         this.game.device.os.iOS || 
                         this.game.device.input.touch;
 
-        // Add title
-        this.add.text(
-          this.scale.width / 2,
-          this.scale.height * 0.15,
-          'Wallet Verification',
-          {
-            fontSize: '32px',
-            color: '#ffffff',
-            align: 'center'
-          }
-        ).setOrigin(0.5);
-
         if (isMobile) {
           // Show mobile message
           this.add.text(
@@ -213,81 +201,104 @@ export default class WalletVerificationScene extends Phaser.Scene {
       }
 
       private showWalletUI() {
-        // Add title text
-        this.add.text(
-            this.scale.width / 2,
-            this.scale.height * 0.3,
-            '🎮 Welcome to Quiztal World',
+        // Create a centered content container
+        const contentContainer = this.add.container(this.scale.width / 2, 0);
+
+        // Add title with glow effect
+        const title = this.add.text(
+            0,
+            this.scale.height * 0.2,
+            '🎮 Welcome to Crystle World',
             {
-                fontSize: '32px',
+                fontSize: '36px',
                 color: '#ffffff',
-                align: 'center'
+                align: 'center',
+                fontStyle: 'bold'
             }
         ).setOrigin(0.5);
 
-        // Add subtitle
-        this.add.text(
-            this.scale.width / 2,
-            this.scale.height * 0.4,
+        // Add subtle glow to title
+        const titleGlow = this.add.graphics()
+            .lineStyle(16, 0x3498db, 0.1)
+            .strokeRoundedRect(
+                -title.width / 2 - 20,
+                title.y - title.height / 2 - 10,
+                title.width + 40,
+                title.height + 20,
+                10
+            );
+
+        // Add subtitle with fade-in
+        const subtitle = this.add.text(
+            0,
+            this.scale.height * 0.3,
             'Connect your wallet to verify your NFTs',
             {
-                fontSize: '20px',
+                fontSize: '24px',
                 color: '#3498db',
                 align: 'center'
             }
-        ).setOrigin(0.5);
+        ).setOrigin(0.5).setAlpha(0);
+
+        // Fade in subtitle
+        this.tweens.add({
+            targets: subtitle,
+            alpha: 1,
+            duration: 800,
+            ease: 'Power2'
+        });
 
         // Create animated connect wallet button
-        this.connectButtonContainer = this.add.container(0, this.scale.height * 0.6);
+        this.connectButtonContainer = this.add.container(0, this.scale.height * 0.45);
         
-        const glowGraphics = this.add.graphics()
-            .fillStyle(0x3498db, 0.2)
-            .fillRoundedRect(0, -30, this.scale.width, 60, 30);
+        // Button background with gradient
+        const buttonWidth = 300;
+        const buttonHeight = 60;
+        const buttonBg = this.add.graphics();
+        buttonBg.fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1);
+        buttonBg.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
         
+        // Button glow effect
+        const buttonGlow = this.add.graphics()
+            .lineStyle(4, 0x3498db, 0.3)
+            .strokeRoundedRect(-buttonWidth/2 - 2, -buttonHeight/2 - 2, buttonWidth + 4, buttonHeight + 4, 15);
+
         this.connectButtonText = this.add.text(
-            this.scale.width / 2,
+            0,
             0,
             '💎 Connect Wallet',
             {
                 fontSize: '28px',
                 color: '#ffffff',
-                padding: { x: 25, y: 15 }
+                fontStyle: 'bold'
             }
         ).setOrigin(0.5);
 
-        // Create loading spinner (hidden initially)
+        // Loading spinner with simple rotation
         this.loadingSpinner = this.add.text(
-            this.scale.width / 2 - 120,
+            -buttonWidth/2 + 30,
             0,
-            '⚡',
+            '',
             {
                 fontSize: '28px',
                 color: '#FFA500'
             }
         ).setOrigin(0.5).setVisible(false);
 
-        // Add button effects
+        this.connectButtonContainer.add([buttonBg, buttonGlow, this.loadingSpinner, this.connectButtonText]);
+
+        // Add simple hover effect
         this.connectButtonText
             .setInteractive({ useHandCursor: true })
             .on('pointerover', () => {
-                if (this.connectButtonText.active) {
-                    this.tweens.add({
-                        targets: this.connectButtonText,
-                        scaleX: 1.1,
-                        scaleY: 1.1,
-                        duration: 100
-                    });
-                }
+                buttonBg.clear()
+                    .fillGradientStyle(0x2980b9, 0x3498db, 0x3498db, 0x2980b9, 1)
+                    .fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
             })
             .on('pointerout', () => {
-                if (this.connectButtonText.active) {
-                    this.tweens.add({
-                        targets: this.connectButtonText,
-                        scaleX: 1,
-                        scaleY: 1,
-                        duration: 100
-                    });
-                }
+                buttonBg.clear()
+                    .fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1)
+                    .fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
             })
             .on('pointerdown', async () => {
                 if (this.web3Service.isWalletConnected()) {
@@ -297,7 +308,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 }
             });
 
-        this.connectButtonContainer.add([glowGraphics, this.loadingSpinner, this.connectButtonText]);
+        contentContainer.add([titleGlow, title, subtitle, this.connectButtonContainer]);
 
         // Remove old status texts since we'll show them in NFT display
         this.walletStatus = this.add.text(0, 0, '').setVisible(false);
@@ -583,7 +594,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
             // Open marketplace in new tab
-            window.open('https://marketplace.quiztalworld.com', '_blank');
+            window.open('https://market.crystle.world', '_blank');
         });
 
         // Add texts to container
@@ -729,61 +740,58 @@ export default class WalletVerificationScene extends Phaser.Scene {
     }
 
     private showContinueButton() {
-        // Create a container for the continue button section
-        const buttonContainer = this.add.container(0, this.scale.height * 0.8);
+        const buttonContainer = this.add.container(this.scale.width / 2, this.scale.height * 0.75);
         
-        // Add glowing effect background
-        const glowGraphics = this.add.graphics()
-            .fillStyle(0x4CAF50, 0.2)
-            .fillRoundedRect(0, -30, this.scale.width, 60, 30);
-        
-        // Create continue button with new style
+        // Button background with gradient
+        const buttonWidth = 300;
+        const buttonHeight = 60;
+        const buttonBg = this.add.graphics();
+        buttonBg.fillGradientStyle(0x4CAF50, 0x388E3C, 0x388E3C, 0x4CAF50, 1);
+        buttonBg.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
+
+        // Button glow
+        const buttonGlow = this.add.graphics()
+            .lineStyle(4, 0x4CAF50, 0.3)
+            .strokeRoundedRect(-buttonWidth/2 - 2, -buttonHeight/2 - 2, buttonWidth + 4, buttonHeight + 4, 15);
+
         const continueBtn = this.add.text(
-            this.scale.width / 2,
+            0,
             0,
             '🎮 Continue to Game',
             {
                 fontSize: '28px',
                 color: '#ffffff',
-                padding: { x: 25, y: 15 }
+                fontStyle: 'bold'
             }
-        )
-        .setOrigin(0.5)
-        .setInteractive({ useHandCursor: true });
+        ).setOrigin(0.5);
 
-        // Add button effects
+        buttonContainer.add([buttonBg, buttonGlow, continueBtn]);
+
+        // Simple scale animation on appear
+        buttonContainer.setScale(0.9);
+        this.tweens.add({
+            targets: buttonContainer,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.easeOut'
+        });
+
+        // Add hover effect
         continueBtn
+            .setInteractive({ useHandCursor: true })
             .on('pointerover', () => {
-                this.tweens.add({
-                    targets: continueBtn,
-                    scaleX: 1.1,
-                    scaleY: 1.1,
-                    duration: 100
-                });
+                buttonBg.clear()
+                    .fillGradientStyle(0x388E3C, 0x4CAF50, 0x4CAF50, 0x388E3C, 1)
+                    .fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
             })
             .on('pointerout', () => {
-                this.tweens.add({
-                    targets: continueBtn,
-                    scaleX: 1,
-                    scaleY: 1,
-                    duration: 100
-                });
+                buttonBg.clear()
+                    .fillGradientStyle(0x4CAF50, 0x388E3C, 0x388E3C, 0x4CAF50, 1)
+                    .fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
             })
             .on('pointerdown', () => {
                 this.scene.start('LoginCharacterScene');
             });
-
-        buttonContainer.add([glowGraphics, continueBtn]);
-
-        // Animate button container appearing
-        buttonContainer.setAlpha(0);
-        this.tweens.add({
-            targets: buttonContainer,
-            alpha: 1,
-            y: this.scale.height * 0.75,
-            duration: 500,
-            ease: 'Back.easeOut'
-        });
     }
     private displayNFTGrid(nfts: NFTData[]) {
         if (!this.nftContainer) return;

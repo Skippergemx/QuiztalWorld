@@ -37,30 +37,32 @@ export default class GoogleLoginScene extends Phaser.Scene {
     private createLogo() {
         this.logo = this.add.container(this.scale.width / 2, 40);
 
-        // Create title with glow effect
+        // Adjust title size based on screen width
+        const fontSize = this.scale.width < 768 ? "32px" : "48px";
         const titleText = this.add.text(0, 0, "Crystle World", {
-            fontSize: "48px",
+            fontSize: fontSize,
             fontStyle: "bold",
             color: "#ffffff",
         }).setOrigin(0.5);
 
-        // Add glow effect
+        // Adjust glow effect size for mobile
+        const glowSize = this.scale.width < 768 ? 12 : 16;
         const glow = this.add.graphics();
-        glow.lineStyle(16, 0x3498db, 0.1);
+        glow.lineStyle(glowSize, 0x3498db, 0.1);
         glow.strokeRoundedRect(
-            -titleText.width / 2 - 20,
-            -titleText.height / 2 - 10,
-            titleText.width + 40,
-            titleText.height + 20,
-            10
+            -titleText.width / 2 - 15,
+            -titleText.height / 2 - 8,
+            titleText.width + 30,
+            titleText.height + 16,
+            8
         );
 
         this.logo.add([glow, titleText]);
 
-        // Add bounce animation
+        // Adjust animation for mobile
         this.tweens.add({
             targets: this.logo,
-            y: 50,
+            y: this.scale.width < 768 ? 40 : 50,
             duration: 2000,
             yoyo: true,
             repeat: -1,
@@ -94,43 +96,55 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private showLoginButton() {
-        // Create container for button
         const buttonContainer = this.add.container(this.scale.width / 2, this.scale.height / 2);
 
-        // Create button background
-        const buttonBg = this.add.rectangle(0, 0, 375, 60, 0xffffff)
+        // Adjust button size for mobile
+        const buttonWidth = this.scale.width < 768 ? 300 : 375;
+        const buttonHeight = this.scale.width < 768 ? 50 : 60;
+        
+        const buttonBg = this.add.rectangle(0, 0, buttonWidth, buttonHeight, 0xffffff)
             .setInteractive({ useHandCursor: true });
 
         // Add button text - now centered without icon
+        const fontSize = this.scale.width < 768 ? "20px" : "24px";
         const buttonText = this.add.text(0, 0, "Sign in with Google", {
-            fontSize: "24px",
+            fontSize: fontSize,
             color: "#333333",
             fontStyle: "bold"
         }).setOrigin(0.5, 0.5);  // Set origin to center
 
         buttonContainer.add([buttonBg, buttonText]);
 
-        // Add hover effects
-        buttonBg.on('pointerover', () => {
-            buttonContainer.setScale(1.05);
-            this.tweens.add({
-                targets: buttonContainer,
-                y: buttonContainer.y - 5,
-                duration: 200
+        // Adjust hover effects for touch devices
+        if (!this.sys.game.device.input.touch) {
+            // Only add hover effects for non-touch devices
+            buttonBg.on('pointerover', () => {
+                buttonContainer.setScale(1.05);
+                this.tweens.add({
+                    targets: buttonContainer,
+                    y: buttonContainer.y - 5,
+                    duration: 200
+                });
             });
+
+            buttonBg.on('pointerout', () => {
+                buttonContainer.setScale(1);
+                this.tweens.add({
+                    targets: buttonContainer,
+                    y: this.scale.height / 2,
+                    duration: 200
+                });
+            });
+        }
+
+        // Add active state for touch feedback
+        buttonBg.on('pointerdown', () => {
+            buttonContainer.setScale(0.95);
         });
 
-        buttonBg.on('pointerout', () => {
+        buttonBg.on('pointerup', async () => {
             buttonContainer.setScale(1);
-            this.tweens.add({
-                targets: buttonContainer,
-                y: this.scale.height / 2,
-                duration: 200
-            });
-        });
-
-        buttonBg.on('pointerdown', async () => {
-            this.handleLogin(buttonContainer);
+            await this.handleLogin(buttonContainer);
         });
     }
 
@@ -142,6 +156,14 @@ export default class GoogleLoginScene extends Phaser.Scene {
 
         try {
             const provider = new GoogleAuthProvider();
+            // Add these lines to force account selection
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            
+            // Clear any existing auth state before signing in
+            await auth.signOut();
+            
             const result = await signInWithPopup(auth, provider);
             this.updateLoadingProgress(0.4);
 
@@ -186,20 +208,24 @@ export default class GoogleLoginScene extends Phaser.Scene {
     // Helper methods
     private showLoadingBar() {
         this.loadingBar = this.add.graphics();
+        
+        // Adjust loading text size for mobile
+        const fontSize = this.scale.width < 768 ? "16px" : "20px";
         this.loadingText = this.add.text(
             this.scale.width / 2,
-            this.scale.height / 2 + 20,  // Position text above loading bar
+            this.scale.height / 2 + 20,
             "Loading...",
             {
-                fontSize: "20px",
+                fontSize: fontSize,
                 color: "#ffffff",
             }
         ).setOrigin(0.5);
     }
 
     private updateLoadingProgress(percent: number) {
-        const barWidth = 300;
-        const barHeight = 6;
+        // Adjust bar size for mobile
+        const barWidth = this.scale.width < 768 ? 250 : 300;
+        const barHeight = this.scale.width < 768 ? 4 : 6;
         const x = (this.scale.width - barWidth) / 2;
         const y = this.scale.height / 2 + 50;
 
@@ -227,6 +253,10 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private showError(message: string) {
+        // Adjust error container for mobile
+        const errorWidth = this.scale.width < 768 ? 300 : 400;
+        const errorHeight = this.scale.width < 768 ? 50 : 60;
+        
         const errorContainer = this.add.container(
             this.scale.width / 2,
             this.scale.height / 2 + 100
@@ -234,7 +264,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
 
         const errorBg = this.add.rectangle(
             0, 0,
-            400, 60,
+            errorWidth, errorHeight,
             0xff3333, 0.9
         ).setOrigin(0.5);
 
@@ -242,7 +272,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
             0, 0,
             message,
             {
-                fontSize: "20px",
+                fontSize: this.scale.width < 768 ? "16px" : "20px",
                 color: "#ffffff",
                 fontStyle: "bold"
             }

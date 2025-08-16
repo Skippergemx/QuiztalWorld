@@ -57,11 +57,14 @@ export default class UIScene extends Phaser.Scene {
     }
 
     private createUIPanel() {
+        const isMobile = this.scale.width < 768;
+        const panelHeight = isMobile ? 60 : 50;  // Increased height for mobile
+
         const graphics = this.add.graphics();
         graphics.fillStyle(0x2c3e50, 0.95);
-        graphics.fillRect(0, 0, this.scale.width, 60);
+        graphics.fillRect(0, 0, this.scale.width, panelHeight);
         
-        this.backgroundPanel = this.add.rectangle(0, 0, this.scale.width, 60, 0x000000, 0.85)
+        this.backgroundPanel = this.add.rectangle(0, 0, this.scale.width, panelHeight, 0x000000, 0.85)
             .setOrigin(0)
             .setStrokeStyle(1, 0x3498db, 0.5)
             .setScrollFactor(0);
@@ -70,7 +73,15 @@ export default class UIScene extends Phaser.Scene {
     }
 
     private createButtons() {
+        const isMobile = this.scale.width < 768;
         const buttonConfigs = [
+            {
+                text: '💎',  // Add claim button first
+                tooltip: 'Claim Tokens',
+                color: '#9b59b6',  // Purple color for claim button
+                hoverColor: '#8e44ad',
+                callback: () => this.openTokenClaim()
+            },
             {
                 text: '🎒',
                 tooltip: 'Inventory',
@@ -87,8 +98,8 @@ export default class UIScene extends Phaser.Scene {
             }
         ];
 
-        // Adjust starting position since we removed one button
-        let xPosition = this.scale.width - 200;
+        // Adjust position for mobile - update spacing for new button
+        let xPosition = this.scale.width - (isMobile ? 150 : 280);  // Adjusted for extra button
         buttonConfigs.forEach(config => {
             const button = this.createNavButton(
                 config.text,
@@ -96,36 +107,36 @@ export default class UIScene extends Phaser.Scene {
                 config.color,
                 config.hoverColor,
                 config.callback
-            ).setPosition(xPosition, 10);
+            ).setPosition(xPosition, isMobile ? 5 : 10);
 
             this.uiContainer.add(button);
-            xPosition += 80;
+            xPosition += isMobile ? 50 : 80;
         });
     }
 
     private createNavButton(text: string, tooltip: string, color: string, hoverColor: string, callback: () => void): Phaser.GameObjects.Container {
-        const buttonSize = 40;
+        const isMobile = this.scale.width < 768;
+        const buttonSize = isMobile ? 35 : 40;
         const button = this.add.container(0, 0);
-        const touchPadding = 10;
+        const touchPadding = isMobile ? 15 : 10;  // Larger touch area for mobile
         
         const bg = this.add.rectangle(0, 0, buttonSize, buttonSize, parseInt(color.replace('#', '0x')))
             .setOrigin(0);
 
-        // Update icon with smaller font size
         const icon = this.add.text(buttonSize/2, buttonSize/2, text, {
-            fontSize: '15px',  // Decreased from 24px
-            padding: { x: 2, y: 2 }  // Added padding to prevent cutoff
+            fontSize: isMobile ? '14px' : '15px',
+            padding: { x: 2, y: 2 }
         }).setOrigin(0.5);
 
-        // Update tooltip with adjusted font size and more padding
-        const tooltipText = this.add.text(buttonSize/2, buttonSize + 8, tooltip, {
-            fontSize: '9px',  // Decreased from 14px
+        // Hide tooltip on mobile
+        const tooltipText = !isMobile ? this.add.text(buttonSize/2, buttonSize + 8, tooltip, {
+            fontSize: '9px',
             backgroundColor: '#2c3e50',
-            padding: { x: 10, y: 6 },  // Increased padding
+            padding: { x: 10, y: 6 },
             color: '#ffffff'
         })
         .setOrigin(0.5, 0)
-        .setVisible(false);
+        .setVisible(false) : null;
 
         const touchArea = this.add.rectangle(
             -touchPadding, 
@@ -138,21 +149,17 @@ export default class UIScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on('pointerover', () => {
             bg.setFillStyle(parseInt(hoverColor.replace('#', '0x')));
-            tooltipText.setVisible(true);
+            if (tooltipText) tooltipText.setVisible(!isMobile);
         })
         .on('pointerout', () => {
             bg.setFillStyle(parseInt(color.replace('#', '0x')));
-            tooltipText.setVisible(false);
+            if (tooltipText) tooltipText.setVisible(false);
         })
-        .on('pointerdown', () => {
-            bg.setFillStyle(parseInt(hoverColor.replace('#', '0x')));
-            setTimeout(() => {
-                bg.setFillStyle(parseInt(color.replace('#', '0x')));
-                callback();
-            }, 100);
-        });
+        .on('pointerdown', callback);
 
-        button.add([bg, icon, tooltipText, touchArea]);
+        const elements = [bg, icon, touchArea];
+        if (tooltipText) elements.push(tooltipText);
+        button.add(elements);
         button.setSize(buttonSize + (touchPadding * 2), buttonSize + (touchPadding * 2));
 
         return button;
@@ -160,14 +167,20 @@ export default class UIScene extends Phaser.Scene {
 
     // Update createBalanceDisplay method
     private createBalanceDisplay() {
-        const balanceContainer = this.add.container(20, 20);
+        const isMobile = this.scale.width < 768;
+        
+        // Create container with adjusted Y position
+        const balanceContainer = this.add.container(
+            isMobile ? 10 : 20, 
+            isMobile ? 5 : 10
+        );
 
         // Create balance text
         this.balanceText = this.add.text(0, 0, 'Loading balance...', {
-            fontSize: '16px',
+            fontSize: isMobile ? '14px' : '16px',
             color: '#f1c40f',
             fontStyle: 'bold',
-            padding: { x: 10, y: 5 },
+            padding: { x: isMobile ? 5 : 10, y: 2 },
             shadow: {
                 offsetX: 1,
                 offsetY: 1,
@@ -175,17 +188,20 @@ export default class UIScene extends Phaser.Scene {
                 blur: 2,
                 fill: true
             }
-        })
-        .setScrollFactor(0);
+        }).setScrollFactor(0);
 
-        // Create wallet display (not interactive)
-        this.walletBtn = this.add.text(this.balanceText.width + 20, 0, '🦊 Loading...', {
-            fontSize: '14px',
-            color: '#3498db',
-            backgroundColor: '#2c3e50',
-            padding: { x: 10, y: 5 }
-        })
-        .setScrollFactor(0);
+        // Create wallet display below balance
+        this.walletBtn = this.add.text(
+            0,  // Always align with balance text
+            this.balanceText.height + 2,  // Position just below balance
+            '🦊 Loading...', 
+            {
+                fontSize: isMobile ? '12px' : '14px',
+                color: '#3498db',
+                backgroundColor: '#2c3e50',
+                padding: { x: isMobile ? 5 : 10, y: 2 }
+            }
+        ).setScrollFactor(0);
 
         balanceContainer.add([this.balanceText, this.walletBtn]);
         this.uiContainer.add(balanceContainer);
@@ -246,20 +262,22 @@ export default class UIScene extends Phaser.Scene {
                         fill: true
                     }
                 });
-
-            // Update wallet position based on new balance text width
-            if (this.walletBtn) {
-                this.walletBtn.setX(this.balanceText.width + 20);
-            }
         }
     }
 
     private createFooterInstructions() {
+        const isMobile = this.scale.width < 768;
+        
+        // Don't show keyboard instructions on mobile
+        const instructions = isMobile ? 
+            'Tap NPCs to interact | Tap 🎒 for Inventory' :
+            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press I for Inventory';
+
         const footerBg = this.add.rectangle(
             0,
-            this.scale.height - 40,
+            this.scale.height - (isMobile ? 30 : 40),
             this.scale.width,
-            40,
+            isMobile ? 30 : 40,
             0x2c3e50,
             0.85
         )
@@ -267,20 +285,14 @@ export default class UIScene extends Phaser.Scene {
         .setScrollFactor(0)
         .setDepth(999);
 
-        const instructions = [
-            '⬅️➡️⬆️⬇️ or WASD to move',
-            '| Press C near NPCs to interact',
-            '| Press I for Inventory'
-        ].join(' ');
-
         const instructionsText = this.add.text(
             this.scale.width / 2,
-            this.scale.height - 20,
+            this.scale.height - (isMobile ? 15 : 20),
             instructions,
             {
-                fontSize: '14px',
+                fontSize: isMobile ? '12px' : '14px',
                 color: '#ffffff',
-                padding: { x: 10, y: 5 }
+                padding: { x: isMobile ? 5 : 10, y: 5 }
             }
         )
         .setOrigin(0.5)
@@ -314,6 +326,24 @@ export default class UIScene extends Phaser.Scene {
         } else {
             // Open inventory if it's closed
             this.scene.launch('InventoryScene', {
+                onClose: () => this.scene.resume('GameScene')
+            });
+            this.scene.pause('GameScene');
+        }
+    }
+
+    // Add method to handle token claim scene
+    private openTokenClaim() {
+        // Check if TokenClaimScene is active
+        const isClaimOpen = this.scene.isActive('TokenClaimScene');
+
+        if (isClaimOpen) {
+            // Close claim if it's open
+            this.scene.stop('TokenClaimScene');
+            this.scene.resume('GameScene');
+        } else {
+            // Open claim scene directly - wallet check will happen in TokenClaimScene
+            this.scene.launch('TokenClaimScene', {
                 onClose: () => this.scene.resume('GameScene')
             });
             this.scene.pause('GameScene');

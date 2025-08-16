@@ -9,6 +9,12 @@ interface NFTData {
     collectionType: 'erc721' | 'erc1155';  // Add this field
 }
 
+interface TokenClaimResponse {
+    success: boolean;
+    message: string;
+    txHash?: string;
+}
+
 export class Web3Service {
   private provider: ethers.providers.Web3Provider | null = null;
   private signer: ethers.Signer | null = null;
@@ -47,6 +53,15 @@ export class Web3Service {
     '0x2105': 'Base Mainnet',
     '0x14A33': 'Base Goerli',
   };
+
+  // Update these properties to use environment variables
+  private readonly QUIZTAL_TOKEN_ADDRESS = import.meta.env.VITE_QUIZTAL_TOKEN_ADDRESS;
+  private readonly QUIZTAL_TOKEN_ABI = [
+      "function transfer(address to, uint256 amount) returns (bool)",
+      "function balanceOf(address account) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+  ];
+  private treasurySigner: ethers.Signer | null = null;
 
   constructor() {
     this.web3Modal = new Web3Modal({
@@ -366,6 +381,89 @@ export class Web3Service {
     } catch (error) {
       console.error("Error fetching ERC721 NFTs:", error);
       return [];
+    }
+  }
+
+  // Update the initTreasurySigner method to use environment variable
+  async initTreasurySigner() {
+    try {
+        // Create a read-only provider for treasury operations
+        const provider = new ethers.providers.JsonRpcProvider('https://mainnet.base.org');
+
+        const privateKey = import.meta.env.VITE_TREASURY_PRIVATE_KEY;
+        if (!privateKey) {
+            throw new Error('Treasury private key not configured');
+        }
+
+        this.treasurySigner = new ethers.Wallet(privateKey, provider);
+        console.log('Treasury wallet initialized successfully');
+        return true;
+    } catch (error) {
+        console.error('Failed to initialize treasury signer:', error);
+        return false;
+    }
+}
+
+  async getTokenBalance(address: string): Promise<string> {
+    try {
+        if (!this.ethersProvider) return '0';
+        
+        const contract = new ethers.Contract(
+            this.QUIZTAL_TOKEN_ADDRESS,
+            this.QUIZTAL_TOKEN_ABI,
+            this.ethersProvider
+        );
+
+        const decimals = await contract.decimals();
+        const balance = await contract.balanceOf(address);
+        
+        return ethers.utils.formatUnits(balance, decimals);
+    } catch (error) {
+        console.error('Error getting token balance:', error);
+        return '0';
+    }
+  }
+
+  async claimTokens(amount: number): Promise<TokenClaimResponse> {
+    try {
+        if (!this.treasurySigner || !this.ethersProvider) {
+            return {
+                success: false,
+                message: 'Treasury wallet not initialized'
+            };
+        }
+
+        const contract = new ethers.Contract(
+            this.QUIZTAL_TOKEN_ADDRESS,
+            this.QUIZTAL_TOKEN_ABI,
+            this.treasurySigner
+        );
+
+        const decimals = await contract.decimals();
+        const tokenAmount = ethers.utils.parseUnits(amount.toString(), decimals);
+
+        const userAddress = await this.getWalletAddress();
+        if (!userAddress) {
+            return {
+                success: false,
+                message: 'No wallet connected'
+            };
+        }
+
+        const tx = await contract.transfer(userAddress, tokenAmount);
+        await tx.wait();
+
+        return {
+            success: true,
+            message: `Successfully claimed ${amount} Quiztal tokens`,
+            txHash: tx.hash
+        };
+    } catch (error: any) {
+        console.error('Error claiming tokens:', error);
+        return {
+            success: false,
+            message: error.message || 'Failed to claim tokens'
+        };
     }
   }
 }

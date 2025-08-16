@@ -6,8 +6,8 @@ export class SimpleDialogBox {
   private dialogText: Phaser.GameObjects.Text;
   private optionsContainer: Phaser.GameObjects.Container;
   private avatar: Phaser.GameObjects.Image;
-  private boxWidth: number = 650;
-  private boxHeight: number = 160;
+  private boxWidth: number;
+  private boxHeight: number;
   private currentDialogIndex: number = 0;
   private dialogData: {
     text: string;
@@ -18,6 +18,11 @@ export class SimpleDialogBox {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    
+    // Make dialog box responsive
+    const isMobile = scene.scale.width < 768;
+    this.boxWidth = isMobile ? scene.scale.width * 0.9 : 650;
+    this.boxHeight = isMobile ? 180 : 160;
 
     this.dialogContainer = scene.add.container(0, 0);
 
@@ -40,28 +45,48 @@ export class SimpleDialogBox {
       }
     });
 
+    // Update dialog background
     const dialogBg = scene.add.graphics();
     dialogBg.fillStyle(0x002b36, 0.95);
-    dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, 20);
-    dialogBg.lineStyle(4, 0x00ff00, 1);
-    dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight, 20);
+    dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
+    dialogBg.lineStyle(isMobile ? 2 : 4, 0x00ff00, 1);
+    dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
     this.dialogContainer.add(dialogBg);
 
-    this.avatar = scene.add.image(70, this.boxHeight / 2, "npc_mintgirl_avatar")
-      .setDisplaySize(90, 90)
+    // Adjust avatar size for mobile
+    const avatarSize = isMobile ? 70 : 90;
+    this.avatar = scene.add.image(
+      isMobile ? 50 : 70,
+      this.boxHeight / 2,
+      "npc_mintgirl_avatar"
+    )
+      .setDisplaySize(avatarSize, avatarSize)
       .setOrigin(0.5)
       .setVisible(false);
     this.dialogContainer.add(this.avatar);
 
-    this.dialogText = scene.add.text(140, 20, "", {
-      fontSize: "18px",
+    // Adjust text size and position for mobile
+    const textConfig = {
+      fontSize: isMobile ? "16px" : "18px",
       fontFamily: "monospace",
       color: "#00ff00",
-      wordWrap: { width: 440, useAdvancedWrap: true },
+      wordWrap: { 
+        width: isMobile ? 
+          this.boxWidth - 100 : // Account for smaller screen
+          440,
+        useAdvancedWrap: true 
+      },
       align: "left",
-      lineSpacing: 6,
+      lineSpacing: isMobile ? 4 : 6,
       shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
-    });
+    };
+
+    this.dialogText = scene.add.text(
+      isMobile ? 100 : 140,
+      isMobile ? 15 : 20,
+      "",
+      textConfig
+    );
     this.dialogContainer.add(this.dialogText);
 
     this.optionsContainer = scene.add.container(0, 0);
@@ -127,6 +152,7 @@ export class SimpleDialogBox {
     this.displayNext();
   }
 
+  // Update displayNext method for better mobile interaction
   private displayNext() {
     if (this.currentDialogIndex >= this.dialogData.length) {
       this.closeDialog();
@@ -145,32 +171,63 @@ export class SimpleDialogBox {
 
     // If options are present
     if (currentDialog.options) {
-      let yOffset = 50;
+      const isMobile = this.scene.scale.width < 768;
+      let yOffset = isMobile ? 40 : 50;
+      
       currentDialog.options.forEach((option) => {
-        const optionText = this.scene.add.text(140, this.dialogText.y + yOffset, `➡️ ${option.text}`, {
-          fontSize: "16px",
-          color: "#00ff00",
-          fontFamily: "monospace",
-          shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
-        })
-        .setInteractive()
+        const optionText = this.scene.add.text(
+          isMobile ? 100 : 140,
+          this.dialogText.y + yOffset,
+          `➡️ ${option.text}`,
+          {
+            fontSize: isMobile ? "14px" : "16px",
+            color: "#00ff00",
+            fontFamily: "monospace",
+            shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
+          }
+        )
+        .setInteractive({ useHandCursor: true })
         .on("pointerdown", () => {
-          console.log(`Option selected: ${option.text}`);
           option.callback();
           this.closeDialog();
-        });
+        })
+        .on("pointerover", () => optionText.setAlpha(0.7))
+        .on("pointerout", () => optionText.setAlpha(1));
+
+        // Add tap highlight for mobile
+        if (isMobile) {
+          optionText.on("pointerdown", () => optionText.setAlpha(0.5));
+          optionText.on("pointerup", () => optionText.setAlpha(1));
+        }
 
         this.optionsContainer.add(optionText);
-        yOffset += 30;
+        yOffset += isMobile ? 25 : 30;
       });
     } else {
-      // Click-to-dismiss next dialog entry
-      this.dialogContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.boxWidth, this.boxHeight), Phaser.Geom.Rectangle.Contains);
-      this.dialogContainer.once("pointerdown", () => {
-        this.dialogContainer.disableInteractive();
-        this.currentDialogIndex++;
-        this.displayNext();
-      });
+      // Add tap animation for mobile
+      const isMobile = this.scene.scale.width < 768;
+      if (isMobile) {
+        const tapHint = this.scene.add.text(
+          this.boxWidth - 100,
+          this.boxHeight - 30,
+          "Tap to continue",
+          {
+            fontSize: "12px",
+            color: "#00ff00"
+          }
+        ).setAlpha(0.7);  // Set alpha on the text object instead of in TextStyle
+
+        this.dialogContainer.add(tapHint);
+      }
+
+      this.dialogContainer
+        .setInteractive(new Phaser.Geom.Rectangle(0, 0, this.boxWidth, this.boxHeight), 
+          Phaser.Geom.Rectangle.Contains)
+        .once("pointerdown", () => {
+          this.dialogContainer.disableInteractive();
+          this.currentDialogIndex++;
+          this.displayNext();
+        });
     }
   }
 

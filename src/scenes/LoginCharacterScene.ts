@@ -14,9 +14,9 @@ export default class LoginCharacterScene extends Phaser.Scene {
   private colorShiftTimer: number = 0;
   private loadingBar!: Phaser.GameObjects.Graphics;
   private loadingText!: Phaser.GameObjects.Text;
-  private leftArrow!: Phaser.GameObjects.Image;
-  private rightArrow!: Phaser.GameObjects.Image;
-  private confirmButton!: Phaser.GameObjects.Image;
+  private leftArrow!: Phaser.GameObjects.Container;
+  private rightArrow!: Phaser.GameObjects.Container;
+  private confirmButton!: Phaser.GameObjects.Container;
 
   constructor() {
     super({ key: "LoginCharacterScene" });
@@ -33,6 +33,13 @@ export default class LoginCharacterScene extends Phaser.Scene {
     this.user = JSON.parse(playerData);
     this.gradientOverlay = this.add.graphics();
     this.drawGradient(0x001a33, 0x330066);
+    
+    // Add keyboard controls
+    this.input.keyboard?.on('keydown-LEFT', this.selectPrevious.bind(this));
+    this.input.keyboard?.on('keydown-RIGHT', this.selectNext.bind(this));
+    this.input.keyboard?.on('keydown-A', this.selectPrevious.bind(this));
+    this.input.keyboard?.on('keydown-D', this.selectNext.bind(this));
+    this.input.keyboard?.on('keydown-ENTER', this.confirmSelection.bind(this));  // Add this line
     
     // Start character selection immediately
     this.startCharacterSelection();
@@ -109,106 +116,180 @@ export default class LoginCharacterScene extends Phaser.Scene {
   }
 
   preload() {
-    // ...existing preload code...
+    // ...existing code...
     this.load.image('arrow-left', 'assets/ui/arrow-left.png');
     this.load.image('arrow-right', 'assets/ui/arrow-right.png');
     this.load.image('button-confirm', 'assets/ui/button-confirm.png');
-  }
-
-  startCharacterSelection() {
-    this.add
-      .text(this.scale.width / 2, 100, `Welcome, ${this.user.displayName || "Traveler"}`, {
-        fontSize: "20px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(this.scale.width / 2, 140, "Select Your Character", {
-        fontSize: "24px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    this.characterKeys.forEach((key) => this.createCharacterAnimation(key));
-
-    this.characterSprites = this.characterKeys.map((key, index) => {
-      const sprite = this.add.sprite(
-        this.scale.width / 2,
-        this.scale.height / 2 + 30,
-        `player_${key}_walk_1`
-      );
-
-      sprite.setOrigin(0.5);
-      sprite.setScale(2);
-      sprite.setVisible(index === this.currentIndex);
-
-      if (index === this.currentIndex) {
-        sprite.play(`player_${key}_walk_1`);
-      }
-
-      return sprite;
-    });
-
-    // Remove the keyboard instructions text
-    // Add touch controls instead
-    this.createTouchControls();
-
-    // Keep keyboard controls for desktop
-    this.input.keyboard!.on("keydown-LEFT", this.selectPrevious, this);
-    this.input.keyboard!.on("keydown-RIGHT", this.selectNext, this);
-    this.input.keyboard!.on("keydown-ENTER", this.confirmSelection, this);
-  }
-
-  // Add new method for touch controls
-  private createTouchControls() {
-    const padding = 20;
     
-    // Add left arrow
-    this.leftArrow = this.add.image(padding * 2, this.scale.height - 100, 'arrow-left')
-      .setInteractive()
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setAlpha(0.8)
-      .setScale(1.2);
-
-    // Add right arrow
-    this.rightArrow = this.add.image(this.scale.width - (padding * 2), this.scale.height - 100, 'arrow-right')
-      .setInteractive()
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setAlpha(0.8)
-      .setScale(1.2);
-
-    // Add confirm button
-    this.confirmButton = this.add.image(this.scale.width / 2, this.scale.height - 70, 'button-confirm')
-      .setInteractive()
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setAlpha(0.8)
-      .setScale(1.3);
-
-    // Add touch events
-    this.leftArrow.on('pointerdown', () => {
-      this.selectPrevious();
-      this.leftArrow.setAlpha(0.6);
+    // Initialize character animations
+    this.characterKeys.forEach(key => {
+        this.createCharacterAnimation(key);
     });
-
-    this.rightArrow.on('pointerdown', () => {
-      this.selectNext();
-      this.rightArrow.setAlpha(0.6);
-    });
-
-    this.confirmButton.on('pointerdown', () => {
-      this.confirmSelection();
-      this.confirmButton.setAlpha(0.6);
-    });
-
-    // Add pointerup events to restore alpha
-    this.leftArrow.on('pointerup', () => this.leftArrow.setAlpha(0.8));
-    this.rightArrow.on('pointerup', () => this.rightArrow.setAlpha(0.8));
-    this.confirmButton.on('pointerup', () => this.confirmButton.setAlpha(0.8));
   }
+
+  private startCharacterSelection() {
+    const isMobile = this.scale.width < 768;
+    
+    // Create header container
+    const headerContainer = this.add.container(this.scale.width / 2, isMobile ? 60 : 100);
+
+    // Welcome text with glow effect
+    const welcomeText = this.add.text(0, 0, 
+        `Welcome, ${this.user.displayName || "Traveler"}`, {
+        fontSize: isMobile ? "24px" : "32px",
+        color: '#ffffff',
+        fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Add glow to welcome text
+    const textGlow = this.add.graphics()
+        .lineStyle(16, 0x3498db, 0.1)
+        .strokeRoundedRect(
+            -welcomeText.width / 2 - 20,
+            -welcomeText.height / 2 - 10,
+            welcomeText.width + 40,
+            welcomeText.height + 20,
+            10
+        );
+
+    // Select character text
+    const selectText = this.add.text(0, 80, "Select Your Character", {
+        fontSize: isMobile ? "20px" : "28px",
+        color: "#3498db",
+        fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    headerContainer.add([textGlow, welcomeText, selectText]);
+
+    // Character display area with platform effect
+    const platformWidth = isMobile ? 200 : 300;
+    const platformHeight = 40;
+    const platformY = this.scale.height / 2 + 80;
+
+    // Add platform shadow
+    this.add.graphics()
+        .fillStyle(0x000000, 0.3)
+        .fillEllipse(
+            this.scale.width / 2,
+            platformY + 5,
+            platformWidth,
+            platformHeight
+        );
+
+    // Character sprites setup
+    this.characterSprites = this.characterKeys.map((key, index) => {
+        const sprite = this.add.sprite(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            `player_${key}_walk_1`
+        );
+
+        sprite.setOrigin(0.5)
+            .setScale(isMobile ? 1.5 : 2)
+            .setVisible(index === this.currentIndex);
+
+        if (index === this.currentIndex) {
+            sprite.play(`player_${key}_walk_1`);
+        }
+
+        return sprite;
+    });
+
+    this.createTouchControls();
+}
+
+private createTouchControls() {
+    const isMobile = this.scale.width < 768;
+    const arrowOffset = isMobile ? 100 : 150; // Distance from character center
+    
+    // Create arrow buttons at character level
+    this.leftArrow = this.createArrowButton(
+        this.scale.width / 2 - arrowOffset,
+        this.scale.height / 2,
+        'arrow-left',
+        this.selectPrevious.bind(this)
+    ) as Phaser.GameObjects.Container;
+
+    this.rightArrow = this.createArrowButton(
+        this.scale.width / 2 + arrowOffset,
+        this.scale.height / 2,
+        'arrow-right',
+        this.selectNext.bind(this)
+    ) as Phaser.GameObjects.Container;
+
+    // Create confirm button at bottom
+    this.confirmButton = this.createConfirmButton(
+        this.scale.width / 2,
+        this.scale.height - (isMobile ? 80 : 100)
+    ) as Phaser.GameObjects.Container;
+}
+
+private createArrowButton(x: number, y: number, key: string, callback: () => void) {
+    const isMobile = this.scale.width < 768;
+    const button = this.add.container(x, y);
+
+    // Button background with gradient
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1);
+    bg.fillCircle(0, 0, isMobile ? 25 : 30);
+
+    const arrow = this.add.image(0, 0, key)
+        .setScale(isMobile ? 0.8 : 1);
+
+    button.add([bg, arrow]);
+    button.setInteractive(
+        new Phaser.Geom.Circle(0, 0, isMobile ? 25 : 30),
+        Phaser.Geom.Circle.Contains
+    );
+
+    // Add button effects
+    button.on('pointerdown', () => {
+        button.setScale(0.9);
+        callback();
+    });
+    button.on('pointerup', () => button.setScale(1));
+    button.on('pointerout', () => button.setScale(1));
+
+    return button;
+}
+
+private createConfirmButton(x: number, y: number) {
+    const isMobile = this.scale.width < 768;
+    const button = this.add.container(x, y);
+
+    // Button background with gradient
+    const bg = this.add.graphics();
+    bg.fillGradientStyle(0x2ecc71, 0x27ae60, 0x27ae60, 0x2ecc71, 1);
+    bg.fillRoundedRect(
+        -75,
+        -20,
+        150,
+        40,
+        10
+    );
+
+    const text = this.add.text(0, 0, 'CONFIRM', {
+        fontSize: isMobile ? "16px" : "20px",
+        color: "#ffffff",
+        fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    button.add([bg, text]);
+    button.setInteractive(
+        new Phaser.Geom.Rectangle(-75, -20, 150, 40),
+        Phaser.Geom.Rectangle.Contains
+    );
+
+    // Add button effects
+    button.on('pointerdown', () => {
+        button.setScale(0.95);
+        this.confirmSelection();
+    });
+    button.on('pointerup', () => button.setScale(1));
+    button.on('pointerout', () => button.setScale(1));
+
+    return button;
+}
 
   update(_time: number, delta: number) {
     this.colorShiftTimer += delta * 0.0001;
