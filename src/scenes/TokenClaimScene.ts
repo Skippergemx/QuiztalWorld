@@ -25,6 +25,9 @@ export default class TokenClaimScene extends Phaser.Scene {
         '📊 Updating game balance...'
     ];
 
+    // Detect mobile device
+    private isMobile: boolean = false;
+
    constructor() {
     super({ key: 'TokenClaimScene' });
     this.web3Service = new Web3Service();
@@ -33,6 +36,12 @@ export default class TokenClaimScene extends Phaser.Scene {
 }
 
     async create() {
+        // Detect mobile device
+        this.isMobile = this.game.device.os.android || 
+                       this.game.device.os.iOS || 
+                       this.game.device.input.touch ||
+                       this.scale.width < 768;
+
         const auth = getAuth();
         if (!auth.currentUser) {
             this.scene.stop();
@@ -67,17 +76,105 @@ export default class TokenClaimScene extends Phaser.Scene {
 
         console.log('Token contract address:', this.tokenAddress);
         
-        // Check wallet connection first
-        if (!this.web3Service.isWalletConnected()) {
-            this.createConnectWalletInterface();
+        // Check if mobile - show mobile restriction message
+        if (this.isMobile) {
+            this.createMobileRestrictionInterface();
         } else {
-            this.createClaimInterface();
-            this.updateBalanceDisplay();
-            this.createConnectionIndicator();
+            // Check wallet connection first
+            if (!this.web3Service.isWalletConnected()) {
+                this.createConnectWalletInterface();
+            } else {
+                this.createClaimInterface();
+                this.updateBalanceDisplay();
+                this.createConnectionIndicator();
+            }
         }
 
         // Add close button
         this.createCloseButton();
+    }
+
+    private createMobileRestrictionInterface() {
+        // Add semi-transparent background
+        const bg = this.add.graphics();
+        bg.fillStyle(0x000000, 0.8);
+        bg.fillRect(0, 0, this.scale.width, this.scale.height);
+
+        // Create main container for centering
+        const container = this.add.container(this.scale.width / 2, this.scale.height / 2);
+
+        // Create card background
+        const cardWidth = this.scale.width * 0.9;
+        const cardHeight = 400;
+        
+        const card = this.add.graphics();
+        card.fillStyle(0x1a1a1a, 0.95);
+        card.fillRoundedRect(-cardWidth/2, -cardHeight/2, cardWidth, cardHeight, 20);
+        card.lineStyle(3, 0xe74c3c, 1);
+        card.strokeRoundedRect(-cardWidth/2, -cardHeight/2, cardWidth, cardHeight, 20);
+
+        // Icon
+        const icon = this.add.text(0, -120, '💻', {
+            fontSize: '64px'
+        }).setOrigin(0.5);
+
+        // Title
+        const title = this.add.text(0, -50, 'Desktop Required', {
+            fontSize: '28px',
+            color: '#e74c3c',
+            fontStyle: 'bold',
+            align: 'center'
+        }).setOrigin(0.5);
+
+        // Message
+        const message = this.add.text(0, 20, 
+            'Token claiming is only available on desktop/PC.\n\n' +
+            'Please use a desktop computer or laptop\n' +
+            'with MetaMask to claim your tokens.',
+            {
+                fontSize: '16px',
+                color: '#ffffff',
+                align: 'center',
+                lineSpacing: 8,
+                wordWrap: { width: cardWidth - 40 }
+            }
+        ).setOrigin(0.5);
+
+        // "Got it" button
+        const buttonWidth = 200;
+        const buttonContainer = this.add.container(0, 120);
+        
+        const buttonBg = this.add.graphics();
+        buttonBg.fillStyle(0x3498db);
+        buttonBg.fillRoundedRect(-buttonWidth/2, -25, buttonWidth, 50, 8);
+        
+        const buttonText = this.add.text(0, 0, 'Got it!', {
+            fontSize: '18px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        buttonContainer.add([buttonBg, buttonText]);
+        buttonContainer.setInteractive(
+            new Phaser.Geom.Rectangle(-buttonWidth/2, -25, buttonWidth, 50),
+            Phaser.Geom.Rectangle.Contains
+        )
+        .on('pointerdown', () => {
+            this.scene.stop();
+            this.scene.resume('GameScene');
+        })
+        .on('pointerover', () => {
+            buttonBg.clear();
+            buttonBg.fillStyle(0x2980b9);
+            buttonBg.fillRoundedRect(-buttonWidth/2, -25, buttonWidth, 50, 8);
+        })
+        .on('pointerout', () => {
+            buttonBg.clear();
+            buttonBg.fillStyle(0x3498db);
+            buttonBg.fillRoundedRect(-buttonWidth/2, -25, buttonWidth, 50, 8);
+        });
+
+        container.add([card, icon, title, message, buttonContainer]);
     }
 
     private createConnectionIndicator() {
@@ -347,11 +444,11 @@ export default class TokenClaimScene extends Phaser.Scene {
             }
         ).setOrigin(0.5);
 
-        // Add claim info text
+        // Update claim info text to show new minimum
         this.add.text(
             this.scale.width / 2,
             cardY + 130,
-            'Maximum claim amount: 100 Quiztals\nMinimum claim amount: 10 Quiztals',
+            'Maximum claim amount: 100 Quiztals\nMinimum claim amount: 50 Quiztals',  // Changed from 10 to 50
             {
                 fontSize: isMobile ? '14px' : '16px',
                 color: '#3498db',
@@ -370,92 +467,49 @@ export default class TokenClaimScene extends Phaser.Scene {
     }
 
     private createClaimButton(x: number, y: number, width: number): Phaser.GameObjects.Container {
-        const isMobile = this.scale.width < 768;
-        const buttonContainer = this.add.container(0, 0);  // Changed from x,y to 0,0
+        const buttonContainer = this.add.container(0, 0);
 
-        // Button background with gradient
+        // Button background with gradient - disabled if mobile
         const buttonBg = this.add.graphics();
-        buttonBg.fillGradientStyle(
-            0x2ecc71,
-            0x2ecc71,
-            0x27ae60,
-            0x27ae60,
-            1
-        );
-        buttonBg.fillRoundedRect(
-            -width/2,  // Changed from x - width/2
-            -25,
-            width,
-            50,
-            8
-        );
+        const bgColor = this.isMobile ? 0x7f8c8d : 0x2ecc71;
+        buttonBg.fillGradientStyle(bgColor, bgColor, bgColor, bgColor, 1);
+        buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
 
         // Button glow effect
         const buttonGlow = this.add.graphics();
-        buttonGlow.lineStyle(2, 0x2ecc71, 0.5);
-        buttonGlow.strokeRoundedRect(
-            -width/2 - 2,  // Changed from x - width/2 - 2
-            -27,
-            width + 4,
-            54,
-            8
-        );
+        buttonGlow.lineStyle(2, bgColor, 0.5);
+        buttonGlow.strokeRoundedRect(-width/2 - 2, -27, width + 4, 54, 8);
 
-        const buttonText = this.add.text(0, 0, '💎 Claim Tokens', {  // Changed from x,y to 0,0
-            fontSize: isMobile ? '20px' : '24px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
+        const buttonText = this.add.text(0, 0, 
+            this.isMobile ? '🚫 Mobile Not Supported' : '💎 Claim Tokens', 
+            {
+                fontSize: this.isMobile ? '16px' : '20px',
+                color: '#ffffff',
+                fontStyle: 'bold'
+            }
+        ).setOrigin(0.5);
 
         buttonContainer.add([buttonBg, buttonGlow, buttonText]);
-        buttonContainer.setPosition(x, y);  // Set position after adding elements
+        buttonContainer.setPosition(x, y);
 
-        // Add interactive behavior
-        buttonContainer
-            .setInteractive(new Phaser.Geom.Rectangle(
-                -width/2,  // Changed from x - width/2
-                -25,
-                width,
-                50
-            ), Phaser.Geom.Rectangle.Contains)
-            .on('pointerover', () => {
-                buttonBg.clear();
-                buttonBg.fillGradientStyle(
-                    0x27ae60,
-                    0x27ae60,
-                    0x2ecc71,
-                    0x2ecc71,
-                    1
-                );
-                buttonBg.fillRoundedRect(
-                    -width/2,  // Changed from x - width/2
-                    -25,
-                    width,
-                    50,
-                    8
-                );
-            })
-            .on('pointerout', () => {
-                buttonBg.clear();
-                buttonBg.fillGradientStyle(
-                    0x2ecc71,
-                    0x2ecc71,
-                    0x27ae60,
-                    0x27ae60,
-                    1
-                );
-                buttonBg.fillRoundedRect(
-                    -width/2,  // Changed from x - width/2
-                    -25,
-                    width,
-                    50,
-                    8
-                );
-            })
-            .on('pointerdown', async () => {
-                // This is the correct way to handle the claim
-                await this.processClaimRequest();
-            });
+        // Only make interactive if not mobile
+        if (!this.isMobile) {
+            buttonContainer
+                .setInteractive(new Phaser.Geom.Rectangle(-width/2, -25, width, 50), Phaser.Geom.Rectangle.Contains)
+                .on('pointerover', () => {
+                    buttonBg.clear();
+                    buttonBg.fillGradientStyle(0x27ae60, 0x27ae60, 0x2ecc71, 0x2ecc71, 1);
+                    buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
+                })
+                .on('pointerout', () => {
+                    buttonBg.clear();
+                    buttonBg.fillGradientStyle(0x2ecc71, 0x2ecc71, 0x27ae60, 0x27ae60, 1);
+                    buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
+                })
+                .on('pointerdown', async () => {
+                    await this.processClaimRequest();
+                });
+        }
 
         return buttonContainer;
     }
@@ -473,9 +527,10 @@ export default class TokenClaimScene extends Phaser.Scene {
         const currentBalance = playerDoc.data().quiztals || 0;
         const claimAmount = Math.min(Math.floor(currentBalance), 100);
         
-        if (claimAmount < 10) {
-            this.updateStatus(0, 'Minimum claim amount is 10 Quiztals');
-            this.showError('Minimum claim amount is 10 Quiztals');
+        // Update minimum check to 50
+        if (claimAmount < 50) {  // Changed from 10 to 50
+            this.updateStatus(0, 'Minimum claim amount is 50 Quiztals');  // Updated message
+            this.showError('Minimum claim amount is 50 Quiztals');  // Updated message
             return;
         }
 
@@ -549,9 +604,9 @@ export default class TokenClaimScene extends Phaser.Scene {
 
     private async updateBalanceDisplay() {
         if (!this.userId) {
-    this.showError('You must be logged in to claim.');
-    return;
-}
+            this.showError('You must be logged in to claim.');
+            return;
+        }
 
         const playerDoc = await getDoc(doc(db, "players", this.userId));
         if (playerDoc.exists()) {
@@ -559,8 +614,9 @@ export default class TokenClaimScene extends Phaser.Scene {
             const roundedBalance = Math.floor(balance);
             const claimAmount = Math.min(roundedBalance, 100);
             
-            if (claimAmount < 10) {
-                this.balanceText.setText(`Available balance: ${roundedBalance} Quiztals\n(Minimum 10 required to claim)`);
+            // Update minimum check to 50
+            if (claimAmount < 50) {  // Changed from 10 to 50
+                this.balanceText.setText(`Available balance: ${roundedBalance} Quiztals\n(Minimum 50 required to claim)`);  // Updated message
                 if (this.claimButton) {
                     this.claimButton.setAlpha(0.5);
                     this.claimButton.disableInteractive();

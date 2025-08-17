@@ -3,6 +3,7 @@ import HuntBoy from "../objects/HuntBoy";
 import MintGirl from "../objects/MintGirl";
 import BaseSage from "../objects/BaseSage"; // ✅ Base Sage instead of AlchemyProf
 import MrGemx from "../objects/MrGemx";
+import Moblin from "../objects/Moblin";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { getPlayerTitle } from '../utils/TitleUtils';
 import { doc, getDoc } from 'firebase/firestore';
@@ -18,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
   private mintGirl!: MintGirl;
   private baseSage!: BaseSage;
   private mrGemx!: MrGemx;
+  private moblin?: Moblin; // Add moblin property
   private joyStick?: Phaser.GameObjects.Image;
   private joyStickBase?: Phaser.GameObjects.Image;
   private interactButton?: Phaser.GameObjects.Image;
@@ -79,6 +81,17 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('joystick', 'assets/ui/joystick.png');
     this.load.image('joystick-base', 'assets/ui/joystick-base.png');
     this.load.image('button-interact', 'assets/ui/button-interact.png');
+
+    // ADD MOBLIN TEXTURES HERE - Move from BootScene to GameScene
+    this.load.spritesheet('moblin_walk', 'assets/pets/moblin_walk.png', {
+      frameWidth: 32,
+      frameHeight: 53
+    });
+
+    this.load.spritesheet('moblin_idle', 'assets/pets/moblin_idle.png', {
+      frameWidth: 32,
+      frameHeight: 53
+    });
   }
 
   create() {
@@ -108,18 +121,18 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
 
     // ✅ Assign player.name = UID from localStorage
-  const userStr = localStorage.getItem("quiztal-player");
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      if (user?.uid) {
-        this.player.name = user.uid;
-        console.log("👤 Player UID assigned:", this.player.name);
+    const userStr = localStorage.getItem("quiztal-player");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user?.uid) {
+          this.player.name = user.uid;
+          console.log("👤 Player UID assigned:", this.player.name);
+        }
+      } catch (e) {
+        console.warn("⚠️ Could not parse user from localStorage", e);
       }
-    } catch (e) {
-      console.warn("⚠️ Could not parse user from localStorage", e);
     }
-  }
 
     Object.values(layers).forEach((layer) => {
       if (layer) {
@@ -139,7 +152,7 @@ export default class GameScene extends Phaser.Scene {
     // ✅ Instantiate all NPCs
     this.huntboy = new HuntBoy(this, 500, 1050);
     this.mintGirl = new MintGirl(this, 1050, 1100);
-    this.baseSage = new BaseSage(this, 1100, 500); // BaseSage now lives here
+    this.baseSage = new BaseSage(this, 1100, 500);
     this.mrGemx = new MrGemx(this, 500, 480);
 
     // ✅ Colliders for all NPCs
@@ -182,6 +195,56 @@ export default class GameScene extends Phaser.Scene {
     this.createMobileControls();
     this.createPlayerTitle();
     this.createPlayerName();
+
+    // MOVE PET CREATION TO DELAYED CALL - Wait for all textures to be fully ready
+    this.time.delayedCall(100, () => {
+      this.createPetIfEligible();
+    });
+  }
+
+  private createPetIfEligible(): void {
+    const nftsStr = localStorage.getItem('quiztal-nfts');
+    if (!nftsStr) {
+      console.log('No NFTs found in localStorage');
+      return;
+    }
+
+    try {
+      const nfts = JSON.parse(nftsStr);
+      const titleConfig = getPlayerTitle(nfts);
+
+      // Only create pet if player has a title (NFT holder)
+      if (titleConfig.text) {
+        console.log('Player has NFT title:', titleConfig.text);
+        
+        // Double-check textures are loaded
+        if (!this.textures.exists('moblin_idle') || !this.textures.exists('moblin_walk')) {
+          console.warn('Moblin textures still not loaded, retrying...');
+          
+          // Retry after another delay
+          this.time.delayedCall(500, () => {
+            this.createPetIfEligible();
+          });
+          return;
+        }
+
+        console.log('Creating Moblin pet...');
+        this.moblin = new Moblin(this, this.player.x + 50, this.player.y + 50);
+        this.moblin.setTarget(this.player);
+        
+        // Add physics collisions
+        this.physics.add.collider(this.moblin, this.huntboy);
+        this.physics.add.collider(this.moblin, this.mintGirl);
+        this.physics.add.collider(this.moblin, this.baseSage);
+        this.physics.add.collider(this.moblin, this.mrGemx);
+
+        console.log('🐾 Moblin pet spawned for NFT holder!');
+      } else {
+        console.log('Player does not have NFT title, no pet spawned');
+      }
+    } catch (error) {
+      console.error('Error creating pet:', error);
+    }
   }
 
   private createPlayerTitle(): void {
@@ -511,6 +574,16 @@ export default class GameScene extends Phaser.Scene {
             
         // Move below player each frame to ensure it stays behind
         this.children.moveBelow(this.playerGlow, this.player);
+    }
+
+    // Update pet
+    if (this.moblin) {
+      this.moblin.update();
+      
+      // Teleport check every few seconds
+      if (this.time.now % 3000 < 50) { // Roughly every 3 seconds
+        this.moblin.teleportToTarget();
+      }
     }
   }
 

@@ -115,11 +115,20 @@ export default class InventoryScene extends Phaser.Scene {
     private nftCurrentPage: number = 0;
     private nftsPerPage: number = 5; // Reduced from 15 to 5 items per page
 
+    // Add this property to the InventoryScene class
+    private isMobile: boolean = false;
+
     constructor() {
         super({ key: 'InventoryScene' });
     }
 
     create() {
+        // Detect mobile
+        this.isMobile = this.game.device.os.android || 
+                       this.game.device.os.iOS || 
+                       this.game.device.input.touch ||
+                       this.scale.width < 768;
+
         const centerX = this.cameras.main.centerX;
         const centerY = this.cameras.main.centerY;
 
@@ -127,9 +136,11 @@ export default class InventoryScene extends Phaser.Scene {
         this.createTabs();
         this.createTabContents();
 
-        // Add keyboard listeners
-        this.input.keyboard?.addKey('ESC').on('down', () => this.closeInventory());
-        this.input.keyboard?.addKey('I').on('down', () => this.closeInventory());
+        // Add keyboard listeners (only for desktop)
+        if (!this.isMobile) {
+            this.input.keyboard?.addKey('ESC').on('down', () => this.closeInventory());
+            this.input.keyboard?.addKey('I').on('down', () => this.closeInventory());
+        }
     }
 
     private createInventoryWindow(centerX: number, centerY: number): void {
@@ -144,54 +155,58 @@ export default class InventoryScene extends Phaser.Scene {
             0.7
         ).setOrigin(0.5);
 
-        // Reduce window size
+        // Adjust window size for mobile
+        const windowWidth = this.isMobile ? this.scale.width * 0.95 : 800;
+        const windowHeight = this.isMobile ? this.scale.height * 0.9 : 500;
+
         const windowBorder = this.add.rectangle(
             0, 0,
-            800, 500,  // Reduced height from 600 to 500
+            windowWidth, windowHeight,
             0x34495e
         ).setStrokeStyle(3, 0x3498db);
 
-        // Adjust inner window size
         const windowInner = this.add.rectangle(
             0, 0,
-            790, 490,  // Reduced height from 590 to 490
+            windowWidth - 10, windowHeight - 10,
             0x2c3e50
         );
 
-        // Adjust header position
+        // Adjust header position for mobile
+        const headerY = this.isMobile ? -windowHeight/2 + 30 : -220;
         const headerBg = this.add.rectangle(
-            0, -220,   // Moved down from -270 to -220
-            790, 60,
+            0, headerY,
+            windowWidth - 10, this.isMobile ? 50 : 60,
             0x3498db,
             0.2
         );
 
-        // Adjust title position
         const title = this.add.text(
-            0, -220,   // Moved down from -270 to -220
+            0, headerY,
             'Inventory',
             {
-                fontSize: '16px',
+                fontSize: this.isMobile ? '18px' : '16px',
                 color: '#ffffff',
                 fontStyle: 'bold'
             }
         ).setOrigin(0.5);
 
-        // Adjust close button position
-        const closeBtn = this.add.container(370, -220);  // Moved down from -270 to -220
-        const closeBtnBg = this.add.circle(0, 0, 15, 0xe74c3c);
+        // Adjust close button for mobile
+        const closeBtnX = this.isMobile ? windowWidth/2 - 30 : 370;
+        const closeBtnY = headerY;
+        const closeBtn = this.add.container(closeBtnX, closeBtnY);
+        const closeBtnBg = this.add.circle(0, 0, this.isMobile ? 20 : 15, 0xe74c3c);
         const closeBtnText = this.add.text(
             0, 0,
             '✖',
             {
-                fontSize: '10px', // Reduced from 20px
+                fontSize: this.isMobile ? '14px' : '10px',
                 color: '#ffffff'
             }
         ).setOrigin(0.5);
 
         closeBtn.add([closeBtnBg, closeBtnText]);
         closeBtn.setInteractive(
-            new Phaser.Geom.Circle(0, 0, 15),
+            new Phaser.Geom.Circle(0, 0, this.isMobile ? 20 : 15),
             Phaser.Geom.Circle.Contains
         );
 
@@ -207,17 +222,13 @@ export default class InventoryScene extends Phaser.Scene {
             })
             .on('pointerdown', () => this.closeInventory());
 
-        // Create tabs container with better positioning
-        const tabsContainer = this.add.container(0, -160);
-
         this.inventoryWindow.add([
             overlay,
             windowBorder,
             windowInner,
             headerBg,
             title,
-            closeBtn,
-            tabsContainer
+            closeBtn
         ]);
 
         this.inventoryWindow.setDepth(1000);
@@ -254,24 +265,25 @@ export default class InventoryScene extends Phaser.Scene {
     private createTabButton(x: number, y: number, label: string, key: string): Phaser.GameObjects.Container {
         const tabContainer = this.add.container(x, y);
         
-        // Create tab background using Rectangle instead of Graphics
-        const bg = this.add.rectangle(0, 0, 200, 50, 
+        // Adjust tab size for mobile
+        const tabWidth = this.isMobile ? 120 : 200;
+        const tabHeight = this.isMobile ? 40 : 50;
+        
+        const bg = this.add.rectangle(0, 0, tabWidth, tabHeight, 
             this.activeTab === key ? 0x27ae60 : 0x34495e
         )
         .setStrokeStyle(2, 0x3498db);
 
-        // Add to tabButtons map
         this.tabButtons.set(key, bg);
 
         const text = this.add.text(0, 0, label, {
-            fontSize: '11px',  // Reduced from 22px
+            fontSize: this.isMobile ? '10px' : '11px',
             color: '#ffffff',
             fontStyle: this.activeTab === key ? 'bold' : 'normal'
         }).setOrigin(0.5);
 
         tabContainer.add([bg, text]);
 
-        // Make tab interactive
         bg.setInteractive({ useHandCursor: true })
             .on('pointerdown', () => {
                 this.switchTab(key);
@@ -719,7 +731,6 @@ export default class InventoryScene extends Phaser.Scene {
             0.2
         ).setOrigin(0.5);
 
-        // Create container for items
         const itemsContainer = this.add.container(0, 30);
 
         // Match grid configuration with NFT tab
