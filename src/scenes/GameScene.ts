@@ -8,6 +8,7 @@ import { showDialog } from "../utils/SimpleDialogBox";
 import { getPlayerTitle } from '../utils/TitleUtils';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
+import { saveQuiztalsToDatabase } from '../utils/Database';
 
 export default class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -28,6 +29,7 @@ export default class GameScene extends Phaser.Scene {
   private titleAura?: Phaser.GameObjects.Group; // Reference to the aura effect group
   private playerNameText?: Phaser.GameObjects.Text; // Add new property for player name text
   private playerGlow?: Phaser.GameObjects.Sprite; // Add this to your class properties
+  private moblinGiftboxSound?: Phaser.Sound.BaseSound; // Add this property for the moblin gift box sound
 
   constructor() {
     super({ key: "GameScene" });
@@ -92,6 +94,9 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 53
     });
+    
+    // Load Moblin gift box sound
+    this.load.audio('moblin-giftbox', 'assets/audio/Moblin_giftbox.wav');
   }
 
   create() {
@@ -168,28 +173,17 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.input.keyboard?.on("keydown-C", () => {
-      const distanceToHuntBoy = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.huntboy.x, this.huntboy.y);
-      const distanceToMintGirl = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mintGirl.x, this.mintGirl.y);
-      const distanceToBaseSage = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.baseSage.x, this.baseSage.y);
-      const distanceToMrGemx = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mrGemx.x, this.mrGemx.y);
-
-      console.log(`Distances - HuntBoy: ${distanceToHuntBoy}, MintGirl: ${distanceToMintGirl}, BaseSage: ${distanceToBaseSage}, MrGemx: ${distanceToMrGemx}`);
-
-      if (distanceToHuntBoy <= 100) {
-        console.log("Triggering HuntBoy dialog");
-        this.huntboy.interact();
-      } else if (distanceToMintGirl <= 100) {
-        console.log("Triggering MintGirl dialog");
-        this.mintGirl.interact();
-      } else if (distanceToBaseSage <= 100) {
-        console.log("Triggering BaseSage dialog");
-        this.baseSage.interact();
-      } else if (distanceToMrGemx <= 100) {
-        console.log("Triggering MrGemx dialog");
-        this.mrGemx.interact();
-      } else {
-        console.log("Player not in range of any NPC");
-      }
+      this.handleNPCTrigger("C");
+    });
+    
+    // Add O key handler for moblin gift box collection
+    this.input.keyboard?.on("keydown-O", () => {
+      this.handleNPCTrigger("O");
+    });
+    
+    // Add o key handler for moblin gift box collection (lowercase)
+    this.input.keyboard?.on("keydown-o", () => {
+      this.handleNPCTrigger("O");
     });
 
     this.createMobileControls();
@@ -200,6 +194,9 @@ export default class GameScene extends Phaser.Scene {
     this.time.delayedCall(100, () => {
       this.createPetIfEligible();
     });
+    
+    // Initialize moblin gift box sound
+    this.moblinGiftboxSound = this.sound.add('moblin-giftbox');
   }
 
   private createPetIfEligible(): void {
@@ -237,6 +234,18 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.moblin, this.mintGirl);
         this.physics.add.collider(this.moblin, this.baseSage);
         this.physics.add.collider(this.moblin, this.mrGemx);
+
+        // Listen for gift box click events
+        this.moblin.on('giftBoxClicked', (moblin: Moblin) => {
+            // Check if player is close enough to the moblin
+            const distanceToMoblin = Phaser.Math.Distance.Between(this.player.x, this.player.y, moblin.x, moblin.y);
+            if (distanceToMoblin <= 100) {
+                console.log("Gift box clicked, triggering collection");
+                this.interactWithMoblin();
+            } else {
+                console.log("Player not close enough to moblin to collect gift boxes");
+            }
+        });
 
         console.log('🐾 Moblin pet spawned for NFT holder!');
       } else {
@@ -412,6 +421,126 @@ export default class GameScene extends Phaser.Scene {
         console.error("Error fetching player name:", e);
     }
 }
+
+  private handleNPCTrigger(key: string) {
+    const distanceToHuntBoy = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.huntboy.x, this.huntboy.y);
+    const distanceToMintGirl = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mintGirl.x, this.mintGirl.y);
+    const distanceToBaseSage = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.baseSage.x, this.baseSage.y);
+    const distanceToMrGemx = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mrGemx.x, this.mrGemx.y);
+    const distanceToMoblin = this.moblin ? Phaser.Math.Distance.Between(this.player.x, this.player.y, this.moblin.x, this.moblin.y) : Infinity;
+
+    console.log(`Distances - HuntBoy: ${distanceToHuntBoy}, MintGirl: ${distanceToMintGirl}, BaseSage: ${distanceToBaseSage}, MrGemx: ${distanceToMrGemx}, Moblin: ${distanceToMoblin}`);
+
+    if (key === "C") {
+      if (distanceToHuntBoy <= 100) {
+        console.log("Triggering HuntBoy dialog");
+        this.huntboy.interact();
+      } else if (distanceToMintGirl <= 100) {
+        console.log("Triggering MintGirl dialog");
+        this.mintGirl.interact();
+      } else if (distanceToBaseSage <= 100) {
+        console.log("Triggering BaseSage dialog");
+        this.baseSage.interact();
+      } else if (distanceToMrGemx <= 100) {
+        console.log("Triggering MrGemx dialog");
+        this.mrGemx.interact();
+      } else {
+        console.log("Player not in range of any NPC");
+      }
+    } else if (key === "O") {
+      if (distanceToMoblin <= 100) {
+        console.log("Triggering Moblin gift box collection");
+        this.interactWithMoblin();
+      } else {
+        console.log("Player not in range of Moblin");
+      }
+    }
+  }
+
+  private async interactWithMoblin() {
+    if (!this.moblin) {
+      console.log("No moblin found");
+      return;
+    }
+
+    const giftBoxCount = this.moblin.getGiftBoxCount();
+    if (giftBoxCount > 0) {
+      // Collect all gift boxes
+      const collected = await this.moblin.collectAllGiftBoxes();
+      
+      // Calculate rewards (0.1 - 0.5 Quiztals per gift box)
+      let totalReward = 0;
+      for (let i = 0; i < collected; i++) {
+        totalReward += Phaser.Math.FloatBetween(0.1, 0.5);
+      }
+      totalReward = parseFloat(totalReward.toFixed(2));
+      
+      // Add to player's Quiztals
+      const userStr = localStorage.getItem('quiztal-player');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user?.uid) {
+            const playerId = user.uid;
+            await saveQuiztalsToDatabase(playerId, totalReward, "Moblin");
+            console.log(`🎁 Collected ${collected} gift boxes and earned ${totalReward} Quiztals!`);
+            
+            // Show UI feedback
+            this.showGiftBoxCollectionFeedback(totalReward);
+          }
+        } catch (error) {
+          console.error("Error collecting gift boxes:", error);
+        }
+      }
+    } else {
+      console.log("No gift boxes to collect");
+    }
+  }
+  
+  // Show UI feedback for gift box collection
+  private showGiftBoxCollectionFeedback(amount: number) {
+    if (this.moblin) {
+      // Create text that floats above the moblin
+      const feedbackText = this.add.text(
+        this.moblin.x,
+        this.moblin.y - 50,
+        `+${amount} Quiztals!`,
+        {
+          fontSize: '14px',
+          fontStyle: 'bold',
+          color: '#FFD700', // Gold color
+          stroke: '#000000',
+          strokeThickness: 3,
+          shadow: {
+            offsetX: 2,
+            offsetY: 2,
+            color: '#000000',
+            blur: 2,
+            stroke: true,
+            fill: true
+          }
+        }
+      ).setOrigin(0.5)
+       .setDepth(20);
+      
+      // Animate the feedback text
+      this.tweens.add({
+        targets: feedbackText,
+        y: feedbackText.y - 40,
+        alpha: 0,
+        duration: 2000,
+        ease: 'Power2',
+        onComplete: () => {
+          feedbackText.destroy();
+        }
+      });
+    }
+    
+    // Play moblin gift box sound
+    if (this.moblinGiftboxSound) {
+      this.moblinGiftboxSound.play();
+    }
+  }
 
   private createMobileControls() {
     // Check if we're on mobile or touch is enabled
