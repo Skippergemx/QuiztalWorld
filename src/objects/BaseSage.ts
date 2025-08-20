@@ -3,12 +3,14 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager'; // Import AudioManager
+import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 
-export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
+export default class BaseSage extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
   private currentIndex = 0;
-  private nameLabel: Phaser.GameObjects.Text;
-  private shoutOutText: Phaser.GameObjects.Text;
+  private lastQuestionIndex: number = -1;
+  protected nameLabel: Phaser.GameObjects.Text;
+  protected shoutOutText: Phaser.GameObjects.Text;
   private quizQuestions = [
     { question: "What is Base?", options: ["Layer 1", "Layer 2", "DEX"], answer: "Layer 2" },
     { question: "Who built Base?", options: ["Coinbase", "Binance", "OpenSea"], answer: "Coinbase" },
@@ -157,8 +159,8 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
   ];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "npc_basesage", 0); // Use your custom sprite here
-
+    super(scene, x, y, "npc_basesage");
+    
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setImmovable(true);
@@ -191,9 +193,15 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
 
     this.setInteractive({ useHandCursor: true });
     this.on("pointerdown", () => this.interact());
+this.startShouting(scene);
 
-    this.startShouting(scene);
-  }
+// Register for network status change notifications
+this.networkMonitor.addNetworkStatusChangeListener(() => {
+  // Trigger a shout when network status changes
+  this.triggerNetworkStatusShout();
+});
+}
+
  private createAnimations(scene: Phaser.Scene) {
     this.directions.forEach((dir, index) => {
       scene.anims.create({
@@ -221,15 +229,72 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
     }
 
   public interact() {
+    // Check if a dialog is already open
+    if (this.currentDialog) {
+      console.log("BaseSage: Dialog already open, ignoring interaction");
+      return;
+    }
+    
+    // Check network connectivity before allowing interactions
+    if (!this.networkMonitor.getIsOnline()) {
+      console.log("BaseSage: Network offline - showing offline message");
+      const dialog = showDialog(this.scene, [
+        {
+          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
+      return;
+    }
+    
     const player = this.getClosestPlayer();
     if (player && Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y) <= 100) {
+      // Check if player is on cooldown
+      const playerId = player.name || `anon_${Date.now()}`;
+      // Use the checkCooldown method which properly handles expired cooldowns
+      if (this.checkCooldown(playerId)) {
+        console.log("BaseSage: Player is on cooldown or has reached max attempts");
+        this.showCooldownDialog();
+        return;
+      }
+      
       this.startQuiz(player);
     }
   }
 
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
-    // Get random question
-    const currentQuestion = Phaser.Utils.Array.GetRandom(this.quizQuestions);
+    // Check if interactions are blocked
+    if (this.isInteractionBlocked()) {
+      console.log("BaseSage: Interaction blocked, cannot start quiz");
+      return;
+    }
+    
+    // Get random question, ensuring it's not the same as the last one
+    let currentQuestionIndex: number;
+    if (this.lastQuestionIndex === -1) {
+      // First question, select any random question
+      currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+    } else {
+      // Select a different question than the last one
+      do {
+        currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+      } while (currentQuestionIndex === this.lastQuestionIndex && this.quizQuestions.length > 1);
+    }
+    
+    // Store the index of the current question
+    this.lastQuestionIndex = currentQuestionIndex;
+    
+    const currentQuestion = this.quizQuestions[currentQuestionIndex];
+    
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
     
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
@@ -240,15 +305,23 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
         avatar: "npc_basesage_avatar",
         options: shuffledOptions.map(option => ({
           text: option,
-          callback: () => this.checkAnswer(option, currentQuestion.answer, player)
+          callback: () => {
+            this.checkAnswer(option, currentQuestion.answer, player);
+            // Notify QuizAntiSpamManager that the quiz has ended
+            this.notifyQuizEnded();
+          }
         }))
       }
     ]);
-}
+  }
 
   private checkAnswer(selected: string, correct: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selected === correct;
     const reward = isCorrect ? Phaser.Math.FloatBetween(0.01, 0.5) : 0;
+    
+    // Record quiz attempt regardless of whether correct or incorrect
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
 
     // Play sound based on answer
     const audioManager = AudioManager.getInstance();
@@ -258,8 +331,20 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
         audioManager.playWrongSound();
     }
 
+    // Close the current dialog immediately
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
     this.scene.time.delayedCall(500, () => {
-      showDialog(this.scene, [
+      // Check if interactions are blocked before showing reward dialog
+      if (this.isInteractionBlocked()) {
+        console.log("BaseSage: Cannot show reward dialog - interactions are blocked");
+        return;
+      }
+      
+      const dialog = showDialog(this.scene, [
         {
           text: isCorrect
             ? `🌟 Correct! You earned ${reward.toFixed(2)} $Quiztals!`
@@ -268,44 +353,98 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
           isExitDialog: true
         }
       ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
     });
 
     if (isCorrect) {
       this.saveReward(player, reward);
     }
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
   }
 
   private saveReward(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`;
     saveQuiztalsToDatabase(playerId, reward, "BaseSage");
+    
+    // Log reward to reward logger
+    if (typeof window !== 'undefined' && (window as any).game) {
+      const game = (window as any).game;
+      const loggerScene = game.scene.getScene('LoggerScene');
+      if (loggerScene && loggerScene.addReward) {
+        loggerScene.addReward(reward, "BaseSage", "BaseSage");
+      }
+    }
   }
 
   private startShouting(scene: Phaser.Scene) {
     const messages = [
       "Base is blazing fast! 🔥",
       "Click me to test your Base knowledge! 🤔",
-      "Layer 2? Layer cake? Let’s find out! 🍰",
+      "Layer 2? Layer cake? Let's find out! 🍰",
       "Onchain is the new online! 🌐"
     ];
+    
+    // Network-specific shout messages
+    const networkOfflineMessages = [
+      "Network down! No Base knowledge until connection restored! 🚫📡",
+      "Internet connection lost! Base wisdom on hold! 😢🔌",
+      "Offline mode: BaseSage's wisdom disabled! ⏸️",
+      "No network, no Base knowledge! 🔌",
+      "Connection error: Base wisdom unavailable! 📡"
+    ];
+    
     scene.time.addEvent({
       delay: Phaser.Math.Between(5000, 10000),
       callback: () => {
-        this.showShout(Phaser.Utils.Array.GetRandom(messages));
+        let randomMessage;
+        
+        // Check network connectivity to determine which message to show
+        if (!this.networkMonitor.getIsOnline()) {
+          // Network is offline, show offline message
+          randomMessage = Phaser.Utils.Array.GetRandom(networkOfflineMessages);
+        } else {
+          // Network is online, show regular message
+          randomMessage = Phaser.Utils.Array.GetRandom(messages);
+        }
+        
+        this.showShout(randomMessage);
         this.startShouting(scene);
       },
       loop: false
     });
   }
+private showShout(msg: string) {
+  this.shoutOutText.setText(msg).setAlpha(1);
+  this.scene.tweens.add({
+    targets: this.shoutOutText,
+    alpha: 0,
+    duration: 2000,
+    delay: 3000,
+  });
+}
 
-  private showShout(msg: string) {
-    this.shoutOutText.setText(msg).setAlpha(1);
-    this.scene.tweens.add({
-      targets: this.shoutOutText,
-      alpha: 0,
-      duration: 2000,
-      delay: 3000,
-    });
+private triggerNetworkStatusShout(): void {
+  let message: string;
+  
+  if (!this.networkMonitor.getIsOnline()) {
+    // Network is offline
+    message = "🚨 Network connection lost! BaseSage's wisdom disabled! 🚫";
+  } else {
+    // Network is online
+    message = "✅ Network connection restored! BaseSage's wisdom available! 🌐";
   }
+  
+  this.showShout(message);
+}
+
 
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
     let closest = null;
@@ -322,5 +461,22 @@ export default class BaseSage extends Phaser.Physics.Arcade.Sprite {
     });
 
     return closest;
+  }
+  
+  protected showCooldownDialog() {
+    const remainingTime = this.getRemainingCooldownTime();
+    const formattedTime = this.formatTimeWithFractional(remainingTime);
+    
+    this.currentDialog = showDialog(this.scene, [
+      {
+        text: `🕒 Greetings, explorer! I'm currently recharging my Base knowledge. Please return in ${formattedTime} to continue your learning journey. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        avatar: "npc_basesage_avatar",
+        isExitDialog: true
+      }
+    ]);
+    
+    // Set up auto-reset for the dialog after 3 seconds
+    // This ensures the dialog reference is cleared even if the player doesn't click
+    this.setupDialogAutoReset(3000);
   }
 }

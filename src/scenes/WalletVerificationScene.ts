@@ -84,7 +84,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
           .setInteractive({ useHandCursor: true });
 
           this.continueButton.on('pointerdown', () => {
-            this.scene.start('LoginCharacterScene');
+            this.scene.start('CharacterSelectionScene');
           });
 
         } else {
@@ -168,7 +168,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
         // Handle continue button click
         this.continueButton.on('pointerdown', () => {
-          this.scene.start('LoginCharacterScene');
+          this.scene.start('CharacterSelectionScene');
         });
 
         // Add refresh button
@@ -625,9 +625,10 @@ export default class WalletVerificationScene extends Phaser.Scene {
                     this.nftContainer.destroy();
                 }
 
-                // Create main container
+                // Create main container with windowing architecture
                 const container = this.add.container(0, 0);
                 this.nftContainer = container;
+                container.setDepth(100); // Ensure it's above other elements
 
                 // Add semi-transparent background
                 const bg = this.add.rectangle(
@@ -637,30 +638,38 @@ export default class WalletVerificationScene extends Phaser.Scene {
                     0x000000, 0.9
                 ).setOrigin(0);
                 container.add(bg);
+                
+                // Add window frame
+                const frame = this.add.graphics();
+                frame.lineStyle(2, 0x3498db, 1);
+                frame.strokeRoundedRect(20, 20, this.scale.width - 40, this.scale.height - 40, 10);
+                container.add(frame);
 
-                // Create header container
+                // Create header container with better styling
                 const headerContainer = this.add.container(0, 0);
                 
                 // Add title with icon
                 const title = this.add.text(
                     this.scale.width / 2,
-                    50,
+                    60,
                     '✨ NFT Collection Verified',
                     {
                         fontSize: '32px',
                         color: '#ffffff',
-                        fontStyle: 'bold'
+                        fontStyle: 'bold',
+                        shadow: { offsetX: 2, offsetY: 2, color: '#000000', fill: true }
                     }
                 ).setOrigin(0.5);
 
                 // Add subtitle
                 const subtitle = this.add.text(
                     this.scale.width / 2,
-                    90,
+                    100,
                     'Your NFTs have been successfully verified',
                     {
                         fontSize: '18px',
-                        color: '#4CAF50'
+                        color: '#4CAF50',
+                        fontStyle: 'italic'
                     }
                 ).setOrigin(0.5);
 
@@ -697,10 +706,10 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
                 this.displayNFTGrid(nfts);
 
-                // Add view message at the bottom
+                // Add view message at the bottom with better positioning
                 const viewMessage = this.add.text(
                     this.scale.width / 2,
-                    this.scale.height - 40,
+                    this.scale.height - 60,
                     'View your collection and close this window to continue',
                     {
                         fontSize: '16px',
@@ -719,6 +728,11 @@ export default class WalletVerificationScene extends Phaser.Scene {
                     duration: 500,
                     delay: 1000
                 });
+                
+                // Ensure continue button is hidden when NFT container is active
+                if (this.continueButton) {
+                    this.continueButton.setVisible(false);
+                }
 
             } else {
                 // No NFTs found, show message and allow continue
@@ -726,21 +740,30 @@ export default class WalletVerificationScene extends Phaser.Scene {
             }
 
             this.loadingOverlay.hide();
-            // Always show continue button
-            this.showContinueButton();
+            // Only show continue button if NFT container is not active
+            if (!this.nftContainer || !this.nftContainer.active) {
+                this.showContinueButton();
+            }
 
         } catch (error) {
             console.error('Error displaying NFTs:', error);
             localStorage.removeItem('quiztal-nfts');
             this.loadingOverlay.hide();
             this.showErrorMessage('Failed to load NFTs');
-            // Still allow continuing
-            this.showContinueButton();
+            // Only show continue button if NFT container is not active
+            if (!this.nftContainer || !this.nftContainer.active) {
+                this.showContinueButton();
+            }
         }
     }
 
     private showContinueButton() {
-        const buttonContainer = this.add.container(this.scale.width / 2, this.scale.height * 0.75);
+        // Only show continue button if NFT container is not active
+        if (this.nftContainer && this.nftContainer.active) {
+            return;
+        }
+        
+        const buttonContainer = this.add.container(this.scale.width / 2, this.scale.height * 0.85);
         
         // Button background with gradient
         const buttonWidth = 300;
@@ -790,7 +813,15 @@ export default class WalletVerificationScene extends Phaser.Scene {
                     .fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
             })
             .on('pointerdown', () => {
-                this.scene.start('LoginCharacterScene');
+                // Add fade out transition
+                this.tweens.add({
+                    targets: buttonContainer,
+                    alpha: 0,
+                    duration: 300,
+                    onComplete: () => {
+                        this.scene.start('CharacterSelectionScene');
+                    }
+                });
             });
     }
     private displayNFTGrid(nfts: NFTData[]) {

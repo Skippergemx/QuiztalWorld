@@ -12,7 +12,7 @@ export default class UIScene extends Phaser.Scene {
     private keyI!: Phaser.Input.Keyboard.Key; // <-- Added keyI property
     private walletBtn!: Phaser.GameObjects.Text; // Update or add this property
     private web3Service: Web3Service;
-    
+
     constructor() {
         super({ key: 'UIScene' });
         this.web3Service = new Web3Service();
@@ -38,6 +38,7 @@ export default class UIScene extends Phaser.Scene {
             this.createButtons();
             this.createBalanceDisplay();
             this.createFooterInstructions(); // Add this line
+
 
             // Setup event listeners
             this.scale.on('resize', this.updateLayout, this);
@@ -269,9 +270,9 @@ export default class UIScene extends Phaser.Scene {
         const isMobile = this.scale.width < 768;
         
         // Don't show keyboard instructions on mobile
-        const instructions = isMobile ? 
+        const instructions = isMobile ?
             'Tap NPCs to interact | Tap 🎒 for Inventory' :
-            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press I for Inventory';
+            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press I for Inventory | PgUp/PgDn to scroll';
 
         const footerBg = this.add.rectangle(
             0,

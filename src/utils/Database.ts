@@ -12,28 +12,52 @@ const db = getFirestore(app);
  */
 export async function saveQuiztalsToDatabase(playerId: string, reward: number, source: string = "Unknown") {
   try {
+    // Validate inputs
+    if (typeof reward !== 'number' || isNaN(reward)) {
+      console.error("❌ Invalid reward amount:", reward);
+      return;
+    }
+
+    // Validate reward amount (should be between 0.01 and 10)
+    if (reward < 0.01 || reward > 10) {
+      console.error("❌ Reward amount out of allowed range (0.01-10):", reward);
+      return;
+    }
+
+    // Validate source
+    const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "Unknown"];
+    if (!validSources.includes(source)) {
+      console.error("❌ Invalid source for quiztal reward:", source);
+      return;
+    }
+
     const playerRef = doc(db, "players", playerId);
     const playerDoc = await getDoc(playerRef);
 
     if (playerDoc.exists()) {
       const playerData = playerDoc.data();
-      const newQuiztals = (playerData?.quiztals || 0) + reward;
+      const currentQuiztals = playerData?.quiztals || 0;
+      const currentRewardsEarned = playerData?.rewardsEarned || 0;
+      const newQuiztals = currentQuiztals + reward;
+      const newRewardsEarned = currentRewardsEarned + reward;
 
       await setDoc(playerRef, {
         quiztals: newQuiztals,
         lastUpdated: Date.now(),
-        rewardsEarned: reward
+        rewardsEarned: newRewardsEarned
       }, { merge: true });
 
       console.log(`✅ Updated player "${playerId}" with +${reward} $Quiztals from ${source}. Total: ${newQuiztals}`);
     } else {
+      // New player gets initial 100 quiztals plus reward
+      const initialQuiztals = 100 + reward;
       await setDoc(playerRef, {
-        quiztals: reward,
+        quiztals: initialQuiztals,
         lastUpdated: Date.now(),
         rewardsEarned: reward
       });
 
-      console.log(`🆕 Created player "${playerId}" with ${reward} $Quiztals from ${source}.`);
+      console.log(`🆕 Created player "${playerId}" with ${initialQuiztals} $Quiztals from ${source} (${reward} reward + 100 initial).`);
     }
 
     const rewardHistoryRef = collection(db, "players", playerId, "rewardHistory");

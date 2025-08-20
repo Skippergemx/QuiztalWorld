@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
 import { loadMoblinGiftBoxData, saveMoblinGiftBoxData } from '../utils/Database';
+import { NetworkMonitor } from '../utils/NetworkMonitor';
 
 export default class Moblin extends Phaser.Physics.Arcade.Sprite {
     private target!: Phaser.Physics.Arcade.Sprite;
     private followDistance: number = 50;
     private moveSpeed: number = 160;
     private lastDirection: string = 'down';
+    private networkMonitor: NetworkMonitor;
     
     // Gift box collector properties
     private giftBoxText!: Phaser.GameObjects.Text;
@@ -28,6 +30,16 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
         "More Gemantes = More gifts! 🎁",
         "I'll come if you have Gemantes! 🔍"
     ];
+    
+    // Network offline messages
+    private offlineMessages: string[] = [
+        "Network down, gifts not found! 🚫",
+        "No internet, no gifts! 😢",
+        "Connection lost, gift collection paused! ⏸️",
+        "Offline mode: Gift collection disabled! 🔌",
+        "Network error: Gifts unavailable! 📡"
+    ];
+    
     private shoutText!: Phaser.GameObjects.Text;
     private lastShoutTime: number = 0;
     private shoutInterval: number = 8000; // 8 seconds
@@ -67,6 +79,9 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
         
         // Start shouting
         this.startShouting();
+        
+        // Get network monitor instance
+        this.networkMonitor = NetworkMonitor.getInstance(scene);
     }
 
     // Make the moblin interactive after it's created
@@ -200,6 +215,14 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
         
         // Add click event
         giftBoxContainer.on('pointerdown', () => {
+            // Check if interactions are blocked before triggering gift box collection
+            if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+                if (window.quizAntiSpamManager.isInteractionBlocked()) {
+                    console.log("Moblin: Gift box click blocked - interactions are currently blocked");
+                    return;
+                }
+            }
+            
             // Trigger gift box collection when clicked
             this.scene.events.emit('giftBoxClicked', this);
             
@@ -359,6 +382,12 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
     }
 
     private async collectGiftBoxes() {
+        // Check network connectivity before collecting gift boxes
+        if (!this.networkMonitor.getIsOnline()) {
+            // Network is offline, don't collect gift boxes
+            return;
+        }
+        
         if (!this.isCollecting || this.giftBoxCount >= this.maxGiftBoxes) {
             return;
         }
@@ -623,21 +652,31 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
             loop: false
         });
     }
-
-    // Shout a random message
-    private shoutRandomMessage() {
-        const currentTime = Date.now();
-        if (currentTime - this.lastShoutTime >= this.shoutInterval) {
-            const randomMessage = Phaser.Utils.Array.GetRandom(this.shoutMessages);
-            this.showShout(randomMessage);
-            this.lastShoutTime = currentTime;
+// Shout a random message
+private shoutRandomMessage() {
+    const currentTime = Date.now();
+    if (currentTime - this.lastShoutTime >= this.shoutInterval) {
+        let randomMessage;
+        
+        // Check network connectivity to determine which message to show
+        if (!this.networkMonitor.getIsOnline()) {
+            // Network is offline, show offline message
+            randomMessage = Phaser.Utils.Array.GetRandom(this.offlineMessages);
+        } else {
+            // Network is online, show regular message
+            randomMessage = Phaser.Utils.Array.GetRandom(this.shoutMessages);
         }
         
-        // Schedule next shout
-        this.scene.time.delayedCall(this.shoutInterval, () => {
-            this.shoutRandomMessage();
-        });
+        this.showShout(randomMessage);
+        this.lastShoutTime = currentTime;
     }
+    
+    // Schedule next shout
+    this.scene.time.delayedCall(this.shoutInterval, () => {
+        this.shoutRandomMessage();
+    });
+}
+
 
     // Show shout message
     private showShout(message: string) {

@@ -2,11 +2,13 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
+import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 
-export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
-  private nameLabel: Phaser.GameObjects.Text;
-  private shoutOutText: Phaser.GameObjects.Text;
+export default class MintGirl extends QuizNPC {
+  protected nameLabel: Phaser.GameObjects.Text;
+  protected shoutOutText: Phaser.GameObjects.Text;
 
+  private lastQuestionIndex: number = -1;
   private quizQuestions = [
     { 
       question: "What is Mint Club?",
@@ -226,8 +228,8 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
 ];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "mint_girl", 0);
-
+    super(scene, x, y, "mint_girl");
+    
     scene.add.existing(this);
     scene.physics.add.existing(this);
     this.setImmovable(true);
@@ -263,6 +265,12 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
     });
 
     this.startShouting(scene);
+    
+    // Register for network status change notifications
+    this.networkMonitor.addNetworkStatusChangeListener(() => {
+      // Trigger a shout when network status changes
+      this.triggerNetworkStatusShout();
+    });
   }
 
   private createAnimations(scene: Phaser.Scene) {
@@ -277,17 +285,75 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
   }
 
   public interact() {
+    // Check if a dialog is already open
+    if (this.currentDialog) {
+      console.log("MintGirl: Dialog already open, ignoring interaction");
+      return;
+    }
+    
+    // Check network connectivity before allowing interactions
+    if (!this.networkMonitor.getIsOnline()) {
+      console.log("MintGirl: Network offline - showing offline message");
+      const dialog = showDialog(this.scene, [
+        {
+          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
+      return;
+    }
+    
     const player = this.getClosestPlayer();
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
       if (distance <= 100) {
+        // Check if player is on cooldown
+        const playerId = player.name || `anon_${Date.now()}`;
+        // Use the checkCooldown method which properly handles expired cooldowns
+        if (this.checkCooldown(playerId)) {
+          console.log("MintGirl: Player is on cooldown or has reached max attempts");
+          this.showCooldownDialog();
+          return;
+        }
+        
         this.startQuiz(player);
       }
     }
   }
 
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
-    const currentQuestion = Phaser.Utils.Array.GetRandom(this.quizQuestions);
+    // Check if interactions are blocked
+    if (this.isInteractionBlocked()) {
+      console.log("MintGirl: Interaction blocked, cannot start quiz");
+      return;
+    }
+    
+    // Get random question, ensuring it's not the same as the last one
+    let currentQuestionIndex: number;
+    if (this.lastQuestionIndex === -1) {
+      // First question, select any random question
+      currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+    } else {
+      // Select a different question than the last one
+      do {
+        currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+      } while (currentQuestionIndex === this.lastQuestionIndex && this.quizQuestions.length > 1);
+    }
+    
+    // Store the index of the current question
+    this.lastQuestionIndex = currentQuestionIndex;
+    
+    const currentQuestion = this.quizQuestions[currentQuestionIndex];
+    
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
     
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
@@ -297,14 +363,22 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
         avatar: "npc_mintgirl_avatar",
         options: shuffledOptions.map(option => ({
             text: option,
-            callback: () => this.checkAnswer(option, currentQuestion.answer, player)
+            callback: () => {
+              this.checkAnswer(option, currentQuestion.answer, player);
+              // Notify QuizAntiSpamManager that the quiz has ended
+              this.notifyQuizEnded();
+            }
         }))
     }]);
-}
+  }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selectedOption === correctAnswer;
     const reward = this.calculateReward(isCorrect);
+    
+    // Record quiz attempt regardless of whether correct or incorrect
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
     
     // Play sound based on answer
     const audioManager = AudioManager.getInstance();
@@ -314,8 +388,20 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
         audioManager.playWrongSound();
     }
 
+    // Close the current dialog immediately
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
     this.scene.time.delayedCall(500, () => {
-        showDialog(this.scene, [
+        // Check if interactions are blocked before showing reward dialog
+        if (this.isInteractionBlocked()) {
+          console.log("MintGirl: Cannot show reward dialog - interactions are blocked");
+          return;
+        }
+        
+        const dialog = showDialog(this.scene, [
             {
                 text: isCorrect
                     ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Mint Club!`
@@ -324,11 +410,21 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
                 isExitDialog: true
             }
         ]);
+        
+        // Store reference to the new dialog
+        this.currentDialog = dialog;
+        
+        // Set up auto-reset for the dialog after 3 seconds
+        // This ensures the dialog reference is cleared even if the player doesn't click
+        this.setupDialogAutoReset(3000);
     });
 
     if (isCorrect) {
         this.saveRewardToDatabase(player, reward);
     }
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -338,6 +434,15 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`;
     saveQuiztalsToDatabase(playerId, reward, "MintGirl");
+    
+    // Log reward to reward logger
+    if (typeof window !== 'undefined' && (window as any).game) {
+      const game = (window as any).game;
+      const loggerScene = game.scene.getScene('LoggerScene');
+      if (loggerScene && loggerScene.addReward) {
+        loggerScene.addReward(reward, "MintGirl", "MintGirl");
+      }
+    }
   }
 
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
@@ -364,25 +469,75 @@ export default class MintGirl extends Phaser.Physics.Arcade.Sprite {
       "On-chain Quiztals are the future! 🚀",
       "Click me to earn $Quiztals! 🎉"
     ];
+    
+    // Network-specific shout messages
+    const networkOfflineMessages = [
+      "Network down! No token creation until connection restored! 🚫📡",
+      "Internet connection lost! Quiztals on hold! 😢🔌",
+      "Offline mode: MintGirl's token creation disabled! ⏸️",
+      "No network, no token creation! 🔌",
+      "Connection error: Token creation unavailable! 📡"
+    ];
 
     scene.time.addEvent({
       delay: Phaser.Math.Between(5000, 10000),
       callback: () => {
-        const randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
+        let randomMessage;
+        
+        // Check network connectivity to determine which message to show
+        if (!this.networkMonitor.getIsOnline()) {
+          // Network is offline, show offline message
+          randomMessage = Phaser.Utils.Array.GetRandom(networkOfflineMessages);
+        } else {
+          // Network is online, show regular message
+          randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
+        }
+        
         this.showShout(randomMessage);
         this.startShouting(scene);
       },
       loop: false
     });
   }
+private showShout(message: string) {
+  this.shoutOutText.setText(message).setAlpha(1);
+  this.scene.tweens.add({
+    targets: this.shoutOutText,
+    alpha: 0,
+    duration: 2000,
+    delay: 3000,
+  });
+}
 
-  private showShout(message: string) {
-    this.shoutOutText.setText(message).setAlpha(1);
-    this.scene.tweens.add({
-      targets: this.shoutOutText,
-      alpha: 0,
-      duration: 2000,
-      delay: 3000,
-    });
+private triggerNetworkStatusShout(): void {
+  let message: string;
+  
+  if (!this.networkMonitor.getIsOnline()) {
+    // Network is offline
+    message = "🚨 Network connection lost! MintGirl's token creation disabled! 🚫";
+  } else {
+    // Network is online
+    message = "✅ Network connection restored! MintGirl's token creation available! 🌐";
+  }
+  
+  this.showShout(message);
+}
+
+  
+  protected showCooldownDialog() {
+    const remainingTime = this.getRemainingCooldownTime();
+    const formattedTime = this.formatTimeWithFractional(remainingTime);
+    
+    this.currentDialog = showDialog(this.scene, [
+      {
+        text: `🍃 Hello there! I'm taking a short break to recharge my Mint Club knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        avatar: "npc_mintgirl_avatar",
+        isExitDialog: true
+      }
+    ]);
+    
+    // Set up auto-reset for the dialog after 3 seconds
+    // This ensures the dialog reference is cleared even if the player doesn't click
+    this.setupDialogAutoReset(3000);
   }
 }

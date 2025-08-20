@@ -47,7 +47,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.once("complete", () => {
             console.log("✅ All assets loaded!");
             this.startBackgroundMusic();
-            this.scene.start("LoginCharacterScene");
+            this.scene.start("CharacterSelectionScene");
         });
 
         this.load.start();

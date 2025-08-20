@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import HuntBoy from "../objects/HuntBoy";
 import MintGirl from "../objects/MintGirl";
-import BaseSage from "../objects/BaseSage"; // ✅ Base Sage instead of AlchemyProf
+import BaseSage from "../objects/BaseSage";
 import MrGemx from "../objects/MrGemx";
 import Moblin from "../objects/Moblin";
 import { showDialog } from "../utils/SimpleDialogBox";
@@ -9,6 +9,8 @@ import { getPlayerTitle } from '../utils/TitleUtils';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { saveQuiztalsToDatabase } from '../utils/Database';
+import { QuizAntiSpamManager } from '../managers/QuizAntiSpamManager';
+import { NetworkMonitor } from '../utils/NetworkMonitor';
 
 export default class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -30,6 +32,8 @@ export default class GameScene extends Phaser.Scene {
   private playerNameText?: Phaser.GameObjects.Text; // Add new property for player name text
   private playerGlow?: Phaser.GameObjects.Sprite; // Add this to your class properties
   private moblinGiftboxSound?: Phaser.Sound.BaseSound; // Add this property for the moblin gift box sound
+  private quizAntiSpamManager!: QuizAntiSpamManager; // Add this property for the anti-spam manager
+  private networkMonitor!: NetworkMonitor; // Add this property for the network monitor
 
   constructor() {
     super({ key: "GameScene" });
@@ -105,6 +109,17 @@ export default class GameScene extends Phaser.Scene {
     if (!tileset) throw new Error("Tileset failed to load!");
     this.scene.launch("UIScene");
 
+    // Initialize the QuizAntiSpamManager
+    this.quizAntiSpamManager = QuizAntiSpamManager.getInstance(this);
+    
+    // Store reference in window object for global access
+    if (typeof window !== 'undefined') {
+      (window as any).quizAntiSpamManager = this.quizAntiSpamManager;
+    }
+    
+    // Initialize the NetworkMonitor
+    this.networkMonitor = NetworkMonitor.getInstance(this);
+
     const layers = {
       ground: map.createLayer("Ground", tileset),
       furniture: map.createLayer("Furniture", tileset),
@@ -170,19 +185,43 @@ export default class GameScene extends Phaser.Scene {
 
     this.events.on("shutdown", () => {
       showDialog(this, []);
+      if (this.networkMonitor) {
+        this.networkMonitor.destroy();
+      }
     });
 
     this.input.keyboard?.on("keydown-C", () => {
+      // Check if interactions are blocked before triggering NPC interaction
+      if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+        if (window.quizAntiSpamManager.isInteractionBlocked()) {
+          console.log("GameScene: C key press blocked - interactions are currently blocked");
+          return;
+        }
+      }
       this.handleNPCTrigger("C");
     });
     
     // Add O key handler for moblin gift box collection
     this.input.keyboard?.on("keydown-O", () => {
+      // Check if interactions are blocked before triggering gift box collection
+      if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+        if (window.quizAntiSpamManager.isInteractionBlocked()) {
+          console.log("GameScene: O key press blocked - interactions are currently blocked");
+          return;
+        }
+      }
       this.handleNPCTrigger("O");
     });
     
     // Add o key handler for moblin gift box collection (lowercase)
     this.input.keyboard?.on("keydown-o", () => {
+      // Check if interactions are blocked before triggering gift box collection
+      if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+        if (window.quizAntiSpamManager.isInteractionBlocked()) {
+          console.log("GameScene: o key press blocked - interactions are currently blocked");
+          return;
+        }
+      }
       this.handleNPCTrigger("O");
     });
 
@@ -197,6 +236,11 @@ export default class GameScene extends Phaser.Scene {
     
     // Initialize moblin gift box sound
     this.moblinGiftboxSound = this.sound.add('moblin-giftbox');
+    
+    // Make game scene accessible globally
+    if (typeof window !== 'undefined') {
+      (window as any).gameScene = this;
+    }
   }
 
   private createPetIfEligible(): void {
@@ -423,6 +467,18 @@ export default class GameScene extends Phaser.Scene {
 }
 
   private handleNPCTrigger(key: string) {
+    // Check network connectivity before allowing interactions
+    if (!this.networkMonitor.getIsOnline()) {
+      console.log("Network offline - preventing NPC interaction");
+      showDialog(this, [
+        {
+          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          isExitDialog: true
+        }
+      ]);
+      return;
+    }
+    
     const distanceToHuntBoy = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.huntboy.x, this.huntboy.y);
     const distanceToMintGirl = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mintGirl.x, this.mintGirl.y);
     const distanceToBaseSage = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.baseSage.x, this.baseSage.y);
@@ -458,6 +514,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private async interactWithMoblin() {
+    // Check network connectivity before allowing interactions
+    if (!this.networkMonitor.getIsOnline()) {
+      console.log("Network offline - preventing Moblin interaction");
+      showDialog(this, [
+        {
+          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          isExitDialog: true
+        }
+      ]);
+      return;
+    }
+    
     if (!this.moblin) {
       console.log("No moblin found");
       return;
@@ -586,11 +654,23 @@ export default class GameScene extends Phaser.Scene {
     this.joyStickBase.on('pointermove', this.handleJoystickMove, this);
     this.joyStickBase.on('pointerup', this.handleJoystickEnd, this);
     this.joyStickBase.on('pointerout', this.handleJoystickEnd, this);
+this.interactButton.on('pointerdown', () => {
+    // Check network connectivity before triggering NPC interaction
+    if (!this.networkMonitor.getIsOnline()) {
+        console.log("Network offline - preventing NPC interaction");
+        showDialog(this, [
+            {
+                text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+                isExitDialog: true
+            }
+        ]);
+        return;
+    }
+    
+    const keyEvent = new KeyboardEvent('keydown', { key: 'c' });
+    this.input.keyboard?.emit('keydown-C', keyEvent);
+});
 
-    this.interactButton.on('pointerdown', () => {
-        const keyEvent = new KeyboardEvent('keydown', { key: 'c' });
-        this.input.keyboard?.emit('keydown-C', keyEvent);
-    });
   }
 
   private handleJoystickStart(pointer: Phaser.Input.Pointer) {
@@ -712,6 +792,38 @@ export default class GameScene extends Phaser.Scene {
       // Teleport check every few seconds
       if (this.time.now % 3000 < 50) { // Roughly every 3 seconds
         this.moblin.teleportToTarget();
+      }
+    }
+    
+    // Check player proximity to NPCs and hide/show head timers accordingly
+    this.checkNPCProximity();
+  }
+  
+  private checkNPCProximity() {
+    // Check HuntBoy proximity
+    if (this.huntboy.getIsOnCooldown()) {
+      if (this.huntboy.isPlayerInRange(this.player)) {
+        this.huntboy.showHeadTimer();
+      } else {
+        this.huntboy.hideHeadTimer();
+      }
+    }
+    
+    // Check MintGirl proximity
+    if (this.mintGirl.getIsOnCooldown()) {
+      if (this.mintGirl.isPlayerInRange(this.player)) {
+        this.mintGirl.showHeadTimer();
+      } else {
+        this.mintGirl.hideHeadTimer();
+      }
+    }
+    
+    // Check BaseSage proximity
+    if (this.baseSage.getIsOnCooldown()) {
+      if (this.baseSage.isPlayerInRange(this.player)) {
+        this.baseSage.showHeadTimer();
+      } else {
+        this.baseSage.hideHeadTimer();
       }
     }
   }

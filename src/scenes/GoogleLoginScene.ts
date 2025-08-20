@@ -71,28 +71,8 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private async checkLogin() {
-        const playerData = localStorage.getItem("quiztal-player");
-        if (playerData) {
-            try {
-                // Check if player has a bound wallet
-                const playerDoc = await getDoc(doc(db, "players", JSON.parse(playerData).uid));
-                const walletAddress = playerDoc.data()?.walletAddress;
-
-                if (walletAddress) {
-                    // Clear existing NFT data to ensure fresh verification
-                    localStorage.removeItem('quiztal-nfts');
-                    console.log('Cleared NFTs from localStorage for fresh verification');
-                }
-
-                // Move to wallet verification
-                this.scene.start('WalletVerificationScene');
-            } catch (error) {
-                console.error('Error checking player wallet:', error);
-                this.scene.start('WalletVerificationScene');
-            }
-        } else {
-            this.showLoginButton();
-        }
+      // Always require fresh authentication - show login button regardless of existing auth state
+      this.showLoginButton();
     }
 
     private showLoginButton() {

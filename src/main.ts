@@ -1,7 +1,7 @@
 //main.ts
 import Phaser from "phaser";
 import BootScene from "./scenes/BootScene";
-import LoginCharacterScene from "./scenes/LoginCharacterScene";
+import CharacterSelectionScene from "./scenes/CharacterSelectionScene";
 import WalletVerificationScene from "./scenes/WalletVerificationScene";
 import GameScene from "./scenes/GameScene";
 import UIScene from "./scenes/UIScene";
@@ -21,11 +21,11 @@ const config: Phaser.Types.Core.GameConfig = {
     BootScene,
     GoogleLoginScene,
     WalletVerificationScene,
-    LoginCharacterScene,
+    CharacterSelectionScene,
     GameScene,
     UIScene,
     InventoryScene,
-    TokenClaimScene
+    TokenClaimScene,
   ],
   scale: {
     mode: Phaser.Scale.RESIZE,

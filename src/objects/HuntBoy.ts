@@ -3,12 +3,12 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
+import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 
-export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
+export default class HuntBoy extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
   private currentIndex = 0;
-  private nameLabel: Phaser.GameObjects.Text;
-  private shoutOutText: Phaser.GameObjects.Text;
+  private lastQuestionIndex: number = -1;
 
   // Quiz data
   private quizQuestions = [
@@ -217,7 +217,10 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   ];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "npc_huntboy", 0);
+    super(scene, x, y, "npc_huntboy");
+    
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -250,12 +253,18 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
       this.nameLabel.setPosition(this.x, this.y - 40);
       this.shoutOutText.setPosition(this.x, this.y - 60);
     });
+this.startShouting(scene);
 
-    this.startShouting(scene);
+// Register for network status change notifications
+this.networkMonitor.addNetworkStatusChangeListener(() => {
+  // Trigger a shout when network status changes
+  this.triggerNetworkStatusShout();
+});
 
-    this.setInteractive({ useHandCursor: true });
-    this.on("pointerdown", () => this.interact());
-  }
+this.setInteractive({ useHandCursor: true });
+this.on("pointerdown", () => this.interact());
+}
+
 
   private createAnimations(scene: Phaser.Scene) {
     this.directions.forEach((dir, index) => {
@@ -284,12 +293,47 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   }
 
   public interact() {
+    // Check if a dialog is already open
+    if (this.currentDialog) {
+      console.log("HuntBoy: Dialog already open, ignoring interaction");
+      return;
+    }
+    
+    // Check network connectivity before allowing interactions
+    if (!this.networkMonitor.getIsOnline()) {
+      console.log("HuntBoy: Network offline - showing offline message");
+      const dialog = showDialog(this.scene, [
+        {
+          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
+      return;
+    }
+    
     console.log("HuntBoy: Interaction triggered");
+    
     const player = this.getClosestPlayer();
     
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
       if (distance <= 100) {
+        // Check if player is on cooldown
+        const playerId = player.name || `anon_${Date.now()}`;
+        // Use the checkCooldown method which properly handles expired cooldowns
+        if (this.checkCooldown(playerId)) {
+          console.log("HuntBoy: Player is on cooldown or has reached max attempts");
+          this.showCooldownDialog();
+          return;
+        }
+        
         console.log("HuntBoy: Player is close enough, starting quiz");
         this.startQuiz(player);
       } else {
@@ -301,9 +345,32 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   }
 
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
-    // Get random question
-    const currentQuestion = Phaser.Utils.Array.GetRandom(this.quizQuestions);
+    // Check if interactions are blocked
+    if (this.isInteractionBlocked()) {
+      console.log("HuntBoy: Interaction blocked, cannot start quiz");
+      return;
+    }
+    
+    // Get random question, ensuring it's not the same as the last one
+    let currentQuestionIndex: number;
+    if (this.lastQuestionIndex === -1) {
+      // First question, select any random question
+      currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+    } else {
+      // Select a different question than the last one
+      do {
+        currentQuestionIndex = Math.floor(Math.random() * this.quizQuestions.length);
+      } while (currentQuestionIndex === this.lastQuestionIndex && this.quizQuestions.length > 1);
+    }
+    
+    // Store the index of the current question
+    this.lastQuestionIndex = currentQuestionIndex;
+    
+    const currentQuestion = this.quizQuestions[currentQuestionIndex];
     console.log("Starting quiz: ", currentQuestion.question);
+    
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
 
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
@@ -313,8 +380,12 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
         text: currentQuestion.question,
         avatar: "npc_huntboy_avatar",
         options: shuffledOptions.map(option => ({
-          text: option, 
-          callback: () => this.checkAnswer(option, currentQuestion.answer, player)
+          text: option,
+          callback: () => {
+            this.checkAnswer(option, currentQuestion.answer, player);
+            // Notify QuizAntiSpamManager that the quiz has ended
+            this.notifyQuizEnded();
+          }
         }))
       }
     ]);
@@ -323,6 +394,10 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   private checkAnswer(selected: string, correct: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selected === correct;
     const reward = this.calculateReward(isCorrect);
+    
+    // Record quiz attempt regardless of whether correct or incorrect
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
 
     // Play sound based on answer
     const audioManager = AudioManager.getInstance();
@@ -334,22 +409,44 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
 
     console.log(isCorrect ? "Correct answer!" : "Wrong answer.");
 
+    // Close the current dialog immediately
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
     // Delay reward dialog just enough for a smoother transition
     this.scene.time.delayedCall(500, () => {
-      showDialog(this.scene, [
+      // Check if interactions are blocked before showing reward dialog
+      if (this.isInteractionBlocked()) {
+        console.log("HuntBoy: Cannot show reward dialog - interactions are blocked");
+        return;
+      }
+      
+      const dialog = showDialog(this.scene, [
         {
-          text: isCorrect 
-            ? `🎉 Correct! You’ve earned ${reward.toFixed(2)} $Quiztals!`
+          text: isCorrect
+            ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`
             : `❌ Oops! Correct answer was: "${correct}". Better luck next time.`,
           avatar: "npc_huntboy_avatar",
           isExitDialog: true
         }
       ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
     });
 
     if (isCorrect) {
       this.saveRewardToDatabase(player, reward);
     }
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -359,6 +456,15 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`; // Fallback in case name is missing
     saveQuiztalsToDatabase(playerId, reward);
+    
+    // Log reward to reward logger
+    if (typeof window !== 'undefined' && (window as any).game) {
+      const game = (window as any).game;
+      const loggerScene = game.scene.getScene('LoggerScene');
+      if (loggerScene && loggerScene.addReward) {
+        loggerScene.addReward(reward, "HuntBoy", "HuntBoy");
+      }
+    }
   }
 
   private startShouting(scene: Phaser.Scene) {
@@ -368,11 +474,30 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
       "Web3 builders, join Hunt Town! 🏗️",
       "Hunt Town = Web3 dev paradise! 🌍"
     ];
+    
+    // Network-specific shout messages
+    const networkOfflineMessages = [
+      "Network down! No quizzes until connection restored! 🚫📡",
+      "Internet connection lost! Quiztals on hold! 😢🔌",
+      "Offline mode: HuntBoy's quizzes disabled! ⏸️",
+      "No network, no knowledge challenges! 🔌",
+      "Connection error: Quiz unavailable! 📡"
+    ];
 
     scene.time.addEvent({
       delay: Phaser.Math.Between(5000, 10000),
       callback: () => {
-        const randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
+        let randomMessage;
+        
+        // Check network connectivity to determine which message to show
+        if (!this.networkMonitor.getIsOnline()) {
+          // Network is offline, show offline message
+          randomMessage = Phaser.Utils.Array.GetRandom(networkOfflineMessages);
+        } else {
+          // Network is online, show regular message
+          randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
+        }
+        
         this.showShout(randomMessage);
         console.log(`Hunt Boy Shouting: ${randomMessage}`);
         this.startShouting(scene); // Loop again
@@ -380,17 +505,31 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
       loop: false
     });
   }
+private showShout(message: string) {
+  this.shoutOutText.setText(message).setAlpha(1);
 
-  private showShout(message: string) {
-    this.shoutOutText.setText(message).setAlpha(1);
+  this.scene.tweens.add({
+    targets: this.shoutOutText,
+    alpha: 0,
+    duration: 2000,
+    delay: 3000,
+  });
+}
 
-    this.scene.tweens.add({
-      targets: this.shoutOutText,
-      alpha: 0,
-      duration: 2000,
-      delay: 3000,
-    });
+private triggerNetworkStatusShout(): void {
+  let message: string;
+  
+  if (!this.networkMonitor.getIsOnline()) {
+    // Network is offline
+    message = "🚨 Network connection lost! HuntBoy's quizzes disabled! 🚫";
+  } else {
+    // Network is online
+    message = "✅ Network connection restored! HuntBoy's quizzes available! 🌐";
   }
+  
+  this.showShout(message);
+}
+
 
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
     let closestPlayer = null;
@@ -407,5 +546,22 @@ export default class HuntBoy extends Phaser.Physics.Arcade.Sprite {
     });
 
     return closestPlayer;
+  }
+  
+  protected showCooldownDialog() {
+    const remainingTime = this.getRemainingCooldownTime();
+    const formattedTime = this.formatTimeWithFractional(remainingTime);
+    
+    this.currentDialog = showDialog(this.scene, [
+      {
+        text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        avatar: "npc_huntboy_avatar",
+        isExitDialog: true
+      }
+    ]);
+    
+    // Set up auto-reset for the dialog after 3 seconds
+    // This ensures the dialog reference is cleared even if the player doesn't click
+    this.setupDialogAutoReset(3000);
   }
 }

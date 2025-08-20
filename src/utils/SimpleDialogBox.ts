@@ -150,6 +150,15 @@ export class SimpleDialogBox {
     }
 
     this.displayNext();
+    
+    // Notify QuizAntiSpamManager that a dialog is open
+    if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+      window.quizAntiSpamManager.openDialog();
+    }
+  }
+  
+  public updateDialogText(newText: string) {
+    this.dialogText.setText(newText);
   }
 
   // Update displayNext method for better mobile interaction
@@ -239,14 +248,17 @@ export class SimpleDialogBox {
     this.avatar.setVisible(false);
 
     console.log("Dialog box instantly closed.");
+    
+    // Notify QuizAntiSpamManager that a dialog is closed
+    if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+      window.quizAntiSpamManager.closeDialog();
+    }
   }
 
   public close() {
     this.closeDialog();
   }
 }
-
-
 
 
 export function showDialog(scene: Phaser.Scene, dialogData: {
@@ -258,19 +270,20 @@ export function showDialog(scene: Phaser.Scene, dialogData: {
   try {
     if (!scene || !scene.add) {
       console.error('Invalid scene provided to showDialog');
-      return;
+      return null;
     }
 
     if (!Array.isArray(dialogData) || dialogData.length === 0) {
       console.error('Invalid or empty dialog data provided');
-      return;
+      return null;
     }
 
     const dialog = new SimpleDialogBox(scene);
     dialog.showDialog(dialogData);
+    return dialog;
 
   } catch (error) {
     console.error('Error showing dialog:', error);
+    return null;
   }
 }
-

@@ -1,10 +1,10 @@
-//LoginCharacterScene.ts
+//CharacterSelectionScene.ts
 import Phaser from "phaser";
 import { auth, db } from "../utils/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
-export default class LoginCharacterScene extends Phaser.Scene {
+export default class CharacterSelectionScene extends Phaser.Scene {
   private user: any = null;
   private selectedCharacter: string = "lsxd";
   private characterKeys: string[] = ["lsxd", "penski", "sarah", "xander"];
@@ -19,7 +19,7 @@ export default class LoginCharacterScene extends Phaser.Scene {
   private confirmButton!: Phaser.GameObjects.Container;
 
   constructor() {
-    super({ key: "LoginCharacterScene" });
+    super({ key: "CharacterSelectionScene" });
   }
 
   async create() {
@@ -31,6 +31,14 @@ export default class LoginCharacterScene extends Phaser.Scene {
     }
     
     this.user = JSON.parse(playerData);
+    
+    // Check if player is returning (has already selected a character)
+    if (this.user.character) {
+      // Player is returning, redirect to GoogleLoginScene for re-authentication
+      this.scene.start("GoogleLoginScene");
+      return;
+    }
+    
     this.gradientOverlay = this.add.graphics();
     this.drawGradient(0x001a33, 0x330066);
     
@@ -198,7 +206,7 @@ export default class LoginCharacterScene extends Phaser.Scene {
     this.createTouchControls();
 }
 
-private createTouchControls() {
+  private createTouchControls() {
     const isMobile = this.scale.width < 768;
     const arrowOffset = isMobile ? 100 : 150; // Distance from character center
     
@@ -222,9 +230,9 @@ private createTouchControls() {
         this.scale.width / 2,
         this.scale.height - (isMobile ? 80 : 100)
     ) as Phaser.GameObjects.Container;
-}
+  }
 
-private createArrowButton(x: number, y: number, key: string, callback: () => void) {
+  private createArrowButton(x: number, y: number, key: string, callback: () => void) {
     const isMobile = this.scale.width < 768;
     const button = this.add.container(x, y);
 
@@ -251,9 +259,9 @@ private createArrowButton(x: number, y: number, key: string, callback: () => voi
     button.on('pointerout', () => button.setScale(1));
 
     return button;
-}
+  }
 
-private createConfirmButton(x: number, y: number) {
+  private createConfirmButton(x: number, y: number) {
     const isMobile = this.scale.width < 768;
     const button = this.add.container(x, y);
 
@@ -289,7 +297,7 @@ private createConfirmButton(x: number, y: number) {
     button.on('pointerout', () => button.setScale(1));
 
     return button;
-}
+  }
 
   update(_time: number, delta: number) {
     this.colorShiftTimer += delta * 0.0001;
@@ -355,30 +363,80 @@ private createConfirmButton(x: number, y: number) {
     this.selectedCharacter = this.characterKeys[this.currentIndex];
     console.log(`✅ Character Selected: ${this.selectedCharacter}`);
 
-    // Display confirmation message
-    this.add.text(this.scale.width / 2, this.scale.height / 2 + 50, `You have selected ${this.selectedCharacter}!`, {
-      fontSize: "24px",
-      color: "#ffffff",
+    // Create elegant character selection status display
+    const statusContainer = this.add.container(this.scale.width / 2, this.scale.height / 2 + 50);
+    
+    // Background for the status display
+    const statusBg = this.add.graphics();
+    statusBg.fillStyle(0x000000, 0.7);
+    statusBg.fillRoundedRect(-150, -40, 300, 80, 15);
+    statusBg.lineStyle(2, 0x3498db, 1);
+    statusBg.strokeRoundedRect(-150, -40, 300, 80, 15);
+    
+    // Elegant character name display with animation
+    const characterName = this.add.text(0, -10, this.selectedCharacter.toUpperCase(), {
+      fontSize: "32px",
+      color: "#3498db",
+      fontStyle: "bold",
+      align: "center"
     }).setOrigin(0.5);
+    
+    // Status text
+    const statusText = this.add.text(0, 20, "SELECTED", {
+      fontSize: "16px",
+      color: "#2ecc71",
+      fontStyle: "bold",
+      align: "center"
+    }).setOrigin(0.5);
+    
+    statusContainer.add([statusBg, characterName, statusText]);
+    
+    // Add animation to the status display
+    statusContainer.setScale(0.8);
+    this.tweens.add({
+      targets: statusContainer,
+      scale: 1,
+      alpha: 1,
+      duration: 500,
+      ease: 'Back.easeOut'
+    });
+
+    // Add visual feedback to character sprite
+    const selectedSprite = this.characterSprites[this.currentIndex];
+    this.tweens.add({
+      targets: selectedSprite,
+      scale: selectedSprite.scale * 1.1,
+      duration: 300,
+      yoyo: true,
+      repeat: 1
+    });
 
     // Wait before transitioning to the game scene
-    this.time.delayedCall(1000, () => {
-      const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
-      const updated = {
-        ...existing,
-        character: this.selectedCharacter,
-      };
+    this.time.delayedCall(1500, () => {
+      // Add fade out transition
+      this.tweens.add({
+        targets: [statusContainer, ...this.characterSprites],
+        alpha: 0,
+        duration: 500,
+        onComplete: () => {
+          const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
+          const updated = {
+            ...existing,
+            character: this.selectedCharacter,
+          };
 
-      localStorage.setItem("quiztal-player", JSON.stringify(updated));
+          localStorage.setItem("quiztal-player", JSON.stringify(updated));
 
-      const playerRef = doc(db, "players", this.user.uid);
-      updateDoc(playerRef, {
-        character: this.selectedCharacter,
-      });
+          const playerRef = doc(db, "players", this.user.uid);
+          updateDoc(playerRef, {
+            character: this.selectedCharacter,
+          });
 
-      // Transition to the game scene
-      this.scene.start("GameScene", {
-        selectedCharacter: this.selectedCharacter,
+          // Transition to the game scene
+          this.scene.start("GameScene", {
+            selectedCharacter: this.selectedCharacter,
+          });
+        }
       });
     });
   }
