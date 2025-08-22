@@ -44,13 +44,6 @@ export default class BootScene extends Phaser.Scene {
         // Load effects (update the path if needed)
         this.load.image('player-glow', 'assets/effects/glow.png');
 
-        this.load.once("complete", () => {
-            console.log("✅ All assets loaded!");
-            this.startBackgroundMusic();
-            this.scene.start("CharacterSelectionScene");
-        });
-
-        this.load.start();
     }
 
     private startBackgroundMusic() {
@@ -68,11 +61,19 @@ export default class BootScene extends Phaser.Scene {
         }
     }
 
-    async create() {
+    create() {
+        console.log("✅ All assets loaded!");
+
         // Initialize the audio manager after loading
         AudioManager.getInstance().initSounds(this);
 
+        // Start background music
+        this.startBackgroundMusic();
+
         // Just log the token address if needed for debugging
         console.log('Token Address:', import.meta.env.VITE_QUIZTAL_TOKEN_ADDRESS);
+
+        // Start the next scene
+        this.scene.start("CharacterSelectionScene");
     }
 }

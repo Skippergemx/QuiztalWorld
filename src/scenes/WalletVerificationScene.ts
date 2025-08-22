@@ -2,16 +2,9 @@ import Phaser from "phaser";
 import { doc, getDoc } from 'firebase/firestore';  // Add this line
 import { db } from '../utils/firebase';  // Add this line
 import { Web3Service } from '../services/Web3Service';
-import { saveWalletAddress } from '../utils/Database';
+import { saveWalletAddress, saveNFTsToDatabase } from '../utils/Database';
 import { LoadingOverlay } from '../components/LoadingOverlay';
-
-interface NFTData {
-    tokenId: string;
-    image: string;
-    name: string;
-    description: string;
-    collectionType: 'erc721' | 'erc1155';
-}
+import { NFTData } from '../types/nft';
 
 export default class WalletVerificationScene extends Phaser.Scene {
     private connectButton!: Phaser.GameObjects.Container;
@@ -36,14 +29,21 @@ export default class WalletVerificationScene extends Phaser.Scene {
         this.nftContainer = null;
     }
 
-    create() {
+    async create() {
         // Load player data at scene creation
         const playerDataStr = localStorage.getItem("quiztal-player");
-        if (playerDataStr) {
-            this.playerData = JSON.parse(playerDataStr);
-        } else {
+        if (!playerDataStr) {
             // If no player data, return to login
             this.scene.start('GoogleLoginScene');
+            return;
+        }
+        this.playerData = JSON.parse(playerDataStr);
+
+        // Fetch latest data from Firestore to ensure it's not stale
+        const playerDoc = await getDoc(doc(db, "players", this.playerData.uid));
+        if (!playerDoc.exists()) {
+            this.showErrorMessage("Player data not found. Please log in again.");
+            this.time.delayedCall(2000, () => this.scene.start('GoogleLoginScene'));
             return;
         }
 
@@ -97,6 +97,9 @@ export default class WalletVerificationScene extends Phaser.Scene {
         }
 
         this.loadingOverlay = new LoadingOverlay(this);
+
+        // Listen for screen resize events
+        this.scale.on('resize', this.handleResize, this);
       }
 
       private showNoWalletUI() {
@@ -609,13 +612,18 @@ export default class WalletVerificationScene extends Phaser.Scene {
             this.loadingOverlay.show('Fetching your NFTs...');
             const nfts = await this.web3Service.getNFTsData();
 
-            // Update localStorage
+            // Save to Firestore and localStorage
             if (nfts && nfts.length > 0) {
+                // Save the full NFT data to Firestore, creating a complete cache.
+                await saveNFTsToDatabase(this.playerData.uid, nfts);
+                // Save the full data to localStorage for fast access during the current session.
                 localStorage.setItem('quiztal-nfts', JSON.stringify(nfts));
-                console.log('Updated localStorage with NFTs:', nfts);
+                console.log('Updated localStorage and Firestore with NFTs:', nfts);
             } else {
+                // If no NFTs are found, clear both by saving an empty array.
+                await saveNFTsToDatabase(this.playerData.uid, []);
                 localStorage.removeItem('quiztal-nfts');
-                console.log('No NFTs found, cleared localStorage');
+                console.log('No NFTs found, cleared localStorage and Firestore');
             }
 
             // Display NFTs if any
@@ -889,6 +897,12 @@ export default class WalletVerificationScene extends Phaser.Scene {
             maxHeight = Math.max(maxHeight, y + gridConfig.cardHeight / 2 + gridConfig.bottomMargin);
         });
 
+        // If any images were queued for loading, start the loader.
+        // This is more efficient than calling start() inside the loop.
+        if (this.load.inflight.size > 0) {
+            this.load.start();
+        }
+
         // Add scroll zone with adjusted dimensions
         const scrollZone = this.add.zone(
             scrollConfig.padding,
@@ -1046,8 +1060,6 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 imageContainer.add(errorText);
             }
         });
-
-        this.load.start();
 
         const name = this.add.text(0, height/4, nft.name, {
             fontSize: width < 200 ? '14px' : '16px',

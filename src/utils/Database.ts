@@ -1,7 +1,7 @@
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
-import { app } from './firebase'; // Firebase initialization
+import { doc, setDoc, getDoc, collection, addDoc, writeBatch, query, getDocs } from "firebase/firestore";
+import { db } from './firebase'; // Firebase initialization
+import { NFTData } from '../types/nft';
 
-const db = getFirestore(app);
 
 /**
  * Save $Quiztals to Firestore under the player document.
@@ -46,8 +46,6 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
         lastUpdated: Date.now(),
         rewardsEarned: newRewardsEarned
       }, { merge: true });
-
-      console.log(`✅ Updated player "${playerId}" with +${reward} $Quiztals from ${source}. Total: ${newQuiztals}`);
     } else {
       // New player gets initial 100 quiztals plus reward
       const initialQuiztals = 100 + reward;
@@ -57,7 +55,6 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
         rewardsEarned: reward
       });
 
-      console.log(`🆕 Created player "${playerId}" with ${initialQuiztals} $Quiztals from ${source} (${reward} reward + 100 initial).`);
     }
 
     const rewardHistoryRef = collection(db, "players", playerId, "rewardHistory");
@@ -67,7 +64,6 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
       source: source
     });
 
-    console.log(`🗃️ Logged reward history for "${playerId}" from ${source}`);
 
   } catch (error) {
     console.error("❌ Error saving quiztals to database:", error);
@@ -87,7 +83,6 @@ export async function saveWalletAddress(playerId: string, walletAddress: string)
       lastWalletUpdate: Date.now()
     }, { merge: true });
 
-    console.log(`✅ Updated player "${playerId}" with wallet address: ${walletAddress}`);
   } catch (error) {
     console.error("❌ Error saving wallet address:", error);
     throw error;
@@ -106,7 +101,6 @@ export async function saveMoblinGiftBoxData(playerId: string, giftBoxData: { cou
       moblinGiftBoxes: giftBoxData
     }, { merge: true });
 
-    console.log(`✅ Updated moblin gift box data for player "${playerId}"`);
   } catch (error) {
     console.error("❌ Error saving moblin gift box data:", error);
     throw error;
@@ -130,6 +124,59 @@ export async function loadMoblinGiftBoxData(playerId: string) {
     return null;
   } catch (error) {
     console.error("❌ Error loading moblin gift box data:", error);
+    return null;
+  }
+}
+
+/**
+ * Overwrites the NFTs for a player in a subcollection.
+ * This ensures the stored NFTs are always in sync with the latest wallet scan.
+ * @param playerId The player's unique ID
+ * @param nfts The array of NFTData objects to save
+ */
+export async function saveNFTsToDatabase(playerId: string, nfts: NFTData[]) {
+  try {
+    const playerNftsRef = collection(db, "players", playerId, "nfts");
+
+    // 1. Get a new write batch
+    const batch = writeBatch(db);
+
+    // 2. Delete all existing documents in the "nfts" subcollection
+    const existingNftsSnapshot = await getDocs(query(playerNftsRef));
+    existingNftsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // 3. Add new documents for each NFT
+    nfts.forEach((nft) => {
+      // Use a combination of collectionType and tokenId for a unique doc ID
+      const nftDocRef = doc(playerNftsRef, `${nft.collectionType}-${nft.tokenId}`);
+      batch.set(nftDocRef, nft);
+    });
+
+    // 4. Commit the batch
+    await batch.commit();
+    console.log(`✅ Successfully saved ${nfts.length} NFTs to database for player ${playerId}`);
+
+  } catch (error) {
+    console.error(`❌ Error saving NFTs to database for player ${playerId}:`, error);
+    throw error; // Re-throw the error so the caller can handle it
+  }
+}
+
+/**
+ * Loads all NFT ownership data for a player from their subcollection.
+ * This is useful for checking ownership without needing full metadata.
+ * @param playerId The player's unique ID
+ * @returns An array of NFT ownership data objects or null if an error occurs
+ */
+export async function loadNFTsFromDatabase(playerId: string): Promise<NFTData[] | null> {
+  try {
+    const playerNftsRef = collection(db, "players", playerId, "nfts");
+    const nftsSnapshot = await getDocs(query(playerNftsRef));
+    return nftsSnapshot.docs.map(doc => doc.data() as NFTData);
+  } catch (error) {
+    console.error(`❌ Error loading NFTs from database for player ${playerId}:`, error);
     return null;
   }
 }

@@ -1,5 +1,5 @@
 import { getAuth } from "firebase/auth";
-import { doc, updateDoc, getDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Web3Service } from '../services/Web3Service';
 
@@ -57,20 +57,6 @@ export default class TokenClaimScene extends Phaser.Scene {
         if (!this.tokenAddress) {
             console.error('Token address not configured in environment');
             this.showError('Token claiming is currently unavailable');
-            return;
-        }
-
-        // Initialize treasury wallet first with a read-only provider
-        try {
-            const initSuccess = await this.web3Service.initTreasurySigner();
-            if (!initSuccess) {
-                console.error('Failed to initialize treasury wallet');
-                this.showError('Failed to initialize claiming service');
-                return;
-            }
-        } catch (error) {
-            console.error('Failed to initialize treasury wallet:', error);
-            this.showError('Failed to initialize claiming service');
             return;
         }
 
@@ -520,17 +506,11 @@ export default class TokenClaimScene extends Phaser.Scene {
         this.createStatusWindow();
         this.statusContainer.setAlpha(1);
         this.updateStatus(0);
-
-        const playerDoc = await getDoc(doc(db, "players", this.userId));
-        if (!playerDoc.exists()) return;
-
-        const currentBalance = playerDoc.data().quiztals || 0;
-        const claimAmount = Math.min(Math.floor(currentBalance), 100);
         
-        // Update minimum check to 50
-        if (claimAmount < 50) {  // Changed from 10 to 50
-            this.updateStatus(0, 'Minimum claim amount is 50 Quiztals');  // Updated message
-            this.showError('Minimum claim amount is 50 Quiztals');  // Updated message
+        // The claim button is already disabled by updateBalanceDisplay if the balance is too low.
+        // The final validation is handled securely on the server, so we can remove the client-side check here.
+        if (this.claimButton.alpha < 1) {
+            this.showError('Your balance is too low to claim.');
             return;
         }
 
@@ -539,50 +519,40 @@ export default class TokenClaimScene extends Phaser.Scene {
 
         try {
             this.updateStatus(1);
-            console.log(`Initiating claim for ${claimAmount} Quiztals...`);
+            console.log(`Initiating claim request...`);
 
             this.updateStatus(2);
-            const result = await this.web3Service.claimTokens(claimAmount);
+            // Call the updated Web3Service method. The server handles the amount.
+            const result = await this.web3Service.claimTokens();
             
             if (result.success && result.txHash) {
                 this.updateStatus(3);
-                console.log('Transaction confirmed:', result.txHash);
-
                 this.updateStatus(4);
-
                 this.updateStatus(5);
-                await updateDoc(doc(db, "players", this.userId), {
-                    quiztals: currentBalance - claimAmount,
-                    claimHistory: arrayUnion({
-                        amount: claimAmount,
-                        timestamp: Date.now(),
-                        txHash: result.txHash
-                    })
-                });
+                console.log('Transaction confirmed:', result.txHash);
 
                 // Close status window with success animation
                 this.tweens.add({
                     targets: this.statusContainer,
                     alpha: 0,
-                    scale: 1.1,
                     duration: 500,
                     ease: 'Power2',
                     onComplete: () => {
                         this.statusContainer.destroy();
-                        this.showSuccess(
-                            `Successfully claimed ${claimAmount} Quiztals!\n` +
-                            `Transaction: ${result.txHash?.substring(0, 10) || 'Pending'}...`
-                        );
+                        // Pass the full message and the full txHash separately
+                        this.showSuccess(result.message, result.txHash!);
                     }
                 });
                 
                 this.updateBalanceDisplay();
             } else {
-                this.updateStatus(2, result.message);
+                // Show the error message from the server
+                this.showError(result.message);
+                this.updateStatus(0, result.message);
                 console.error('Claim failed:', result.message);
             }
         } catch (error: any) {
-            console.error('Claim error:', error);
+            console.error('Claim processing error:', error);
             this.updateStatus(2, error.message || 'Failed to process claim');
         } finally {
             this.claimButton.setAlpha(1);
@@ -685,8 +655,7 @@ export default class TokenClaimScene extends Phaser.Scene {
     }
 
     // Update showSuccess to display transaction info better
-    private showSuccess(message: string) {
-        const lines = message.split('\n');
+    private showSuccess(message: string, txHash: string) {
         const container = this.add.container(
             this.scale.width / 2,
             this.scale.height - 120  // Moved up slightly to accommodate link
@@ -699,7 +668,7 @@ export default class TokenClaimScene extends Phaser.Scene {
         const successText = this.add.text(
             0,
             -25,
-            '✅ ' + lines[0],
+            '✅ ' + message,
             {
                 fontSize: '18px',
                 color: '#00b894',
@@ -707,14 +676,11 @@ export default class TokenClaimScene extends Phaser.Scene {
             }
         ).setOrigin(0.5);
 
-        // Extract tx hash from second line
-        const txHash = lines[1].split(': ')[1].replace('...', '');
-
         // Create View on Basescan link
         const viewOnBasescan = this.add.text(
             0,
             10,
-            '🔍 View on Basescan',
+            `🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`,
             {
                 fontSize: '14px',
                 color: '#3498db',
@@ -725,11 +691,11 @@ export default class TokenClaimScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on('pointerover', () => {
             viewOnBasescan.setStyle({ color: '#2980b9' });
-            viewOnBasescan.setText('🔍 View on Basescan (Click)');
+            viewOnBasescan.setText(`🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`);
         })
         .on('pointerout', () => {
             viewOnBasescan.setStyle({ color: '#3498db' });
-            viewOnBasescan.setText('🔍 View on Basescan');
+            viewOnBasescan.setText(`🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`);
         })
         .on('pointerdown', () => {
             const basescanUrl = `https://basescan.org/tx/${txHash}`;

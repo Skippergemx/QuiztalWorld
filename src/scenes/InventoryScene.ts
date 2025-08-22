@@ -1,16 +1,10 @@
 import Phaser from 'phaser';
+import { NFTData } from '../types/nft';
+import { loadNFTsFromDatabase } from '../utils/Database';
 
 interface TabContent {
     container: Phaser.GameObjects.Container;
     isActive: boolean;
-}
-
-interface NFTData {
-    tokenId: string;
-    image: string;
-    name: string;
-    description: string;
-    collectionType: 'erc721' | 'erc1155';
 }
 
 // Add this interface at the top with other interfaces
@@ -245,7 +239,7 @@ export default class InventoryScene extends Phaser.Scene {
         this.input.setDefaultCursor('default');
     }
 
-    private createTabs(): void {
+    private async createTabs(): Promise<void> {
         const tabsConfig = [
             { key: 'items', label: '🎒 Items', x: -150 },
             { key: 'nfts', label: '💎 NFTs', x: 150 }
@@ -333,12 +327,12 @@ export default class InventoryScene extends Phaser.Scene {
         console.log(`Switched to tab: ${newTab}`);
     }
 
-    private createTabContents(): void {
+    private async createTabContents(): Promise<void> {
         // Create content area for Items using the new method
         const itemsContent = this.createItemsContent();
         
         // Create content area for NFTs
-        const nftsContent = this.createNFTsContent();
+        const nftsContent = await this.createNFTsContent();
 
         // Set initial visibility based on active tab
         itemsContent.setVisible(this.activeTab === 'items');
@@ -527,7 +521,7 @@ export default class InventoryScene extends Phaser.Scene {
         return colors[rarity as keyof typeof colors];
     }
 
-    private createNFTsContent(): Phaser.GameObjects.Container {
+    private async createNFTsContent(): Promise<Phaser.GameObjects.Container> {
         const container = this.add.container(0, 0);
 
         // Create content background
@@ -553,12 +547,27 @@ export default class InventoryScene extends Phaser.Scene {
         };
 
         // Get saved NFTs
-        const savedNFTs = localStorage.getItem('quiztal-nfts');
-        console.log('Saved NFTs:', savedNFTs);
+        let nfts: NFTData[] | null = null;
+        const savedNFTsString = localStorage.getItem('quiztal-nfts');
 
-        if (savedNFTs) {
-            const nfts: NFTData[] = JSON.parse(savedNFTs);
-            console.log('Parsed NFTs:', nfts);
+        if (savedNFTsString) {
+            console.log('Loading NFTs from localStorage.');
+            nfts = JSON.parse(savedNFTsString);
+        } else {
+            // Fallback to Firestore if localStorage is empty
+            const playerDataStr = localStorage.getItem("quiztal-player");
+            if (playerDataStr) {
+                const playerData = JSON.parse(playerDataStr);
+                console.log('localStorage is empty, loading NFTs from Firestore...');
+                nfts = await loadNFTsFromDatabase(playerData.uid);
+                // If loaded from Firestore, update localStorage for this session
+                if (nfts) {
+                    localStorage.setItem('quiztal-nfts', JSON.stringify(nfts));
+                }
+            }
+        }
+
+        if (nfts && nfts.length > 0) {
 
             // Calculate total pages
             const totalPages = Math.ceil(nfts.length / this.nftsPerPage);
@@ -621,6 +630,12 @@ export default class InventoryScene extends Phaser.Scene {
 
             const card = this.createNFTCard(x, y, nft);
             container.add(card);
+        }
+
+        // If any images were queued for loading by createNFTCard, start the loader once.
+        // This is much more efficient than starting it inside a loop.
+        if (this.load.inflight.size > 0) {
+            this.load.start();
         }
     }
 

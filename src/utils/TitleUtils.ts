@@ -1,3 +1,5 @@
+import { NFTData } from "../types/nft";
+
 export interface TitleConfig {
     text: string;
     color: string;
@@ -5,7 +7,7 @@ export interface TitleConfig {
     auraColor: string;  // Add aura color for animation
 }
 
-export function getPlayerTitle(nfts: any[]): TitleConfig {
+export function getPlayerTitle(nfts: NFTData[]): TitleConfig {
     const hasCrystGuard = nfts.some(nft => nft.collectionType === 'erc721');
     const hasGemante = nfts.some(nft => nft.collectionType === 'erc1155');
 

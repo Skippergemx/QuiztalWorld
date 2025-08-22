@@ -27,14 +27,12 @@ private setupEventListeners() {
     this.isOnline = true;
     this.updateNetworkStatusUI();
     this.notifyNetworkStatusChange();
-    console.log('Network connection restored');
   });
 
   window.addEventListener('offline', () => {
     this.isOnline = false;
     this.updateNetworkStatusUI();
     this.notifyNetworkStatusChange();
-    console.log('Network connection lost');
   });
 }
 
@@ -74,7 +72,6 @@ private setupEventListeners() {
         this.isOnline = true;
         this.updateNetworkStatusUI();
         this.notifyNetworkStatusChange();
-        console.log('Network connection confirmed');
       }
     } catch (error) {
       // If we're already marked as offline, don't update UI again
@@ -82,7 +79,6 @@ private setupEventListeners() {
         this.isOnline = false;
         this.updateNetworkStatusUI();
         this.notifyNetworkStatusChange();
-        console.log('Network connection lost or unstable');
       }
     }
   }

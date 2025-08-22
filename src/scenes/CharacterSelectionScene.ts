@@ -14,6 +14,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
   private colorShiftTimer: number = 0;
   private loadingBar!: Phaser.GameObjects.Graphics;
   private loadingText!: Phaser.GameObjects.Text;
+  private isConfirming: boolean = false; // Add a flag to prevent multiple confirmations
   private leftArrow!: Phaser.GameObjects.Container;
   private rightArrow!: Phaser.GameObjects.Container;
   private confirmButton!: Phaser.GameObjects.Container;
@@ -47,7 +48,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-RIGHT', this.selectNext.bind(this));
     this.input.keyboard?.on('keydown-A', this.selectPrevious.bind(this));
     this.input.keyboard?.on('keydown-D', this.selectNext.bind(this));
-    this.input.keyboard?.on('keydown-ENTER', this.confirmSelection.bind(this));  // Add this line
+    this.input.keyboard?.on('keydown-ENTER', this.confirmSelection.bind(this));
     
     // Start character selection immediately
     this.startCharacterSelection();
@@ -360,6 +361,17 @@ export default class CharacterSelectionScene extends Phaser.Scene {
   }
 
   async confirmSelection() {
+    // Prevent the function from running again if it's already in progress
+    if (this.isConfirming) {
+      return;
+    }
+    this.isConfirming = true;
+
+    // Disable controls to prevent further interaction
+    this.leftArrow.disableInteractive();
+    this.rightArrow.disableInteractive();
+    this.confirmButton.disableInteractive();
+
     this.selectedCharacter = this.characterKeys[this.currentIndex];
     console.log(`✅ Character Selected: ${this.selectedCharacter}`);
 
@@ -418,7 +430,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         targets: [statusContainer, ...this.characterSprites],
         alpha: 0,
         duration: 500,
-        onComplete: () => {
+        onComplete: async () => { // Make the callback async
           const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
           const updated = {
             ...existing,
@@ -428,11 +440,12 @@ export default class CharacterSelectionScene extends Phaser.Scene {
           localStorage.setItem("quiztal-player", JSON.stringify(updated));
 
           const playerRef = doc(db, "players", this.user.uid);
-          updateDoc(playerRef, {
+          // Await the database update to ensure it completes before proceeding
+          await updateDoc(playerRef, {
             character: this.selectedCharacter,
           });
 
-          // Transition to the game scene
+          // Transition to the game scene AFTER the database is updated
           this.scene.start("GameScene", {
             selectedCharacter: this.selectedCharacter,
           });
