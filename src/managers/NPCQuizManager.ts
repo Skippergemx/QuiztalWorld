@@ -58,7 +58,7 @@ export default class NPCQuizManager {
      * Load all quiz JSON files
      */
     private async loadAllQuizData(): Promise<void> {
-        const npcIds = ['mintgirl', 'basesage', 'huntboy'];
+        const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai'];
         const loadPromises = npcIds.map(npcId => this.loadQuizData(npcId));
         
         try {

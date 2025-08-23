@@ -3,6 +3,7 @@ import HuntBoy from "../objects/HuntBoy";
 import MintGirl from "../objects/MintGirl";
 import BaseSage from "../objects/BaseSage";
 import MrGemx from "../objects/MrGemx";
+import SecurityKai from "../objects/SecurityKai";
 import Moblin from "../objects/Moblin";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { getPlayerTitle } from '../utils/TitleUtils';
@@ -24,6 +25,7 @@ export default class GameScene extends Phaser.Scene {
   private mintGirl!: MintGirl;
   private baseSage!: BaseSage;
   private mrGemx!: MrGemx;
+  private securityKai!: SecurityKai;
   private moblin?: Moblin; // Add moblin property
   private joyStick?: Phaser.GameObjects.Image;
   private joyStickBase?: Phaser.GameObjects.Image;
@@ -70,6 +72,12 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet("mr_gemx", "assets/npc/npc_mrgemx_idle_1.png", {
       frameWidth: 32,
       frameHeight: 64,
+    });
+
+    this.load.image("npc_securitykai_avatar", "assets/npc/npc_securitykai_avatar.png");
+    this.load.spritesheet("securitykai", "assets/npc/npc_securitykai_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 53,
     });
 
     const characters = ["lsxd", "penski", "sarah", "xander"];
@@ -180,6 +188,8 @@ export default class GameScene extends Phaser.Scene {
     this.mintGirl = new MintGirl(this, 1050, 1100);
     this.baseSage = new BaseSage(this, 1100, 500);
     this.mrGemx = new MrGemx(this, 500, 480);
+    this.securityKai = new SecurityKai(this, 700, 200);
+    this.physics.add.collider(this.player, this.securityKai);
 
     // ✅ Colliders for all NPCs
     this.physics.add.collider(this.player, this.huntboy);
@@ -201,6 +211,17 @@ export default class GameScene extends Phaser.Scene {
       if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
         if (window.quizAntiSpamManager.isInteractionBlocked()) {
           console.log("GameScene: C key press blocked - interactions are currently blocked");
+          return;
+        }
+      }
+      this.handleNPCTrigger("C");
+    });
+
+    this.input.keyboard?.on("keydown-c", () => {
+      // Check if interactions are blocked before triggering NPC interaction
+      if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
+        if (window.quizAntiSpamManager.isInteractionBlocked()) {
+          console.log("GameScene: c key press blocked - interactions are currently blocked");
           return;
         }
       }
@@ -506,6 +527,9 @@ export default class GameScene extends Phaser.Scene {
       } else if (distanceToMrGemx <= 100) {
         console.log("Triggering MrGemx dialog");
         this.mrGemx.interact();
+      } else if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.securityKai.x, this.securityKai.y) <= 100) {
+        console.log("Triggering SecurityKai dialog");
+        this.securityKai.interact();
       } else {
         console.log("Player not in range of any NPC");
       }

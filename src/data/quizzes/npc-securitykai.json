@@ -1,0 +1,168 @@
+{
+  "npcId": "securitykai",
+  "npcName": "Security Kai",
+  "theme": "Web3 Security",
+  "description": "Quiz questions about web3 security best practices.",
+  "questions": [
+    {
+      "question": "What is a common phishing technique in web3?",
+      "options": ["Sending fake airdrop links", "Validating transactions", "Using a hardware wallet"],
+      "answer": "Sending fake airdrop links"
+    },
+    {
+      "question": "What is a hardware wallet?",
+      "options": ["A software wallet", "A physical device for storing keys", "A web browser extension"],
+      "answer": "A physical device for storing keys"
+    },
+    {
+      "question": "What is a seed phrase?",
+      "options": ["A password", "A 12-24 word backup phrase", "A transaction hash"],
+      "answer": "A 12-24 word backup phrase"
+    },
+    {
+      "question": "Why should you never share your seed phrase?",
+      "options": ["It's not important", "Someone can steal your funds", "It's public information"],
+      "answer": "Someone can steal your funds"
+    },
+    {
+      "question": "What is a rug pull?",
+      "options": ["A type of NFT", "A scam where a project disappears with investors' money", "A decentralized exchange"],
+      "answer": "A scam where a project disappears with investors' money"
+    },
+    {
+      "question": "What is a smart contract audit?",
+      "options": ["A review of a contract's code for vulnerabilities", "A type of cryptocurrency", "A legal document"],
+      "answer": "A review of a contract's code for vulnerabilities"
+    },
+    {
+      "question": "What is gas in the context of Ethereum?",
+      "options": ["A type of fuel", "A fee for executing transactions", "A unit of measurement"],
+      "answer": "A fee for executing transactions"
+    },
+    {
+      "question": "What is transaction signing?",
+      "options": ["Approving a transaction with your private key", "Sending a transaction", "Cancelling a transaction"],
+      "answer": "Approving a transaction with your private key"
+    },
+    {
+      "question": "What is a multi-signature wallet?",
+      "options": ["A wallet with one key", "A wallet requiring multiple approvals for transactions", "A paper wallet"],
+      "answer": "A wallet requiring multiple approvals for transactions"
+    },
+    {
+      "question": "What is a honeypot contract?",
+      "options": ["A secure smart contract", "A contract that appears vulnerable but is not", "A contract that attracts hackers"],
+      "answer": "A contract that appears vulnerable but is not"
+    },
+    {
+      "question": "What is a replay attack?",
+      "options": ["Replaying a transaction on a different chain", "Attacking a smart contract", "Stealing NFTs"],
+      "answer": "Replaying a transaction on a different chain"
+    },
+    {
+      "question": "What is a 51% attack?",
+      "options": ["Controlling the majority of a blockchain's hashrate", "Stealing 51% of the funds", "A type of phishing attack"],
+      "answer": "Controlling the majority of a blockchain's hashrate"
+    },
+    {
+      "question": "What is a DAO?",
+      "options": ["Decentralized Autonomous Organization", "Decentralized Application", "Digital Art Object"],
+      "answer": "Decentralized Autonomous Organization"
+    },
+    {
+      "question": "What is DeFi?",
+      "options": ["Decentralized Finance", "Digital Finance", "Data Finance"],
+      "answer": "Decentralized Finance"
+    },
+    {
+      "question": "What is an NFT?",
+      "options": ["Non-Fungible Token", "New Financial Technology", "Network File Transfer"],
+      "answer": "Non-Fungible Token"
+    },
+    {
+      "question": "What is a blockchain?",
+      "options": ["A type of database", "A cryptocurrency", "A smart contract"],
+      "answer": "A type of database"
+    },
+    {
+      "question": "What is a private key?",
+      "options": ["A public address", "A secret code to access your funds", "A transaction hash"],
+      "answer": "A secret code to access your funds"
+    },
+    {
+      "question": "What is a public key?",
+      "options": ["A private address", "An address to receive funds", "A seed phrase"],
+      "answer": "An address to receive funds"
+    },
+    {
+      "question": "What is a web3 wallet?",
+      "options": ["A physical wallet", "A digital wallet to manage crypto assets", "A bank account"],
+      "answer": "A digital wallet to manage crypto assets"
+    },
+    {
+      "question": "What is a dApp?",
+      "options": ["Decentralized Application", "Digital Application", "Data Application"],
+      "answer": "Decentralized Application"
+    },
+    {
+      "question": "What is a gas limit?",
+      "options": ["The maximum amount of gas you're willing to spend", "The minimum amount of gas you must spend", "The average gas price"],
+      "answer": "The maximum amount of gas you're willing to spend"
+    },
+    {
+      "question": "What is a transaction hash?",
+      "options": ["A unique identifier for a transaction", "A seed phrase", "A private key"],
+      "answer": "A unique identifier for a transaction"
+    },
+    {
+      "question": "What is a block explorer?",
+      "options": ["A tool to view blockchain transactions", "A type of cryptocurrency", "A web browser"],
+      "answer": "A tool to view blockchain transactions"
+    },
+    {
+      "question": "What is KYC?",
+      "options": ["Know Your Customer", "Keep Your Coins", "Key Your Code"],
+      "answer": "Know Your Customer"
+    },
+    {
+      "question": "What is AML?",
+      "options": ["Anti-Money Laundering", "Automated Machine Learning", "Advanced Malware Locator"],
+      "answer": "Anti-Money Laundering"
+    },
+    {
+      "question": "What is a cold wallet?",
+      "options": ["A hot wallet", "A hardware wallet", "A paper wallet"],
+      "answer": "A hardware wallet"
+    },
+    {
+      "question": "What is a hot wallet?",
+      "options": ["A cold wallet", "A software wallet connected to the internet", "A paper wallet"],
+      "answer": "A software wallet connected to the internet"
+    },
+    {
+      "question": "What is a mempool?",
+      "options": ["A place where pending transactions wait", "A type of cryptocurrency", "A smart contract"],
+      "answer": "A place where pending transactions wait"
+    },
+    {
+      "question": "What is a fork?",
+      "options": ["A type of spoon", "A change to the blockchain's protocol", "A cryptocurrency exchange"],
+      "answer": "A change to the blockchain's protocol"
+    },
+    {
+      "question": "What is a sidechain?",
+      "options": ["A Layer 2 scaling solution", "An alternative blockchain", "A type of cryptocurrency"],
+      "answer": "An alternative blockchain"
+    },
+    {
+      "question": "What is a testnet?",
+      "options": ["A mainnet", "A blockchain for testing", "A cryptocurrency exchange"],
+      "answer": "A blockchain for testing"
+    },
+    {
+      "question": "What is a mainnet?",
+      "options": ["A testnet", "The main blockchain network", "A cryptocurrency exchange"],
+      "answer": "The main blockchain network"
+    }
+  ]
+}

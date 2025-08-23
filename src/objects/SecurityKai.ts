@@ -7,16 +7,15 @@ import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 import NPCQuizManager from '../managers/NPCQuizManager';
 
-export default class HuntBoy extends QuizNPC {
-  private directions = ["right", "up", "left", "down"];
+export default class SecurityKai extends QuizNPC {
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
-  private readonly npcId = 'huntboy';
+  private readonly npcId = 'securitykai';
 
   // Quiz data is now loaded from JSON
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, "npc_huntboy");
+    super(scene, x, y, "securitykai");
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
@@ -28,12 +27,12 @@ export default class HuntBoy extends QuizNPC {
     this.setDepth(1);
 
     this.createAnimations(scene);
-    this.play("huntboy-idle-down"); // Set initial animation
+    this.play("securitykai-idle"); // Set initial animation
 
-    this.nameLabel = scene.add.text(x, y - 40, "Hunt Boy", {
+    this.nameLabel = scene.add.text(x, y - 40, "Security Kai", {
       fontSize: "14px",
       fontFamily: "monospace",
-      color: "#00bfff", 
+      color: "#00bfff",
       stroke: "#003366",
       strokeThickness: 3,
       align: "center"
@@ -66,29 +65,26 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
 
   private createAnimations(scene: Phaser.Scene) {
-    this.directions.forEach((dir, index) => {
+    if (!scene.anims.exists("securitykai-idle")) {
       scene.anims.create({
-        key: `huntboy-idle-${dir}`,
-        frames: scene.anims.generateFrameNumbers("npc_huntboy", {
-          start: index * 6,
-          end: index * 6 + 5,
-        }),
+        key: "securitykai-idle",
+        frames: scene.anims.generateFrameNumbers("securitykai", { start: 0, end: 23 }),
         frameRate: 3,
         repeat: -1,
       });
-    });
+    }
   }
 
   public interact() {
     // Check if a dialog is already open
     if (this.currentDialog) {
-      console.log("HuntBoy: Dialog already open, ignoring interaction");
+      console.log("SecurityKai: Dialog already open, ignoring interaction");
       return;
     }
 
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
-      console.log("HuntBoy: Network offline - showing offline message");
+      console.log("SecurityKai: Network offline - showing offline message");
       const dialog = showDialog(this.scene, [
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
@@ -113,7 +109,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         const playerId = player.name || `anon_${Date.now()}`;
         // Use the checkCooldown method which properly handles expired cooldowns
         if (this.checkCooldown(playerId)) {
-          console.log("HuntBoy: Player is on cooldown or has reached max attempts");
+          console.log("SecurityKai: Player is on cooldown or has reached max attempts");
           this.showCooldownDialog();
           return;
         }
@@ -126,13 +122,13 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
-      console.log("HuntBoy: Interaction blocked, cannot start quiz");
+      console.log("SecurityKai: Interaction blocked, cannot start quiz");
       return;
     }
 
     // Check if quiz manager is ready
     if (!this.quizManager.isReady()) {
-      console.warn("HuntBoy: Quiz manager not ready yet");
+      console.warn("SecurityKai: Quiz manager not ready yet");
       return;
     }
 
@@ -140,7 +136,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
 
     if (!questionData) {
-      console.error("HuntBoy: No questions available");
+      console.error("SecurityKai: No questions available");
       return;
     }
 
@@ -156,7 +152,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
     showDialog(this.scene, [{
       text: currentQuestion.question,
-      avatar: "npc_huntboy_avatar",
+      avatar: "npc_securitykai_avatar",
       options: shuffledOptions.map(option => ({
         text: option,
         callback: () => {
@@ -193,7 +189,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     this.scene.time.delayedCall(500, () => {
       // Check if interactions are blocked before showing reward dialog
       if (this.isInteractionBlocked()) {
-        console.log("HuntBoy: Cannot show reward dialog - interactions are blocked");
+        console.log("SecurityKai: Cannot show reward dialog - interactions are blocked");
         return;
       }
 
@@ -202,7 +198,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
           text: isCorrect
             ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`
             : `❌ Oops! The correct answer was "${correctAnswer}". Try again later!`,
-          avatar: "npc_huntboy_avatar",
+          avatar: "npc_securitykai_avatar",
           isExitDialog: true
         }
       ]);
@@ -229,34 +225,34 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`;
-    saveQuiztalsToDatabase(playerId, reward, "HuntBoy");
+    saveQuiztalsToDatabase(playerId, reward, "SecurityKai");
 
     // Also log to local session tracker
-    QuiztalRewardLog.logReward("HuntBoy", reward);
+    QuiztalRewardLog.logReward("SecurityKai", reward);
 
     // Log reward to reward logger
     if (typeof window !== 'undefined' && (window as any).game) {
       const game = (window as any).game;
       const loggerScene = game.scene.getScene('LoggerScene');
       if (loggerScene && loggerScene.addReward) {
-        loggerScene.addReward(reward, "HuntBoy", "HuntBoy");
+        loggerScene.addReward(reward, "SecurityKai", "SecurityKai");
       }
     }
   }
 
   private startShouting(scene: Phaser.Scene) {
     const shoutMessages = [
-      "Yo anon, have you bridged to Base yet? 😏",
-      "Base gas fees? What gas fees? Almost free! 💨",
-      "Web3 builders, join Hunt Town! 🏗️",
-      "Hunt Town = Web3 dev paradise! 🌍"
+      "Yo anon, have you secured your web3 accounts yet? 😏",
+      "Web3 security is important! Learn more from me! 🛡️",
+      "Protect your digital assets! 🔒",
+      "I'm Security Kai, your guide to web3 safety! 💡"
     ];
 
     // Network-specific shout messages
     const networkOfflineMessages = [
-      "Network down! No quizzes until connection restored! 🚫📡",
-      "Internet connection lost! Quiztals on hold! 😢🔌",
-      "Offline mode: HuntBoy's quizzes disabled! ⏸️",
+      "Network down! No security tips until connection restored! 🚫📡",
+      "Internet connection lost! Web3 security lessons on hold! 😢🔌",
+      "Offline mode: SecurityKai's quizzes disabled! ⏸️",
       "No network, no knowledge challenges! 🔌",
       "Connection error: Quiz unavailable! 📡"
     ];
@@ -297,10 +293,10 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
     if (!this.networkMonitor.getIsOnline()) {
       // Network is offline
-      message = "🚨 Network connection lost! HuntBoy's quizzes disabled! 🚫";
+      message = "🚨 Network connection lost! SecurityKai's quizzes disabled! 🚫";
     } else {
       // Network is online
-      message = "✅ Network connection restored! HuntBoy's quizzes available! 🌐";
+      message = "✅ Network connection restored! SecurityKai's quizzes available! 🌐";
     }
 
     this.showShout(message);
@@ -330,7 +326,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     this.currentDialog = showDialog(this.scene, [
       {
         text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-        avatar: "npc_huntboy_avatar",
+        avatar: "npc_securitykai_avatar",
         isExitDialog: true
       }
     ]);
