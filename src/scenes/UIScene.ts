@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { Web3Service } from '../services/Web3Service';
+import QuiztalRewardTracker from '../components/QuiztalRewardTracker';
+import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 
 export default class UIScene extends Phaser.Scene {
     private uiContainer!: Phaser.GameObjects.Container;
@@ -10,8 +12,10 @@ export default class UIScene extends Phaser.Scene {
     private playerId: string = '';
     private balanceUnsubscribe?: () => void;
     private keyI!: Phaser.Input.Keyboard.Key; // <-- Added keyI property
+    private keyR!: Phaser.Input.Keyboard.Key; // <-- Added keyR property for rewards
     private walletBtn!: Phaser.GameObjects.Text; // Update or add this property
     private web3Service: Web3Service;
+    private rewardTracker!: QuiztalRewardTracker; // Reward tracker component
 
     constructor() {
         super({ key: 'UIScene' });
@@ -37,8 +41,10 @@ export default class UIScene extends Phaser.Scene {
             this.createUIPanel();
             this.createButtons();
             this.createBalanceDisplay();
-            this.createFooterInstructions(); // Add this line
+            this.createFooterInstructions();
 
+            // Initialize reward tracking
+            this.initializeRewardTracking();
 
             // Setup event listeners
             this.scale.on('resize', this.updateLayout, this);
@@ -46,10 +52,13 @@ export default class UIScene extends Phaser.Scene {
             // Replace loadPlayerBalance() call with setupBalanceListener
             this.setupBalanceListener();
 
-            // Add keyboard listener for inventory
+            // Add keyboard listeners
             if (this.input.keyboard) {
                 this.keyI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
                 this.keyI.on('down', () => this.openInventory());
+                
+                this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+                this.keyR.on('down', () => this.toggleRewardTracker());
             }
         } catch (error) {
             console.error('Error initializing UI:', error);
@@ -77,11 +86,18 @@ export default class UIScene extends Phaser.Scene {
         const isMobile = this.scale.width < 768;
         const buttonConfigs = [
             {
-                text: '💎',  // Add claim button first
+                text: '💎',  // Claim tokens button
                 tooltip: 'Claim Tokens',
                 color: '#9b59b6',  // Purple color for claim button
                 hoverColor: '#8e44ad',
                 callback: () => this.openTokenClaim()
+            },
+            {
+                text: '🎯',  // Session rewards tracker button
+                tooltip: 'Session Rewards',
+                color: '#f39c12',  // Orange/gold color for rewards
+                hoverColor: '#e67e22',
+                callback: () => this.toggleRewardTracker()
             },
             {
                 text: '🎒',
@@ -99,8 +115,8 @@ export default class UIScene extends Phaser.Scene {
             }
         ];
 
-        // Adjust position for mobile - update spacing for new button
-        let xPosition = this.scale.width - (isMobile ? 150 : 280);  // Adjusted for extra button
+        // Adjust position for mobile - update spacing for new button (4 buttons now)
+        let xPosition = this.scale.width - (isMobile ? 200 : 360);  // Adjusted for 4 buttons
         buttonConfigs.forEach(config => {
             const button = this.createNavButton(
                 config.text,
@@ -271,8 +287,8 @@ export default class UIScene extends Phaser.Scene {
         
         // Don't show keyboard instructions on mobile
         const instructions = isMobile ?
-            'Tap NPCs to interact | Tap 🎒 for Inventory' :
-            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press I for Inventory | PgUp/PgDn to scroll';
+            'Tap NPCs to interact | Tap 🎯 for Session Rewards | Tap 🎒 for Inventory' :
+            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press R for Rewards | Press I for Inventory | PgUp/PgDn to scroll';
 
         const footerBg = this.add.rectangle(
             0,
@@ -351,6 +367,34 @@ export default class UIScene extends Phaser.Scene {
         }
     }
 
+    /**
+     * Initialize reward tracking system
+     */
+    private initializeRewardTracking(): void {
+        // Initialize the reward session
+        QuiztalRewardLog.initializeSession();
+        
+        // Create the reward tracker UI component
+        this.rewardTracker = new QuiztalRewardTracker(this);
+        
+        // Show it initially if there are existing rewards in session
+        const stats = QuiztalRewardLog.getSessionStats();
+        if (stats.rewardCount > 0) {
+            this.rewardTracker.show();
+        }
+        
+        console.log('🎯 Reward tracking initialized:', QuiztalRewardLog.getSessionSummary());
+    }
+    
+    /**
+     * Toggle the reward tracker display
+     */
+    private toggleRewardTracker(): void {
+        if (this.rewardTracker) {
+            this.rewardTracker.toggle();
+        }
+    }
+
     private handleLogout() {
         this.cameras.main.fadeOut(500, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -358,6 +402,10 @@ export default class UIScene extends Phaser.Scene {
                 // Check if localStorage is available
                 if (typeof window !== 'undefined' && window.localStorage) {
                     window.localStorage.removeItem('quiztal-player');
+                    
+                    // Clear reward log on logout as requested
+                    QuiztalRewardLog.clearLog();
+                    console.log('🗑️ Reward log cleared on logout');
                 }
             } catch (error) {
                 console.error('Error during logout:', error);
@@ -382,12 +430,24 @@ export default class UIScene extends Phaser.Scene {
         }
         this.scale.off('resize', this.updateLayout, this);
         
-        // Remove keyboard listener
+        // Remove keyboard listeners
         if (this.keyI) {
             this.keyI.removeAllListeners();
             if (this.input.keyboard) {
                 this.input.keyboard.removeKey(this.keyI);
             }
+        }
+        
+        if (this.keyR) {
+            this.keyR.removeAllListeners();
+            if (this.input.keyboard) {
+                this.input.keyboard.removeKey(this.keyR);
+            }
+        }
+        
+        // Clean up reward tracker
+        if (this.rewardTracker) {
+            this.rewardTracker.destroy();
         }
 
         // Disconnect wallet

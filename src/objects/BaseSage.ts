@@ -4,6 +4,7 @@ import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager'; // Import AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
+import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 
 export default class BaseSage extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
@@ -374,7 +375,10 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     const playerId = player.name || `anon_${Date.now()}`;
     saveQuiztalsToDatabase(playerId, reward, "BaseSage");
     
-    // Log reward to reward logger
+    // Log reward to local storage for session tracking
+    QuiztalRewardLog.logReward("BaseSage", reward);
+    
+    // Log reward to reward logger (keeping existing functionality)
     if (typeof window !== 'undefined' && (window as any).game) {
       const game = (window as any).game;
       const loggerScene = game.scene.getScene('LoggerScene');

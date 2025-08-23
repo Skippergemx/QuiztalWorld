@@ -4,6 +4,7 @@ import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
+import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 
 export default class HuntBoy extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
@@ -455,9 +456,12 @@ this.on("pointerdown", () => this.interact());
 
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`; // Fallback in case name is missing
-    saveQuiztalsToDatabase(playerId, reward);
+    saveQuiztalsToDatabase(playerId, reward, "HuntBoy");
     
-    // Log reward to reward logger
+    // Log reward to local storage for session tracking
+    QuiztalRewardLog.logReward("HuntBoy", reward);
+    
+    // Log reward to reward logger (keeping existing functionality)
     if (typeof window !== 'undefined' && (window as any).game) {
       const game = (window as any).game;
       const loggerScene = game.scene.getScene('LoggerScene');

@@ -11,6 +11,8 @@ import { db } from '../utils/firebase';
 import { saveQuiztalsToDatabase } from '../utils/Database';
 import { QuizAntiSpamManager } from '../managers/QuizAntiSpamManager';
 import { NetworkMonitor } from '../utils/NetworkMonitor';
+import QuiztalRewardLog from '../utils/QuiztalRewardLog';
+import NPCQuizManager from '../managers/NPCQuizManager';
 
 export default class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -103,11 +105,15 @@ export default class GameScene extends Phaser.Scene {
     this.load.audio('moblin-giftbox', 'assets/audio/Moblin_giftbox.wav');
   }
 
-  create() {
+  async create() {
     const map = this.make.tilemap({ key: "map" });
     const tileset = map.addTilesetImage("tileset", "tiles");
     if (!tileset) throw new Error("Tileset failed to load!");
     this.scene.launch("UIScene");
+
+    // Initialize the NPCQuizManager
+    const quizManager = NPCQuizManager.getInstance(this);
+    await quizManager.initialize();
 
     // Initialize the QuizAntiSpamManager
     this.quizAntiSpamManager = QuizAntiSpamManager.getInstance(this);
@@ -551,6 +557,10 @@ export default class GameScene extends Phaser.Scene {
           if (user?.uid) {
             const playerId = user.uid;
             await saveQuiztalsToDatabase(playerId, totalReward, "Moblin");
+            
+            // Also log to local session tracker
+            QuiztalRewardLog.logReward("Moblin", totalReward);
+            
             console.log(`🎁 Collected ${collected} gift boxes and earned ${totalReward} Quiztals!`);
             
             // Show UI feedback
