@@ -47,7 +47,7 @@ export default class QuiztalRewardTracker {
             .setStrokeStyle(2, 0xf1c40f, 0.8);
         
         // Create header
-        this.headerText = this.scene.add.text(this.PADDING, this.PADDING, '🎯 Session Rewards', {
+        this.headerText = this.scene.add.text(this.PADDING, this.PADDING, '🎯 Quiztal Explorer', {
             fontSize: '16px',
             fontFamily: 'monospace',
             color: '#f1c40f',

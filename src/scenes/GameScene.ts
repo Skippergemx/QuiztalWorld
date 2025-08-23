@@ -55,7 +55,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.load.image("npc_basesage_avatar", "assets/npc/npc_basesage_avatar.png");
-    this.load.spritesheet("npc_basesage", "assets/npc/npc_basesage_idle_1.png", {
+    this.load.spritesheet("base_sage", "assets/npc/npc_basesage_idle_1.png", {
       frameWidth: 32,
       frameHeight: 64,
     });
