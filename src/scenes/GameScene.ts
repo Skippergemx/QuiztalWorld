@@ -4,6 +4,11 @@ import MintGirl from "../objects/MintGirl";
 import BaseSage from "../objects/BaseSage";
 import MrGemx from "../objects/MrGemx";
 import SecurityKai from "../objects/SecurityKai";
+import WalletSafetyFriend from "../objects/WalletSafetyFriend";
+import DexpertGal from "../objects/DexpertGal";
+import NftCyn from "../objects/NftCyn";
+import ProfChain from "../objects/ProfChain";
+import SmartContractGuy from "../objects/SmartContractGuy";
 import Moblin from "../objects/Moblin";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { getPlayerTitle } from '../utils/TitleUtils';
@@ -26,6 +31,11 @@ export default class GameScene extends Phaser.Scene {
   private baseSage!: BaseSage;
   private mrGemx!: MrGemx;
   private securityKai!: SecurityKai;
+  private walletSafetyFriend!: WalletSafetyFriend;
+  private dexpertGal!: DexpertGal;
+  private nftCyn!: NftCyn;
+  private profChain!: ProfChain;
+  private smartContractGuy!: SmartContractGuy;
   private moblin?: Moblin; // Add moblin property
   private joyStick?: Phaser.GameObjects.Image;
   private joyStickBase?: Phaser.GameObjects.Image;
@@ -78,6 +88,41 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet("securitykai", "assets/npc/npc_securitykai_idle_1.png", {
       frameWidth: 32,
       frameHeight: 53,
+    });
+
+    // Load Wallet Safety Friend assets
+    this.load.image("npc_walletsafetyfriend_avatar", "assets/npc/npc_walletsafetyfriend_avatar.png");
+    this.load.spritesheet("wallet_safety_friend", "assets/npc/npc_walletsafetyfriend_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 64,
+    });
+
+    // Load Dexpert Gal assets
+    this.load.image("npc_dexpertgal_avatar", "assets/npc/npc_dexpertgal_avatar.png");
+    this.load.spritesheet("dexpert_gal", "assets/npc/npc_dexpertgal_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 64,
+    });
+
+    // Load NFT Cyn assets
+    this.load.image("npc_nftcyn_avatar", "assets/npc/npc_nftcyn_avatar.png");
+    this.load.spritesheet("nft_cyn", "assets/npc/npc_nftcyn_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 53,
+    });
+
+    // Load Prof Chain assets
+    this.load.image("npc_profchain_avatar", "assets/npc/npc_profchain_avatar.png");
+    this.load.spritesheet("prof_chain", "assets/npc/npc_profchain_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 64,
+    });
+
+    // Load Smart Contract Guy assets
+    this.load.image("npc_smartcontractguy_avatar", "assets/npc/npc_smartcontractguy_avatar.png");
+    this.load.spritesheet("smart_contract_guy", "assets/npc/npc_smartcontractguy_idle_1.png", {
+      frameWidth: 32,
+      frameHeight: 64,
     });
 
     const characters = ["lsxd", "penski", "sarah", "xander"];
@@ -184,11 +229,16 @@ export default class GameScene extends Phaser.Scene {
     };
 
     // ✅ Instantiate all NPCs
-    this.huntboy = new HuntBoy(this, 500, 1050);
+    this.huntboy = new HuntBoy(this, 500, 1100);
     this.mintGirl = new MintGirl(this, 1050, 1100);
     this.baseSage = new BaseSage(this, 1100, 500);
     this.mrGemx = new MrGemx(this, 500, 480);
     this.securityKai = new SecurityKai(this, 700, 200);
+    this.walletSafetyFriend = new WalletSafetyFriend(this, 1050, 1250);
+    this.dexpertGal = new DexpertGal(this, 500, 1250);
+    this.nftCyn = new NftCyn(this, 900, 200);
+    this.profChain = new ProfChain(this, 150, 1100);
+    this.smartContractGuy = new SmartContractGuy(this, 1450, 1100);
     this.physics.add.collider(this.player, this.securityKai);
 
     // ✅ Colliders for all NPCs
@@ -196,6 +246,11 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.player, this.mintGirl);
     this.physics.add.collider(this.player, this.baseSage);
     this.physics.add.collider(this.player, this.mrGemx);
+    this.physics.add.collider(this.player, this.walletSafetyFriend);
+    this.physics.add.collider(this.player, this.dexpertGal);
+    this.physics.add.collider(this.player, this.nftCyn);
+    this.physics.add.collider(this.player, this.profChain);
+    this.physics.add.collider(this.player, this.smartContractGuy);
 
     this.createAnimations();
 
@@ -510,9 +565,14 @@ export default class GameScene extends Phaser.Scene {
     const distanceToMintGirl = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mintGirl.x, this.mintGirl.y);
     const distanceToBaseSage = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.baseSage.x, this.baseSage.y);
     const distanceToMrGemx = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.mrGemx.x, this.mrGemx.y);
+    const distanceToWalletSafetyFriend = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.walletSafetyFriend.x, this.walletSafetyFriend.y);
+    const distanceToDexpertGal = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.dexpertGal.x, this.dexpertGal.y);
+    const distanceToNftCyn = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.nftCyn.x, this.nftCyn.y);
+    const distanceToProfChain = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.profChain.x, this.profChain.y);
+    const distanceToSmartContractGuy = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.smartContractGuy.x, this.smartContractGuy.y);
     const distanceToMoblin = this.moblin ? Phaser.Math.Distance.Between(this.player.x, this.player.y, this.moblin.x, this.moblin.y) : Infinity;
 
-    console.log(`Distances - HuntBoy: ${distanceToHuntBoy}, MintGirl: ${distanceToMintGirl}, BaseSage: ${distanceToBaseSage}, MrGemx: ${distanceToMrGemx}, Moblin: ${distanceToMoblin}`);
+    console.log(`Distances - HuntBoy: ${distanceToHuntBoy}, MintGirl: ${distanceToMintGirl}, BaseSage: ${distanceToBaseSage}, MrGemx: ${distanceToMrGemx}, WalletSafetyFriend: ${distanceToWalletSafetyFriend}, DexpertGal: ${distanceToDexpertGal}, NftCyn: ${distanceToNftCyn}, ProfChain: ${distanceToProfChain}, SmartContractGuy: ${distanceToSmartContractGuy}, Moblin: ${distanceToMoblin}`);
 
     if (key === "C") {
       if (distanceToHuntBoy <= 100) {
@@ -530,6 +590,21 @@ export default class GameScene extends Phaser.Scene {
       } else if (Phaser.Math.Distance.Between(this.player.x, this.player.y, this.securityKai.x, this.securityKai.y) <= 100) {
         console.log("Triggering SecurityKai dialog");
         this.securityKai.interact();
+      } else if (distanceToWalletSafetyFriend <= 100) {
+        console.log("Triggering WalletSafetyFriend dialog");
+        this.walletSafetyFriend.interact();
+      } else if (distanceToDexpertGal <= 100) {
+        console.log("Triggering DexpertGal dialog");
+        this.dexpertGal.interact();
+      } else if (distanceToNftCyn <= 100) {
+        console.log("Triggering NftCyn dialog");
+        this.nftCyn.interact();
+      } else if (distanceToProfChain <= 100) {
+        console.log("Triggering ProfChain dialog");
+        this.profChain.interact();
+      } else if (distanceToSmartContractGuy <= 100) {
+        console.log("Triggering SmartContractGuy dialog");
+        this.smartContractGuy.interact();
       } else {
         console.log("Player not in range of any NPC");
       }

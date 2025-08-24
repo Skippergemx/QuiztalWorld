@@ -61,7 +61,7 @@ export default class NPCQuizManager {
      */
     private async loadAllQuizData(): Promise<void> {
         // npcIds: Array of NPC IDs to load quiz data for.  Make sure to include 'securitykai' here.
-        const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai'];
+        const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai', 'nftcyn', 'profchain', 'smartcontractguy', 'dexpertgal', 'walletsafetyfriend'];
         const loadPromises = npcIds.map(npcId => this.loadQuizData(npcId));
         
         try {

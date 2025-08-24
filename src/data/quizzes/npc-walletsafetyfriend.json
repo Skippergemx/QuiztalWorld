@@ -1,0 +1,278 @@
+{
+  "npcId": "walletsafetyfriend",
+  "npcName": "Wallet Safety Friend",
+  "theme": "Wallet Safety",
+  "description": "A friendly security expert specializing in cryptocurrency wallet safety, best practices, and protection against scams and threats.",
+  "questions": [
+    {
+      "question": "What is the safest type of wallet for storing large amounts of cryptocurrency?",
+      "options": [
+        "Hardware wallet (cold storage)",
+        "Mobile wallet app",
+        "Exchange wallet"
+      ],
+      "answer": "Hardware wallet (cold storage)"
+    },
+    {
+      "question": "What should you NEVER do with your seed phrase?",
+      "options": [
+        "Share it with anyone or store it digitally",
+        "Write it down on paper",
+        "Keep it in a safe place"
+      ],
+      "answer": "Share it with anyone or store it digitally"
+    },
+    {
+      "question": "What is a seed phrase?",
+      "options": [
+        "A 12-24 word backup phrase that can restore your wallet",
+        "Your wallet password",
+        "Your wallet address"
+      ],
+      "answer": "A 12-24 word backup phrase that can restore your wallet"
+    },
+    {
+      "question": "How can you identify a phishing website?",
+      "options": [
+        "Check the URL carefully for misspellings or wrong domains",
+        "Look at the website design",
+        "Check if it loads quickly"
+      ],
+      "answer": "Check the URL carefully for misspellings or wrong domains"
+    },
+    {
+      "question": "What is two-factor authentication (2FA)?",
+      "options": [
+        "An extra security layer requiring a second verification method",
+        "Using two different passwords",
+        "Having two separate wallets"
+      ],
+      "answer": "An extra security layer requiring a second verification method"
+    },
+    {
+      "question": "What should you do before connecting your wallet to a new DApp?",
+      "options": [
+        "Research the DApp and verify its legitimacy",
+        "Connect immediately if it looks good",
+        "Ask friends on social media"
+      ],
+      "answer": "Research the DApp and verify its legitimacy"
+    },
+    {
+      "question": "What is a dusting attack?",
+      "options": [
+        "Sending tiny amounts of crypto to track wallet activity",
+        "Stealing large amounts of cryptocurrency",
+        "A type of mining attack"
+      ],
+      "answer": "Sending tiny amounts of crypto to track wallet activity"
+    },
+    {
+      "question": "Where is the safest place to store your seed phrase?",
+      "options": [
+        "Written on paper in a secure physical location",
+        "In your phone's notes app",
+        "In your email drafts"
+      ],
+      "answer": "Written on paper in a secure physical location"
+    },
+    {
+      "question": "What is a hot wallet?",
+      "options": [
+        "A wallet connected to the internet",
+        "A wallet that's physically warm",
+        "A wallet with high transaction fees"
+      ],
+      "answer": "A wallet connected to the internet"
+    },
+    {
+      "question": "What is a cold wallet?",
+      "options": [
+        "A wallet not connected to the internet",
+        "A wallet stored in a refrigerator",
+        "A wallet with frozen funds"
+      ],
+      "answer": "A wallet not connected to the internet"
+    },
+    {
+      "question": "What should you do if someone asks for your private keys?",
+      "options": [
+        "Never share them - it's likely a scam",
+        "Share them if they seem trustworthy",
+        "Share them only with official support"
+      ],
+      "answer": "Never share them - it's likely a scam"
+    },
+    {
+      "question": "What is wallet address poisoning?",
+      "options": [
+        "Creating similar addresses to trick users into sending funds to the wrong place",
+        "Putting malware in wallet software",
+        "Corrupting wallet data files"
+      ],
+      "answer": "Creating similar addresses to trick users into sending funds to the wrong place"
+    },
+    {
+      "question": "What is the best practice for wallet software updates?",
+      "options": [
+        "Only download updates from official sources",
+        "Update from any website that offers it",
+        "Never update wallet software"
+      ],
+      "answer": "Only download updates from official sources"
+    },
+    {
+      "question": "What is a multi-signature (multisig) wallet?",
+      "options": [
+        "A wallet requiring multiple signatures to approve transactions",
+        "A wallet that supports multiple cryptocurrencies",
+        "A wallet with multiple addresses"
+      ],
+      "answer": "A wallet requiring multiple signatures to approve transactions"
+    },
+    {
+      "question": "What should you check before entering your seed phrase anywhere?",
+      "options": [
+        "Verify you're on the official website and it's legitimate",
+        "Make sure your internet is fast",
+        "Check that your device is charged"
+      ],
+      "answer": "Verify you're on the official website and it's legitimate"
+    },
+    {
+      "question": "What is social engineering in crypto scams?",
+      "options": [
+        "Manipulating people to reveal sensitive information",
+        "Using social media for legitimate crypto education",
+        "Building social networks for traders"
+      ],
+      "answer": "Manipulating people to reveal sensitive information"
+    },
+    {
+      "question": "What should you do if you suspect your wallet is compromised?",
+      "options": [
+        "Immediately transfer funds to a new secure wallet",
+        "Wait and see what happens",
+        "Change your password only"
+      ],
+      "answer": "Immediately transfer funds to a new secure wallet"
+    },
+    {
+      "question": "What is clipboard malware?",
+      "options": [
+        "Malware that replaces copied wallet addresses with attacker's address",
+        "Malware that corrupts clipboard functionality",
+        "Malware that steals clipboard history"
+      ],
+      "answer": "Malware that replaces copied wallet addresses with attacker's address"
+    },
+    {
+      "question": "How often should you backup your wallet?",
+      "options": [
+        "Regularly, especially after creating new addresses",
+        "Only once when you first create it",
+        "Never, it's not necessary"
+      ],
+      "answer": "Regularly, especially after creating new addresses"
+    },
+    {
+      "question": "What is the difference between a private key and a public key?",
+      "options": [
+        "Private key controls funds, public key receives funds",
+        "They are the same thing",
+        "Public key controls funds, private key receives funds"
+      ],
+      "answer": "Private key controls funds, public key receives funds"
+    },
+    {
+      "question": "What is a paper wallet?",
+      "options": [
+        "A wallet where keys are printed on paper",
+        "A wallet made from recycled materials",
+        "A wallet documentation method"
+      ],
+      "answer": "A wallet where keys are printed on paper"
+    },
+    {
+      "question": "What should you verify before making a large transaction?",
+      "options": [
+        "Double-check the recipient address character by character",
+        "Just check the first few characters",
+        "Only check that it looks similar"
+      ],
+      "answer": "Double-check the recipient address character by character"
+    },
+    {
+      "question": "What is a honeypot in crypto security?",
+      "options": [
+        "A fake opportunity designed to trap and identify attackers",
+        "A sweet reward for good security practices",
+        "A type of hardware wallet"
+      ],
+      "answer": "A fake opportunity designed to trap and identify attackers"
+    },
+    {
+      "question": "What should you do with old wallet software?",
+      "options": [
+        "Securely delete it after transferring funds to updated wallet",
+        "Keep it as backup forever",
+        "Share it with friends"
+      ],
+      "answer": "Securely delete it after transferring funds to updated wallet"
+    },
+    {
+      "question": "What is the safest way to generate a new wallet?",
+      "options": [
+        "Use official wallet software on a secure, offline device",
+        "Use any online wallet generator",
+        "Ask someone else to create it for you"
+      ],
+      "answer": "Use official wallet software on a secure, offline device"
+    },
+    {
+      "question": "What is key stretching in wallet security?",
+      "options": [
+        "A method to make passwords harder to crack through repeated hashing",
+        "Physically stretching storage devices",
+        "Extending private key length"
+      ],
+      "answer": "A method to make passwords harder to crack through repeated hashing"
+    },
+    {
+      "question": "What should you do if you receive unexpected crypto in your wallet?",
+      "options": [
+        "Don't interact with it - it might be a scam token",
+        "Immediately try to sell it",
+        "Transfer it to another wallet"
+      ],
+      "answer": "Don't interact with it - it might be a scam token"
+    },
+    {
+      "question": "What is the most secure way to connect to DeFi protocols?",
+      "options": [
+        "Use a dedicated wallet with limited funds",
+        "Use your main wallet with all funds",
+        "Use exchange wallets only"
+      ],
+      "answer": "Use a dedicated wallet with limited funds"
+    },
+    {
+      "question": "What is deterministic wallet generation?",
+      "options": [
+        "Creating multiple addresses from a single seed phrase",
+        "Randomly generating wallet addresses",
+        "Using predetermined wallet addresses"
+      ],
+      "answer": "Creating multiple addresses from a single seed phrase"
+    },
+    {
+      "question": "What should you never do when troubleshooting wallet issues?",
+      "options": [
+        "Share your seed phrase or private keys with support",
+        "Check official documentation",
+        "Update to the latest software version"
+      ],
+      "answer": "Share your seed phrase or private keys with support"
+    }
+  ]
+}

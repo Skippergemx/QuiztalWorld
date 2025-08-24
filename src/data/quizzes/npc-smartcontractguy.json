@@ -1,0 +1,296 @@
+{
+  "npcId": "smartcontractguy",
+  "npcName": "Smart Contract Guy",
+  "theme": "Smart Contracts",
+  "description": "A skilled developer specializing in smart contracts, decentralized applications, and automated blockchain execution.",
+  "questions": [
+    {
+      "question": "What is a smart contract?",
+      "options": [
+        "Self-executing code on the blockchain",
+        "A legal document stored digitally",
+        "A type of cryptocurrency wallet"
+      ],
+      "answer": "Self-executing code on the blockchain"
+    },
+    {
+      "question": "Which programming language is commonly used for Ethereum smart contracts?",
+      "options": [
+        "Solidity",
+        "JavaScript",
+        "Python"
+      ],
+      "answer": "Solidity"
+    },
+    {
+      "question": "What does 'gas' refer to in smart contract execution?",
+      "options": [
+        "The computational fee for executing operations",
+        "The speed of the blockchain network",
+        "The amount of storage used"
+      ],
+      "answer": "The computational fee for executing operations"
+    },
+    {
+      "question": "What happens when a smart contract is deployed to the blockchain?",
+      "options": [
+        "It becomes immutable and permanently stored",
+        "It can be easily modified by the owner",
+        "It automatically gets deleted after use"
+      ],
+      "answer": "It becomes immutable and permanently stored"
+    },
+    {
+      "question": "What is the main advantage of smart contracts over traditional contracts?",
+      "options": [
+        "Automatic execution without intermediaries",
+        "They cost less to create",
+        "They can be written in any language"
+      ],
+      "answer": "Automatic execution without intermediaries"
+    },
+    {
+      "question": "What is an ERC-20 token?",
+      "options": [
+        "A standard for fungible tokens on Ethereum",
+        "A type of NFT",
+        "A smart contract programming language"
+      ],
+      "answer": "A standard for fungible tokens on Ethereum"
+    },
+    {
+      "question": "What is a constructor in Solidity?",
+      "options": [
+        "A function that runs once when the contract is deployed",
+        "A function that destroys the contract",
+        "A function that updates contract code"
+      ],
+      "answer": "A function that runs once when the contract is deployed"
+    },
+    {
+      "question": "What is a modifier in Solidity?",
+      "options": [
+        "Code that can be reused to change function behavior",
+        "A type of variable",
+        "A smart contract deployment tool"
+      ],
+      "answer": "Code that can be reused to change function behavior"
+    },
+    {
+      "question": "What is the purpose of the 'require' statement in Solidity?",
+      "options": [
+        "To validate conditions and revert if false",
+        "To import external libraries",
+        "To declare variables"
+      ],
+      "answer": "To validate conditions and revert if false"
+    },
+    {
+      "question": "What is a fallback function in Solidity?",
+      "options": [
+        "A function called when no other function matches",
+        "A function that handles errors",
+        "A function that backs up data"
+      ],
+      "answer": "A function called when no other function matches"
+    },
+    {
+      "question": "What is reentrancy in smart contracts?",
+      "options": [
+        "A vulnerability where a function calls itself recursively",
+        "A method to optimize gas usage",
+        "A way to upgrade contracts"
+      ],
+      "answer": "A vulnerability where a function calls itself recursively"
+    },
+    {
+      "question": "What is the difference between 'view' and 'pure' functions?",
+      "options": [
+        "View reads state, pure doesn't read or modify state",
+        "View modifies state, pure reads state",
+        "They are exactly the same"
+      ],
+      "answer": "View reads state, pure doesn't read or modify state"
+    },
+    {
+      "question": "What is a struct in Solidity?",
+      "options": [
+        "A custom data type that groups variables",
+        "A type of smart contract",
+        "A gas optimization technique"
+      ],
+      "answer": "A custom data type that groups variables"
+    },
+    {
+      "question": "What is an event in Solidity?",
+      "options": [
+        "A way to log data that external applications can listen to",
+        "A function that runs automatically",
+        "A type of error handling"
+      ],
+      "answer": "A way to log data that external applications can listen to"
+    },
+    {
+      "question": "What is the 'payable' keyword used for?",
+      "options": [
+        "To allow a function to receive Ether",
+        "To make a function cost gas",
+        "To mark a function as expensive"
+      ],
+      "answer": "To allow a function to receive Ether"
+    },
+    {
+      "question": "What is a mapping in Solidity?",
+      "options": [
+        "A key-value data structure",
+        "A function that converts data types",
+        "A way to deploy contracts"
+      ],
+      "answer": "A key-value data structure"
+    },
+    {
+      "question": "What is the difference between 'memory' and 'storage' in Solidity?",
+      "options": [
+        "Memory is temporary, storage is permanent",
+        "Memory is permanent, storage is temporary",
+        "They are the same thing"
+      ],
+      "answer": "Memory is temporary, storage is permanent"
+    },
+    {
+      "question": "What is an interface in Solidity?",
+      "options": [
+        "A contract that defines function signatures without implementation",
+        "A user interface for smart contracts",
+        "A type of inheritance"
+      ],
+      "answer": "A contract that defines function signatures without implementation"
+    },
+    {
+      "question": "What is inheritance in Solidity?",
+      "options": [
+        "A way for contracts to derive properties from other contracts",
+        "A method to transfer ownership",
+        "A gas optimization technique"
+      ],
+      "answer": "A way for contracts to derive properties from other contracts"
+    },
+    {
+      "question": "What is a library in Solidity?",
+      "options": [
+        "Reusable code that can be deployed once and used by multiple contracts",
+        "A collection of smart contracts",
+        "A type of database"
+      ],
+      "answer": "Reusable code that can be deployed once and used by multiple contracts"
+    },
+    {
+      "question": "What is the 'selfdestruct' function?",
+      "options": [
+        "A function that destroys a contract and sends remaining Ether",
+        "A function that backs up contract data",
+        "A function that pauses contract execution"
+      ],
+      "answer": "A function that destroys a contract and sends remaining Ether"
+    },
+    {
+      "question": "What is a proxy pattern in smart contracts?",
+      "options": [
+        "A way to upgrade smart contracts while keeping the same address",
+        "A security feature to hide contract code",
+        "A method to reduce gas costs"
+      ],
+      "answer": "A way to upgrade smart contracts while keeping the same address"
+    },
+    {
+      "question": "What is the diamond pattern?",
+      "options": [
+        "A modular smart contract architecture pattern",
+        "A type of NFT design",
+        "A consensus mechanism"
+      ],
+      "answer": "A modular smart contract architecture pattern"
+    },
+    {
+      "question": "What is a factory pattern in smart contracts?",
+      "options": [
+        "A contract that creates other contracts",
+        "A manufacturing smart contract",
+        "A pattern for optimizing gas"
+      ],
+      "answer": "A contract that creates other contracts"
+    },
+    {
+      "question": "What is OpenZeppelin?",
+      "options": [
+        "A library of secure smart contract templates",
+        "A blockchain network",
+        "A development IDE"
+      ],
+      "answer": "A library of secure smart contract templates"
+    },
+    {
+      "question": "What is Truffle?",
+      "options": [
+        "A development framework for Ethereum",
+        "A type of cryptocurrency",
+        "A smart contract language"
+      ],
+      "answer": "A development framework for Ethereum"
+    },
+    {
+      "question": "What is Hardhat?",
+      "options": [
+        "An Ethereum development environment",
+        "A type of wallet",
+        "A consensus algorithm"
+      ],
+      "answer": "An Ethereum development environment"
+    },
+    {
+      "question": "What is Web3.js?",
+      "options": [
+        "A JavaScript library for interacting with Ethereum",
+        "A web browser for dApps",
+        "A smart contract programming language"
+      ],
+      "answer": "A JavaScript library for interacting with Ethereum"
+    },
+    {
+      "question": "What is an oracle in blockchain?",
+      "options": [
+        "A service that provides external data to smart contracts",
+        "A type of smart contract",
+        "A blockchain validator"
+      ],
+      "answer": "A service that provides external data to smart contracts"
+    },
+    {
+      "question": "What is a decentralized exchange (DEX)?",
+      "options": [
+        "A trading platform built on smart contracts",
+        "A centralized trading platform",
+        "A type of cryptocurrency"
+      ],
+      "answer": "A trading platform built on smart contracts"
+    },
+    {
+      "question": "What is yield farming?",
+      "options": [
+        "Earning rewards by providing liquidity to DeFi protocols",
+        "Mining cryptocurrency",
+        "Creating NFTs"
+      ],
+      "answer": "Earning rewards by providing liquidity to DeFi protocols"
+    },
+    {
+      "question": "What is a liquidity pool?",
+      "options": [
+        "A smart contract holding tokens for decentralized trading",
+        "A storage system for cryptocurrencies",
+        "A type of mining pool"
+      ],
+      "answer": "A smart contract holding tokens for decentralized trading"
+    }
+  ]
+}

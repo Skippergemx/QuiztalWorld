@@ -1,0 +1,296 @@
+{
+  "npcId": "profchain",
+  "npcName": "Prof Chain",
+  "theme": "Blockchain Technology",
+  "description": "A knowledgeable professor specializing in blockchain technology, distributed systems, consensus mechanisms, and decentralization principles.",
+  "questions": [
+    {
+      "question": "What is a blockchain?",
+      "options": [
+        "A distributed ledger technology",
+        "A type of cryptocurrency",
+        "A programming language"
+      ],
+      "answer": "A distributed ledger technology"
+    },
+    {
+      "question": "What does 'decentralized' mean in blockchain context?",
+      "options": [
+        "No single point of control or failure",
+        "Faster transaction processing",
+        "Lower energy consumption"
+      ],
+      "answer": "No single point of control or failure"
+    },
+    {
+      "question": "What is a consensus mechanism in blockchain?",
+      "options": [
+        "A method for network nodes to agree on transactions",
+        "A way to encrypt data",
+        "A user interface design"
+      ],
+      "answer": "A method for network nodes to agree on transactions"
+    },
+    {
+      "question": "What is a hash function used for in blockchain?",
+      "options": [
+        "Creating unique digital fingerprints for data",
+        "Storing user passwords",
+        "Compressing image files"
+      ],
+      "answer": "Creating unique digital fingerprints for data"
+    },
+    {
+      "question": "What makes blockchain transactions immutable?",
+      "options": [
+        "Cryptographic linking and distributed consensus",
+        "Government regulations",
+        "Internet connection requirements"
+      ],
+      "answer": "Cryptographic linking and distributed consensus"
+    },
+    {
+      "question": "What is Proof of Work (PoW)?",
+      "options": [
+        "A consensus mechanism requiring computational effort",
+        "A job certification system",
+        "A payment verification method"
+      ],
+      "answer": "A consensus mechanism requiring computational effort"
+    },
+    {
+      "question": "What is Proof of Stake (PoS)?",
+      "options": [
+        "A consensus mechanism based on token ownership",
+        "A gambling system",
+        "A stock market mechanism"
+      ],
+      "answer": "A consensus mechanism based on token ownership"
+    },
+    {
+      "question": "What is a Merkle tree in blockchain?",
+      "options": [
+        "A binary tree structure for efficient data verification",
+        "A family tree of crypto creators",
+        "A type of plant used in mining"
+      ],
+      "answer": "A binary tree structure for efficient data verification"
+    },
+    {
+      "question": "What is a nonce in blockchain?",
+      "options": [
+        "A number used once in cryptographic communication",
+        "A blockchain developer",
+        "A type of transaction fee"
+      ],
+      "answer": "A number used once in cryptographic communication"
+    },
+    {
+      "question": "What is a genesis block?",
+      "options": [
+        "The first block in a blockchain",
+        "A block with the highest value",
+        "A block that contains errors"
+      ],
+      "answer": "The first block in a blockchain"
+    },
+    {
+      "question": "What is blockchain forking?",
+      "options": [
+        "Creating separate versions of the blockchain",
+        "Using eating utensils for mining",
+        "Dividing transaction fees"
+      ],
+      "answer": "Creating separate versions of the blockchain"
+    },
+    {
+      "question": "What is a hard fork?",
+      "options": [
+        "A permanent divergence in blockchain rules",
+        "A difficult mining process",
+        "A hardware failure"
+      ],
+      "answer": "A permanent divergence in blockchain rules"
+    },
+    {
+      "question": "What is a soft fork?",
+      "options": [
+        "A backward-compatible upgrade to blockchain rules",
+        "An easy mining process",
+        "A temporary network issue"
+      ],
+      "answer": "A backward-compatible upgrade to blockchain rules"
+    },
+    {
+      "question": "What is a 51% attack?",
+      "options": [
+        "When a single entity controls majority of network hash power",
+        "When 51% of users leave the network",
+        "A discount on transaction fees"
+      ],
+      "answer": "When a single entity controls majority of network hash power"
+    },
+    {
+      "question": "What is blockchain scalability?",
+      "options": [
+        "The ability to handle increasing transaction volume",
+        "The size of blockchain files",
+        "The number of cryptocurrencies"
+      ],
+      "answer": "The ability to handle increasing transaction volume"
+    },
+    {
+      "question": "What is the blockchain trilemma?",
+      "options": [
+        "The trade-off between security, scalability, and decentralization",
+        "Three types of consensus mechanisms",
+        "A three-step verification process"
+      ],
+      "answer": "The trade-off between security, scalability, and decentralization"
+    },
+    {
+      "question": "What is a double-spending problem?",
+      "options": [
+        "Using the same digital currency twice in different transactions",
+        "Paying twice for the same item",
+        "A mathematical calculation error"
+      ],
+      "answer": "Using the same digital currency twice in different transactions"
+    },
+    {
+      "question": "What is Byzantine Fault Tolerance (BFT)?",
+      "options": [
+        "A system's ability to function despite malicious nodes",
+        "Protection against Byzantine empire",
+        "A type of encryption"
+      ],
+      "answer": "A system's ability to function despite malicious nodes"
+    },
+    {
+      "question": "What is a sidechain?",
+      "options": [
+        "A separate blockchain connected to the main chain",
+        "A backup copy of blockchain",
+        "A chain worn on the side"
+      ],
+      "answer": "A separate blockchain connected to the main chain"
+    },
+    {
+      "question": "What is sharding in blockchain?",
+      "options": [
+        "Splitting the blockchain into smaller, parallel chains",
+        "Breaking the blockchain accidentally",
+        "A mining technique"
+      ],
+      "answer": "Splitting the blockchain into smaller, parallel chains"
+    },
+    {
+      "question": "What is a Lightning Network?",
+      "options": [
+        "A second-layer solution for faster Bitcoin transactions",
+        "A very fast internet connection",
+        "A weather monitoring system"
+      ],
+      "answer": "A second-layer solution for faster Bitcoin transactions"
+    },
+    {
+      "question": "What is blockchain interoperability?",
+      "options": [
+        "The ability for different blockchains to communicate",
+        "Working together on blockchain projects",
+        "Operating blockchain during business hours"
+      ],
+      "answer": "The ability for different blockchains to communicate"
+    },
+    {
+      "question": "What is a validator in blockchain?",
+      "options": [
+        "A node that verifies and validates transactions",
+        "A person who checks blockchain code",
+        "A tool for validating smart contracts"
+      ],
+      "answer": "A node that verifies and validates transactions"
+    },
+    {
+      "question": "What is slashing in Proof of Stake?",
+      "options": [
+        "Penalty for malicious validator behavior",
+        "Cutting blockchain size",
+        "Reducing transaction fees"
+      ],
+      "answer": "Penalty for malicious validator behavior"
+    },
+    {
+      "question": "What is a permissionless blockchain?",
+      "options": [
+        "Anyone can join and participate without approval",
+        "A blockchain without any rules",
+        "A free blockchain service"
+      ],
+      "answer": "Anyone can join and participate without approval"
+    },
+    {
+      "question": "What is a permissioned blockchain?",
+      "options": [
+        "Access is restricted to authorized participants",
+        "Requires special permission to view",
+        "Has additional features enabled"
+      ],
+      "answer": "Access is restricted to authorized participants"
+    },
+    {
+      "question": "What is blockchain finality?",
+      "options": [
+        "The point when a transaction cannot be reversed",
+        "The end of a blockchain's lifespan",
+        "The final block in a chain"
+      ],
+      "answer": "The point when a transaction cannot be reversed"
+    },
+    {
+      "question": "What is a blockchain oracle?",
+      "options": [
+        "A service that provides external data to blockchains",
+        "A prediction system for blockchain prices",
+        "An ancient blockchain prophecy"
+      ],
+      "answer": "A service that provides external data to blockchains"
+    },
+    {
+      "question": "What is cross-chain technology?",
+      "options": [
+        "Technology enabling interaction between different blockchains",
+        "Chains that cross over each other",
+        "Technology for crossing bridges"
+      ],
+      "answer": "Technology enabling interaction between different blockchains"
+    },
+    {
+      "question": "What is blockchain governance?",
+      "options": [
+        "The process of making decisions about blockchain protocol changes",
+        "Government control over blockchain",
+        "Rules for blockchain users"
+      ],
+      "answer": "The process of making decisions about blockchain protocol changes"
+    },
+    {
+      "question": "What is a state channel?",
+      "options": [
+        "An off-chain communication channel between participants",
+        "A government communication system",
+        "A TV channel about blockchain"
+      ],
+      "answer": "An off-chain communication channel between participants"
+    },
+    {
+      "question": "What is blockchain energy consumption primarily related to?",
+      "options": [
+        "Proof of Work mining operations",
+        "Data storage requirements",
+        "Internet bandwidth usage"
+      ],
+      "answer": "Proof of Work mining operations"
+    }
+  ]
+}
