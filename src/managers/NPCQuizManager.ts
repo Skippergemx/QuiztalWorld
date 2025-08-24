@@ -16,8 +16,10 @@ export interface NPCQuizData {
     questions: QuizQuestion[];
 }
 
+// NPCQuizManager class: Manages the quiz data for all NPCs, including SecurityKai.
 export default class NPCQuizManager {
     private static instance: NPCQuizManager;
+    // quizData: Stores the quiz data for each NPC, using the NPC's ID as the key.
     private quizData: Map<string, NPCQuizData> = new Map();
     private isLoaded: boolean = false;
     private loadingPromise: Promise<void> | null = null;
@@ -58,6 +60,7 @@ export default class NPCQuizManager {
      * Load all quiz JSON files
      */
     private async loadAllQuizData(): Promise<void> {
+        // npcIds: Array of NPC IDs to load quiz data for.  Make sure to include 'securitykai' here.
         const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai'];
         const loadPromises = npcIds.map(npcId => this.loadQuizData(npcId));
         

@@ -1,4 +1,4 @@
-// HuntBoy.ts
+// SecurityKai.ts
 import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
@@ -7,17 +7,22 @@ import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 import NPCQuizManager from '../managers/NPCQuizManager';
 
+// SecurityKai class: Defines the SecurityKai NPC, extending the base QuizNPC class.
 export default class SecurityKai extends QuizNPC {
+  // Stores the index of the last asked question to avoid immediate repetition.
   private lastQuestionIndex: number = -1;
+  // Manages the quiz data for all NPCs, including SecurityKai.
   private quizManager: NPCQuizManager;
+  // Unique identifier for this NPC, used to fetch its quiz data.
   private readonly npcId = 'securitykai';
 
   // Quiz data is now loaded from JSON
 
+  // Constructor: Initializes the SecurityKai NPC.
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "securitykai");
 
-    // Initialize quiz manager
+    // Get the singleton instance of the NPCQuizManager.
     this.quizManager = NPCQuizManager.getInstance(scene);
 
     scene.add.existing(this);
@@ -27,8 +32,10 @@ export default class SecurityKai extends QuizNPC {
     this.setDepth(1);
 
     this.createAnimations(scene);
-    this.play("securitykai-idle"); // Set initial animation
+    // Set initial animation for SecurityKai.
+    this.play("securitykai-idle");
 
+    // Create the name label for SecurityKai.
     this.nameLabel = scene.add.text(x, y - 40, "Security Kai", {
       fontSize: "14px",
       fontFamily: "monospace",
@@ -59,11 +66,12 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
   this.triggerNetworkStatusShout();
 });
 
+    // Make the NPC interactive, enabling the hand cursor on hover and calling the interact method on click.
     this.setInteractive({ useHandCursor: true });
     this.on("pointerdown", () => this.interact());
   }
 
-
+  // createAnimations: Creates the animations for the SecurityKai NPC.
   private createAnimations(scene: Phaser.Scene) {
     if (!scene.anims.exists("securitykai-idle")) {
       scene.anims.create({
@@ -75,14 +83,15 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     }
   }
 
+  // interact: Handles the interaction when the player clicks on the SecurityKai NPC.
   public interact() {
-    // Check if a dialog is already open
+    // Check if a dialog is already open to prevent overlapping dialogs.
     if (this.currentDialog) {
       console.log("SecurityKai: Dialog already open, ignoring interaction");
       return;
     }
 
-    // Check network connectivity before allowing interactions
+    // Check network connectivity before allowing interactions.
     if (!this.networkMonitor.getIsOnline()) {
       console.log("SecurityKai: Network offline - showing offline message");
       const dialog = showDialog(this.scene, [
@@ -92,11 +101,11 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         }
       ]);
 
-      // Store reference to the new dialog
+      // Store reference to the new dialog.
       this.currentDialog = dialog;
 
-      // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
+      // Set up auto-reset for the dialog after 3 seconds.
+      // This ensures the dialog reference is cleared even if the player doesn't click.
       this.setupDialogAutoReset(3000);
       return;
     }
@@ -105,9 +114,9 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
       if (distance <= 100) {
-        // Check if player is on cooldown
+        // Check if player is on cooldown.
         const playerId = player.name || `anon_${Date.now()}`;
-        // Use the checkCooldown method which properly handles expired cooldowns
+        // Use the checkCooldown method which properly handles expired cooldowns.
         if (this.checkCooldown(playerId)) {
           console.log("SecurityKai: Player is on cooldown or has reached max attempts");
           this.showCooldownDialog();
@@ -119,20 +128,21 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     }
   }
 
+  // startQuiz: Starts the quiz interaction with the player.
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
-    // Check if interactions are blocked
+    // Check if interactions are blocked.
     if (this.isInteractionBlocked()) {
       console.log("SecurityKai: Interaction blocked, cannot start quiz");
       return;
     }
 
-    // Check if quiz manager is ready
+    // Check if quiz manager is ready.
     if (!this.quizManager.isReady()) {
       console.warn("SecurityKai: Quiz manager not ready yet");
       return;
     }
 
-    // Get random question using the quiz manager
+    // Get random question using the quiz manager.
     const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
 
     if (!questionData) {
@@ -140,14 +150,14 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       return;
     }
 
-    // Store the index of the current question
+    // Store the index of the current question.
     this.lastQuestionIndex = questionData.index;
     const currentQuestion = questionData.question;
 
-    // Notify QuizAntiSpamManager that a quiz has started
+    // Notify QuizAntiSpamManager that a quiz has started.
     this.notifyQuizStarted();
 
-    // Create a copy of options and shuffle them
+    // Create a copy of options and shuffle them.
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
 
     showDialog(this.scene, [{
@@ -157,22 +167,23 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         text: option,
         callback: () => {
           this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
+          // Notify QuizAntiSpamManager that the quiz has ended.
           this.notifyQuizEnded();
         }
       }))
     }]);
   }
 
+  // checkAnswer: Checks the player's answer and provides feedback.
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
     const isCorrect = selectedOption === correctAnswer;
     const reward = this.calculateReward(isCorrect);
 
-    // Record quiz attempt regardless of whether correct or incorrect
+    // Record quiz attempt regardless of whether correct or incorrect.
     const playerId = player.name || `anon_${Date.now()}`;
     this.recordQuizAttempt(playerId);
 
-    // Play sound based on answer
+    // Play sound based on answer.
     const audioManager = AudioManager.getInstance();
     if (isCorrect) {
       audioManager.playCorrectSound();
@@ -180,14 +191,14 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       audioManager.playWrongSound();
     }
 
-    // Close the current dialog immediately
+    // Close the current dialog immediately.
     if (this.currentDialog) {
       this.currentDialog.close();
       this.currentDialog = null;
     }
 
     this.scene.time.delayedCall(500, () => {
-      // Check if interactions are blocked before showing reward dialog
+      // Check if interactions are blocked before showing reward dialog.
       if (this.isInteractionBlocked()) {
         console.log("SecurityKai: Cannot show reward dialog - interactions are blocked");
         return;
@@ -203,11 +214,11 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         }
       ]);
 
-      // Store reference to the new dialog
+      // Store reference to the new dialog.
       this.currentDialog = dialog;
 
-      // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
+      // Set up auto-reset for the dialog after 3 seconds.
+      // This ensures the dialog reference is cleared even if the player doesn't click.
       this.setupDialogAutoReset(3000);
     });
 
@@ -215,22 +226,24 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       this.saveRewardToDatabase(player, reward);
     }
 
-    // Reset last question index so player can get the same question again in future interactions
+    // Reset last question index so player can get the same question again in future interactions.
     this.lastQuestionIndex = -1;
   }
 
+  // calculateReward: Calculates the reward for answering correctly.
   private calculateReward(isCorrect: boolean): number {
     return isCorrect ? parseFloat(Phaser.Math.FloatBetween(0.01, 0.5).toFixed(2)) : 0;
   }
 
+  // saveRewardToDatabase: Saves the reward to the database and logs it.
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`;
     saveQuiztalsToDatabase(playerId, reward, "SecurityKai");
 
-    // Also log to local session tracker
+    // Also log to local session tracker.
     QuiztalRewardLog.logReward("SecurityKai", reward);
 
-    // Log reward to reward logger
+    // Log reward to reward logger.
     if (typeof window !== 'undefined' && (window as any).game) {
       const game = (window as any).game;
       const loggerScene = game.scene.getScene('LoggerScene');
@@ -240,6 +253,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     }
   }
 
+  // startShouting: Initiates the NPC's "shouting" of messages.
   private startShouting(scene: Phaser.Scene) {
     const shoutMessages = [
       "Yo anon, have you secured your web3 accounts yet? 😏",
@@ -248,7 +262,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       "I'm Security Kai, your guide to web3 safety! 💡"
     ];
 
-    // Network-specific shout messages
+    // Network-specific shout messages.
     const networkOfflineMessages = [
       "Network down! No security tips until connection restored! 🚫📡",
       "Internet connection lost! Web3 security lessons on hold! 😢🔌",
@@ -262,12 +276,12 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       callback: () => {
         let randomMessage;
 
-        // Check network connectivity to determine which message to show
+        // Check network connectivity to determine which message to show.
         if (!this.networkMonitor.getIsOnline()) {
-          // Network is offline, show offline message
+          // Network is offline, show offline message.
           randomMessage = Phaser.Utils.Array.GetRandom(networkOfflineMessages);
         } else {
-          // Network is online, show regular message
+          // Network is online, show regular message.
           randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
         }
 
@@ -278,6 +292,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     });
   }
 
+  // showShout: Displays the shout message above the NPC.
   private showShout(message: string) {
     this.shoutOutText.setText(message).setAlpha(1);
     this.scene.tweens.add({
@@ -288,20 +303,22 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     });
   }
 
+  // triggerNetworkStatusShout: Triggers a shout message based on network status changes.
   private triggerNetworkStatusShout(): void {
     let message: string;
 
     if (!this.networkMonitor.getIsOnline()) {
-      // Network is offline
+      // Network is offline.
       message = "🚨 Network connection lost! SecurityKai's quizzes disabled! 🚫";
     } else {
-      // Network is online
+      // Network is online.
       message = "✅ Network connection restored! SecurityKai's quizzes available! 🌐";
     }
 
     this.showShout(message);
   }
 
+  // getClosestPlayer: Determines the closest player to the NPC.
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
     let closestPlayer = null;
     let minDistance = Number.MAX_VALUE;
