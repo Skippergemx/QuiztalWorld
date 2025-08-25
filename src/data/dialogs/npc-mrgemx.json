@@ -1,0 +1,152 @@
+{
+  "npcId": "mrgemx",
+  "npcName": "Mr. Gemx",
+  "theme": "Crystle Metaverse Guide",
+  "description": "A friendly guide who introduces players to the Crystle Metaverse and explains how Crystle World works.",
+  "shoutMessages": [
+    "The Crystle Metaverse awaits! 🌍",
+    "Want to unlock hidden knowledge? Talk to me! 📚",
+    "Explorers and thinkers, gather around! 🧠",
+    "Curious about Crystle World? Click me to learn! ✨",
+    "Discover Gemante NFTs - your boost to power! 💎"
+  ],
+  "networkOfflineMessages": [
+    "Network down! No knowledge until connection restored! 🚫📡",
+    "Internet connection lost! Crystle wisdom on hold! 😢🔌",
+    "Offline mode: Mr. Gemx's wisdom disabled! ⏸️",
+    "No network, no Crystle knowledge! 🔌",
+    "Connection error: Knowledge unavailable! 📡"
+  ],
+  "dialogs": {
+    "welcome": {
+      "id": "welcome",
+      "text": "Welcome, explorer! 🌍 Have you heard about the Crystle Metaverse?",
+      "avatar": "npc_mrgemx_avatar",
+      "options": [
+        {
+          "text": "Tell me more!",
+          "nextDialog": "explainMetaverse"
+        },
+        {
+          "text": "What's special about Crystle World?",
+          "nextDialog": "explainCrystleWorld"
+        },
+        {
+          "text": "What are Gemante NFTs?",
+          "nextDialog": "explainGemanteNFT"
+        },
+        {
+          "text": "Not right now.",
+          "nextDialog": "goodbye"
+        }
+      ]
+    },
+    "explainMetaverse": {
+      "id": "explainMetaverse",
+      "sequence": [
+        {
+          "text": "The Crystle Metaverse is a vast, solar-punk inspired world where knowledge fuels your journey! 🌱",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Here, you can explore, team up with friends, and earn Quiztals through quests and challenges!",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Want to learn more about Crystle World specifically?",
+          "avatar": "npc_mrgemx_avatar",
+          "options": [
+            {
+              "text": "Yes, tell me!",
+              "nextDialog": "explainCrystleWorld"
+            },
+            {
+              "text": "What about Gemante NFTs?",
+              "nextDialog": "explainGemanteNFT"
+            },
+            {
+              "text": "No thanks, bye!",
+              "nextDialog": "goodbye"
+            }
+          ]
+        }
+      ]
+    },
+    "explainCrystleWorld": {
+      "id": "explainCrystleWorld",
+      "sequence": [
+        {
+          "text": "Crystle World is built for curious minds. Every NPC has a quiz or quest for you! 🎓",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "By answering quizzes correctly, you gain XP, unlock rewards, and level up your character!",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Some NPCs even hold rare knowledge that unlocks new paths and abilities! 🚀",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Want to hear about the bigger Crystle Metaverse?",
+          "avatar": "npc_mrgemx_avatar",
+          "options": [
+            {
+              "text": "Sure!",
+              "nextDialog": "explainMetaverse"
+            },
+            {
+              "text": "Tell me about Gemante NFTs!",
+              "nextDialog": "explainGemanteNFT"
+            },
+            {
+              "text": "No thanks, bye!",
+              "nextDialog": "goodbye"
+            }
+          ]
+        }
+      ]
+    },
+    "explainGemanteNFT": {
+      "id": "explainGemanteNFT",
+      "sequence": [
+        {
+          "text": "Ah, Gemante NFTs! These are special ERC-1155 gemstone NFTs that act as powerful boosters in the Crystle World! 💎",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Each Gemante NFT contains unique gemstone properties that enhance your abilities, increase your quiz rewards, and unlock special areas! ⚡",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "The beauty of ERC-1155 means you can own multiple types of gemstones - each with different boost effects and rarities! 🌟",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Want to learn about other aspects of the Crystle Metaverse?",
+          "avatar": "npc_mrgemx_avatar",
+          "options": [
+            {
+              "text": "Tell me about Crystle World!",
+              "nextDialog": "explainCrystleWorld"
+            },
+            {
+              "text": "What's the Crystle Metaverse?",
+              "nextDialog": "explainMetaverse"
+            },
+            {
+              "text": "Thanks, that's all!",
+              "nextDialog": "goodbye"
+            }
+          ]
+        }
+      ]
+    },
+    "goodbye": {
+      "id": "goodbye",
+      "text": "No worries, adventurer! I'll be here when you're ready to learn more! ✨",
+      "avatar": "npc_mrgemx_avatar",
+      "isExitDialog": true
+    }
+  }
+}
