@@ -2,10 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta name="description" content="QuiztalWorld - An interactive Web3 quiz game in the metaverse">
+  <meta name="theme-color" content="#2c3e50">
+  
+  <!-- Mobile-specific meta tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="QuiztalWorld">
+  
+  <!-- Prevent iOS Safari from automatically detecting phone numbers -->
+  <meta name="format-detection" content="telephone=no">
+  
   <title>Metaverse Quiztal World</title>
+  
+  <style>
+    /* Mobile-optimized base styles */
+    * {
+      box-sizing: border-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #2c3e50;
+      font-family: Arial, sans-serif;
+      -webkit-overflow-scrolling: touch;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    /* Prevent zoom on input focus */
+    input, textarea, select {
+      font-size: 16px;
+    }
+    
+    /* Loading indicator */
+    #loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #f1c40f;
+      font-size: 18px;
+      z-index: 9999;
+    }
+  </style>
 </head>
 <body>
-    <script type="module" src="/src/main.ts"></script> <!-- Use absolute path for Vite -->
+  <div id="loading">Loading QuiztalWorld...</div>
+  <script type="module" src="/src/main.ts"></script> <!-- Use absolute path for Vite -->
 </body>
 </html>

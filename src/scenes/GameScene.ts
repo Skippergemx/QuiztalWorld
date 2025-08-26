@@ -98,6 +98,9 @@ export default class GameScene extends Phaser.Scene {
   private async initializeScene(): Promise<void> {
     console.log('🏗️ GameScene: Initializing basic scene...');
     this.scene.launch('UIScene');
+    
+    // Set up mobile-specific resize handling
+    this.scale.on('resize', this.handleResize, this);
   }
 
   private async initializeCoreSystem(): Promise<void> {
@@ -415,5 +418,54 @@ export default class GameScene extends Phaser.Scene {
       valid: issues.length === 0,
       issues
     };
+  }
+
+  // === MOBILE SUPPORT METHODS ===
+
+  /**
+   * Handle window resize events for mobile devices
+   */
+  private handleResize(): void {
+    console.log('📱 GameScene: Handling resize event...');
+    
+    // Update mobile controls layout
+    if (this.mobileControlsManager) {
+      this.mobileControlsManager.handleResize();
+    }
+    
+    // Update camera bounds if needed
+    if (this.cameras.main) {
+      this.cameras.main.setViewport(0, 0, this.scale.width, this.scale.height);
+    }
+    
+    console.log(`📱 GameScene: Resized to ${this.scale.width}x${this.scale.height}`);
+  }
+
+  /**
+   * Clean up mobile-specific resources
+   */
+  shutdown(): void {
+    console.log('🛑 GameScene: Starting shutdown...');
+    
+    // Remove resize listener
+    this.scale.off('resize', this.handleResize, this);
+    
+    // Clean up mobile controls
+    if (this.mobileControlsManager) {
+      this.mobileControlsManager.destroy();
+    }
+    
+    // Clean up other systems
+    if (this.networkMonitor) {
+      this.networkMonitor.destroy();
+    }
+    
+    // Remove global references
+    if (typeof window !== 'undefined') {
+      delete (window as any).quizAntiSpamManager;
+      delete (window as any).gameScene;
+    }
+    
+    console.log('✅ GameScene: Shutdown complete');
   }
 }

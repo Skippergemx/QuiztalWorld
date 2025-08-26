@@ -16,6 +16,9 @@ export default class UIScene extends Phaser.Scene {
     private walletBtn!: Phaser.GameObjects.Text; // Update or add this property
     private web3Service: Web3Service;
     private rewardTracker!: QuiztalRewardTracker; // Reward tracker component
+    private headerButtons: Phaser.GameObjects.Container[] = []; // Track header buttons for resize
+    private footerBg!: Phaser.GameObjects.Rectangle; // Footer background
+    private footerText!: Phaser.GameObjects.Text; // Footer text
 
     constructor() {
         super({ key: 'UIScene' });
@@ -68,7 +71,7 @@ export default class UIScene extends Phaser.Scene {
 
     private createUIPanel() {
         const isMobile = this.scale.width < 768;
-        const panelHeight = isMobile ? 60 : 50;  // Increased height for mobile
+        const panelHeight = isMobile ? 70 : 50;  // Increased height for mobile to accommodate larger buttons
 
         const graphics = this.add.graphics();
         graphics.fillStyle(0x2c3e50, 0.95);
@@ -115,8 +118,24 @@ export default class UIScene extends Phaser.Scene {
             }
         ];
 
-        // Adjust position for mobile - update spacing for new button (4 buttons now)
-        let xPosition = this.scale.width - (isMobile ? 200 : 360);  // Adjusted for 4 buttons
+        // Calculate safe button positioning for mobile
+        const buttonSize = isMobile ? 35 : 40;
+        const touchPadding = isMobile ? 15 : 10;
+        const buttonSpacing = isMobile ? 45 : 80; // Reduced spacing for mobile
+        const rightMargin = isMobile ? 20 : 20; // Safe margin from right edge
+        
+        // Calculate total width needed for all buttons
+        const totalButtonsWidth = (buttonConfigs.length * buttonSize) + ((buttonConfigs.length - 1) * (buttonSpacing - buttonSize));
+        
+        // Start position ensuring buttons fit within screen
+        let xPosition = Math.max(
+            this.scale.width - totalButtonsWidth - rightMargin,
+            rightMargin + buttonSize / 2
+        );
+
+        // Store button references for repositioning on resize
+        this.headerButtons = [];
+
         buttonConfigs.forEach(config => {
             const button = this.createNavButton(
                 config.text,
@@ -124,10 +143,11 @@ export default class UIScene extends Phaser.Scene {
                 config.color,
                 config.hoverColor,
                 config.callback
-            ).setPosition(xPosition, isMobile ? 5 : 10);
+            ).setPosition(xPosition, isMobile ? 30 : 25); // Center vertically in header
 
             this.uiContainer.add(button);
-            xPosition += isMobile ? 50 : 80;
+            this.headerButtons.push(button);
+            xPosition += buttonSpacing;
         });
     }
 
@@ -135,48 +155,60 @@ export default class UIScene extends Phaser.Scene {
         const isMobile = this.scale.width < 768;
         const buttonSize = isMobile ? 35 : 40;
         const button = this.add.container(0, 0);
-        const touchPadding = isMobile ? 15 : 10;  // Larger touch area for mobile
+        const touchPadding = isMobile ? 8 : 10;  // Reduced padding to prevent screen overflow
         
         const bg = this.add.rectangle(0, 0, buttonSize, buttonSize, parseInt(color.replace('#', '0x')))
-            .setOrigin(0);
+            .setOrigin(0.5); // Center origin for better positioning
 
-        const icon = this.add.text(buttonSize/2, buttonSize/2, text, {
-            fontSize: isMobile ? '14px' : '15px',
+        const icon = this.add.text(0, 0, text, {
+            fontSize: isMobile ? '16px' : '18px', // Slightly larger for better visibility
             padding: { x: 2, y: 2 }
         }).setOrigin(0.5);
 
         // Hide tooltip on mobile
-        const tooltipText = !isMobile ? this.add.text(buttonSize/2, buttonSize + 8, tooltip, {
+        const tooltipText = !isMobile ? this.add.text(0, buttonSize/2 + 15, tooltip, {
             fontSize: '9px',
             backgroundColor: '#2c3e50',
-            padding: { x: 10, y: 6 },
+            padding: { x: 8, y: 4 },
             color: '#ffffff'
         })
         .setOrigin(0.5, 0)
         .setVisible(false) : null;
 
+        // Create touch area that doesn't extend beyond reasonable bounds
         const touchArea = this.add.rectangle(
-            -touchPadding, 
-            -touchPadding, 
+            0, 0, 
             buttonSize + (touchPadding * 2), 
             buttonSize + (touchPadding * 2), 
             0x000000, 
             0
         )
+        .setOrigin(0.5) // Center origin
         .setInteractive({ useHandCursor: true })
         .on('pointerover', () => {
             bg.setFillStyle(parseInt(hoverColor.replace('#', '0x')));
+            bg.setScale(1.1); // Slight scale effect for feedback
             if (tooltipText) tooltipText.setVisible(!isMobile);
         })
         .on('pointerout', () => {
             bg.setFillStyle(parseInt(color.replace('#', '0x')));
+            bg.setScale(1);
             if (tooltipText) tooltipText.setVisible(false);
         })
-        .on('pointerdown', callback);
+        .on('pointerdown', () => {
+            // Visual feedback on tap
+            bg.setScale(0.9);
+            this.time.delayedCall(100, () => {
+                bg.setScale(1);
+            });
+            callback();
+        });
 
         const elements = [bg, icon, touchArea];
         if (tooltipText) elements.push(tooltipText);
         button.add(elements);
+        
+        // Set proper size for container
         button.setSize(buttonSize + (touchPadding * 2), buttonSize + (touchPadding * 2));
 
         return button;
@@ -318,18 +350,64 @@ export default class UIScene extends Phaser.Scene {
 
         this.uiContainer.add([footerBg, instructionsText]);
 
+        // Store footer elements for resize handling
+        this.footerBg = footerBg;
+        this.footerText = instructionsText;
+
         // Update layout method to handle footer
         const originalLayout = this.updateLayout;
         this.updateLayout = () => {
-            originalLayout.call(this);
-            footerBg.setPosition(0, this.scale.height - 40)
-                .setDisplaySize(this.scale.width, 40);
-            instructionsText.setPosition(this.scale.width / 2, this.scale.height - 20);
+            const isMobile = this.scale.width < 768;
+            const panelHeight = isMobile ? 70 : 50;
+            
+            // Update background panel
+            this.backgroundPanel.setSize(this.scale.width, panelHeight);
+            
+            // Reposition header buttons
+            this.repositionHeaderButtons();
+            
+            // Update footer
+            this.footerBg.setPosition(0, this.scale.height - (isMobile ? 30 : 40))
+                .setDisplaySize(this.scale.width, isMobile ? 30 : 40);
+            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (isMobile ? 15 : 20));
         };
     }
 
     private updateLayout() {
-        this.backgroundPanel.setSize(this.scale.width, 60);
+        const isMobile = this.scale.width < 768;
+        const panelHeight = isMobile ? 70 : 50;
+        
+        // Update background panel
+        this.backgroundPanel.setSize(this.scale.width, panelHeight);
+        
+        // Reposition header buttons on resize
+        this.repositionHeaderButtons();
+    }
+    
+    private repositionHeaderButtons() {
+        if (this.headerButtons.length === 0) return;
+        
+        const isMobile = this.scale.width < 768;
+        const buttonSize = isMobile ? 35 : 40;
+        const buttonSpacing = isMobile ? 45 : 80;
+        const rightMargin = isMobile ? 20 : 20;
+        
+        // Calculate total width needed
+        const totalButtonsWidth = (this.headerButtons.length * buttonSize) + ((this.headerButtons.length - 1) * (buttonSpacing - buttonSize));
+        
+        // Calculate safe starting position
+        let xPosition = Math.max(
+            this.scale.width - totalButtonsWidth - rightMargin,
+            rightMargin + buttonSize / 2
+        );
+        
+        // Reposition each button
+        this.headerButtons.forEach((button, index) => {
+            button.setPosition(xPosition, isMobile ? 30 : 25);
+            xPosition += buttonSpacing;
+        });
+        
+        console.log(`📱 UIScene: Repositioned ${this.headerButtons.length} header buttons for ${isMobile ? 'mobile' : 'desktop'}`);
     }
 
     private openInventory() {

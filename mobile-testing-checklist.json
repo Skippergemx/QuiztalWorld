@@ -1,0 +1,355 @@
+{
+  "mobileTesting": {
+    "testSuite": "QuiztalWorld Mobile Functionality",
+    "version": "1.0.0",
+    "date": "2025-08-26",
+    "testEnvironment": {
+      "server": "http://localhost:5174",
+      "mobileSimulation": "Chrome DevTools Device Mode",
+      "recommendedDevices": [
+        "iPhone SE (375x667)",
+        "iPhone 12 Pro (390x844)", 
+        "Samsung Galaxy S20 (360x800)",
+        "iPad (768x1024)"
+      ]
+    },
+    
+    "preTestSetup": {
+      "checklist": [
+        "✅ Development server running on http://localhost:5174",
+        "✅ Mobile assets loaded in BootScene (joystick, buttons)",
+        "✅ Enhanced HTML meta tags for mobile",
+        "✅ Mobile-optimized Vite configuration",
+        "✅ Mobile-responsive main.ts configuration"
+      ]
+    },
+    
+    "testCategories": [
+      {
+        "category": "Layout & Responsiveness",
+        "priority": "HIGH",
+        "tests": [
+          {
+            "id": "LAY-001",
+            "description": "UI scales properly on mobile screens",
+            "steps": [
+              "Open DevTools and switch to mobile device mode",
+              "Test iPhone SE (375x667) - smallest supported size",
+              "Verify all UI elements are visible",
+              "Check button sizes are at least 44px",
+              "Ensure no text is cut off"
+            ],
+            "expected": "All UI elements visible and properly sized",
+            "status": "PENDING"
+          },
+          {
+            "id": "LAY-002", 
+            "description": "Footer instructions change for mobile",
+            "steps": [
+              "Load game on desktop size (>768px width)",
+              "Note keyboard instructions in footer",
+              "Resize to mobile (<768px width)",
+              "Verify footer shows touch instructions"
+            ],
+            "expected": "Footer shows tap instructions on mobile, keyboard on desktop",
+            "status": "PENDING"
+          },
+          {
+            "id": "LAY-003",
+            "description": "Button spacing optimized for mobile",
+            "steps": [
+              "Navigate to UIScene (after login)",
+              "Check spacing between buttons in header",
+              "Verify buttons have adequate touch padding"
+            ],
+            "expected": "45px spacing on mobile, 80px on desktop",
+            "status": "PENDING"
+          },
+          {
+            "id": "LAY-004",
+            "description": "Header buttons never cut off on mobile",
+            "steps": [
+              "Test on smallest supported screen (320px width)",
+              "Verify all 4 header buttons are fully visible",
+              "Check buttons have adequate margins from screen edges",
+              "Test landscape and portrait orientations"
+            ],
+            "expected": "All buttons visible with 20px margin from edges",
+            "status": "PENDING"
+          },
+          {
+            "id": "LAY-005",
+            "description": "Header buttons reposition on resize",
+            "steps": [
+              "Start in mobile view",
+              "Note button positions",
+              "Resize to desktop view",
+              "Verify buttons reposition appropriately",
+              "Test multiple resize events"
+            ],
+            "expected": "Buttons smoothly reposition without visual glitches",
+            "status": "PENDING"
+          }
+        ]
+      },
+      
+      {
+        "category": "Touch Controls",
+        "priority": "HIGH", 
+        "tests": [
+          {
+            "id": "TCH-001",
+            "description": "Virtual joystick appears on mobile",
+            "steps": [
+              "Load game on mobile device/simulation",
+              "Complete login and character selection",
+              "Enter GameScene",
+              "Look for joystick in bottom-left corner"
+            ],
+            "expected": "Virtual joystick visible and positioned correctly",
+            "status": "PENDING"
+          },
+          {
+            "id": "TCH-002",
+            "description": "Joystick controls player movement",
+            "steps": [
+              "Interact with virtual joystick",
+              "Drag joystick in different directions", 
+              "Observe player character movement",
+              "Release joystick and verify player stops"
+            ],
+            "expected": "Player moves smoothly based on joystick input",
+            "status": "PENDING"
+          },
+          {
+            "id": "TCH-003",
+            "description": "Interact button works for NPCs",
+            "steps": [
+              "Navigate player near an NPC",
+              "Tap the interact button in bottom-right",
+              "Verify NPC dialog appears",
+              "Test with multiple NPCs"
+            ],
+            "expected": "Interact button triggers NPC dialogs successfully",
+            "status": "PENDING"
+          },
+          {
+            "id": "TCH-004",
+            "description": "Touch targets are adequate size",
+            "steps": [
+              "Test all interactive elements with finger/pointer",
+              "Verify minimum 44px touch targets",
+              "Check touch feedback (visual response)",
+              "Test edge cases near screen boundaries"
+            ],
+            "expected": "All touch targets easily tapable without missing",
+            "status": "PENDING"
+          }
+        ]
+      },
+      
+      {
+        "category": "Scene Adaptations", 
+        "priority": "MEDIUM",
+        "tests": [
+          {
+            "id": "SCN-001",
+            "description": "Character selection mobile-friendly",
+            "steps": [
+              "Navigate to character selection",
+              "Use arrow buttons to change characters",
+              "Verify button sizes and positioning",
+              "Test confirm button"
+            ],
+            "expected": "Arrow and confirm buttons work properly on mobile",
+            "status": "PENDING"
+          },
+          {
+            "id": "SCN-002",
+            "description": "Inventory scene mobile optimized",
+            "steps": [
+              "Open inventory (tap 🎒 button)",
+              "Verify window size (95% width on mobile)",
+              "Check close button size (20px radius)",
+              "Test tab navigation"
+            ],
+            "expected": "Inventory properly sized and navigable on mobile",
+            "status": "PENDING"
+          },
+          {
+            "id": "SCN-003",
+            "description": "Token claim disabled on mobile",
+            "steps": [
+              "Tap the 💎 (claim tokens) button on mobile",
+              "Verify mobile restriction message appears",
+              "Test on desktop to ensure it works there"
+            ],
+            "expected": "Mobile shows restriction, desktop allows token claim",
+            "status": "PENDING"
+          },
+          {
+            "id": "SCN-004",
+            "description": "Wallet verification mobile handling",
+            "steps": [
+              "Navigate to wallet verification on mobile",
+              "Verify mobile incompatibility message",
+              "Test continue button functionality"
+            ],
+            "expected": "Mobile shows appropriate message and continues to game",
+            "status": "PENDING"
+          }
+        ]
+      },
+      
+      {
+        "category": "Performance",
+        "priority": "MEDIUM",
+        "tests": [
+          {
+            "id": "PER-001",
+            "description": "Frame rate targets met",
+            "steps": [
+              "Enable FPS counter in DevTools",
+              "Play game for 2-3 minutes",
+              "Monitor frame rate on mobile simulation",
+              "Check for frame drops or stuttering"
+            ],
+            "expected": "Maintains ~30 FPS on mobile, ~60 FPS on desktop",
+            "status": "PENDING"
+          },
+          {
+            "id": "PER-002",
+            "description": "Asset loading performance",
+            "steps": [
+              "Clear browser cache",
+              "Reload game and time loading",
+              "Check Network tab for asset optimization",
+              "Verify mobile assets load correctly"
+            ],
+            "expected": "Game loads within reasonable time, assets optimized",
+            "status": "PENDING"
+          },
+          {
+            "id": "PER-003",
+            "description": "Memory usage reasonable",
+            "steps": [
+              "Open Performance tab in DevTools",
+              "Play game for 5 minutes",
+              "Monitor memory usage",
+              "Check for memory leaks"
+            ],
+            "expected": "Memory usage stable, no significant leaks",
+            "status": "PENDING"
+          }
+        ]
+      },
+      
+      {
+        "category": "Device Compatibility",
+        "priority": "MEDIUM", 
+        "tests": [
+          {
+            "id": "DEV-001",
+            "description": "Orientation change handling",
+            "steps": [
+              "Load game in portrait mode",
+              "Rotate device/simulation to landscape", 
+              "Verify layout adjusts properly",
+              "Test key functionality after rotation"
+            ],
+            "expected": "Game adapts smoothly to orientation changes",
+            "status": "PENDING"
+          },
+          {
+            "id": "DEV-002",
+            "description": "Browser compatibility",
+            "steps": [
+              "Test in Chrome mobile simulation",
+              "Test in Firefox mobile simulation",
+              "Test in Safari mobile simulation (if available)",
+              "Check for console errors"
+            ],
+            "expected": "Works consistently across mobile browsers",
+            "status": "PENDING"
+          },
+          {
+            "id": "DEV-003",
+            "description": "PWA installation",
+            "steps": [
+              "Check for PWA install prompt",
+              "Test 'Add to Home Screen' if available",
+              "Verify mobile meta tags working",
+              "Test standalone mode"
+            ],
+            "expected": "PWA features work as expected",
+            "status": "PENDING"
+          }
+        ]
+      }
+    ],
+    
+    "testExecution": {
+      "instructions": [
+        "1. Start development server: npm run dev",
+        "2. Open browser DevTools (F12)",
+        "3. Enable device simulation mode",
+        "4. Select test device from recommended list",
+        "5. Navigate to http://localhost:5174",
+        "6. Execute tests in order of priority",
+        "7. Document results in this file",
+        "8. Report any issues found"
+      ],
+      
+      "reportingFormat": {
+        "passed": "✅ PASS - Test completed successfully",
+        "failed": "❌ FAIL - Issue found, details: [description]",
+        "skipped": "⏭️ SKIP - Test not applicable",
+        "blocked": "🚫 BLOCKED - Cannot complete due to dependency"
+      }
+    },
+    
+    "commonIssues": {
+      "troubleshooting": [
+        {
+          "issue": "Virtual joystick not appearing",
+          "solution": "Check if mobile assets loaded in BootScene, verify isMobile detection"
+        },
+        {
+          "issue": "Touch events not working",
+          "solution": "Verify .setInteractive() calls have proper touch handling"
+        },
+        {
+          "issue": "Layout broken on small screens",
+          "solution": "Check mobile breakpoint logic (768px), verify responsive calculations"
+        },
+        {
+          "issue": "Performance issues on mobile",
+          "solution": "Check if mobile optimizations are applied in main.ts config"
+        },
+        {
+          "issue": "Assets not loading",
+          "solution": "Verify asset paths, check Network tab for 404 errors"
+        }
+      ]
+    },
+    
+    "testResults": {
+      "summary": {
+        "totalTests": 17,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "blocked": 0,
+        "completionDate": null,
+        "tester": null
+      },
+      
+      "notes": [
+        "This test suite should be run whenever mobile functionality is modified",
+        "Test on actual devices when possible, not just simulation",
+        "Document any device-specific issues found",
+        "Update this checklist as new mobile features are added"
+      ]
+    }
+  }
+}

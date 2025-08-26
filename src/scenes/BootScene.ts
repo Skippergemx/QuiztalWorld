@@ -44,6 +44,14 @@ export default class BootScene extends Phaser.Scene {
         // Load effects (update the path if needed)
         this.load.image('player-glow', 'assets/effects/glow.png');
 
+        // ✅ Load Mobile Control Assets
+        this.load.image('joystick-base', 'assets/ui/joystick-base.png');
+        this.load.image('joystick', 'assets/ui/joystick.png');
+        this.load.image('button-interact', 'assets/ui/button-interact.png');
+        this.load.image('arrow-left', 'assets/ui/arrow-left.png');
+        this.load.image('arrow-right', 'assets/ui/arrow-right.png');
+        this.load.image('button-confirm', 'assets/ui/button-confirm.png');
+
     }
 
     private startBackgroundMusic() {

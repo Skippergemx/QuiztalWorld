@@ -1,0 +1,382 @@
+{
+  "projectName": "QuiztalWorld",
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-26",
+  "maintainers": ["AI Development Team"],
+  
+  "mobileFriendlyGuide": {
+    "overview": {
+      "description": "Comprehensive guide for maintaining mobile-friendly code in QuiztalWorld game",
+      "purpose": "Ensure consistent mobile experience and prevent common mobile development issues",
+      "scope": "All game scenes, UI components, and asset management"
+    },
+    
+    "coreRequirements": {
+      "responsiveDesign": {
+        "mobileBreakpoint": "768px",
+        "detectionMethod": "this.scale.width < 768 || device detection",
+        "minimumDimensions": {
+          "width": "320px",
+          "height": "568px"
+        },
+        "mandatoryImplementations": [
+          "isMobile detection in all scenes",
+          "Responsive UI scaling",
+          "Touch-friendly button sizes (minimum 44px)",
+          "Proper viewport meta tags"
+        ]
+      },
+      
+      "touchControls": {
+        "virtualJoystick": {
+          "location": "src/managers/MobileControlsManager.ts",
+          "assets": ["joystick-base.png", "joystick.png"],
+          "position": "Bottom-left (20% from edge)",
+          "configuration": {
+            "joystickScale": 1.2,
+            "buttonScale": 1.3,
+            "joystickAlpha": 0.7,
+            "buttonAlpha": 0.8
+          }
+        },
+        "interactButton": {
+          "asset": "button-interact.png",
+          "position": "Bottom-right (15% from edge)",
+          "functionality": "Simulates 'C' key press for NPC interaction"
+        },
+        "touchTargets": {
+          "minimumSize": "44px",
+          "padding": "15px for mobile, 10px for desktop",
+          "hitArea": "Should extend beyond visual bounds"
+        }
+      },
+      
+      "performance": {
+        "frameRate": {
+          "mobile": "30 FPS",
+          "desktop": "60 FPS"
+        },
+        "rendering": {
+          "batchSize": {
+            "mobile": 2000,
+            "desktop": 4096
+          },
+          "maxTextures": {
+            "mobile": 8,
+            "desktop": 16
+          },
+          "powerPreference": {
+            "mobile": "low-power",
+            "desktop": "high-performance"
+          }
+        },
+        "assetOptimization": {
+          "inlineLimit": "4096 bytes",
+          "imageFormats": ["PNG for UI", "WebP for modern browsers"],
+          "audioFormats": ["MP3", "OGG for fallback"]
+        }
+      }
+    },
+    
+    "sceneImplementations": {
+      "requiredInAllScenes": {
+        "mobileDetection": "const isMobile = this.scale.width < 768;",
+        "responsiveLayout": "Adjust positions, sizes, and spacing based on isMobile",
+        "eventHandlers": "Different input handling for touch vs keyboard/mouse",
+        "resizeHandling": "this.scale.on('resize', this.updateLayout, this);"
+      },
+      
+      "sceneSpecific": {
+        "UIScene": {
+          "mobileFeatures": [
+            "Smaller button sizes with larger touch areas",
+            "Repositioned elements for thumb accessibility", 
+            "Mobile-specific instructions text",
+            "Hidden tooltips on mobile",
+            "Dynamic button repositioning on resize",
+            "Safe margin calculations to prevent cut-off",
+            "Increased header height (70px) for better touch targets"
+          ],
+          "layout": {
+            "buttonSpacing": "45px mobile, 80px desktop",
+            "headerHeight": "70px mobile, 50px desktop",
+            "buttonSize": "35px mobile, 40px desktop",
+            "touchPadding": "8px mobile, 10px desktop",
+            "rightMargin": "20px safe margin from screen edge",
+            "fontSize": "16px mobile icons, 18px desktop icons"
+          },
+          "positioning": {
+            "calculation": "Math.max(screen.width - totalWidth - margin, minPosition)",
+            "safeArea": "Ensures buttons never extend beyond screen bounds",
+            "centerOrigin": "Uses center origin for better positioning control",
+            "dynamicResize": "Repositions buttons on screen orientation change"
+          }
+        },
+        
+        "InventoryScene": {
+          "mobileAdaptations": [
+            "Window size: 95% width, 90% height on mobile",
+            "Larger close button (20px radius vs 15px)",
+            "Reduced items per page (5 vs 15)",
+            "No keyboard shortcuts on mobile"
+          ]
+        },
+        
+        "CharacterSelectionScene": {
+          "touchControls": [
+            "Arrow buttons for character navigation",
+            "Larger confirm button",
+            "Touch-friendly positioning"
+          ]
+        },
+        
+        "TokenClaimScene": {
+          "mobileRestrictions": [
+            "Disabled on mobile devices",
+            "Show desktop-only message",
+            "Redirect to desktop instructions"
+          ]
+        },
+        
+        "WalletVerificationScene": {
+          "mobileHandling": [
+            "Show mobile incompatibility message",
+            "Provide desktop alternative instructions"
+          ]
+        }
+      }
+    },
+    
+    "assetManagement": {
+      "mobileAssets": {
+        "directory": "public/assets/ui/",
+        "requiredFiles": [
+          "joystick-base.png",
+          "joystick.png", 
+          "button-interact.png",
+          "arrow-left.png",
+          "arrow-right.png",
+          "button-confirm.png"
+        ],
+        "loadingLocation": "src/scenes/BootScene.ts",
+        "optimization": "Assets should be optimized for mobile bandwidth"
+      },
+      
+      "loadingStrategy": {
+        "critical": "Load mobile assets first",
+        "progressive": "Load additional assets after core game loads",
+        "fallbacks": "Provide fallback assets for different screen densities"
+      }
+    },
+    
+    "commonPatterns": {
+      "mobileDetection": {
+        "standardImplementation": "const isMobile = this.scale.width < 768;",
+        "extendedDetection": "this.game.device.os.android || this.game.device.os.iOS || this.game.device.input.touch",
+        "usageLocations": "All scene create() methods"
+      },
+      
+      "responsiveText": {
+        "pattern": "fontSize: isMobile ? 'Xpx' : 'Ypx'",
+        "example": "fontSize: isMobile ? '12px' : '14px'",
+        "padding": "padding: { x: isMobile ? 5 : 10, y: 5 }"
+      },
+      
+      "responsivePositioning": {
+        "pattern": "position based on screen percentage",
+        "example": "x: this.scale.width * 0.2",
+        "considerations": "Maintain thumb-accessible zones"
+      },
+      
+      "touchInteraction": {
+        "interactiveArea": ".setInteractive({ useHandCursor: true })",
+        "touchFeedback": "Visual feedback on pointerdown/pointerup",
+        "accessibility": "Larger touch targets with padding"
+      }
+    },
+    
+    "testingGuidelines": {
+      "devices": {
+        "minimum": "iPhone 5s (320x568)",
+        "optimal": "iPhone 12 Pro (390x844), Samsung Galaxy S21 (360x800)",
+        "tablet": "iPad (768x1024)"
+      },
+      
+      "testCases": [
+        {
+          "category": "Layout",
+          "tests": [
+            "All UI elements visible on smallest screen",
+            "No overlapping elements",
+            "Touch targets adequately sized",
+            "Text remains readable"
+          ]
+        },
+        {
+          "category": "Controls", 
+          "tests": [
+            "Virtual joystick responds correctly",
+            "Interact button triggers NPC dialogs",
+            "Navigation arrows work in character selection",
+            "No accidental touches or missed inputs"
+          ]
+        },
+        {
+          "category": "Performance",
+          "tests": [
+            "Smooth 30 FPS on mobile devices",
+            "No significant battery drain", 
+            "Quick loading times",
+            "Responsive to orientation changes"
+          ]
+        },
+        {
+          "category": "Compatibility",
+          "tests": [
+            "Works on iOS Safari",
+            "Works on Android Chrome",
+            "PWA installation possible",
+            "No console errors on mobile"
+          ]
+        }
+      ]
+    },
+    
+    "commonIssues": {
+      "preventionStrategies": [
+        {
+          "issue": "Elements too small to touch",
+          "prevention": "Always use minimum 44px touch targets",
+          "solution": "Add padding to interactive elements"
+        },
+        {
+          "issue": "Text too small to read",
+          "prevention": "Use mobile-specific font sizes",
+          "solution": "Implement responsive typography"
+        },
+        {
+          "issue": "Layout broken on small screens",
+          "prevention": "Test on minimum supported dimensions",
+          "solution": "Use percentage-based positioning"
+        },
+        {
+          "issue": "Controls not responsive",
+          "prevention": "Proper touch event handling",
+          "solution": "Implement MobileControlsManager correctly"
+        },
+        {
+          "issue": "Poor performance on mobile",
+          "prevention": "Use mobile-optimized game config",
+          "solution": "Reduce texture sizes and batch sizes"
+        },
+        {
+          "issue": "Assets not loading on mobile",
+          "prevention": "Ensure all mobile assets are in BootScene",
+          "solution": "Check asset paths and network connectivity"
+        },
+        {
+          "issue": "Header buttons cut off or hard to tap",
+          "prevention": "Use safe margin calculations and dynamic positioning",
+          "solution": "Check repositionHeaderButtons() method, verify touch padding doesn't exceed screen bounds"
+        },
+        {
+          "issue": "UI elements not repositioning on resize",
+          "prevention": "Implement proper resize handlers for all UI elements",
+          "solution": "Ensure updateLayout() method handles all repositioning, check scale event listeners"
+        }
+      ],
+      
+      "debuggingTools": [
+        "Chrome DevTools mobile simulation",
+        "iOS Safari Web Inspector",
+        "Android Chrome remote debugging",
+        "Network throttling for mobile testing"
+      ]
+    },
+    
+    "bestPractices": {
+      "development": [
+        "Mobile-first design approach",
+        "Test on actual devices, not just emulators",
+        "Optimize assets for mobile bandwidth",
+        "Use touch-friendly UI patterns",
+        "Implement proper loading states",
+        "Handle orientation changes gracefully"
+      ],
+      
+      "codeQuality": [
+        "Consistent mobile detection across scenes",
+        "Reusable responsive components",
+        "Performance monitoring",
+        "Error handling for mobile-specific issues",
+        "Clean separation of mobile/desktop logic"
+      ],
+      
+      "userExperience": [
+        "Intuitive touch controls",
+        "Visual feedback for interactions",
+        "Appropriate content density",
+        "Fast loading and responsiveness",
+        "Graceful degradation for unsupported features"
+      ]
+    },
+    
+    "maintenanceChecklist": {
+      "beforeEachRelease": [
+        "Verify mobile assets are loaded in BootScene",
+        "Test on minimum supported screen size",
+        "Check touch control responsiveness",
+        "Validate mobile-specific layouts",
+        "Ensure performance targets are met",
+        "Test orientation changes",
+        "Verify PWA compatibility"
+      ],
+      
+      "monthlyReview": [
+        "Update mobile browser compatibility",
+        "Review mobile analytics and user feedback",
+        "Check for new mobile-specific bugs",
+        "Update asset optimization strategies",
+        "Review and update this guide"
+      ],
+      
+      "whenAddingNewFeatures": [
+        "Implement mobile-responsive design from start",
+        "Add mobile-specific tests",
+        "Consider touch interaction patterns",
+        "Verify performance impact on mobile",
+        "Update this guide if patterns change"
+      ]
+    },
+    
+    "fileLocations": {
+      "mobileControlsManager": "src/managers/MobileControlsManager.ts",
+      "mobileAssets": "public/assets/ui/",
+      "gameConfig": "src/main.ts",
+      "htmlConfig": "index.html",
+      "buildConfig": "vite.config.ts",
+      "bootScene": "src/scenes/BootScene.ts",
+      "uiScene": "src/scenes/UIScene.ts",
+      "dialogBox": "src/utils/SimpleDialogBox.ts"
+    },
+    
+    "emergencyContacts": {
+      "mobileSpecialist": "To be assigned",
+      "performanceEngineer": "To be assigned",
+      "uiDesigner": "To be assigned"
+    }
+  },
+  
+  "versionHistory": [
+    {
+      "version": "1.0.0",
+      "date": "2025-08-26",
+      "changes": [
+        "Initial mobile-friendly implementation",
+        "Added MobileControlsManager",
+        "Implemented responsive UI across all scenes",
+        "Created comprehensive maintenance guide"
+      ]
+    }
+  ]
+}
