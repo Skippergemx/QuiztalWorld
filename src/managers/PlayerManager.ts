@@ -361,7 +361,7 @@ export default class PlayerManager {
     
     // Refresh aura depths
     if (this.titleAura) {
-      this.titleAura.getChildren().forEach((child, index) => {
+      this.titleAura.getChildren().forEach((child) => {
         (child as Phaser.GameObjects.Text).setDepth(AURA_DEPTH);
       });
       console.log(`✅ PlayerManager: Aura depths refreshed to ${AURA_DEPTH}`);

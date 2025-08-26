@@ -106,6 +106,8 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
 
   protected showCooldownIndicator() {
     if (!this.cooldownIndicator) {
+      const COOLDOWN_TIMER_DEPTH = 20; // Above NPCs (10) and player title (15) for maximum visibility
+      
       this.cooldownIndicator = this.scene.add.text(this.x, this.y - 80, "COOLDOWN", {
         fontSize: "14px",
         fontFamily: "monospace",
@@ -114,7 +116,9 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
         strokeThickness: 4,
         align: "center",
         fontStyle: "bold"
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(COOLDOWN_TIMER_DEPTH);
+      
+      console.log(`✅ QuizNPC: Cooldown indicator created with depth ${COOLDOWN_TIMER_DEPTH}`);
       
       // Add pulsing animation
       this.scene.tweens.add({
@@ -359,6 +363,8 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
     const remaining = this.getRemainingAttempts(playerId);
     
     if (remaining > 0 && !this.isOnCooldown) {
+      const ATTEMPTS_INDICATOR_DEPTH = 18; // Above cooldown timer (20) but below UI elements
+      
       // Show remaining attempts in a temporary floating text
       const attemptsText = this.scene.add.text(this.x, this.y - 100, `${remaining} quiz${remaining === 1 ? '' : 'zes'} remaining`, {
         fontSize: "12px",
@@ -367,7 +373,9 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
         stroke: "#000000",
         strokeThickness: 3,
         align: "center"
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(ATTEMPTS_INDICATOR_DEPTH);
+      
+      console.log(`✅ QuizNPC: Attempts indicator created with depth ${ATTEMPTS_INDICATOR_DEPTH}`);
       
       // Add floating animation and fade out
       this.scene.tweens.add({

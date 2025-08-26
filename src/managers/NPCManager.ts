@@ -201,10 +201,11 @@ export default class NPCManager {
   }
 
   /**
-   * Set proper depth values for NPC UI elements (name labels, shout text)
+   * Set proper depth values for NPC UI elements (name labels, shout text, cooldown timers)
    */
   private setNPCUIDepths(): void {
     const NPC_UI_DEPTH = 15; // Higher than NPCs to ensure UI is always visible
+    const COOLDOWN_TIMER_DEPTH = 20; // Higher than UI for maximum visibility
     
     this.npcs.forEach((npcInstance) => {
       try {
@@ -217,10 +218,18 @@ export default class NPCManager {
         if (npcInstance.npc.shoutOutText && typeof npcInstance.npc.shoutOutText.setDepth === 'function') {
           npcInstance.npc.shoutOutText.setDepth(NPC_UI_DEPTH);
         }
+        
+        // Set depth for cooldown indicator if it exists
+        if (npcInstance.npc.cooldownIndicator && typeof npcInstance.npc.cooldownIndicator.setDepth === 'function') {
+          npcInstance.npc.cooldownIndicator.setDepth(COOLDOWN_TIMER_DEPTH);
+          console.log(`✅ NPCManager: Set cooldown timer depth ${COOLDOWN_TIMER_DEPTH} for ${npcInstance.config.name}`);
+        }
       } catch (error) {
         console.error(`❌ NPCManager: Error setting UI depth for ${npcInstance.config.name}:`, error);
       }
     });
+    
+    console.log('✅ NPCManager: NPC UI depths configured (names, shouts, cooldown timers)');
   }
 
   /**
@@ -435,7 +444,15 @@ export default class NPCManager {
 
       // Check if NPC has proper depth for rendering above map elements
       if (npcInstance.npc.depth < 10) {
-        issues.push(`${config.name}: Incorrect depth (${npcInstance.npc.depth}) - should be 10+ to render above map`);
+        issues.push(`${config.name}: Incorrect NPC depth (${npcInstance.npc.depth}) - should be 10+ to render above map`);
+      }
+      
+      // Check cooldown timer depth if it exists
+      if (npcInstance.npc.cooldownIndicator) {
+        const timerDepth = npcInstance.npc.cooldownIndicator.depth || 0;
+        if (timerDepth < 20) {
+          issues.push(`${config.name}: Incorrect cooldown timer depth (${timerDepth}) - should be 20+ for visibility`);
+        }
       }
 
       // Check if NPC is positioned correctly
@@ -491,6 +508,8 @@ export default class NPCManager {
         position: { x: npcInstance.npc.x, y: npcInstance.npc.y },
         expectedPosition: npcInstance.config.position,
         depth: npcInstance.npc.depth || 0,
+        cooldownTimerDepth: npcInstance.npc.cooldownIndicator ? (npcInstance.npc.cooldownIndicator.depth || 0) : null,
+        isOnCooldown: typeof npcInstance.npc.getIsOnCooldown === 'function' ? npcInstance.npc.getIsOnCooldown() : false,
         distanceFromPlayer: Phaser.Math.Distance.Between(
           this.player.x,
           this.player.y,

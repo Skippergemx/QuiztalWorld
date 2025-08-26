@@ -19,10 +19,10 @@ export class SimpleDialogBox {
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     
-    // Make dialog box responsive
+    // Make dialog box responsive with minimum dimensions
     const isMobile = scene.scale.width < 768;
     this.boxWidth = isMobile ? scene.scale.width * 0.9 : 650;
-    this.boxHeight = isMobile ? 180 : 160;
+    this.boxHeight = isMobile ? 200 : 180; // Increased minimum height
 
     this.dialogContainer = scene.add.container(0, 0);
 
@@ -65,19 +65,19 @@ export class SimpleDialogBox {
       .setVisible(false);
     this.dialogContainer.add(this.avatar);
 
-    // Adjust text size and position for mobile
+    // Adjust text size and position for mobile with improved word wrapping
     const textConfig = {
-      fontSize: isMobile ? "16px" : "18px",
+      fontSize: isMobile ? "15px" : "17px",
       fontFamily: "monospace",
       color: "#00ff00",
       wordWrap: { 
         width: isMobile ? 
-          this.boxWidth - 100 : // Account for smaller screen
-          440,
+          this.boxWidth - 120 : // More space for text
+          500, // Increased wrap width for desktop
         useAdvancedWrap: true 
       },
       align: "left",
-      lineSpacing: isMobile ? 4 : 6,
+      lineSpacing: isMobile ? 5 : 7, // Better line spacing
       shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
     };
 
@@ -109,6 +109,79 @@ export class SimpleDialogBox {
       centerY - this.boxHeight / 2
     );
   };
+
+  /**
+   * Calculate required dialog height based on text content and options
+   */
+  private calculateRequiredHeight(text: string, optionsCount: number = 0): number {
+    const isMobile = this.scene.scale.width < 768;
+    const minHeight = isMobile ? 200 : 180;
+    
+    // Estimate text height based on character count and word wrap width
+    const wrapWidth = isMobile ? this.boxWidth - 100 : 440;
+    const avgCharsPerLine = Math.floor(wrapWidth / (isMobile ? 9 : 10)); // Rough estimate
+    const estimatedLines = Math.ceil(text.length / avgCharsPerLine);
+    const textHeight = estimatedLines * (isMobile ? 20 : 24); // Line height estimate
+    
+    // Add space for options
+    const optionsHeight = optionsCount * (isMobile ? 30 : 35);
+    
+    // Add padding for avatar, margins, and spacing
+    const paddingHeight = isMobile ? 60 : 80;
+    
+    const requiredHeight = textHeight + optionsHeight + paddingHeight;
+    
+    return Math.max(minHeight, requiredHeight);
+  }
+
+  /**
+   * Resize dialog box to fit content
+   */
+  private resizeDialogBox(newHeight: number): void {
+    if (newHeight === this.boxHeight) return;
+    
+    this.boxHeight = newHeight;
+    
+    // Remove existing background
+    const existingBg = this.dialogContainer.getAt(0);
+    if (existingBg) {
+      existingBg.destroy();
+    }
+    
+    // Create new background with updated height
+    const isMobile = this.scene.scale.width < 768;
+    const dialogBg = this.scene.add.graphics();
+    dialogBg.fillStyle(0x002b36, 0.95);
+    dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
+    dialogBg.lineStyle(isMobile ? 2 : 4, 0x00ff00, 1);
+    dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
+    
+    // Insert background at the beginning of the container
+    this.dialogContainer.addAt(dialogBg, 0);
+    
+    // Update avatar position to center vertically
+    if (this.avatar) {
+      this.avatar.setY(this.boxHeight / 2);
+    }
+    
+    // Update position to center the resized dialog
+    this.updatePosition();
+  }
+
+  /**
+   * Validate and potentially truncate text that's too long for display
+   */
+  private validateTextLength(text: string): string {
+    const isMobile = this.scene.scale.width < 768;
+    const maxLength = isMobile ? 300 : 400; // Character limits
+    
+    if (text.length > maxLength) {
+      console.warn(`Dialog text truncated: original length ${text.length}, max allowed ${maxLength}`);
+      return text.substring(0, maxLength - 3) + "...";
+    }
+    
+    return text;
+  }
 
   private setAvatar(textureKey: string) {
     if (this.scene.textures.exists(textureKey)) {
@@ -169,7 +242,18 @@ export class SimpleDialogBox {
     }
 
     const currentDialog = this.dialogData[this.currentDialogIndex];
-    this.dialogText.setText(currentDialog.text);
+    
+    // Validate and potentially truncate text length
+    const validatedText = this.validateTextLength(currentDialog.text);
+    
+    // Calculate required height based on content
+    const optionsCount = currentDialog.options ? currentDialog.options.length : 0;
+    const requiredHeight = this.calculateRequiredHeight(validatedText, optionsCount);
+    
+    // Resize dialog if needed
+    this.resizeDialogBox(requiredHeight);
+    
+    this.dialogText.setText(validatedText);
     this.optionsContainer.removeAll(true);
 
     if (currentDialog.avatar) {
@@ -181,17 +265,27 @@ export class SimpleDialogBox {
     // If options are present
     if (currentDialog.options) {
       const isMobile = this.scene.scale.width < 768;
-      let yOffset = isMobile ? 40 : 50;
+      let yOffset = isMobile ? 60 : 70; // More space from main text
       
       currentDialog.options.forEach((option) => {
+        // Truncate very long option text
+        const maxOptionLength = isMobile ? 60 : 80;
+        const displayText = option.text.length > maxOptionLength ? 
+          option.text.substring(0, maxOptionLength) + "..." : 
+          option.text;
+          
         const optionText = this.scene.add.text(
-          isMobile ? 100 : 140,
+          isMobile ? 120 : 160, // More space from left edge
           this.dialogText.y + yOffset,
-          `➡️ ${option.text}`,
+          `➡️ ${displayText}`,
           {
-            fontSize: isMobile ? "14px" : "16px",
+            fontSize: isMobile ? "13px" : "15px", // Slightly smaller for options
             color: "#00ff00",
             fontFamily: "monospace",
+            wordWrap: {
+              width: isMobile ? this.boxWidth - 140 : 460,
+              useAdvancedWrap: true
+            },
             shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
           }
         )
@@ -210,15 +304,15 @@ export class SimpleDialogBox {
         }
 
         this.optionsContainer.add(optionText);
-        yOffset += isMobile ? 25 : 30;
+        yOffset += isMobile ? 35 : 40; // Better spacing between options
       });
     } else {
       // Add tap animation for mobile
       const isMobile = this.scene.scale.width < 768;
       if (isMobile) {
         const tapHint = this.scene.add.text(
-          this.boxWidth - 100,
-          this.boxHeight - 30,
+          this.boxWidth - 120,
+          this.boxHeight - 35,
           "Tap to continue",
           {
             fontSize: "12px",
