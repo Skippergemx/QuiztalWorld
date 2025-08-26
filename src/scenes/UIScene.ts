@@ -4,6 +4,7 @@ import { db } from '../utils/firebase';
 import { Web3Service } from '../services/Web3Service';
 import QuiztalRewardTracker from '../components/QuiztalRewardTracker';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
+import modernUITheme, { UIHelpers } from '../utils/UITheme';
 
 export default class UIScene extends Phaser.Scene {
     private uiContainer!: Phaser.GameObjects.Container;
@@ -19,6 +20,7 @@ export default class UIScene extends Phaser.Scene {
     private headerButtons: Phaser.GameObjects.Container[] = []; // Track header buttons for resize
     private footerBg!: Phaser.GameObjects.Rectangle; // Footer background
     private footerText!: Phaser.GameObjects.Text; // Footer text
+    private footerGraphics!: Phaser.GameObjects.Graphics; // Footer graphics
 
     constructor() {
         super({ key: 'UIScene' });
@@ -71,18 +73,29 @@ export default class UIScene extends Phaser.Scene {
 
     private createUIPanel() {
         const isMobile = this.scale.width < 768;
-        const panelHeight = isMobile ? 70 : 50;  // Increased height for mobile to accommodate larger buttons
+        const panelHeight = isMobile ? 70 : 50;
 
+        // Create modern gradient background
         const graphics = this.add.graphics();
-        graphics.fillStyle(0x2c3e50, 0.95);
-        graphics.fillRect(0, 0, this.scale.width, panelHeight);
+        UIHelpers.createGradientFill(
+            graphics, 
+            0, 0, 
+            this.scale.width, panelHeight,
+            modernUITheme.gradients.dark,
+            true
+        );
         
-        this.backgroundPanel = this.add.rectangle(0, 0, this.scale.width, panelHeight, 0x000000, 0.85)
+        // Add subtle glow effect
+        graphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
+        graphics.strokeRect(0, 0, this.scale.width, panelHeight);
+        
+        this.backgroundPanel = this.add.rectangle(0, 0, this.scale.width, panelHeight, 
+            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary), 0.95)
             .setOrigin(0)
-            .setStrokeStyle(1, 0x3498db, 0.5)
+            .setStrokeStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.6)
             .setScrollFactor(0);
 
-        this.uiContainer.add(this.backgroundPanel);
+        this.uiContainer.add([graphics, this.backgroundPanel]);
     }
 
     private createButtons() {
@@ -153,29 +166,55 @@ export default class UIScene extends Phaser.Scene {
 
     private createNavButton(text: string, tooltip: string, color: string, hoverColor: string, callback: () => void): Phaser.GameObjects.Container {
         const isMobile = this.scale.width < 768;
-        const buttonSize = isMobile ? 35 : 40;
+        const buttonSize = isMobile ? 38 : 44; // Slightly larger for better aesthetics
         const button = this.add.container(0, 0);
-        const touchPadding = isMobile ? 8 : 10;  // Reduced padding to prevent screen overflow
+        const touchPadding = isMobile ? 8 : 10;
         
-        const bg = this.add.rectangle(0, 0, buttonSize, buttonSize, parseInt(color.replace('#', '0x')))
-            .setOrigin(0.5); // Center origin for better positioning
+        // Create modern button background with gradient
+        const buttonGraphics = this.add.graphics();
+        const bgColor1 = UIHelpers.hexToNumber(color);
+        const bgColor2 = UIHelpers.hexToNumber(hoverColor);
+        
+        // Initial state - subtle gradient
+        buttonGraphics.fillGradientStyle(bgColor1, bgColor1, bgColor2, bgColor2, 0.9);
+        buttonGraphics.fillRoundedRect(
+            -buttonSize/2, -buttonSize/2, 
+            buttonSize, buttonSize, 
+            modernUITheme.borderRadius.md
+        );
+        
+        // Add border with glow effect
+        buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.4);
+        buttonGraphics.strokeRoundedRect(
+            -buttonSize/2, -buttonSize/2, 
+            buttonSize, buttonSize, 
+            modernUITheme.borderRadius.md
+        );
 
+        // Create icon with better typography
         const icon = this.add.text(0, 0, text, {
-            fontSize: isMobile ? '16px' : '18px', // Slightly larger for better visibility
+            fontSize: UIHelpers.getResponsiveFontSize(isMobile, '18px'),
+            fontFamily: modernUITheme.typography.fontFamily.primary,
+            color: modernUITheme.colors.text.primary,
             padding: { x: 2, y: 2 }
         }).setOrigin(0.5);
 
-        // Hide tooltip on mobile
-        const tooltipText = !isMobile ? this.add.text(0, buttonSize/2 + 15, tooltip, {
-            fontSize: '9px',
-            backgroundColor: '#2c3e50',
-            padding: { x: 8, y: 4 },
-            color: '#ffffff'
+        // Add subtle text shadow for depth
+        icon.setStroke(modernUITheme.colors.background.primary, 1);
+
+        // Create modern tooltip for desktop
+        const tooltipText = !isMobile ? this.add.text(0, buttonSize/2 + 20, tooltip, {
+            fontSize: modernUITheme.typography.fontSize.xs,
+            fontFamily: modernUITheme.typography.fontFamily.primary,
+            backgroundColor: modernUITheme.colors.background.card,
+            color: modernUITheme.colors.text.primary,
+            padding: { x: 8, y: 4 }
         })
         .setOrigin(0.5, 0)
-        .setVisible(false) : null;
+        .setVisible(false)
+        .setAlpha(0) : null;
 
-        // Create touch area that doesn't extend beyond reasonable bounds
+        // Create interactive area
         const touchArea = this.add.rectangle(
             0, 0, 
             buttonSize + (touchPadding * 2), 
@@ -183,32 +222,117 @@ export default class UIScene extends Phaser.Scene {
             0x000000, 
             0
         )
-        .setOrigin(0.5) // Center origin
+        .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .on('pointerover', () => {
-            bg.setFillStyle(parseInt(hoverColor.replace('#', '0x')));
-            bg.setScale(1.1); // Slight scale effect for feedback
-            if (tooltipText) tooltipText.setVisible(!isMobile);
+            // Smooth hover animation
+            this.tweens.add({
+                targets: [buttonGraphics, icon],
+                scaleX: 1.05,
+                scaleY: 1.05,
+                duration: modernUITheme.animations.duration.fast,
+                ease: modernUITheme.animations.easing.easeOut
+            });
+            
+            // Update gradient for hover state
+            buttonGraphics.clear();
+            buttonGraphics.fillGradientStyle(bgColor2, bgColor2, bgColor1, bgColor1, 1);
+            buttonGraphics.fillRoundedRect(
+                -buttonSize/2, -buttonSize/2, 
+                buttonSize, buttonSize, 
+                modernUITheme.borderRadius.md
+            );
+            buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+            buttonGraphics.strokeRoundedRect(
+                -buttonSize/2, -buttonSize/2, 
+                buttonSize, buttonSize, 
+                modernUITheme.borderRadius.md
+            );
+            
+            // Show tooltip with animation
+            if (tooltipText) {
+                tooltipText.setVisible(true);
+                this.tweens.add({
+                    targets: tooltipText,
+                    alpha: 1,
+                    y: tooltipText.y - 5,
+                    duration: modernUITheme.animations.duration.fast,
+                    ease: modernUITheme.animations.easing.easeOut
+                });
+            }
         })
         .on('pointerout', () => {
-            bg.setFillStyle(parseInt(color.replace('#', '0x')));
-            bg.setScale(1);
-            if (tooltipText) tooltipText.setVisible(false);
+            // Smooth scale back animation
+            this.tweens.add({
+                targets: [buttonGraphics, icon],
+                scaleX: 1,
+                scaleY: 1,
+                duration: modernUITheme.animations.duration.fast,
+                ease: modernUITheme.animations.easing.easeOut
+            });
+            
+            // Reset to normal state
+            buttonGraphics.clear();
+            buttonGraphics.fillGradientStyle(bgColor1, bgColor1, bgColor2, bgColor2, 0.9);
+            buttonGraphics.fillRoundedRect(
+                -buttonSize/2, -buttonSize/2, 
+                buttonSize, buttonSize, 
+                modernUITheme.borderRadius.md
+            );
+            buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.4);
+            buttonGraphics.strokeRoundedRect(
+                -buttonSize/2, -buttonSize/2, 
+                buttonSize, buttonSize, 
+                modernUITheme.borderRadius.md
+            );
+            
+            // Hide tooltip with animation
+            if (tooltipText) {
+                this.tweens.add({
+                    targets: tooltipText,
+                    alpha: 0,
+                    y: tooltipText.y + 5,
+                    duration: modernUITheme.animations.duration.fast,
+                    ease: modernUITheme.animations.easing.easeOut,
+                    onComplete: () => tooltipText.setVisible(false)
+                });
+            }
         })
         .on('pointerdown', () => {
-            // Visual feedback on tap
-            bg.setScale(0.9);
-            this.time.delayedCall(100, () => {
-                bg.setScale(1);
+            // Satisfying click animation
+            this.tweens.add({
+                targets: [buttonGraphics, icon],
+                scaleX: 0.95,
+                scaleY: 0.95,
+                duration: 60,
+                ease: modernUITheme.animations.easing.easeIn,
+                yoyo: true,
+                onComplete: () => {
+                    // Add ripple effect
+                    const ripple = this.add.graphics();
+                    ripple.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
+                    ripple.fillCircle(0, 0, 5);
+                    button.add(ripple);
+                    
+                    this.tweens.add({
+                        targets: ripple,
+                        scaleX: 4,
+                        scaleY: 4,
+                        alpha: 0,
+                        duration: modernUITheme.animations.duration.normal,
+                        ease: modernUITheme.animations.easing.easeOut,
+                        onComplete: () => ripple.destroy()
+                    });
+                    
+                    callback();
+                }
             });
-            callback();
         });
 
-        const elements = [bg, icon, touchArea];
+        const elements = [buttonGraphics, icon, touchArea];
         if (tooltipText) elements.push(tooltipText);
         button.add(elements);
         
-        // Set proper size for container
         button.setSize(buttonSize + (touchPadding * 2), buttonSize + (touchPadding * 2));
 
         return button;
@@ -218,39 +342,68 @@ export default class UIScene extends Phaser.Scene {
     private createBalanceDisplay() {
         const isMobile = this.scale.width < 768;
         
-        // Create container with adjusted Y position
+        // Create container with improved positioning
         const balanceContainer = this.add.container(
-            isMobile ? 10 : 20, 
-            isMobile ? 5 : 10
+            UIHelpers.getResponsiveSpacing(isMobile, 20, 15), 
+            UIHelpers.getResponsiveSpacing(isMobile, 10, 8)
         );
 
-        // Create balance text
+        // Create modern balance text with better typography
         this.balanceText = this.add.text(0, 0, 'Loading balance...', {
-            fontSize: isMobile ? '14px' : '16px',
-            color: '#f1c40f',
-            fontStyle: 'bold',
-            padding: { x: isMobile ? 5 : 10, y: 2 },
+            fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.md),
+            fontFamily: modernUITheme.typography.fontFamily.primary,
+            color: modernUITheme.colors.accent,
+            fontStyle: 'bold', // Use fontStyle instead of fontWeight
+            padding: { 
+                x: UIHelpers.getResponsiveSpacing(isMobile, 12, 8), 
+                y: UIHelpers.getResponsiveSpacing(isMobile, 6, 4) 
+            },
             shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: '#000',
-                blur: 2,
+                offsetX: 2,
+                offsetY: 2,
+                color: modernUITheme.colors.background.primary,
+                blur: 4,
                 fill: true
             }
         }).setScrollFactor(0);
 
-        // Create wallet display below balance
+        // Create modern wallet display with card-like appearance
         this.walletBtn = this.add.text(
-            0,  // Always align with balance text
-            this.balanceText.height + 2,  // Position just below balance
-            '🦊 Loading...', 
+            0,
+            this.balanceText.height + UIHelpers.getResponsiveSpacing(isMobile, 6, 4),
+            '🦊 Loading wallet...', 
             {
-                fontSize: isMobile ? '12px' : '14px',
-                color: '#3498db',
-                backgroundColor: '#2c3e50',
-                padding: { x: isMobile ? 5 : 10, y: 2 }
+                fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.sm),
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.info,
+                backgroundColor: modernUITheme.colors.background.card,
+                padding: { 
+                    x: UIHelpers.getResponsiveSpacing(isMobile, 10, 8), 
+                    y: UIHelpers.getResponsiveSpacing(isMobile, 4, 3) 
+                }
             }
         ).setScrollFactor(0);
+
+        // Add subtle interactive effects
+        this.walletBtn.setInteractive({ useHandCursor: true })
+            .on('pointerover', () => {
+                this.tweens.add({
+                    targets: this.walletBtn,
+                    scaleX: 1.02,
+                    scaleY: 1.02,
+                    duration: modernUITheme.animations.duration.fast,
+                    ease: modernUITheme.animations.easing.easeOut
+                });
+            })
+            .on('pointerout', () => {
+                this.tweens.add({
+                    targets: this.walletBtn,
+                    scaleX: 1,
+                    scaleY: 1,
+                    duration: modernUITheme.animations.duration.fast,
+                    ease: modernUITheme.animations.easing.easeOut
+                });
+            });
 
         balanceContainer.add([this.balanceText, this.walletBtn]);
         this.uiContainer.add(balanceContainer);
@@ -317,48 +470,81 @@ export default class UIScene extends Phaser.Scene {
     private createFooterInstructions() {
         const isMobile = this.scale.width < 768;
         
-        // Don't show keyboard instructions on mobile
+        // Enhanced instructions with better context
         const instructions = isMobile ?
-            'Tap NPCs to interact | Tap 🎯 for Session Rewards | Tap 🎒 for Inventory' :
-            '⬅️➡️⬆️⬇️ or WASD to move | Press C near NPCs | Press R for Rewards | Press I for Inventory | PgUp/PgDn to scroll';
+            '👍 Tap NPCs to learn | 🎯 Session Rewards | 🎒 Your Items' :
+            'WASD/⬅️➡️⬆️⬇️ Move | C Interact | R Rewards | I Inventory | PgUp/PgDn Scroll';
+
+        // Create modern footer background with gradient
+        const footerHeight = isMobile ? 35 : 45;
+        const footerGraphics = this.add.graphics();
+        
+        UIHelpers.createGradientFill(
+            footerGraphics,
+            0,
+            this.scale.height - footerHeight,
+            this.scale.width,
+            footerHeight,
+            modernUITheme.gradients.dark,
+            true
+        );
+        
+        // Add subtle top border
+        footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
+        footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
 
         const footerBg = this.add.rectangle(
             0,
-            this.scale.height - (isMobile ? 30 : 40),
+            this.scale.height - footerHeight,
             this.scale.width,
-            isMobile ? 30 : 40,
-            0x2c3e50,
-            0.85
+            footerHeight,
+            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary),
+            0.9
         )
         .setOrigin(0)
         .setScrollFactor(0)
         .setDepth(999);
 
+        // Create modern instructions text
         const instructionsText = this.add.text(
             this.scale.width / 2,
-            this.scale.height - (isMobile ? 15 : 20),
+            this.scale.height - (footerHeight / 2),
             instructions,
             {
-                fontSize: isMobile ? '12px' : '14px',
-                color: '#ffffff',
-                padding: { x: isMobile ? 5 : 10, y: 5 }
+                fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.sm),
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.text.secondary,
+                align: 'center',
+                padding: { 
+                    x: UIHelpers.getResponsiveSpacing(isMobile, 10, 8), 
+                    y: UIHelpers.getResponsiveSpacing(isMobile, 6, 4) 
+                },
+                shadow: {
+                    offsetX: 1,
+                    offsetY: 1,
+                    color: modernUITheme.colors.background.primary,
+                    blur: 2,
+                    fill: true
+                }
             }
         )
         .setOrigin(0.5)
         .setScrollFactor(0)
-        .setDepth(999);
+        .setDepth(1000);
 
-        this.uiContainer.add([footerBg, instructionsText]);
+        this.uiContainer.add([footerGraphics, footerBg, instructionsText]);
 
         // Store footer elements for resize handling
         this.footerBg = footerBg;
         this.footerText = instructionsText;
+        this.footerGraphics = footerGraphics;
 
         // Update layout method to handle footer
         const originalLayout = this.updateLayout;
         this.updateLayout = () => {
             const isMobile = this.scale.width < 768;
             const panelHeight = isMobile ? 70 : 50;
+            const footerHeight = isMobile ? 35 : 45;
             
             // Update background panel
             this.backgroundPanel.setSize(this.scale.width, panelHeight);
@@ -367,9 +553,23 @@ export default class UIScene extends Phaser.Scene {
             this.repositionHeaderButtons();
             
             // Update footer
-            this.footerBg.setPosition(0, this.scale.height - (isMobile ? 30 : 40))
-                .setDisplaySize(this.scale.width, isMobile ? 30 : 40);
-            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (isMobile ? 15 : 20));
+            this.footerBg.setPosition(0, this.scale.height - footerHeight)
+                .setDisplaySize(this.scale.width, footerHeight);
+            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (footerHeight / 2));
+            
+            // Update footer graphics
+            this.footerGraphics.clear();
+            UIHelpers.createGradientFill(
+                this.footerGraphics,
+                0,
+                this.scale.height - footerHeight,
+                this.scale.width,
+                footerHeight,
+                modernUITheme.gradients.dark,
+                true
+            );
+            this.footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
+            this.footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
         };
     }
 

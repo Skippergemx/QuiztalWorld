@@ -2,6 +2,7 @@
 
 import Phaser from 'phaser';
 import QuiztalRewardLog, { QuiztalReward, SessionStats } from '../utils/QuiztalRewardLog';
+import modernUITheme, { UIHelpers } from '../utils/UITheme';
 
 export default class QuiztalRewardTracker {
     private scene: Phaser.Scene;
@@ -14,10 +15,10 @@ export default class QuiztalRewardTracker {
     private rewardAddedHandler: (event: Event) => void;
     private logClearedHandler: () => void;
     
-    // Position and size constants
-    private readonly PANEL_WIDTH = 280;
-    private readonly PANEL_HEIGHT = 180;
-    private readonly PADDING = 12;
+    // Enhanced position and size constants for modern design
+    private readonly PANEL_WIDTH = 320;
+    private readonly PANEL_HEIGHT = 200;
+    private readonly PADDING = modernUITheme.spacing.md;
 
     constructor(scene: Phaser.Scene) {
         this.scene = scene;
@@ -38,51 +39,89 @@ export default class QuiztalRewardTracker {
     }
 
     private initializeUI(): void {
-        // Create main container
+        // Create main container with enhanced depth
         this.container = this.scene.add.container(0, 0).setDepth(1500);
         
-        // Create background panel
-        this.backgroundPanel = this.scene.add.rectangle(0, 0, this.PANEL_WIDTH, this.PANEL_HEIGHT, 0x1a1a1a, 0.95)
+        // Create modern background with glass morphism effect
+        const backgroundGraphics = this.scene.add.graphics();
+        UIHelpers.createGradientFill(
+            backgroundGraphics,
+            0, 0,
+            this.PANEL_WIDTH, this.PANEL_HEIGHT,
+            modernUITheme.gradients.glass,
+            true
+        );
+        
+        // Create main background panel with modern styling
+        this.backgroundPanel = this.scene.add.rectangle(
+            0, 0, 
+            this.PANEL_WIDTH, this.PANEL_HEIGHT, 
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card), 
+            0.95
+        )
             .setOrigin(0, 0)
-            .setStrokeStyle(2, 0xf1c40f, 0.8);
+            .setStrokeStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
         
-        // Create header
-        this.headerText = this.scene.add.text(this.PADDING, this.PADDING, '🎯 Quiztal Explorer', {
-            fontSize: '16px',
-            fontFamily: 'monospace',
-            color: '#f1c40f',
-            fontStyle: 'bold'
-        });
+        // Add subtle glow effect
+        const glowGraphics = this.scene.add.graphics();
+        glowGraphics.lineStyle(4, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.2);
+        glowGraphics.strokeRoundedRect(
+            -2, -2, 
+            this.PANEL_WIDTH + 4, this.PANEL_HEIGHT + 4, 
+            modernUITheme.borderRadius.lg
+        );
         
-        // Create session stats text
-        this.sessionStatsText = this.scene.add.text(this.PADDING, this.PADDING + 30, '', {
-            fontSize: '13px',
-            fontFamily: 'monospace',
-            color: '#2ecc71',
-            lineSpacing: 4
-        });
+        // Create enhanced header with modern typography
+        this.headerText = this.scene.add.text(
+            this.PADDING, this.PADDING, 
+            '🎯 Quiztal Explorer', 
+            {
+                fontSize: modernUITheme.typography.fontSize.lg,
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.accent,
+                fontStyle: 'bold' // Use fontStyle instead of fontWeight
+            }
+        );
         
-        // Create recent rewards text
-        this.recentRewardsText = this.scene.add.text(this.PADDING, this.PADDING + 80, '', {
-            fontSize: '12px',
-            fontFamily: 'monospace',
-            color: '#3498db',
-            lineSpacing: 3
-        });
+        // Create session stats with improved styling
+        this.sessionStatsText = this.scene.add.text(
+            this.PADDING, this.PADDING + 35, 
+            '', 
+            {
+                fontSize: modernUITheme.typography.fontSize.sm,
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.success,
+                lineSpacing: 6
+            }
+        );
+        
+        // Create recent rewards with enhanced readability
+        this.recentRewardsText = this.scene.add.text(
+            this.PADDING, this.PADDING + 95, 
+            '', 
+            {
+                fontSize: modernUITheme.typography.fontSize.xs,
+                fontFamily: modernUITheme.typography.fontFamily.mono,
+                color: modernUITheme.colors.info,
+                lineSpacing: 4
+            }
+        );
         
         // Add all elements to container
         this.container.add([
+            glowGraphics,
+            backgroundGraphics,
             this.backgroundPanel,
             this.headerText,
             this.sessionStatsText,
             this.recentRewardsText
         ]);
         
-        // Position the tracker (top-right corner by default)
+        // Position the tracker
         this.positionTracker();
         
-        // Start hidden
-        this.container.setVisible(false);
+        // Start hidden with proper initial state
+        this.container.setVisible(false).setAlpha(0);
     }
 
     private setupEventListeners(): void {
@@ -185,13 +224,18 @@ export default class QuiztalRewardTracker {
             this.updateDisplay();
             this.container.setVisible(true);
             
-            // Animate in
+            // Modern slide-in animation with bounce
             this.container.setAlpha(0);
+            const isMobile = this.scene.scale.width < 768;
+            const startY = this.container.y + (isMobile ? 50 : 30);
+            this.container.setY(startY);
+            
             this.scene.tweens.add({
                 targets: this.container,
                 alpha: 1,
-                duration: 300,
-                ease: 'Power2'
+                y: this.container.y - (isMobile ? 50 : 30),
+                duration: modernUITheme.animations.duration.normal,
+                ease: modernUITheme.animations.easing.bounce
             });
         }
     }
@@ -200,12 +244,14 @@ export default class QuiztalRewardTracker {
         if (this.isVisible) {
             this.isVisible = false;
             
-            // Animate out
+            // Smooth slide-out animation
+            const isMobile = this.scene.scale.width < 768;
             this.scene.tweens.add({
                 targets: this.container,
                 alpha: 0,
-                duration: 300,
-                ease: 'Power2',
+                y: this.container.y + (isMobile ? 30 : 20),
+                duration: modernUITheme.animations.duration.fast,
+                ease: modernUITheme.animations.easing.easeIn,
                 onComplete: () => {
                     this.container.setVisible(false);
                 }

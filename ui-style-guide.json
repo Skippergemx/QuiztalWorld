@@ -1,0 +1,358 @@
+{
+  "uiStyleGuide": {
+    "version": "2.0.0",
+    "lastUpdated": "2025-08-26",
+    "title": "QuiztalWorld Modern UI Style Guide",
+    "description": "Comprehensive visual design system for consistent UI across desktop and mobile platforms",
+    
+    "designPrinciples": {
+      "accessibility": "UI elements must be accessible on both desktop and mobile with proper contrast and touch targets",
+      "responsiveness": "All components must adapt seamlessly between desktop and mobile viewports",
+      "consistency": "Maintain visual harmony through consistent spacing, typography, and color usage",
+      "performance": "Optimize animations and effects for smooth performance on mobile devices",
+      "clarity": "Prioritize readability and intuitive user interactions"
+    },
+    
+    "colorPalette": {
+      "primary": {
+        "main": "#3498db",
+        "usage": "Primary actions, links, interactive elements",
+        "contrast": "#ffffff"
+      },
+      "secondary": {
+        "main": "#2c3e50",
+        "usage": "Secondary actions, backgrounds, containers",
+        "contrast": "#ffffff"
+      },
+      "accent": {
+        "main": "#f1c40f",
+        "usage": "Highlights, rewards, important information",
+        "contrast": "#2c3e50"
+      },
+      "success": {
+        "main": "#2ecc71",
+        "usage": "Success messages, positive feedback, correct answers",
+        "contrast": "#ffffff"
+      },
+      "warning": {
+        "main": "#f39c12",
+        "usage": "Warnings, caution messages, pending states",
+        "contrast": "#ffffff"
+      },
+      "error": {
+        "main": "#e74c3c",
+        "usage": "Error messages, incorrect answers, destructive actions",
+        "contrast": "#ffffff"
+      },
+      "info": {
+        "main": "#9b59b6",
+        "usage": "Information messages, neutral feedback",
+        "contrast": "#ffffff"
+      },
+      "backgrounds": {
+        "primary": "#1a1a1a",
+        "secondary": "#2c2c2c", 
+        "overlay": "#000000",
+        "card": "#2c3e50"
+      },
+      "text": {
+        "primary": "#ffffff",
+        "secondary": "#bdc3c7",
+        "muted": "#7f8c8d",
+        "inverse": "#2c3e50"
+      }
+    },
+    
+    "typography": {
+      "fontFamilies": {
+        "primary": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        "secondary": "Arial, sans-serif",
+        "monospace": "'Fira Code', 'SF Mono', Monaco, Consolas, monospace"
+      },
+      "fontSizes": {
+        "xs": "12px",
+        "sm": "14px", 
+        "md": "16px",
+        "lg": "18px",
+        "xl": "20px",
+        "xxl": "24px"
+      },
+      "lineHeights": {
+        "tight": "1.2",
+        "normal": "1.5",
+        "relaxed": "1.8"
+      },
+      "usage": {
+        "headers": "Primary font family, bold weight, appropriate size",
+        "body": "Primary font family, normal weight, readable size",
+        "code": "Monospace font family for technical content",
+        "ui": "Primary font family for interface elements"
+      }
+    },
+    
+    "spacing": {
+      "scale": [4, 8, 16, 24, 32, 48, 64],
+      "names": ["xs", "sm", "md", "lg", "xl", "xxl", "xxxl"],
+      "responsive": {
+        "mobile": "Reduce spacing by 25% on mobile devices",
+        "desktop": "Use full spacing values on desktop"
+      }
+    },
+    
+    "borderRadius": {
+      "sm": "4px",
+      "md": "8px", 
+      "lg": "12px",
+      "xl": "16px",
+      "usage": {
+        "buttons": "md (8px)",
+        "cards": "lg (12px)",
+        "dialogs": "lg (12px)",
+        "input": "sm (4px)"
+      }
+    },
+    
+    "animations": {
+      "durations": {
+        "fast": "150ms",
+        "normal": "300ms",
+        "slow": "500ms"
+      },
+      "easing": {
+        "easeIn": "Power2.easeIn",
+        "easeOut": "Power2.easeOut", 
+        "easeInOut": "Power2.easeInOut",
+        "bounce": "Bounce.easeOut"
+      },
+      "usage": {
+        "hover": "Fast duration with easeOut",
+        "click": "Fast duration with easeIn",
+        "appear": "Normal duration with bounce",
+        "disappear": "Fast duration with easeIn"
+      }
+    },
+    
+    "components": {
+      "buttons": {
+        "primary": {
+          "background": "Linear gradient from primary to darker shade",
+          "border": "2px solid accent color with 40% opacity",
+          "text": "Primary font, white color, appropriate size",
+          "padding": "8px mobile, 10px desktop",
+          "borderRadius": "md (8px)",
+          "hoverEffect": "Scale 1.05 with color transition",
+          "clickEffect": "Scale 0.95 with ripple animation"
+        },
+        "secondary": {
+          "background": "Secondary color with transparency",
+          "border": "1px solid border color",
+          "text": "Primary font, secondary text color",
+          "states": "Same animation patterns as primary"
+        },
+        "touchTargets": {
+          "minimum": "44px on all sides for mobile",
+          "padding": "Additional 8px padding for touch area",
+          "feedback": "Visual feedback on all interactions"
+        }
+      },
+      
+      "dialogs": {
+        "background": {
+          "main": "Card background with 95% opacity",
+          "gradient": "Dark gradient overlay",
+          "border": "Accent color with glow effect"
+        },
+        "typography": {
+          "header": "Large size, accent color, bold weight",
+          "body": "Medium size, primary text color, normal weight",
+          "options": "Small size, info color, interactive"
+        },
+        "layout": {
+          "width": "92% mobile, 700px desktop",
+          "height": "Dynamic based on content",
+          "padding": "16px mobile, 20px desktop",
+          "avatarSize": "60px mobile, 80px desktop"
+        },
+        "animations": {
+          "appear": "Fade in with slide up, bounce easing",
+          "disappear": "Fade out with slide down, ease in"
+        }
+      },
+      
+      "cards": {
+        "background": "Card color with gradient overlay",
+        "border": "Accent color with subtle glow",
+        "borderRadius": "lg (12px)",
+        "shadow": "Medium depth shadow",
+        "padding": "16px mobile, 24px desktop",
+        "hoverEffect": "Subtle scale and glow increase"
+      },
+      
+      "loadingStates": {
+        "overlay": {
+          "background": "Overlay color with 80% opacity",
+          "spinner": "Accent color rotating circle",
+          "text": "Primary text color with shadow"
+        },
+        "progressBar": {
+          "background": "Secondary background color",
+          "fill": "Gradient from accent to primary",
+          "border": "Accent color with glow",
+          "animation": "Smooth fill with glow effect"
+        }
+      },
+      
+      "rewardTracker": {
+        "size": "320x200px with responsive adjustments",
+        "background": "Glass morphism effect with card background",
+        "border": "Accent color glow border",
+        "typography": {
+          "header": "Large, accent color, bold",
+          "stats": "Small, success color, monospace",
+          "rewards": "Extra small, info color, monospace"
+        },
+        "positioning": {
+          "desktop": "Top-right corner with 20px margin",
+          "mobile": "Bottom-left to avoid UI conflicts"
+        },
+        "animations": {
+          "show": "Slide in with bounce effect",
+          "hide": "Slide out with fade",
+          "newReward": "Notification floats upward with fade"
+        }
+      }
+    },
+    
+    "iconSystem": {
+      "style": "Emoji-based icons for universal compatibility",
+      "usage": {
+        "💎": "Token claiming, valuable items",
+        "🎯": "Rewards, targets, achievements", 
+        "🎒": "Inventory, storage, items",
+        "🚪": "Exit, logout, navigation",
+        "🦊": "Wallet, Web3, blockchain",
+        "⬅️➡️⬆️⬇️": "Movement, navigation",
+        "👍": "Positive actions, success",
+        "❌": "Errors, cancellation, negative",
+        "⏳": "Loading, waiting states",
+        "✅": "Completion, success states"
+      },
+      "sizing": {
+        "mobile": "16px for buttons, 14px for text",
+        "desktop": "18px for buttons, 16px for text"
+      },
+      "spacing": "4px margin around icons in text"
+    },
+    
+    "responsiveDesign": {
+      "breakpoints": {
+        "mobile": "< 768px width",
+        "desktop": ">= 768px width"
+      },
+      "adaptations": {
+        "spacing": "Reduce by 25% on mobile",
+        "fontSize": "Reduce by 2px on mobile",
+        "touchTargets": "Minimum 44px on mobile",
+        "layout": "Single column on mobile, multi-column on desktop"
+      },
+      "detection": "Use this.scale.width < 768 for mobile detection",
+      "helpers": "Use UIHelpers utility functions for responsive values"
+    },
+    
+    "accessibility": {
+      "contrast": {
+        "minimum": "4.5:1 for normal text",
+        "enhanced": "7:1 for small text",
+        "testing": "Verify all color combinations meet standards"
+      },
+      "touchTargets": {
+        "minimum": "44px x 44px for mobile",
+        "spacing": "8px minimum between interactive elements",
+        "feedback": "Visual feedback for all interactions"
+      },
+      "typography": {
+        "minimumSize": "12px on mobile, 14px on desktop",
+        "lineHeight": "1.5 for body text, 1.2 for headings",
+        "fontWeight": "Use fontStyle 'bold' instead of fontWeight property"
+      }
+    },
+    
+    "performanceGuidelines": {
+      "animations": {
+        "duration": "Keep under 500ms for responsiveness",
+        "easing": "Use Phaser's built-in easing functions",
+        "cleanup": "Always destroy animation objects when done"
+      },
+      "graphics": {
+        "reuse": "Reuse graphics objects when possible",
+        "batching": "Group similar rendering operations",
+        "depth": "Use appropriate depth values to minimize redraws"
+      },
+      "mobile": {
+        "frameRate": "Target 30 FPS on mobile devices",
+        "textures": "Limit to 8 simultaneous textures on mobile",
+        "effects": "Reduce visual effects complexity on mobile"
+      }
+    },
+    
+    "codeStandards": {
+      "theming": {
+        "import": "Always import modernUITheme and UIHelpers",
+        "colors": "Use theme colors instead of hardcoded hex values",
+        "spacing": "Use responsive spacing helpers",
+        "detection": "Use consistent mobile detection pattern"
+      },
+      "consistency": {
+        "naming": "Use consistent naming conventions",
+        "structure": "Follow established component patterns",
+        "comments": "Document complex animations and calculations"
+      },
+      "maintenance": {
+        "testing": "Test all components on mobile and desktop",
+        "documentation": "Update style guide when adding new patterns",
+        "cleanup": "Remove unused styles and properties"
+      }
+    },
+    
+    "implementation": {
+      "gettingStarted": [
+        "Import modernUITheme and UIHelpers in your scene/component",
+        "Use UIHelpers.hexToNumber() for color conversions",
+        "Apply responsive spacing with UIHelpers.getResponsiveSpacing()",
+        "Use theme typography instead of hardcoded font properties",
+        "Test on both mobile and desktop viewports"
+      ],
+      "commonPatterns": {
+        "buttonCreation": "Use gradient backgrounds with glow borders",
+        "textStyling": "Apply theme fonts with proper shadows",
+        "animations": "Use theme easing and duration values",
+        "responsiveLayout": "Calculate positions based on screen size",
+        "colorUsage": "Use semantic color names from theme"
+      },
+      "troubleshooting": [
+        "fontWeight errors: Use fontStyle 'bold' instead",
+        "borderRadius errors: Apply to graphics, not text objects",
+        "Color conversion: Use UIHelpers.hexToNumber() for Phaser",
+        "Responsive issues: Check mobile detection logic",
+        "Animation performance: Reduce complexity on mobile"
+      ]
+    },
+    
+    "changelog": [
+      {
+        "version": "2.0.0",
+        "date": "2025-08-26",
+        "changes": [
+          "Complete UI modernization with theme system",
+          "Enhanced button animations and visual feedback",
+          "Improved typography with modern font stack", 
+          "Better mobile responsiveness and touch targets",
+          "Glass morphism effects for modern appearance",
+          "Comprehensive animation system with proper easing",
+          "Consistent color palette and semantic usage",
+          "Enhanced accessibility and performance guidelines"
+        ]
+      }
+    ]
+  }
+}

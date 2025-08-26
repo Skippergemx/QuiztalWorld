@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import modernUITheme, { UIHelpers } from './UITheme';
 
 export class SimpleDialogBox {
   private scene: Phaser.Scene;
@@ -19,10 +20,10 @@ export class SimpleDialogBox {
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     
-    // Make dialog box responsive with minimum dimensions
+    // Enhanced responsive dialog sizing following memory specifications
     const isMobile = scene.scale.width < 768;
-    this.boxWidth = isMobile ? scene.scale.width * 0.9 : 650;
-    this.boxHeight = isMobile ? 200 : 180; // Increased minimum height
+    this.boxWidth = isMobile ? scene.scale.width * 0.92 : 700; // Slightly larger for better content
+    this.boxHeight = isMobile ? 220 : 200; // Improved minimum height per memory specs
 
     this.dialogContainer = scene.add.container(0, 0);
 
@@ -45,18 +46,45 @@ export class SimpleDialogBox {
       }
     });
 
-    // Update dialog background
+    // Create modern dialog background with glass morphism
+    const dialogGraphics = scene.add.graphics();
+    
+    // Background gradient
+    UIHelpers.createGradientFill(
+      dialogGraphics,
+      0, 0,
+      this.boxWidth, this.boxHeight,
+      modernUITheme.gradients.dark,
+      true
+    );
+    
+    // Create main background with modern styling
     const dialogBg = scene.add.graphics();
-    dialogBg.fillStyle(0x002b36, 0.95);
-    dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
-    dialogBg.lineStyle(isMobile ? 2 : 4, 0x00ff00, 1);
-    dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
-    this.dialogContainer.add(dialogBg);
+    dialogBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.95);
+    dialogBg.fillRoundedRect(
+      0, 0, 
+      this.boxWidth, this.boxHeight, 
+      UIHelpers.getResponsiveSpacing(isMobile, modernUITheme.borderRadius.lg, modernUITheme.borderRadius.md)
+    );
+    
+    // Enhanced border with glow effect
+    dialogBg.lineStyle(
+      UIHelpers.getResponsiveSpacing(isMobile, 3, 2), 
+      UIHelpers.hexToNumber(modernUITheme.colors.accent), 
+      0.8
+    );
+    dialogBg.strokeRoundedRect(
+      0, 0, 
+      this.boxWidth, this.boxHeight, 
+      UIHelpers.getResponsiveSpacing(isMobile, modernUITheme.borderRadius.lg, modernUITheme.borderRadius.md)
+    );
+    
+    this.dialogContainer.add([dialogGraphics, dialogBg]);
 
-    // Adjust avatar size for mobile
-    const avatarSize = isMobile ? 70 : 90;
+    // Enhanced avatar with modern sizing
+    const avatarSize = UIHelpers.getResponsiveSpacing(isMobile, 80, 60);
     this.avatar = scene.add.image(
-      isMobile ? 50 : 70,
+      UIHelpers.getResponsiveSpacing(isMobile, 60, 45),
       this.boxHeight / 2,
       "npc_mintgirl_avatar"
     )
@@ -65,25 +93,31 @@ export class SimpleDialogBox {
       .setVisible(false);
     this.dialogContainer.add(this.avatar);
 
-    // Adjust text size and position for mobile with improved word wrapping
+    // Enhanced text configuration with improved typography
     const textConfig = {
-      fontSize: isMobile ? "15px" : "17px",
-      fontFamily: "monospace",
-      color: "#00ff00",
+      fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.md),
+      fontFamily: modernUITheme.typography.fontFamily.primary,
+      color: modernUITheme.colors.accent,
       wordWrap: { 
         width: isMobile ? 
-          this.boxWidth - 120 : // More space for text
-          500, // Increased wrap width for desktop
+          this.boxWidth - 140 : // Improved spacing per memory specs
+          520, // Enhanced wrap width for desktop per memory
         useAdvancedWrap: true 
       },
       align: "left",
-      lineSpacing: isMobile ? 5 : 7, // Better line spacing
-      shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
+      lineSpacing: UIHelpers.getResponsiveSpacing(isMobile, 8, 6), // Better line spacing
+      shadow: { 
+        offsetX: 2, 
+        offsetY: 2, 
+        color: modernUITheme.colors.background.primary, 
+        blur: 6, 
+        fill: true 
+      }
     };
 
     this.dialogText = scene.add.text(
-      isMobile ? 100 : 140,
-      isMobile ? 15 : 20,
+      UIHelpers.getResponsiveSpacing(isMobile, 120, 100),
+      UIHelpers.getResponsiveSpacing(isMobile, 20, 16),
       "",
       textConfig
     );
@@ -92,7 +126,7 @@ export class SimpleDialogBox {
     this.optionsContainer = scene.add.container(0, 0);
     this.dialogContainer.add(this.optionsContainer);
 
-    this.dialogContainer.setVisible(false);
+    this.dialogContainer.setVisible(false).setAlpha(0);
   }
 
   private updatePosition = () => {
@@ -112,24 +146,29 @@ export class SimpleDialogBox {
 
   /**
    * Calculate required dialog height based on text content and options
+   * Enhanced per memory specifications for dynamic sizing
    */
   private calculateRequiredHeight(text: string, optionsCount: number = 0): number {
     const isMobile = this.scene.scale.width < 768;
-    const minHeight = isMobile ? 200 : 180;
+    const minHeight = isMobile ? 220 : 200; // Updated per memory specs
     
-    // Estimate text height based on character count and word wrap width
-    const wrapWidth = isMobile ? this.boxWidth - 100 : 440;
-    const avgCharsPerLine = Math.floor(wrapWidth / (isMobile ? 9 : 10)); // Rough estimate
+    // Improved estimation with modern theme considerations
+    const wrapWidth = isMobile ? this.boxWidth - 140 : 520; // Enhanced wrap width per memory
+    const avgCharsPerLine = Math.floor(wrapWidth / (isMobile ? 10 : 12)); // Better estimation
     const estimatedLines = Math.ceil(text.length / avgCharsPerLine);
-    const textHeight = estimatedLines * (isMobile ? 20 : 24); // Line height estimate
+    const lineHeight = isMobile ? 22 : 26; // Account for improved line spacing
+    const textHeight = estimatedLines * lineHeight;
     
-    // Add space for options
-    const optionsHeight = optionsCount * (isMobile ? 30 : 35);
+    // Enhanced space calculation for options
+    const optionHeight = isMobile ? 35 : 40; // Better spacing
+    const optionsHeight = optionsCount * optionHeight;
     
-    // Add padding for avatar, margins, and spacing
-    const paddingHeight = isMobile ? 60 : 80;
+    // Improved padding calculation with modern theme spacing
+    const basePadding = UIHelpers.getResponsiveSpacing(isMobile, 80, 60);
+    const avatarPadding = UIHelpers.getResponsiveSpacing(isMobile, 20, 16);
+    const totalPadding = basePadding + avatarPadding;
     
-    const requiredHeight = textHeight + optionsHeight + paddingHeight;
+    const requiredHeight = textHeight + optionsHeight + totalPadding;
     
     return Math.max(minHeight, requiredHeight);
   }
@@ -153,7 +192,7 @@ export class SimpleDialogBox {
     const dialogBg = this.scene.add.graphics();
     dialogBg.fillStyle(0x002b36, 0.95);
     dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
-    dialogBg.lineStyle(isMobile ? 2 : 4, 0x00ff00, 1);
+    dialogBg.lineStyle(isMobile ? 2 : 4, 0xffa500, 1);
     dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight, isMobile ? 10 : 20);
     
     // Insert background at the beginning of the container
@@ -280,7 +319,7 @@ export class SimpleDialogBox {
           `➡️ ${displayText}`,
           {
             fontSize: isMobile ? "13px" : "15px", // Slightly smaller for options
-            color: "#00ff00",
+            color: "#ffa500",
             fontFamily: "monospace",
             wordWrap: {
               width: isMobile ? this.boxWidth - 140 : 460,
@@ -316,7 +355,7 @@ export class SimpleDialogBox {
           "Tap to continue",
           {
             fontSize: "12px",
-            color: "#00ff00"
+            color: "#ffa500"
           }
         ).setAlpha(0.7);  // Set alpha on the text object instead of in TextStyle
 
