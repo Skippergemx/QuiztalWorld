@@ -14,7 +14,7 @@
       "answer": "Non-Fungible Token"
     },
     {
-      "question": "Which blockchain is most commonly associated with NFTs?",
+      "question": "Which blockchain is common?",
       "options": [
         "Ethereum",
         "Bitcoin",
@@ -23,274 +23,274 @@
       "answer": "Ethereum"
     },
     {
-      "question": "What makes NFTs unique compared to cryptocurrencies like Bitcoin?",
+      "question": "What makes NFTs unique?",
       "options": [
-        "They are non-fungible and not interchangeable",
+        "They are non-fungible",
         "They have higher value",
-        "They are faster to transfer"
+        "They are faster"
       ],
-      "answer": "They are non-fungible and not interchangeable"
+      "answer": "They are non-fungible"
     },
     {
-      "question": "What is 'minting' in the context of NFTs?",
+      "question": "What is 'minting' NFTs?",
       "options": [
-        "Creating a new NFT on the blockchain",
-        "Buying an NFT",
-        "Selling an NFT"
+        "Creating new NFTs",
+        "Buying NFTs",
+        "Selling NFTs"
       ],
-      "answer": "Creating a new NFT on the blockchain"
+      "answer": "Creating new NFTs"
     },
     {
-      "question": "What type of digital assets can be represented as NFTs?",
+      "question": "What digital assets for NFTs?",
       "options": [
-        "Digital art, music, and virtual real estate",
+        "Digital art, music",
         "Only digital images",
         "Only cryptocurrency tokens"
       ],
-      "answer": "Digital art, music, and virtual real estate"
+      "answer": "Digital art, music"
     },
     {
-      "question": "What is a smart contract in relation to NFTs?",
+      "question": "What is smart contract?",
       "options": [
-        "Self-executing code that defines NFT properties and behavior",
-        "A legal document for NFT ownership",
-        "A payment method for NFTs"
+        "Self-executing code",
+        "Legal document",
+        "Payment method"
       ],
-      "answer": "Self-executing code that defines NFT properties and behavior"
+      "answer": "Self-executing code"
     },
     {
-      "question": "What is an NFT marketplace?",
+      "question": "What is NFT marketplace?",
       "options": [
-        "A platform where users can buy, sell, and trade NFTs",
-        "A wallet for storing NFTs",
-        "A blockchain network"
+        "Platform to buy, sell",
+        "Wallet for storing",
+        "Blockchain network"
       ],
-      "answer": "A platform where users can buy, sell, and trade NFTs"
+      "answer": "Platform to buy, sell"
     },
     {
-      "question": "What are gas fees in NFT transactions?",
+      "question": "What are gas fees?",
       "options": [
-        "Transaction costs paid to blockchain miners/validators",
+        "Transaction costs paid",
         "Marketplace commission fees",
         "Artist royalty payments"
       ],
-      "answer": "Transaction costs paid to blockchain miners/validators"
+      "answer": "Transaction costs paid"
     },
     {
       "question": "What is metadata in NFTs?",
       "options": [
-        "Data that describes the NFT's properties and characteristics",
+        "Data describing properties",
         "The NFT's purchase price",
         "The owner's information"
       ],
-      "answer": "Data that describes the NFT's properties and characteristics"
+      "answer": "Data describing properties"
     },
     {
-      "question": "What is a royalty in NFT sales?",
+      "question": "What is royalty in sales?",
       "options": [
-        "A percentage paid to the original creator on secondary sales",
-        "A government tax on NFTs",
-        "A marketplace listing fee"
+        "Percentage to creator",
+        "Government tax on NFTs",
+        "Marketplace listing fee"
       ],
-      "answer": "A percentage paid to the original creator on secondary sales"
+      "answer": "Percentage to creator"
     },
     {
-      "question": "What is the ERC-721 standard?",
+      "question": "What is the ERC-721?",
       "options": [
-        "A token standard for creating unique, non-fungible tokens",
-        "A cryptocurrency exchange protocol",
-        "A digital wallet specification"
+        "Token standard for NFTs",
+        "Cryptocurrency exchange",
+        "Digital wallet spec"
       ],
-      "answer": "A token standard for creating unique, non-fungible tokens"
+      "answer": "Token standard for NFTs"
     },
     {
-      "question": "What is the difference between ERC-721 and ERC-1155?",
+      "question": "ERC-721 vs ERC-1155?",
       "options": [
-        "ERC-1155 can handle both fungible and non-fungible tokens",
-        "ERC-721 is faster than ERC-1155",
-        "ERC-1155 is only for gaming"
+        "ERC-1155 handles both",
+        "ERC-721 is faster",
+        "ERC-1155 only gaming"
       ],
-      "answer": "ERC-1155 can handle both fungible and non-fungible tokens"
+      "answer": "ERC-1155 handles both"
     },
     {
-      "question": "What is IPFS in relation to NFTs?",
+      "question": "What is IPFS for NFTs?",
       "options": [
-        "InterPlanetary File System for decentralized storage",
-        "International Protocol for Financial Services",
-        "Internet Platform for File Sharing"
+        "Decentralized storage system",
+        "Financial services protocol",
+        "File sharing platform"
       ],
-      "answer": "InterPlanetary File System for decentralized storage"
+      "answer": "Decentralized storage system"
     },
     {
-      "question": "What is a 'rug pull' in the NFT space?",
+      "question": "What is a 'rug pull'?",
       "options": [
-        "When creators abandon a project and disappear with funds",
-        "A type of NFT artwork",
-        "A legitimate exit strategy"
+        "Creators abandon project",
+        "Type of NFT artwork",
+        "Legitimate exit strategy"
       ],
-      "answer": "When creators abandon a project and disappear with funds"
+      "answer": "Creators abandon project"
     },
     {
       "question": "What are utility NFTs?",
       "options": [
-        "NFTs that provide additional benefits beyond ownership",
-        "NFTs that consume less energy",
-        "NFTs that are cheaper to mint"
+        "NFTs with extra benefits",
+        "NFTs that consume less",
+        "NFTs that are cheaper"
       ],
-      "answer": "NFTs that provide additional benefits beyond ownership"
+      "answer": "NFTs with extra benefits"
     },
     {
-      "question": "What is a whitelist in NFT drops?",
+      "question": "What is whitelist drop?",
       "options": [
-        "A pre-approved list of buyers who can mint early",
-        "A list of banned users",
-        "A collection of white-colored NFTs"
+        "Pre-approved buyer list",
+        "List of banned users",
+        "White-colored NFTs"
       ],
-      "answer": "A pre-approved list of buyers who can mint early"
+      "answer": "Pre-approved buyer list"
     },
     {
-      "question": "What is the 'floor price' of an NFT collection?",
+      "question": "What is 'floor price'?",
       "options": [
-        "The lowest listed price for any NFT in the collection",
-        "The minimum bid amount",
-        "The original mint price"
+        "Lowest listed price",
+        "Minimum bid amount",
+        "Original mint price"
       ],
-      "answer": "The lowest listed price for any NFT in the collection"
+      "answer": "Lowest listed price"
     },
     {
-      "question": "What are profile picture (PFP) NFTs?",
+      "question": "What are PFP NFTs?",
       "options": [
-        "NFTs designed to be used as social media avatars",
-        "NFTs that contain personal photos",
-        "NFTs that are photographs only"
+        "Social media avatars",
+        "Personal photos NFTs",
+        "Photographs only NFTs"
       ],
-      "answer": "NFTs designed to be used as social media avatars"
+      "answer": "Social media avatars"
     },
     {
-      "question": "What is 'diamond hands' in NFT trading?",
+      "question": "What is 'diamond hands'?",
       "options": [
-        "Holding onto NFTs for long-term value",
-        "Quick buying and selling",
-        "A type of NFT artwork"
+        "Holding for long-term",
+        "Quick buying/selling",
+        "Type of artwork"
       ],
-      "answer": "Holding onto NFTs for long-term value"
+      "answer": "Holding for long-term"
     },
     {
       "question": "What are generative NFTs?",
       "options": [
-        "NFTs created algorithmically with random trait combinations",
+        "Algorithmically created",
         "NFTs that generate income",
-        "NFTs that create other NFTs"
+        "NFTs that create others"
       ],
-      "answer": "NFTs created algorithmically with random trait combinations"
+      "answer": "Algorithmically created"
     },
     {
       "question": "What is burning an NFT?",
       "options": [
-        "Permanently destroying an NFT by sending it to an inaccessible address",
-        "Selling an NFT quickly",
-        "Creating multiple copies"
+        "Permanently destroying",
+        "Selling quickly",
+        "Creating copies"
       ],
-      "answer": "Permanently destroying an NFT by sending it to an inaccessible address"
+      "answer": "Permanently destroying"
     },
     {
-      "question": "What are soulbound tokens (SBTs)?",
+      "question": "What are soulbound tokens?",
       "options": [
-        "Non-transferable NFTs tied permanently to an address",
-        "NFTs with supernatural themes",
-        "NFTs that cost no gas fees"
+        "Non-transferable NFTs",
+        "Supernatural themed",
+        "No gas fees"
       ],
-      "answer": "Non-transferable NFTs tied permanently to an address"
+      "answer": "Non-transferable NFTs"
     },
     {
-      "question": "What is a DAO in relation to NFT projects?",
+      "question": "What is a DAO?",
       "options": [
-        "Decentralized Autonomous Organization for community governance",
-        "Digital Art Organization",
+        "Community governance org",
+        "Digital Art Org",
         "Data Access Object"
       ],
-      "answer": "Decentralized Autonomous Organization for community governance"
+      "answer": "Community governance org"
     },
     {
-      "question": "What is cross-chain compatibility for NFTs?",
+      "question": "Cross-chain compatibility?",
       "options": [
-        "The ability to move NFTs between different blockchains",
-        "NFTs that work on multiple devices",
-        "NFTs that support multiple file formats"
+        "Move between chains",
+        "Work on devices",
+        "Support file formats"
       ],
-      "answer": "The ability to move NFTs between different blockchains"
+      "answer": "Move between chains"
     },
     {
-      "question": "What are fractionalized NFTs?",
+      "question": "What are fractionalized?",
       "options": [
-        "NFTs divided into smaller, tradeable shares",
-        "Broken or damaged NFTs",
-        "NFTs sold in bundles"
+        "Divided into shares",
+        "Broken or damaged",
+        "Sold in bundles"
       ],
-      "answer": "NFTs divided into smaller, tradeable shares"
+      "answer": "Divided into shares"
     },
     {
-      "question": "What is the environmental concern with NFTs?",
+      "question": "Environmental concern?",
       "options": [
-        "Energy consumption from blockchain mining operations",
-        "Physical waste from digital art",
-        "Radiation from computer screens"
+        "Energy from mining",
+        "Physical waste",
+        "Radiation screens"
       ],
-      "answer": "Energy consumption from blockchain mining operations"
+      "answer": "Energy from mining"
     },
     {
-      "question": "What are lazy minting techniques?",
+      "question": "What is lazy minting?",
       "options": [
-        "Minting NFTs only when they're first purchased",
-        "Slow minting processes",
-        "Minting without effort"
+        "Mint when purchased",
+        "Slow minting",
+        "Mint without effort"
       ],
-      "answer": "Minting NFTs only when they're first purchased"
+      "answer": "Mint when purchased"
     },
     {
-      "question": "What is an NFT collection's rarity ranking?",
+      "question": "Rarity ranking system?",
       "options": [
-        "A system that rates NFTs based on trait scarcity",
-        "A quality assessment by experts",
-        "A price comparison tool"
+        "Rates by scarcity",
+        "Quality assessment",
+        "Price comparison"
       ],
-      "answer": "A system that rates NFTs based on trait scarcity"
+      "answer": "Rates by scarcity"
     },
     {
-      "question": "What are composable NFTs?",
+      "question": "What are composable?",
       "options": [
-        "NFTs that can be combined or modified with other NFTs",
-        "NFTs made of multiple files",
-        "NFTs that decompose over time"
+        "Can be combined",
+        "Made of files",
+        "Decompose over time"
       ],
-      "answer": "NFTs that can be combined or modified with other NFTs"
+      "answer": "Can be combined"
     },
     {
-      "question": "What is the significance of OpenSea in the NFT ecosystem?",
+      "question": "OpenSea significance?",
       "options": [
-        "It's the largest NFT marketplace platform",
-        "It's a blockchain specifically for NFTs",
-        "It's an NFT creation tool"
+        "Largest marketplace",
+        "Blockchain for NFTs",
+        "NFT creation tool"
       ],
-      "answer": "It's the largest NFT marketplace platform"
+      "answer": "Largest marketplace"
     },
     {
       "question": "What are dynamic NFTs?",
       "options": [
-        "NFTs that can change their properties over time",
-        "NFTs with moving animations",
-        "NFTs with variable prices"
+        "Change properties",
+        "Moving animations",
+        "Variable prices"
       ],
-      "answer": "NFTs that can change their properties over time"
+      "answer": "Change properties"
     },
     {
-      "question": "What is the role of oracles in NFT ecosystems?",
+      "question": "Role of oracles?",
       "options": [
-        "Providing external data to smart contracts",
-        "Predicting NFT prices",
-        "Verifying NFT authenticity"
+        "Provide external data",
+        "Predict prices",
+        "Verify authenticity"
       ],
-      "answer": "Providing external data to smart contracts"
+      "answer": "Provide external data"
     }
   ]
 }

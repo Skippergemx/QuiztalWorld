@@ -5,212 +5,212 @@
   "description": "Quiz questions about Hunt Town developer community and Web3 building",
   "questions": [
     {
-      "question": "What is Base?",
-      "options": ["Layer 2 Ethereum", "Bitcoin Wallet", "Game Token"],
+      "question": "What is Base, really?",
+      "options": ["Layer 2 Ethereum", "Bitcoin's weird cousin", "Magic internet money"],
       "answer": "Layer 2 Ethereum"
     },
     {
       "question": "What is Hunt Town?",
-      "options": ["A Web3 City", "A Developer Community", "A Blockchain Network"],
-      "answer": "A Developer Community"
+      "options": ["Web3 wonderland", "Developer paradise", "Code ninja dojo"],
+      "answer": "Web3 wonderland"
     },
     {
-      "question": "What can developers do in Hunt Town?",
-      "options": ["Build Web3 projects", "Hunt animals", "Play chess"],
+      "question": "What can devs do here?",
+      "options": ["Build Web3 projects", "Hunt for bugs", "Summon blockchain magic"],
       "answer": "Build Web3 projects"
     },
     {
-      "question": "What's Hunt Town's main focus?",
-      "options": ["Web3 development", "Gaming", "Social media"],
+      "question": "Hunt Town's obsession?",
+      "options": ["Web3 development", "Gaming all night", "Dancing cats"],
       "answer": "Web3 development"
     },
     {
-      "question": "Which chain is Hunt Town building on?",
-      "options": ["Base", "Solana", "Polygon"],
-      "answer": "Base"
+      "question": "Which chain do they use?",
+      "options": ["Base, obviously", "Solana who?", "Polygon pizza"],
+      "answer": "Base, obviously"
     },
     {
-      "question": "What's special about Hunt Town's community?",
-      "options": ["Developer-focused", "Gamers only", "NFT traders only"],
+      "question": "Community's secret power?",
+      "options": ["Developer-focused", "Gamers unite", "NFT traders only"],
       "answer": "Developer-focused"
     },
     {
-      "question": "What can you find in Hunt Town?",
-      "options": ["Web3 builders", "Pokemon", "Cars"],
+      "question": "What's hiding there?",
+      "options": ["Web3 builders", "Pokemon GO", "Flying unicorns"],
       "answer": "Web3 builders"
     },
     {
-      "question": "What's Hunt Town's approach to Web3?",
+      "question": "How do they Web3?",
       "options": ["Build useful tools", "Just trade NFTs", "Only gaming"],
       "answer": "Build useful tools"
     },
     {
-      "question": "Why choose Base for Hunt Town?",
-      "options": ["Low fees & ETH security", "Free tokens", "No reason"],
-      "answer": "Low fees & ETH security"
+      "question": "Why Base, though?",
+      "options": ["Low fees & ETH", "Free money printer", "No reason at all"],
+      "answer": "Low fees & ETH"
     },
     {
-      "question": "What's Hunt Town's vision?",
-      "options": ["Empower Web3 builders", "Just gaming", "NFT trading"],
-      "answer": "Empower Web3 builders"
+      "question": "Their master plan?",
+      "options": ["Empower builders", "Just gaming", "NFT trading"],
+      "answer": "Empower builders"
     },
     {
-      "question": "Who can join Hunt Town?",
-      "options": ["Anyone interested in Web3", "Only experts", "Nobody"],
-      "answer": "Anyone interested in Web3"
+      "question": "Who's invited?",
+      "options": ["Anyone interested", "Only experts", "Literally no one"],
+      "answer": "Anyone interested"
     },
     {
-      "question": "What makes Hunt Town unique?",
-      "options": ["Developer community", "High gas fees", "Closed source"],
+      "question": "What's their thing?",
+      "options": ["Developer community", "High gas fees", "Cabal meeting"],
       "answer": "Developer community"
     },
     {
-      "question": "What can you learn in Hunt Town?",
-      "options": ["Web3 development", "Cooking", "Farming"],
+      "question": "Learn what now?",
+      "options": ["Web3 development", "Cooking shows", "Farming simulator"],
       "answer": "Web3 development"
     },
     {
-      "question": "How does Hunt Town help builders?",
-      "options": ["Community support", "Free lunch", "Free hosting"],
+      "question": "Builder support system?",
+      "options": ["Community support", "Free lunch", "Free pizza daily"],
       "answer": "Community support"
     },
     {
-      "question": "What's Hunt Town's relationship with Base?",
-      "options": ["Building on Base", "Competing with Base", "No relation"],
+      "question": "How's it with Base?",
+      "options": ["Building on Base", "Competing", "No relation"],
       "answer": "Building on Base"
     },
     {
-      "question": "What tools can Hunt Town devs use?",
-      "options": ["Ethereum tools", "Special tools only", "No tools"],
+      "question": "Dev toolkit?",
+      "options": ["Ethereum tools", "Special tools", "No tools"],
       "answer": "Ethereum tools"
     },
     {
-      "question": "What's Hunt Town's development approach?",
-      "options": ["Open & collaborative", "Solo building", "Closed groups"],
+      "question": "How do they build?",
+      "options": ["Open & collaborative", "Solo building", "Secret clubs"],
       "answer": "Open & collaborative"
     },
     {
-      "question": "What's available in Hunt Town?",
+      "question": "What's in stock?",
       "options": ["Development resources", "Free tokens", "NFT airdrops"],
       "answer": "Development resources"
     },
     {
-      "question": "How does Hunt Town support builders?",
-      "options": ["Community & resources", "Money only", "No support"],
+      "question": "Builder helpdesk?",
+      "options": ["Community & resources", "Money only", "Tumbleweeds only"],
       "answer": "Community & resources"
     },
     {
-      "question": "What's Hunt Town's goal?",
+      "question": "Their endgame?",
       "options": ["Grow Web3 ecosystem", "Quick profits", "Gaming only"],
       "answer": "Grow Web3 ecosystem"
     },
     {
-      "question": "What can you build in Hunt Town?",
+      "question": "Build what exactly?",
       "options": ["Web3 applications", "Only games", "Only NFTs"],
       "answer": "Web3 applications"
     },
     {
-      "question": "Why join Hunt Town?",
+      "question": "Why join them?",
       "options": ["Learn & build Web3", "Get rich quick", "Play games"],
       "answer": "Learn & build Web3"
     },
     {
-      "question": "What type of projects are built in Hunt Town?",
+      "question": "What gets built?",
       "options": ["Web3 dApps", "Mobile games", "Desktop software"],
       "answer": "Web3 dApps"
     },
     {
-      "question": "How does Hunt Town help new developers?",
+      "question": "Newbie assistance?",
       "options": ["Mentorship & resources", "Cash rewards", "Gaming tournaments"],
       "answer": "Mentorship & resources"
     },
     {
-      "question": "What's Hunt Town's contribution to Base?",
-      "options": ["Growing developer ecosystem", "Creating NFTs", "Running nodes"],
-      "answer": "Growing developer ecosystem"
+      "question": "What did they do?",
+      "options": ["Growing dev ecosystem", "Creating NFTs", "Running nodes"],
+      "answer": "Growing dev ecosystem"
     },
     {
-      "question": "What's unique about Hunt Town's builders?",
-      "options": ["Focus on Web3 innovation", "Trading focus", "Gaming focus"],
-      "answer": "Focus on Web3 innovation"
+      "question": "Builder special powers?",
+      "options": ["Web3 innovation", "Trading focus", "Gaming focus"],
+      "answer": "Web3 innovation"
     },
     {
-      "question": "How does Hunt Town foster collaboration?",
+      "question": "Teamwork magic?",
       "options": ["Open source projects", "Closed teams", "Solo work"],
       "answer": "Open source projects"
     },
     {
-      "question": "What's Hunt Town's development philosophy?",
-      "options": ["Build & share knowledge", "Build in private", "Copy existing projects"],
-      "answer": "Build & share knowledge"
+      "question": "Their build philosophy?",
+      "options": ["Build & share", "Build in private", "Ctrl+C experts"],
+      "answer": "Build & share"
     },
     {
-      "question": "How does Hunt Town support Base adoption?",
-      "options": ["Building useful dApps", "Creating memes", "Trading tokens"],
-      "answer": "Building useful dApps"
+      "question": "Base promotion plan?",
+      "options": ["Building dApps", "Creating memes", "Trading tokens"],
+      "answer": "Building dApps"
     },
     {
-      "question": "What's Hunt Town's community known for?",
+      "question": "Famous for what?",
       "options": ["Helpful developers", "Token traders", "NFT collectors"],
       "answer": "Helpful developers"
     },
     {
-      "question": "What can beginners learn in Hunt Town?",
-      "options": ["Web3 development basics", "Token trading", "Gaming"],
-      "answer": "Web3 development basics"
+      "question": "Beginner lessons?",
+      "options": ["Web3 development", "Token trading", "Gaming"],
+      "answer": "Web3 development"
     },
     {
-      "question": "How does Hunt Town encourage learning?",
+      "question": "Learning methods?",
       "options": ["Community workshops", "Trading contests", "Gaming events"],
       "answer": "Community workshops"
     },
     {
-      "question": "What's Hunt Town's role in Web3?",
-      "options": ["Developer education hub", "Gaming platform", "NFT marketplace"],
-      "answer": "Developer education hub"
+      "question": "Web3 role?",
+      "options": ["Developer education", "Gaming platform", "NFT marketplace"],
+      "answer": "Developer education"
     },
     {
-      "question": "What makes Hunt Town different from other communities?",
+      "question": "What's different?",
       "options": ["Focus on building", "Focus on trading", "Focus on gaming"],
       "answer": "Focus on building"
     },
     {
-      "question": "What's Hunt Town's approach to new developers?",
-      "options": ["Welcoming & supportive", "Experts only", "Closed community"],
+      "question": "New dev treatment?",
+      "options": ["Welcoming & supportive", "Experts only", "Noobs not welcome"],
       "answer": "Welcoming & supportive"
     },
     {
-      "question": "What kind of projects does Hunt Town encourage?",
-      "options": ["Innovative Web3 solutions", "Copy trading", "Gaming only"],
-      "answer": "Innovative Web3 solutions"
+      "question": "Favorite projects?",
+      "options": ["Innovative solutions", "Copy trading", "Gaming only"],
+      "answer": "Innovative solutions"
     },
     {
-      "question": "How does Hunt Town help Base ecosystem?",
-      "options": ["Building developer tools", "Creating memes", "Trading tokens"],
-      "answer": "Building developer tools"
+      "question": "Base ecosystem help?",
+      "options": ["Building dev tools", "Creating memes", "Trading tokens"],
+      "answer": "Building dev tools"
     },
     {
-      "question": "What's Hunt Town's educational focus?",
+      "question": "Learning focus?",
       "options": ["Web3 development", "Traditional gaming", "Social media"],
       "answer": "Web3 development"
     },
     {
-      "question": "How does Hunt Town support innovation?",
+      "question": "Innovation support?",
       "options": ["Open collaboration", "Solo competition", "Closed teams"],
       "answer": "Open collaboration"
     },
     {
-      "question": "What's Hunt Town's community structure?",
-      "options": ["Open & inclusive", "Hierarchical", "Invitation only"],
+      "question": "How's it organized?",
+      "options": ["Open & inclusive", "Hierarchical", "Cool kids club"],
       "answer": "Open & inclusive"
     },
     {
-      "question": "What's Hunt Town's approach to collaboration?",
-      "options": ["Knowledge sharing", "Competition", "Individual work"],
+      "question": "Teamwork style?",
+      "options": ["Knowledge sharing", "Competition", "Lone coder"],
       "answer": "Knowledge sharing"
     },
     {
-      "question": "What's Hunt Town's primary contribution?",
+      "question": "Main contribution?",
       "options": ["Growing Web3 talent", "Creating NFTs", "Gaming"],
       "answer": "Growing Web3 talent"
     }

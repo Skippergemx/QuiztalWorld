@@ -5,164 +5,164 @@
   "description": "Quiz questions about Base Layer 2 blockchain and Ethereum scaling",
   "questions": [
     {
-      "question": "What is Base?",
+      "question": "What is Base, really?",
       "options": ["Layer 1", "Layer 2", "DEX"],
       "answer": "Layer 2"
     },
     {
-      "question": "Who built Base?",
+      "question": "Who built this magic?",
       "options": ["Coinbase", "Binance", "OpenSea"],
       "answer": "Coinbase"
     },
     {
-      "question": "Base uses which mainnet?",
+      "question": "Base's mainnet buddy?",
       "options": ["Solana", "Ethereum", "Polygon"],
       "answer": "Ethereum"
     },
     {
-      "question": "What's a big benefit of Base?",
-      "options": ["Low gas fees", "Free NFTs", "Mining rewards"],
-      "answer": "Low gas fees"
+      "question": "Why use Base?",
+      "options": ["Cheap transactions", "Free money", "Unicorn tokens"],
+      "answer": "Cheap transactions"
     },
     {
-      "question": "What consensus mechanism does Base use?",
+      "question": "Base's secret sauce?",
       "options": ["Proof of Work", "Optimistic Rollup", "Proof of Stake"],
       "answer": "Optimistic Rollup"
     },
     {
-      "question": "Which scaling solution is Base built on?",
+      "question": "Built on what tech?",
       "options": ["Arbitrum", "Optimism", "zkSync"],
       "answer": "Optimism"
     },
     {
-      "question": "What can you do on Base?",
+      "question": "What can you do?",
       "options": ["Deploy smart contracts", "Mine Bitcoin", "Create Layer 1"],
       "answer": "Deploy smart contracts"
     },
     {
-      "question": "Base transactions are secured by which network?",
+      "question": "Security provided by?",
       "options": ["Solana", "Ethereum", "BNB Chain"],
       "answer": "Ethereum"
     },
     {
-      "question": "What type of network is Base?",
+      "question": "Network type?",
       "options": ["Sidechain", "Layer 2", "Layer 1"],
       "answer": "Layer 2"
     },
     {
-      "question": "What's a key advantage of using Base?",
-      "options": ["Lower fees than L1", "Free transactions", "Faster than Ethereum"],
-      "answer": "Lower fees than L1"
+      "question": "Why is Base cool?",
+      "options": ["Cheaper than L1", "Magically free", "Faster than grandma"],
+      "answer": "Cheaper than L1"
     },
     {
-      "question": "Which wallet can you use with Base?",
-      "options": ["Only Coinbase Wallet", "Any EVM wallet", "Only MetaMask"],
+      "question": "Wallet compatibility?",
+      "options": ["Just Coinbase", "Any EVM wallet", "Only MetaMask"],
       "answer": "Any EVM wallet"
     },
     {
-      "question": "What's Base's approach to decentralization?",
-      "options": ["Fully centralized", "Progressive decentralization", "Instant decentralization"],
-      "answer": "Progressive decentralization"
+      "question": "Decentralization style?",
+      "options": ["Fully centralized", "Progressive", "Instant"],
+      "answer": "Progressive"
     },
     {
-      "question": "What programming language is commonly used on Base?",
+      "question": "Coding language?",
       "options": ["Solidity", "Python", "Java"],
       "answer": "Solidity"
     },
     {
-      "question": "What's the average block time on Base?",
+      "question": "Block speed?",
       "options": ["2 seconds", "12 seconds", "1 minute"],
       "answer": "2 seconds"
     },
     {
-      "question": "Which bridge can you use to move assets to Base?",
-      "options": ["Base Bridge", "Rainbow Bridge", "Polygon Bridge"],
+      "question": "Bridge to use?",
+      "options": ["Base Bridge", "Rainbow", "Polygon"],
       "answer": "Base Bridge"
     },
     {
-      "question": "What's the native token used for gas on Base?",
+      "question": "Gas token?",
       "options": ["ETH", "BASE", "MATIC"],
       "answer": "ETH"
     },
     {
-      "question": "What type of addresses does Base use?",
-      "options": ["Ethereum-compatible", "Solana-style", "Bitcoin-style"],
-      "answer": "Ethereum-compatible"
+      "question": "Address style?",
+      "options": ["Ethereum-style", "Solana-style", "Bitcoin-style"],
+      "answer": "Ethereum-style"
     },
     {
-      "question": "Which development framework works with Base?",
+      "question": "Dev framework?",
       "options": ["Hardhat", "Unity", "Android SDK"],
       "answer": "Hardhat"
     },
     {
-      "question": "What's Base's approach to security?",
-      "options": ["Inherited from Ethereum", "Independent security", "No security"],
-      "answer": "Inherited from Ethereum"
+      "question": "Security model?",
+      "options": ["From Ethereum", "Independent", "No security"],
+      "answer": "From Ethereum"
     },
     {
-      "question": "How can developers deploy on Base?",
-      "options": ["Using standard Ethereum tools", "Special Base tools only", "Cannot deploy"],
-      "answer": "Using standard Ethereum tools"
+      "question": "Deployment method?",
+      "options": ["Standard tools", "Special tools", "Cannot deploy"],
+      "answer": "Standard tools"
     },
     {
-      "question": "What's Base's primary focus?",
-      "options": ["Onchain accessibility", "Gaming", "Social media"],
-      "answer": "Onchain accessibility"
+      "question": "Base's focus?",
+      "options": ["Onchain access", "Gaming", "Social media"],
+      "answer": "Onchain access"
     },
     {
-      "question": "How does Base handle transaction finality?",
-      "options": ["Through Optimistic rollups", "Instant finality", "Proof of Work"],
-      "answer": "Through Optimistic rollups"
+      "question": "Transaction finality?",
+      "options": ["Optimistic rollups", "Instant", "Proof of Work"],
+      "answer": "Optimistic rollups"
     },
     {
-      "question": "What's the challenge period on Base?",
+      "question": "Challenge period?",
       "options": ["7 days", "1 day", "30 days"],
       "answer": "7 days"
     },
     {
-      "question": "Which ecosystem is Base part of?",
+      "question": "Ecosystem member?",
       "options": ["Ethereum", "Solana", "Cardano"],
       "answer": "Ethereum"
     },
     {
-      "question": "What's Base's primary advantage for users?",
-      "options": ["Lower costs and faster txs", "Free tokens", "Better graphics"],
-      "answer": "Lower costs and faster txs"
+      "question": "Base's superpower?",
+      "options": ["Lower costs", "Free tokens", "Better graphics"],
+      "answer": "Lower costs"
     },
     {
-      "question": "How does Base achieve scalability?",
-      "options": ["Batch transactions off-chain", "More validators", "Bigger blocks"],
-      "answer": "Batch transactions off-chain"
+      "question": "Scaling method?",
+      "options": ["Batch off-chain", "More validators", "Bigger blocks"],
+      "answer": "Batch off-chain"
     },
     {
-      "question": "What's Base's relationship with Ethereum?",
-      "options": ["Layer 2 solution", "Competitor", "No relation"],
-      "answer": "Layer 2 solution"
+      "question": "Ethereum relationship?",
+      "options": ["Layer 2", "Competitor", "No relation"],
+      "answer": "Layer 2"
     },
     {
-      "question": "What can developers build on Base?",
-      "options": ["DApps and smart contracts", "Only NFTs", "Only DeFi"],
-      "answer": "DApps and smart contracts"
+      "question": "Dev can build?",
+      "options": ["DApps", "Only NFTs", "Only DeFi"],
+      "answer": "DApps"
     },
     {
-      "question": "How does Base handle smart contract deployment?",
-      "options": ["Same as Ethereum", "Different process", "Not supported"],
-      "answer": "Same as Ethereum"
+      "question": "Contract deployment?",
+      "options": ["Like Ethereum", "Different", "Not supported"],
+      "answer": "Like Ethereum"
     },
     {
-      "question": "What's the main purpose of Base?",
-      "options": ["Scale Ethereum ecosystem", "Replace Ethereum", "Mine crypto"],
-      "answer": "Scale Ethereum ecosystem"
+      "question": "Base's purpose?",
+      "options": ["Scale Ethereum", "Replace Ethereum", "Mine crypto"],
+      "answer": "Scale Ethereum"
     },
     {
-      "question": "How does Base process transactions?",
-      "options": ["Batches them to Ethereum", "Independent processing", "Through mining"],
-      "answer": "Batches them to Ethereum"
+      "question": "Transaction processing?",
+      "options": ["Batch to Ethereum", "Independent", "Through mining"],
+      "answer": "Batch to Ethereum"
     },
     {
-      "question": "What's unique about Base's development?",
-      "options": ["Open-source development", "Closed source", "No development"],
-      "answer": "Open-source development"
+      "question": "Development style?",
+      "options": ["Open-source", "Closed source", "No development"],
+      "answer": "Open-source"
     }
   ]
 }

@@ -1,0 +1,458 @@
+{
+  "title": "AI Agent Guide: Modular WalletVerificationScene Architecture",
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-26",
+  "description": "Comprehensive guide for AI agents working with the refactored WalletVerificationScene to prevent issues and maintain code quality.",
+  
+  "overview": {
+    "purpose": "The WalletVerificationScene has been completely refactored from a monolithic 1200+ line file into a modular architecture with separate managers for different concerns.",
+    "benefits": [
+      "Improved maintainability and testability",
+      "Clear separation of concerns",
+      "Reduced code duplication",
+      "Better type safety with TypeScript interfaces",
+      "Easier debugging and error handling"
+    ],
+    "architecture": "The new architecture follows the Manager pattern with dedicated classes for different aspects of wallet verification"
+  },
+
+  "fileStructure": {
+    "mainScene": {
+      "path": "src/scenes/WalletVerificationScene.ts",
+      "description": "Main scene orchestrator that coordinates all managers",
+      "responsibilities": [
+        "Scene lifecycle management",
+        "Manager initialization and coordination",
+        "Error handling and scene transitions",
+        "Event listener setup"
+      ],
+      "keyMethods": [
+        "create() - Scene initialization",
+        "initializeManagers() - Manager setup",
+        "handleWalletConnection() - Connection flow coordination",
+        "handleNFTVerification() - NFT verification flow",
+        "shutdown() - Cleanup and resource management"
+      ]
+    },
+    "modularComponents": {
+      "types": {
+        "path": "src/scenes/wallet-verification/types.ts",
+        "description": "TypeScript interfaces and types for type safety",
+        "importantTypes": [
+          "PlayerData - Player information structure",
+          "WalletConnectionResult - Connection operation results",
+          "NFTVerificationResult - NFT verification results",
+          "WalletError - Standardized error handling",
+          "Manager interfaces (IWalletUIManager, IMobileHandler, etc.)"
+        ]
+      },
+      "mobileHandler": {
+        "path": "src/scenes/wallet-verification/MobileHandler.ts",
+        "description": "Handles mobile device detection and mobile-specific UI",
+        "keyFeatures": [
+          "Multi-method mobile detection (device OS, user agent, screen size)",
+          "Mobile-specific UI creation",
+          "Touch feedback handling",
+          "Responsive design support"
+        ],
+        "commonIssues": [
+          "Mobile detection false positives - use multiple detection methods",
+          "Touch feedback not working - ensure proper event listener setup",
+          "Resize handling - call handleResize() on screen orientation changes"
+        ]
+      },
+      "walletUIManager": {
+        "path": "src/scenes/wallet-verification/WalletUIManager.ts",
+        "description": "Manages all UI components and visual effects",
+        "keyFeatures": [
+          "Button creation with modern styling",
+          "Message display system (success, error, warning, info)",
+          "Gradient backgrounds and visual effects",
+          "Touch feedback and animations"
+        ],
+        "commonIssues": [
+          "Button not responding - check if setInteractive() is called",
+          "Message timers not cleaning up - use activeMessageTimers array",
+          "Gradient not updating - call drawGradient() after resize"
+        ]
+      },
+      "walletConnectionManager": {
+        "path": "src/scenes/wallet-verification/WalletConnectionManager.ts",
+        "description": "Handles wallet connection logic and blockchain interactions",
+        "keyFeatures": [
+          "Wallet connection and binding",
+          "Existing wallet checks and confirmation dialogs",
+          "NFT verification and database storage",
+          "Error handling with retry logic"
+        ],
+        "commonIssues": [
+          "Web3Service not initialized - ensure Web3Service is passed to constructor",
+          "Player data validation failing - check Firestore document existence",
+          "Wallet binding conflicts - handle existing wallet confirmation properly"
+        ]
+      },
+      "nftDisplayManager": {
+        "path": "src/scenes/wallet-verification/NFTDisplayManager.ts",
+        "description": "Manages NFT grid display, scrolling, and interactions",
+        "keyFeatures": [
+          "Responsive NFT grid layout",
+          "Image loading with error handling",
+          "Smooth scrolling with touch support",
+          "NFT card creation and styling"
+        ],
+        "commonIssues": [
+          "Images not loading - check CORS and image URL validity",
+          "Scrolling not working - ensure scroll zone is properly set up",
+          "Grid layout broken - validate gridConfig calculations",
+          "Memory leaks - always call cleanup() to remove event listeners",
+          "Content container not initialized - ensure createMainContainer() creates both nftContainer and contentContainer",
+          "currentScrollConfig null reference - pass scrollConfig as parameter to createNFTGrid instead of relying on uninitialized currentScrollConfig",
+          "Z-order conflicts - use appropriate depth values following project hierarchy (NFT display should use depth 1800 for modal overlay)"
+        ]
+      }
+    }
+  },
+
+  "commonPatterns": {
+    "managerInitialization": {
+      "description": "All managers follow a consistent initialization pattern",
+      "pattern": [
+        "1. Constructor receives scene and required dependencies",
+        "2. Initialize() method sets up internal state",
+        "3. Public methods provide functionality",
+        "4. Cleanup() method removes listeners and destroys objects"
+      ],
+      "example": "this.mobileHandler = new MobileHandler(this);"
+    },
+    "errorHandling": {
+      "description": "Standardized error handling across all managers",
+      "pattern": [
+        "1. Use try-catch blocks for async operations",
+        "2. Return structured result objects with success/error states",
+        "3. Log errors with descriptive context",
+        "4. Provide user-friendly error messages"
+      ],
+      "errorTypes": [
+        "WalletErrorType.WALLET_NOT_INSTALLED",
+        "WalletErrorType.WALLET_CONNECTION_FAILED",
+        "WalletErrorType.NETWORK_MISMATCH",
+        "WalletErrorType.NFT_VERIFICATION_FAILED",
+        "WalletErrorType.FIRESTORE_ERROR",
+        "WalletErrorType.PLAYER_DATA_NOT_FOUND"
+      ]
+    },
+    "eventManagement": {
+      "description": "Consistent event handling and cleanup",
+      "rules": [
+        "Always remove event listeners in cleanup()",
+        "Use scene.events for inter-manager communication",
+        "Store timer references for proper cleanup",
+        "Handle resize events in all UI managers"
+      ]
+    }
+  },
+
+  "criticalDependencies": {
+    "external": [
+      {
+        "name": "Web3Service",
+        "path": "src/services/Web3Service.ts",
+        "description": "Blockchain interaction service",
+        "requiredMethods": ["isWalletInstalled()", "connectWallet()", "checkNFTOwnership()", "getNFTsData()"]
+      },
+      {
+        "name": "Firebase Firestore",
+        "imports": ["doc", "getDoc"],
+        "description": "Database operations for player data"
+      },
+      {
+        "name": "LoadingOverlay",
+        "path": "src/components/LoadingOverlay.ts",
+        "description": "Loading state management"
+      },
+      {
+        "name": "NFTData",
+        "path": "src/types/nft.ts",
+        "description": "NFT data structure type"
+      }
+    ],
+    "internal": [
+      {
+        "name": "Database utilities",
+        "functions": ["saveWalletAddress", "saveNFTsToDatabase"],
+        "note": "Not directly imported in main scene, used by WalletConnectionManager"
+      }
+    ]
+  },
+
+  "commonIssues": {
+    "recentlyFixed": [
+      {
+        "date": "2025-09-02",
+        "errors": [
+          {
+            "error": "Property 'getChainId' does not exist on type 'Web3Service'",
+            "file": "WalletConnectionManager.ts:445",
+            "solution": "Use getNetwork() method instead and parse chainId from result",
+            "fix": "const network = await this.web3Service.getNetwork(); const chainIdNumber = parseInt(network.chainId, 16);",
+            "prevention": "Always check Web3Service implementation for available methods before using"
+          },
+          {
+            "error": "'ProgressState' is declared but its value is never read",
+            "file": "WalletConnectionManager.ts:36",
+            "solution": "Remove unused import from types import statement",
+            "fix": "Remove ProgressState from import list",
+            "prevention": "Regular cleanup of unused imports during development"
+          },
+          {
+            "error": "Property 'activeMessageTimers' does not exist on type 'WalletUIManager'",
+            "file": "WalletUIManager.ts:1614",
+            "solution": "Add missing property declaration in class",
+            "fix": "private activeMessageTimers: Phaser.Time.TimerEvent[] = [];",
+            "prevention": "Initialize all referenced properties in constructor or class declaration"
+          },
+          {
+            "error": "Cannot find name 'ButtonConfig'",
+            "file": "WalletUIManager.ts:1703",
+            "solution": "Define missing type interface locally",
+            "fix": "interface SimpleButtonConfig { text: string; fontSize: string; backgroundColor: string; color: string; padding: { x: number; y: number }; cursor?: boolean; }",
+            "prevention": "Define all required types and interfaces before using them"
+          },
+          {
+            "error": "Class 'WalletUIManager' incorrectly implements interface 'IWalletUIManager'",
+            "file": "WalletUIManager.ts:53",
+            "solution": "Make createModernButton method public as required by interface",
+            "fix": "Change 'private createModernButton' to 'public createModernButton'",
+            "prevention": "Ensure class method visibility matches interface requirements"
+          },
+          {
+            "error": "'MESSAGE_STYLES' is declared but its value is never read",
+            "file": "WalletUIManager.ts:140",
+            "solution": "Remove unused property declaration",
+            "fix": "Delete the entire MESSAGE_STYLES constant object",
+            "prevention": "Remove properties immediately when they become unused during refactoring"
+          },
+          {
+            "error": "'isMobile' is declared but its value is never read",
+            "file": "WalletUIManager.ts:466",
+            "solution": "Remove unused parameter from method signature",
+            "fix": "Change 'createButtonText(config, isMobile)' to 'createButtonText(config)'",
+            "prevention": "Clean up method parameters when refactoring"
+          },
+          {
+            "error": "'createStyledButton' is declared but its value is never read",
+            "file": "WalletUIManager.ts:1657",
+            "solution": "Remove unused private method entirely",
+            "fix": "Delete the createStyledButton and updateButtonBackground methods",
+            "prevention": "Remove methods immediately when they become unused during refactoring"
+          }
+        ]
+      }
+    ],
+    "compilationErrors": [
+      {
+        "error": "Property 'X' does not exist on type 'Y'",
+        "solution": "Check interface definitions in types.ts and ensure all required properties are defined",
+        "prevention": "Always update interfaces when adding new properties to managers"
+      },
+      {
+        "error": "Type 'Promise<X>' is not assignable to type 'X'",
+        "solution": "Check interface method signatures match implementation (async vs sync)",
+        "prevention": "Ensure interface definitions match implementation signatures exactly"
+      },
+      {
+        "error": "Cannot find module './wallet-verification/X'",
+        "solution": "Verify file paths and ensure all modular components are in the correct directory",
+        "prevention": "Use relative paths consistently and check file structure"
+      }
+    ],
+    "runtimeErrors": [
+      {
+        "error": "Manager not initialized",
+        "solution": "Ensure initializeManagers() is called before using any manager methods",
+        "prevention": "Follow the scene lifecycle: initialize → validate → setup → create UI"
+      },
+      {
+        "error": "Content container not initialized",
+        "solution": "Ensure createMainContainer() creates both nftContainer and contentContainer, add contentContainer as child",
+        "prevention": "Always initialize all required containers in createMainContainer() method"
+      },
+      {
+        "error": "Cannot read properties of null (reading 'padding')",
+        "solution": "Pass scrollConfig as parameter to createNFTGrid instead of accessing uninitialized currentScrollConfig",
+        "prevention": "Initialize configuration objects before use or pass as parameters"
+      },
+      {
+        "error": "Z-order conflicts or UI elements not appearing correctly",
+        "solution": "Follow project depth hierarchy: NFT display should use depth 1800 for modal overlay above all game elements",
+        "prevention": "Reference established depth standards: Map(0-4), Player(8), NPCs(10), UI(999-1000), Special UI(1000-2000)"
+      },
+      {
+        "error": "Event listeners not removed",
+        "solution": "Call cleanup() on all managers in shutdown() method",
+        "prevention": "Always implement cleanup() method in all managers"
+      },
+      {
+        "error": "UI components not responsive",
+        "solution": "Implement handleResize() in all UI managers and call on scale.on('resize')",
+        "prevention": "Test on different screen sizes during development"
+      }
+    ]
+  },
+
+  "bestPractices": {
+    "development": [
+      "Always implement interfaces for managers to ensure consistency",
+      "Use TypeScript strict mode and fix all type errors",
+      "Follow the single responsibility principle for each manager",
+      "Implement proper error handling with structured return objects",
+      "Use dependency injection for better testability"
+    ],
+    "testing": [
+      "Test each manager independently with mock dependencies",
+      "Verify mobile and desktop functionality separately",
+      "Test error scenarios and edge cases",
+      "Validate cleanup and memory management",
+      "Test wallet connection flows with different wallet states"
+    ],
+    "maintenance": [
+      "Keep interfaces updated when adding new functionality",
+      "Document any breaking changes in this guide",
+      "Use semantic versioning for major architectural changes",
+      "Maintain consistent code style across all managers",
+      "Regular code reviews focusing on manager interactions"
+    ]
+  },
+
+  "modificationGuidelines": {
+    "addingNewFeatures": {
+      "steps": [
+        "1. Determine which manager should handle the new feature",
+        "2. Update the relevant interface in types.ts",
+        "3. Implement the feature in the appropriate manager",
+        "4. Update the main scene if coordination is needed",
+        "5. Test the feature in isolation and integration",
+        "6. Update this guide with any new patterns or issues"
+      ],
+      "considerations": [
+        "Does this feature fit the manager's responsibilities?",
+        "Are there cross-manager dependencies?",
+        "Does the UI need to be responsive?",
+        "What error scenarios need handling?"
+      ]
+    },
+    "refactoringExisting": {
+      "rules": [
+        "Never modify multiple managers simultaneously",
+        "Update interfaces before implementation",
+        "Maintain backward compatibility when possible",
+        "Test after each small change",
+        "Update documentation and types consistently"
+      ]
+    },
+    "debuggingIssues": {
+      "strategy": [
+        "1. Identify which manager is responsible for the failing functionality",
+        "2. Check the manager's state and dependencies",
+        "3. Verify interface implementations match",
+        "4. Test manager in isolation with mock data",
+        "5. Check event listener setup and cleanup",
+        "6. Validate error handling and user feedback"
+      ]
+    }
+  },
+
+  "performanceConsiderations": {
+    "memoryManagement": [
+      "Always call cleanup() on scene shutdown",
+      "Remove event listeners to prevent memory leaks",
+      "Destroy Phaser game objects properly",
+      "Clear timer references in activeMessageTimers"
+    ],
+    "optimization": [
+      "Lazy load managers only when needed",
+      "Cache frequently used calculations",
+      "Optimize image loading and display",
+      "Use object pooling for frequently created/destroyed objects"
+    ]
+  },
+
+  "futureConsiderations": {
+    "potentialImprovements": [
+      "Add unit tests for each manager",
+      "Implement state management system",
+      "Add analytics and user behavior tracking",
+      "Enhance error recovery mechanisms",
+      "Add configuration system for manager behavior"
+    ],
+    "extensibility": [
+      "Managers can be extended for additional wallet types",
+      "UI themes can be made configurable",
+      "Mobile detection can be enhanced with more device types",
+      "NFT display can support additional collection types"
+    ]
+  },
+
+  "troubleshootingChecklist": {
+    "beforeModifying": [
+      "☐ Understand which manager handles the functionality",
+      "☐ Check existing interfaces and types",
+      "☐ Review error handling patterns",
+      "☐ Understand manager dependencies"
+    ],
+    "duringDevelopment": [
+      "☐ Update interfaces before implementation",
+      "☐ Follow established patterns",
+      "☐ Implement proper error handling",
+      "☐ Add cleanup methods",
+      "☐ Test mobile and desktop scenarios"
+    ],
+    "beforeCommitting": [
+      "☐ Run TypeScript compilation checks",
+      "☐ Test basic wallet connection flow",
+      "☐ Verify mobile responsiveness",
+      "☐ Check for memory leaks",
+      "☐ Update documentation if needed"
+    ]
+  },
+
+  "versionHistory": [
+    {
+      "version": "1.1.0",
+      "date": "2025-09-02",
+      "changes": [
+        "Fixed TypeScript compilation errors across all files",
+        "Resolved Web3Service method compatibility issues",
+        "Cleaned up unused imports and variables",
+        "Added missing property declarations and type definitions",
+        "Corrected interface implementation issues",
+        "Created comprehensive troubleshooting documentation",
+        "Enhanced error patterns documentation"
+      ],
+      "fixedErrors": [
+        "Property 'getChainId' does not exist on type 'Web3Service'",
+        "'ProgressState' is declared but its value is never read",
+        "Property 'activeMessageTimers' does not exist on type 'WalletUIManager'",
+        "Cannot find name 'ButtonConfig'",
+        "Class 'WalletUIManager' incorrectly implements interface 'IWalletUIManager'",
+        "'detectMobile' is declared but its value is never read"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2025-08-26",
+      "changes": [
+        "Initial modular architecture implementation",
+        "Created 4 manager classes with clear responsibilities",
+        "Implemented TypeScript interfaces for type safety",
+        "Added comprehensive error handling",
+        "Created mobile-responsive design"
+      ],
+      "breakingChanges": [
+        "Complete refactor from monolithic to modular architecture",
+        "New file structure with wallet-verification directory",
+        "Updated import paths and dependencies"
+      ]
+    }
+  ]
+}

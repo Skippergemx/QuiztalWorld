@@ -5,7 +5,7 @@
   "description": "An expert trader specializing in decentralized exchanges, automated market makers, and DeFi trading strategies.",
   "questions": [
     {
-      "question": "What does DEX stand for?",
+      "question": "What does DEX mean?",
       "options": [
         "Decentralized Exchange",
         "Digital Exchange",
@@ -14,61 +14,61 @@
       "answer": "Decentralized Exchange"
     },
     {
-      "question": "What is the main advantage of DEXs over centralized exchanges?",
+      "question": "DEX vs Centralized?",
       "options": [
-        "No need to trust a central authority with your funds",
-        "Lower transaction fees",
-        "Faster transaction processing"
+        "No need to trust",
+        "Cheaper fees maybe",
+        "Faster processing"
       ],
-      "answer": "No need to trust a central authority with your funds"
+      "answer": "No need to trust"
     },
     {
-      "question": "What is an Automated Market Maker (AMM)?",
+      "question": "What is an AMM?",
       "options": [
-        "A protocol that uses algorithms to price assets and facilitate trades",
-        "A human trader who makes markets",
-        "A centralized trading bot"
+        "Algorithmic trading bot",
+        "Human market maker",
+        "Centralized trading bot"
       ],
-      "answer": "A protocol that uses algorithms to price assets and facilitate trades"
+      "answer": "Algorithmic trading bot"
     },
     {
-      "question": "What is a liquidity pool?",
+      "question": "What is liquidity pool?",
       "options": [
-        "A smart contract holding tokens that traders can swap against",
-        "A storage facility for cryptocurrencies",
-        "A group of professional traders"
+        "Token swimming pool",
+        "Crypto storage unit",
+        "Trader hangout spot"
       ],
-      "answer": "A smart contract holding tokens that traders can swap against"
+      "answer": "Token swimming pool"
     },
     {
-      "question": "What is slippage in DEX trading?",
+      "question": "What is slippage?",
       "options": [
-        "The difference between expected and actual trade prices",
-        "A fee charged by the DEX",
-        "The time delay in trade execution"
+        "Price surprise factor",
+        "DEX fee charge",
+        "Trade delay time"
       ],
-      "answer": "The difference between expected and actual trade prices"
+      "answer": "Price surprise factor"
     },
     {
-      "question": "What is impermanent loss?",
+      "question": "Impermanent loss?",
       "options": [
-        "The temporary loss of value when providing liquidity compared to holding tokens",
-        "A permanent loss of funds in a hack",
-        "The loss due to high gas fees"
+        "Temporary paper hands",
+        "Permanent fund loss",
+        "High gas fee loss"
       ],
-      "answer": "The temporary loss of value when providing liquidity compared to holding tokens"
+      "answer": "Temporary paper hands"
     },
     {
       "question": "What is Uniswap?",
       "options": [
-        "A popular decentralized exchange on Ethereum",
-        "A centralized cryptocurrency exchange",
-        "A blockchain network"
+        "Ethereum's swap machine",
+        "Centralized exchange",
+        "Blockchain network"
       ],
-      "answer": "A popular decentralized exchange on Ethereum"
+      "answer": "Ethereum's swap machine"
     },
     {
-      "question": "What does TVL stand for in DeFi?",
+      "question": "What is TVL?",
       "options": [
         "Total Value Locked",
         "Total Volume Traded",
@@ -77,58 +77,58 @@
       "answer": "Total Value Locked"
     },
     {
-      "question": "What is a liquidity provider (LP)?",
+      "question": "What is LP?",
       "options": [
-        "Someone who deposits tokens into a liquidity pool",
-        "A company that runs a DEX",
-        "A market maker on centralized exchanges"
+        "Liquidity provider",
+        "Lazy programmer",
+        "Low price buyer"
       ],
-      "answer": "Someone who deposits tokens into a liquidity pool"
+      "answer": "Liquidity provider"
     },
     {
       "question": "What are LP tokens?",
       "options": [
-        "Tokens representing your share in a liquidity pool",
-        "Tokens used to pay for transactions",
-        "Governance tokens for DEX protocols"
+        "Pool share tickets",
+        "Transaction fee tokens",
+        "Governance tokens"
       ],
-      "answer": "Tokens representing your share in a liquidity pool"
+      "answer": "Pool share tickets"
     },
     {
-      "question": "What is arbitrage in DEX trading?",
+      "question": "What is arbitrage?",
       "options": [
-        "Profiting from price differences between different exchanges",
-        "Trading with borrowed funds",
-        "Providing liquidity to earn fees"
+        "Buy low, sell high",
+        "Borrowed fund trading",
+        "Liquidity providing"
       ],
-      "answer": "Profiting from price differences between different exchanges"
+      "answer": "Buy low, sell high"
     },
     {
-      "question": "What is a DEX aggregator?",
+      "question": "What is DEX aggregator?",
       "options": [
-        "A service that finds the best prices across multiple DEXs",
-        "A tool for creating new DEXs",
-        "A type of liquidity pool"
+        "Best price finder",
+        "DEX creator tool",
+        "Liquidity pool type"
       ],
-      "answer": "A service that finds the best prices across multiple DEXs"
+      "answer": "Best price finder"
     },
     {
       "question": "What is yield farming?",
       "options": [
-        "Earning rewards by providing liquidity or staking tokens",
-        "Growing crops using blockchain technology",
-        "Mining cryptocurrency"
+        "Growing crypto crops",
+        "Blockchain gardening",
+        "Crypto mining"
       ],
-      "answer": "Earning rewards by providing liquidity or staking tokens"
+      "answer": "Growing crypto crops"
     },
     {
-      "question": "What is a flash loan?",
+      "question": "What is flash loan?",
       "options": [
-        "An uncollateralized loan that must be repaid in the same transaction",
-        "A very fast loan approval process",
-        "A loan with flashing interest rates"
+        "Instant money flip",
+        "Fast approval process",
+        "Flashing rate loan"
       ],
-      "answer": "An uncollateralized loan that must be repaid in the same transaction"
+      "answer": "Instant money flip"
     },
     {
       "question": "What is MEV?",
@@ -140,139 +140,139 @@
       "answer": "Maximal Extractable Value"
     },
     {
-      "question": "What is front-running in DEX trading?",
+      "question": "Front-running?",
       "options": [
-        "Placing a transaction ahead of another to profit from price movement",
-        "Running a DEX protocol",
-        "Being the first to provide liquidity"
+        "Jumping the gun",
+        "Running DEX protocol",
+        "First liquidity provider"
       ],
-      "answer": "Placing a transaction ahead of another to profit from price movement"
+      "answer": "Jumping the gun"
     },
     {
-      "question": "What is a constant product market maker?",
+      "question": "Constant product AMM?",
       "options": [
-        "An AMM where x * y = k (constant)",
-        "A market maker with constant prices",
-        "A market maker with constant volume"
+        "x * y = k formula",
+        "Constant price maker",
+        "Constant volume maker"
       ],
-      "answer": "An AMM where x * y = k (constant)"
+      "answer": "x * y = k formula"
     },
     {
       "question": "What is PancakeSwap?",
       "options": [
-        "A popular DEX on Binance Smart Chain",
-        "A DEX on Ethereum",
-        "A centralized exchange"
+        "BSC's pancake house",
+        "Ethereum DEX",
+        "Centralized exchange"
       ],
-      "answer": "A popular DEX on Binance Smart Chain"
+      "answer": "BSC's pancake house"
     },
     {
       "question": "What is SushiSwap?",
       "options": [
-        "A fork of Uniswap with additional features",
-        "A centralized sushi marketplace",
-        "A blockchain for food trading"
+        "Uniswap's sushi roll",
+        "Sushi marketplace",
+        "Food trading chain"
       ],
-      "answer": "A fork of Uniswap with additional features"
+      "answer": "Uniswap's sushi roll"
     },
     {
-      "question": "What is a trading pair?",
+      "question": "What is trading pair?",
       "options": [
-        "Two tokens that can be swapped against each other",
-        "Two traders working together",
-        "A matched buy and sell order"
+        "Token trading duo",
+        "Trader partnership",
+        "Matched buy/sell"
       ],
-      "answer": "Two tokens that can be swapped against each other"
+      "answer": "Token trading duo"
     },
     {
       "question": "What is price impact?",
       "options": [
-        "How much a trade affects the token price",
-        "The impact of gas fees on profitability",
-        "The effect of market news on prices"
+        "Whale effect warning",
+        "Gas fee impact",
+        "News price effect"
       ],
-      "answer": "How much a trade affects the token price"
+      "answer": "Whale effect warning"
     },
     {
-      "question": "What is a rug pull in DeFi?",
+      "question": "What is rug pull?",
       "options": [
-        "When developers drain liquidity and abandon a project",
-        "A legitimate exit strategy",
-        "A type of smart contract upgrade"
+        "Scam artist trick",
+        "Legit exit strategy",
+        "Smart contract upgrade"
       ],
-      "answer": "When developers drain liquidity and abandon a project"
+      "answer": "Scam artist trick"
     },
     {
       "question": "What is stableswap?",
       "options": [
-        "An AMM optimized for trading similar-value assets",
-        "A stable version of any DEX",
-        "Trading only stablecoins"
+        "Stablecoin highway",
+        "Stable DEX version",
+        "Stablecoin only trading"
       ],
-      "answer": "An AMM optimized for trading similar-value assets"
+      "answer": "Stablecoin highway"
     },
     {
       "question": "What is Curve Finance?",
       "options": [
-        "A DEX specialized for stablecoin trading",
-        "A lending protocol",
-        "A derivatives exchange"
+        "Stablecoin specialist",
+        "Lending protocol",
+        "Derivatives exchange"
       ],
-      "answer": "A DEX specialized for stablecoin trading"
+      "answer": "Stablecoin specialist"
     },
     {
       "question": "What is Balancer?",
       "options": [
-        "A DEX that allows pools with multiple tokens and custom weights",
-        "A tool for balancing portfolios",
-        "A cross-chain bridge"
+        "Multi-token mixer",
+        "Portfolio balancer",
+        "Cross-chain bridge"
       ],
-      "answer": "A DEX that allows pools with multiple tokens and custom weights"
+      "answer": "Multi-token mixer"
     },
     {
-      "question": "What is a bonding curve?",
+      "question": "What is bonding curve?",
       "options": [
-        "A mathematical function that determines token price based on supply",
-        "A curve showing price over time",
-        "A lending interest rate curve"
+        "Price math formula",
+        "Time price curve",
+        "Lending rate curve"
       ],
-      "answer": "A mathematical function that determines token price based on supply"
+      "answer": "Price math formula"
     },
     {
       "question": "What is 1inch?",
       "options": [
-        "A DEX aggregator that finds optimal trading routes",
-        "A measurement unit for tokens",
-        "A specific trading pair"
+        "Pathfinding wizard",
+        "Token measurement unit",
+        "Specific trading pair"
       ],
-      "answer": "A DEX aggregator that finds optimal trading routes"
+      "answer": "Pathfinding wizard"
     },
     {
-      "question": "What is concentrated liquidity?",
+      "question": "Concentrated liquidity?",
       "options": [
-        "Providing liquidity within specific price ranges for better capital efficiency",
-        "Concentrating all liquidity in one pool",
-        "A type of centralized liquidity"
+        "Laser-focused capital",
+        "All pool liquidity",
+        "Centralized liquidity"
       ],
-      "answer": "Providing liquidity within specific price ranges for better capital efficiency"
+      "answer": "Laser-focused capital"
     },
     {
-      "question": "What is a cross-chain DEX?",
+      "question": "Cross-chain DEX?",
       "options": [
-        "A DEX that allows trading between different blockchains",
-        "A DEX that crosses different time zones",
-        "A DEX with crossed trading pairs"
+        "Multi-chain bridge",
+        "Time zone crossing",
+        "Crossed pairs"
       ],
-      "answer": "A DEX that allows trading between different blockchains"
+      "answer": "Multi-chain bridge"
     },
     {
-      "question": "What is the difference between V2 and V3 of Uniswap?",
+      "question": "Uniswap V2 vs V3?",
       "options": [
-        "V3 introduced concentrated liquidity and multiple fee tiers",
-        "V3 is faster than V2",
-        "V3 supports more tokens than V2"
+        "Concentrated liquidity",
+        "V3 is faster",
+        "More tokens supported"
       ],
-      "answer": "V3 introduced concentrated liquidity and multiple fee tiers"
+      "answer": "Concentrated liquidity"
     }
   ]
 }
