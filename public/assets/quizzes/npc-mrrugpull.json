@@ -1,0 +1,158 @@
+{
+  "npcId": "mrrugpull",
+  "npcName": "MR Rug Pull",
+  "theme": "Rug Pulls and Scams",
+  "description": "Quiz questions about rug pulls, scams, and how to protect your web3 assets.",
+  "questions": [
+    {
+      "question": "What is a rug pull?",
+      "options": ["A type of NFT", "A scam where developers abandon a project", "A blockchain upgrade"],
+      "answer": "A scam where developers abandon a project"
+    },
+    {
+      "question": "How can you protect yourself from rug pulls?",
+      "options": ["Never invest in crypto", "Research the team and smart contract", "Send all your crypto to unknown projects"],
+      "answer": "Research the team and smart contract"
+    },
+    {
+      "question": "What should you never share with anyone?",
+      "options": ["Your favorite crypto", "Your private key or seed phrase", "Your portfolio value"],
+      "answer": "Your private key or seed phrase"
+    },
+    {
+      "question": "What is a honeypot scam?",
+      "options": ["A type of DeFi yield farm", "A scam where you can't sell your tokens", "A legitimate NFT project"],
+      "answer": "A scam where you can't sell your tokens"
+    },
+    {
+      "question": "Why is it important to check smart contract audits?",
+      "options": ["To see the project's logo", "To identify potential security vulnerabilities", "To know the team's favorite color"],
+      "answer": "To identify potential security vulnerabilities"
+    },
+    {
+      "question": "What should you do before investing in a new token?",
+      "options": ["Send all your money immediately", "Research the project, team, and contract", "Ask strangers on social media for advice"],
+      "answer": "Research the project, team, and contract"
+    },
+    {
+      "question": "What is a common sign of a potential scam?",
+      "options": ["Transparent team and code", "Promises of guaranteed high returns", "Regular project updates"],
+      "answer": "Promises of guaranteed high returns"
+    },
+    {
+      "question": "What is phishing in the context of crypto?",
+      "options": ["A type of blockchain", "Tricking users to reveal sensitive information", "A new DeFi protocol"],
+      "answer": "Tricking users to reveal sensitive information"
+    },
+    {
+      "question": "Why should you be cautious of projects with anonymous teams?",
+      "options": ["All crypto projects have anonymous teams", "It's impossible to verify their credibility", "They always have the best returns"],
+      "answer": "It's impossible to verify their credibility"
+    },
+    {
+      "question": "What is a good practice for wallet security?",
+      "options": ["Use the same password for everything", "Enable two-factor authentication", "Share your seed phrase with friends"],
+      "answer": "Enable two-factor authentication"
+    },
+    {
+      "question": "What should you do if a project promises unrealistic returns?",
+      "options": ["Invest all your money", "Be suspicious and do more research", "Trust but verify"],
+      "answer": "Be suspicious and do more research"
+    },
+    {
+      "question": "What is a liquidity pool in DeFi?",
+      "options": ["A scam to steal your crypto", "A collection of funds locked in a smart contract", "A type of NFT"],
+      "answer": "A collection of funds locked in a smart contract"
+    },
+    {
+      "question": "Why is it important to diversify your crypto investments?",
+      "options": ["To put all your eggs in one basket", "To reduce risk exposure", "To guarantee profits"],
+      "answer": "To reduce risk exposure"
+    },
+    {
+      "question": "What should you do if you suspect a scam?",
+      "options": ["Ignore your instincts", "Report it and warn others", "Invest more money to average down"],
+      "answer": "Report it and warn others"
+    },
+    {
+      "question": "What is social engineering in crypto?",
+      "options": ["A type of smart contract", "Manipulating people to gain access to information", "A new blockchain"],
+      "answer": "Manipulating people to gain access to information"
+    },
+    {
+      "question": "What is a good way to verify a project's legitimacy?",
+      "options": ["Trust the hype on social media", "Check their code on Etherscan and community feedback", "Follow celebrity endorsements"],
+      "answer": "Check their code on Etherscan and community feedback"
+    },
+    {
+      "question": "What should you do with unsolicited investment advice?",
+      "options": ["Follow it immediately", "Verify the source and do your own research", "Share it with all your friends"],
+      "answer": "Verify the source and do your own research"
+    },
+    {
+      "question": "What is the importance of a project's whitepaper?",
+      "options": ["It's just for decoration", "It provides technical and business details", "It guarantees profits"],
+      "answer": "It provides technical and business details"
+    },
+    {
+      "question": "Why should you be cautious of FOMO investing?",
+      "options": ["It's the best investment strategy", "It often leads to poor decision making", "It's required by law"],
+      "answer": "It often leads to poor decision making"
+    },
+    {
+      "question": "What is a good security practice for your crypto accounts?",
+      "options": ["Use simple passwords", "Enable 2FA and use strong passwords", "Share passwords with family"],
+      "answer": "Enable 2FA and use strong passwords"
+    },
+    {
+      "question": "What should you do if a project's website suddenly goes down?",
+      "options": ["Ignore it", "Be suspicious and investigate", "Buy more tokens immediately"],
+      "answer": "Be suspicious and investigate"
+    },
+    {
+      "question": "Why is it important to understand what you're investing in?",
+      "options": ["To impress your friends", "To make informed decisions and reduce risk", "To guarantee profits"],
+      "answer": "To make informed decisions and reduce risk"
+    },
+    {
+      "question": "What is a red flag for potential exit scams?",
+      "options": ["Regular updates and communication", "Promises of guaranteed returns with no risk", "Transparent team members"],
+      "answer": "Promises of guaranteed returns with no risk"
+    },
+    {
+      "question": "What should you do with your private keys?",
+      "options": ["Store them on your computer", "Keep them offline in a secure location", "Share them with trusted friends"],
+      "answer": "Keep them offline in a secure location"
+    },
+    {
+      "question": "Why is it important to stay updated on crypto news?",
+      "options": ["To gossip about celebrities", "To be aware of market trends and security threats", "To know the latest memes"],
+      "answer": "To be aware of market trends and security threats"
+    },
+    {
+      "question": "What is a common tactic used in phishing attacks?",
+      "options": ["Sending legitimate newsletters", "Creating fake websites that look real", "Providing accurate market analysis"],
+      "answer": "Creating fake websites that look real"
+    },
+    {
+      "question": "What should you do before clicking on crypto-related links?",
+      "options": ["Click immediately for FOMO gains", "Verify the URL and source", "Share with friends first"],
+      "answer": "Verify the URL and source"
+    },
+    {
+      "question": "Why is it important to use a hardware wallet?",
+      "options": ["They're fashionable accessories", "They provide offline storage for private keys", "They guarantee profits"],
+      "answer": "They provide offline storage for private keys"
+    },
+    {
+      "question": "What is a good practice when using DeFi protocols?",
+      "options": ["Approve unlimited token spending", "Start with small amounts to test", "Use the first protocol you find"],
+      "answer": "Start with small amounts to test"
+    },
+    {
+      "question": "What should you do if you lose access to your wallet?",
+      "options": ["Panic and invest in recovery services", "Use your seed phrase to recover", "Create a new wallet and forget the old one"],
+      "answer": "Use your seed phrase to recover"
+    }
+  ]
+}

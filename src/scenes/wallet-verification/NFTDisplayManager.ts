@@ -70,7 +70,11 @@ export class NFTDisplayManager implements INFTDisplayManager {
             loading: false,
             nftsLoaded: 0,
             totalNFTs: 0,
-            scrollPosition: 0
+            scrollPosition: 0,
+            gridLayout: 'detailed',
+            sortOrder: 'date',
+            filterActive: false,
+            loadingMoreNFTs: false
         };
 
         this.initialize();

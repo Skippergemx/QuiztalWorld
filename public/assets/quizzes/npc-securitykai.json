@@ -1,0 +1,168 @@
+{
+  "npcId": "securitykai",
+  "npcName": "Security Kai",
+  "theme": "Web3 Security",
+  "description": "Quiz questions about web3 security best practices.",
+  "questions": [
+    {
+      "question": "Common phishing technique?",
+      "options": ["Fake airdrop links", "Validating transactions", "Using hardware wallet"],
+      "answer": "Fake airdrop links"
+    },
+    {
+      "question": "What is hardware wallet?",
+      "options": ["Software wallet", "Physical key storage", "Browser extension"],
+      "answer": "Physical key storage"
+    },
+    {
+      "question": "What is seed phrase?",
+      "options": ["Password", "12-24 word backup", "Transaction hash"],
+      "answer": "12-24 word backup"
+    },
+    {
+      "question": "Never share seed phrase?",
+      "options": ["Not important", "Funds get stolen", "Public information"],
+      "answer": "Funds get stolen"
+    },
+    {
+      "question": "What is rug pull?",
+      "options": ["NFT type", "Scam artist trick", "Decentralized exchange"],
+      "answer": "Scam artist trick"
+    },
+    {
+      "question": "Smart contract audit?",
+      "options": ["Code vulnerability review", "Cryptocurrency type", "Legal document"],
+      "answer": "Code vulnerability review"
+    },
+    {
+      "question": "What is gas?",
+      "options": ["Fuel type", "Transaction fee", "Measurement unit"],
+      "answer": "Transaction fee"
+    },
+    {
+      "question": "Transaction signing?",
+      "options": ["Approve with private key", "Sending transaction", "Cancelling transaction"],
+      "answer": "Approve with private key"
+    },
+    {
+      "question": "Multi-signature wallet?",
+      "options": ["One key wallet", "Multiple approval wallet", "Paper wallet"],
+      "answer": "Multiple approval wallet"
+    },
+    {
+      "question": "Honeypot contract?",
+      "options": ["Secure contract", "Fake vulnerable trap", "Hackers attractor"],
+      "answer": "Fake vulnerable trap"
+    },
+    {
+      "question": "Replay attack?",
+      "options": ["Replaying on chain", "Attacking contract", "Stealing NFTs"],
+      "answer": "Replaying on chain"
+    },
+    {
+      "question": "51% attack?",
+      "options": ["Hashrate majority control", "Stealing 51% funds", "Phishing attack"],
+      "answer": "Hashrate majority control"
+    },
+    {
+      "question": "What is a DAO?",
+      "options": ["Decentralized Organization", "Decentralized Application", "Digital Art Object"],
+      "answer": "Decentralized Organization"
+    },
+    {
+      "question": "What is DeFi?",
+      "options": ["Decentralized Finance", "Digital Finance", "Data Finance"],
+      "answer": "Decentralized Finance"
+    },
+    {
+      "question": "What is an NFT?",
+      "options": ["Non-Fungible Token", "New Financial Tech", "Network File Transfer"],
+      "answer": "Non-Fungible Token"
+    },
+    {
+      "question": "What is blockchain?",
+      "options": ["Database type", "Cryptocurrency", "Smart contract"],
+      "answer": "Database type"
+    },
+    {
+      "question": "Private key?",
+      "options": ["Public address", "Secret fund code", "Transaction hash"],
+      "answer": "Secret fund code"
+    },
+    {
+      "question": "Public key?",
+      "options": ["Private address", "Receive funds address", "Seed phrase"],
+      "answer": "Receive funds address"
+    },
+    {
+      "question": "Web3 wallet?",
+      "options": ["Physical wallet", "Digital crypto manager", "Bank account"],
+      "answer": "Digital crypto manager"
+    },
+    {
+      "question": "What is a dApp?",
+      "options": ["Decentralized App", "Digital Application", "Data Application"],
+      "answer": "Decentralized App"
+    },
+    {
+      "question": "Gas limit?",
+      "options": ["Max gas willing spend", "Min gas must spend", "Average gas price"],
+      "answer": "Max gas willing spend"
+    },
+    {
+      "question": "Transaction hash?",
+      "options": ["Unique transaction ID", "Seed phrase", "Private key"],
+      "answer": "Unique transaction ID"
+    },
+    {
+      "question": "Block explorer?",
+      "options": ["View blockchain txns", "Cryptocurrency type", "Web browser"],
+      "answer": "View blockchain txns"
+    },
+    {
+      "question": "What is KYC?",
+      "options": ["Know Your Customer", "Keep Your Coins", "Key Your Code"],
+      "answer": "Know Your Customer"
+    },
+    {
+      "question": "What is AML?",
+      "options": ["Anti-Money Laundering", "Automated Machine Learning", "Advanced Malware Locator"],
+      "answer": "Anti-Money Laundering"
+    },
+    {
+      "question": "Cold wallet?",
+      "options": ["Hot wallet", "Hardware wallet", "Paper wallet"],
+      "answer": "Hardware wallet"
+    },
+    {
+      "question": "Hot wallet?",
+      "options": ["Cold wallet", "Online software wallet", "Paper wallet"],
+      "answer": "Online software wallet"
+    },
+    {
+      "question": "What is mempool?",
+      "options": ["Pending txns waiting", "Cryptocurrency type", "Smart contract"],
+      "answer": "Pending txns waiting"
+    },
+    {
+      "question": "What is fork?",
+      "options": ["Spoon type", "Protocol change", "Cryptocurrency exchange"],
+      "answer": "Protocol change"
+    },
+    {
+      "question": "Sidechain?",
+      "options": ["Layer 2 solution", "Alternative blockchain", "Cryptocurrency type"],
+      "answer": "Alternative blockchain"
+    },
+    {
+      "question": "Testnet?",
+      "options": ["Mainnet", "Testing blockchain", "Cryptocurrency exchange"],
+      "answer": "Testing blockchain"
+    },
+    {
+      "question": "Mainnet?",
+      "options": ["Testnet", "Main blockchain", "Cryptocurrency exchange"],
+      "answer": "Main blockchain"
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "npcId": "huntboy",
+  "npcName": "Hunt Boy",
+  "theme": "Hunt Town & Web3 Development",
+  "description": "Quiz questions about Hunt Town developer community and Web3 building",
+  "questions": [
+    {
+      "question": "What is Base, really?",
+      "options": ["Layer 2 Ethereum", "Bitcoin's weird cousin", "Magic internet money"],
+      "answer": "Layer 2 Ethereum"
+    },
+    {
+      "question": "What is Hunt Town?",
+      "options": ["Web3 wonderland", "Developer paradise", "Code ninja dojo"],
+      "answer": "Web3 wonderland"
+    },
+    {
+      "question": "What can devs do here?",
+      "options": ["Build Web3 projects", "Hunt for bugs", "Summon blockchain magic"],
+      "answer": "Build Web3 projects"
+    },
+    {
+      "question": "Hunt Town's obsession?",
+      "options": ["Web3 development", "Gaming all night", "Dancing cats"],
+      "answer": "Web3 development"
+    },
+    {
+      "question": "Which chain do they use?",
+      "options": ["Base, obviously", "Solana who?", "Polygon pizza"],
+      "answer": "Base, obviously"
+    },
+    {
+      "question": "Community's secret power?",
+      "options": ["Developer-focused", "Gamers unite", "NFT traders only"],
+      "answer": "Developer-focused"
+    },
+    {
+      "question": "What's hiding there?",
+      "options": ["Web3 builders", "Pokemon GO", "Flying unicorns"],
+      "answer": "Web3 builders"
+    },
+    {
+      "question": "How do they Web3?",
+      "options": ["Build useful tools", "Just trade NFTs", "Only gaming"],
+      "answer": "Build useful tools"
+    },
+    {
+      "question": "Why Base, though?",
+      "options": ["Low fees & ETH", "Free money printer", "No reason at all"],
+      "answer": "Low fees & ETH"
+    },
+    {
+      "question": "Their master plan?",
+      "options": ["Empower builders", "Just gaming", "NFT trading"],
+      "answer": "Empower builders"
+    },
+    {
+      "question": "Who's invited?",
+      "options": ["Anyone interested", "Only experts", "Literally no one"],
+      "answer": "Anyone interested"
+    },
+    {
+      "question": "What's their thing?",
+      "options": ["Developer community", "High gas fees", "Cabal meeting"],
+      "answer": "Developer community"
+    },
+    {
+      "question": "Learn what now?",
+      "options": ["Web3 development", "Cooking shows", "Farming simulator"],
+      "answer": "Web3 development"
+    },
+    {
+      "question": "Builder support system?",
+      "options": ["Community support", "Free lunch", "Free pizza daily"],
+      "answer": "Community support"
+    },
+    {
+      "question": "How's it with Base?",
+      "options": ["Building on Base", "Competing", "No relation"],
+      "answer": "Building on Base"
+    },
+    {
+      "question": "Dev toolkit?",
+      "options": ["Ethereum tools", "Special tools", "No tools"],
+      "answer": "Ethereum tools"
+    },
+    {
+      "question": "How do they build?",
+      "options": ["Open & collaborative", "Solo building", "Secret clubs"],
+      "answer": "Open & collaborative"
+    },
+    {
+      "question": "What's in stock?",
+      "options": ["Development resources", "Free tokens", "NFT airdrops"],
+      "answer": "Development resources"
+    },
+    {
+      "question": "Builder helpdesk?",
+      "options": ["Community & resources", "Money only", "Tumbleweeds only"],
+      "answer": "Community & resources"
+    },
+    {
+      "question": "Their endgame?",
+      "options": ["Grow Web3 ecosystem", "Quick profits", "Gaming only"],
+      "answer": "Grow Web3 ecosystem"
+    },
+    {
+      "question": "Build what exactly?",
+      "options": ["Web3 applications", "Only games", "Only NFTs"],
+      "answer": "Web3 applications"
+    },
+    {
+      "question": "Why join them?",
+      "options": ["Learn & build Web3", "Get rich quick", "Play games"],
+      "answer": "Learn & build Web3"
+    },
+    {
+      "question": "What gets built?",
+      "options": ["Web3 dApps", "Mobile games", "Desktop software"],
+      "answer": "Web3 dApps"
+    },
+    {
+      "question": "Newbie assistance?",
+      "options": ["Mentorship & resources", "Cash rewards", "Gaming tournaments"],
+      "answer": "Mentorship & resources"
+    },
+    {
+      "question": "What did they do?",
+      "options": ["Growing dev ecosystem", "Creating NFTs", "Running nodes"],
+      "answer": "Growing dev ecosystem"
+    },
+    {
+      "question": "Builder special powers?",
+      "options": ["Web3 innovation", "Trading focus", "Gaming focus"],
+      "answer": "Web3 innovation"
+    },
+    {
+      "question": "Teamwork magic?",
+      "options": ["Open source projects", "Closed teams", "Solo work"],
+      "answer": "Open source projects"
+    },
+    {
+      "question": "Their build philosophy?",
+      "options": ["Build & share", "Build in private", "Ctrl+C experts"],
+      "answer": "Build & share"
+    },
+    {
+      "question": "Base promotion plan?",
+      "options": ["Building dApps", "Creating memes", "Trading tokens"],
+      "answer": "Building dApps"
+    },
+    {
+      "question": "Famous for what?",
+      "options": ["Helpful developers", "Token traders", "NFT collectors"],
+      "answer": "Helpful developers"
+    },
+    {
+      "question": "Beginner lessons?",
+      "options": ["Web3 development", "Token trading", "Gaming"],
+      "answer": "Web3 development"
+    },
+    {
+      "question": "Learning methods?",
+      "options": ["Community workshops", "Trading contests", "Gaming events"],
+      "answer": "Community workshops"
+    },
+    {
+      "question": "Web3 role?",
+      "options": ["Developer education", "Gaming platform", "NFT marketplace"],
+      "answer": "Developer education"
+    },
+    {
+      "question": "What's different?",
+      "options": ["Focus on building", "Focus on trading", "Focus on gaming"],
+      "answer": "Focus on building"
+    },
+    {
+      "question": "New dev treatment?",
+      "options": ["Welcoming & supportive", "Experts only", "Noobs not welcome"],
+      "answer": "Welcoming & supportive"
+    },
+    {
+      "question": "Favorite projects?",
+      "options": ["Innovative solutions", "Copy trading", "Gaming only"],
+      "answer": "Innovative solutions"
+    },
+    {
+      "question": "Base ecosystem help?",
+      "options": ["Building dev tools", "Creating memes", "Trading tokens"],
+      "answer": "Building dev tools"
+    },
+    {
+      "question": "Learning focus?",
+      "options": ["Web3 development", "Traditional gaming", "Social media"],
+      "answer": "Web3 development"
+    },
+    {
+      "question": "Innovation support?",
+      "options": ["Open collaboration", "Solo competition", "Closed teams"],
+      "answer": "Open collaboration"
+    },
+    {
+      "question": "How's it organized?",
+      "options": ["Open & inclusive", "Hierarchical", "Cool kids club"],
+      "answer": "Open & inclusive"
+    },
+    {
+      "question": "Teamwork style?",
+      "options": ["Knowledge sharing", "Competition", "Lone coder"],
+      "answer": "Knowledge sharing"
+    },
+    {
+      "question": "Main contribution?",
+      "options": ["Growing Web3 talent", "Creating NFTs", "Gaming"],
+      "answer": "Growing Web3 talent"
+    }
+  ]
+}

@@ -54,7 +54,6 @@ export class WalletUIManager implements IWalletUIManager {
     private progressBar: Phaser.GameObjects.Container | null = null;
     private continueButton: Phaser.GameObjects.Text | null = null;
     private messageContainer: Phaser.GameObjects.Container | null = null;
-    private keyboardNavigationEnabled: boolean = false;
     
     // Crystal-themed elements
     private crystalHighlights: Phaser.GameObjects.Graphics[] = [];
@@ -443,7 +442,7 @@ export class WalletUIManager implements IWalletUIManager {
         
         // Create button background with gradient
         const buttonBg = this.scene.add.graphics();
-        this.createButtonBackground(buttonBg, buttonWidth, buttonHeight, config.variant || 'primary');
+        this.createButtonBackground(buttonBg, buttonWidth, buttonHeight);
         
         // Create button text with icon
         const buttonText = this.createButtonText(config);
@@ -461,14 +460,14 @@ export class WalletUIManager implements IWalletUIManager {
         buttonContainer.add([buttonBg, loadingSpinner, buttonText]);
         
         // Add interaction effects
-        this.addModernButtonInteractions(buttonContainer, buttonBg, config);
+        this.addModernButtonInteractions(buttonContainer, config);
         
         // Update the hit area to match the background
         this.updateButtonHitArea(buttonContainer, buttonWidth, buttonHeight);
         
         // Add accessibility support
         if (config.accessibility) {
-            this.addAccessibilitySupport(buttonContainer, config.accessibility);
+            this.addAccessibilitySupport(config.accessibility);
         }
         
         return buttonContainer;
@@ -480,11 +479,8 @@ export class WalletUIManager implements IWalletUIManager {
     private createButtonBackground(
         graphics: Phaser.GameObjects.Graphics, 
         width: number, 
-        height: number, 
-        variant: string
+        height: number
     ): void {
-        const colors = this.getVariantColors(variant);
-        
         graphics.clear();
         graphics.fillGradientStyle(
             UIHelpers.hexToNumber(this.CRYSTAL_STYLES.crystalColors.primary),
@@ -559,7 +555,6 @@ export class WalletUIManager implements IWalletUIManager {
      */
     private addModernButtonInteractions(
         container: Phaser.GameObjects.Container,
-        background: Phaser.GameObjects.Graphics,
         config: EnhancedButtonConfig
     ): void {
         const originalScale = { x: 1, y: 1 };
@@ -643,46 +638,6 @@ export class WalletUIManager implements IWalletUIManager {
                     navigator.vibrate(20);
                 }
             });
-    }
-
-    /**
-     * Gets color scheme for button variants with crystal theme
-     */
-    private getVariantColors(variant: string): { primary: string; secondary: string; border: string; glow: string } {
-        const colorSchemes: Record<string, { primary: string; secondary: string; border: string; glow: string }> = {
-            primary: {
-                primary: this.CRYSTAL_STYLES.crystalColors.primary,
-                secondary: this.CRYSTAL_STYLES.crystalColors.accent,
-                border: this.CRYSTAL_STYLES.crystalColors.highlight,
-                glow: this.CRYSTAL_STYLES.crystalColors.primary
-            },
-            success: {
-                primary: modernUITheme.colors.success,
-                secondary: '#27ae60',
-                border: modernUITheme.colors.success,
-                glow: modernUITheme.colors.success
-            },
-            warning: {
-                primary: modernUITheme.colors.warning,
-                secondary: '#e67e22',
-                border: modernUITheme.colors.warning,
-                glow: modernUITheme.colors.warning
-            },
-            error: {
-                primary: modernUITheme.colors.error,
-                secondary: '#c0392b',
-                border: modernUITheme.colors.error,
-                glow: modernUITheme.colors.error
-            },
-            ghost: {
-                primary: 'rgba(255,255,255,0.1)',
-                secondary: 'rgba(255,255,255,0.05)',
-                border: modernUITheme.colors.border.primary,
-                glow: modernUITheme.colors.text.secondary
-            }
-        };
-        
-        return colorSchemes[variant] || colorSchemes.primary;
     }
 
     /**
@@ -1387,7 +1342,7 @@ export class WalletUIManager implements IWalletUIManager {
     /**
      * Adds accessibility support to UI elements
      */
-    public addAccessibilitySupport(container: Phaser.GameObjects.Container, config: AccessibilityConfig): void {
+    public addAccessibilitySupport(config: AccessibilityConfig): void {
         // In a real implementation, this would add ARIA attributes and keyboard navigation
         // For now, we'll just log the accessibility config
         console.log('Accessibility support added:', config);

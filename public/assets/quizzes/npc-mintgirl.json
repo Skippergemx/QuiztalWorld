@@ -1,0 +1,223 @@
+{
+  "npcId": "mintgirl",
+  "npcName": "Mint Girl",
+  "theme": "Mint Club Knowledge",
+  "description": "Quiz questions about Mint Club bonding curve platform and token creation",
+  "questions": [
+    {
+      "question": "What is Mint Club?",
+      "options": ["A new dance move", "A bonding curve platform", "A candy store"],
+      "answer": "A bonding curve platform"
+    },
+    {
+      "question": "What can you do with Quiztals?",
+      "options": ["Throw them at people", "Eat them for breakfast", "Stake them for rewards"],
+      "answer": "Stake them for rewards"
+    },
+    {
+      "question": "Quiztals will become...?",
+      "options": ["A comic book hero", "On-chain tokens", "NFT Art masterpiece"],
+      "answer": "On-chain tokens"
+    },
+    {
+      "question": "What does Mint Club use?",
+      "options": ["Fixed supply", "Random minting", "Bonding curves magic"],
+      "answer": "Bonding curves magic"
+    },
+    {
+      "question": "What can you create?",
+      "options": ["Only boring NFTs", "Token & NFT magic", "Only games"],
+      "answer": "Token & NFT magic"
+    },
+    {
+      "question": "What's special about tokens?",
+      "options": ["Auto price discovery", "Fixed prices", "Manual pricing"],
+      "answer": "Auto price discovery"
+    },
+    {
+      "question": "How does Mint Club protect?",
+      "options": ["Smart contract locks", "Trust system", "Manual verification"],
+      "answer": "Smart contract locks"
+    },
+    {
+      "question": "What's Mint Club's token model?",
+      "options": ["Fair launch curves", "ICO", "Airdrop only"],
+      "answer": "Fair launch curves"
+    },
+    {
+      "question": "How are tokens priced?",
+      "options": ["By mathematics", "By voting", "By admins"],
+      "answer": "By mathematics"
+    },
+    {
+      "question": "What's unique about launches?",
+      "options": ["No pre-mines", "Huge pre-mines", "Manual distribution"],
+      "answer": "No pre-mines"
+    },
+    {
+      "question": "How to prevent rug pulls?",
+      "options": ["Locked liquidity", "Trust badges", "Community voting"],
+      "answer": "Locked liquidity"
+    },
+    {
+      "question": "What can you stake?",
+      "options": ["Only NFTs", "MINT tokens", "Only ETH"],
+      "answer": "MINT tokens"
+    },
+    {
+      "question": "What's the core feature?",
+      "options": ["Gaming", "Social media", "Token creation"],
+      "answer": "Token creation"
+    },
+    {
+      "question": "How does pricing work?",
+      "options": ["Manual setting", "Random generation", "Automatic curves"],
+      "answer": "Automatic curves"
+    },
+    {
+      "question": "What's the approach to fairness?",
+      "options": ["Manual oversight", "Community votes", "Mathematical rules"],
+      "answer": "Mathematical rules"
+    },
+    {
+      "question": "What can users launch?",
+      "options": ["Only games", "Only websites", "Tokens & NFTs"],
+      "answer": "Tokens & NFTs"
+    },
+    {
+      "question": "How are tokens secured?",
+      "options": ["Smart contracts", "Manual locks", "Community trust"],
+      "answer": "Smart contracts"
+    },
+    {
+      "question": "What's the token mechanism?",
+      "options": ["Bonding curves", "Fixed supply", "Infinite minting"],
+      "answer": "Bonding curves"
+    },
+    {
+      "question": "How ensure transparency?",
+      "options": ["On-chain verification", "Manual audits", "Community reports"],
+      "answer": "On-chain verification"
+    },
+    {
+      "question": "What's the main innovation?",
+      "options": ["Fair token launches", "Social media", "Gaming platform"],
+      "answer": "Fair token launches"
+    },
+    {
+      "question": "How do tokens start?",
+      "options": ["Zero pre-mints", "Large pre-mines", "Manual distribution"],
+      "answer": "Zero pre-mints"
+    },
+    {
+      "question": "What governs prices?",
+      "options": ["Smart contracts", "Admins", "Market makers"],
+      "answer": "Smart contracts"
+    },
+    {
+      "question": "What makes it unique?",
+      "options": ["Automated fairness", "Manual trading", "Centralized control"],
+      "answer": "Automated fairness"
+    },
+    {
+      "question": "What type of LP tokens?",
+      "options": ["Non-transferable", "Transferable", "No LP tokens"],
+      "answer": "Non-transferable"
+    },
+    {
+      "question": "How handle token burns?",
+      "options": ["Automatic via curve", "Manual burns", "No burns allowed"],
+      "answer": "Automatic via curve"
+    },
+    {
+      "question": "Minimum to create token?",
+      "options": ["Just gas fees", "1000 MINT", "5 ETH"],
+      "answer": "Just gas fees"
+    },
+    {
+      "question": "How handle token sales?",
+      "options": ["Through curves", "Manual listings", "Fixed price"],
+      "answer": "Through curves"
+    },
+    {
+      "question": "What's the distribution approach?",
+      "options": ["Fair launch only", "Pre-sale first", "Team allocation"],
+      "answer": "Fair launch only"
+    },
+    {
+      "question": "How calculate buy price?",
+      "options": ["Bonding formula", "Market makers", "Manual setting"],
+      "answer": "Bonding formula"
+    },
+    {
+      "question": "What's locked in contracts?",
+      "options": ["Liquidity & Logic", "Nothing", "Only tokens"],
+      "answer": "Liquidity & Logic"
+    },
+    {
+      "question": "How sell tokens?",
+      "options": ["Through the curve", "P2P only", "Not possible"],
+      "answer": "Through the curve"
+    },
+    {
+      "question": "What determines token price?",
+      "options": ["Supply & Demand", "Admins", "Fixed rates"],
+      "answer": "Supply & Demand"
+    },
+    {
+      "question": "How are NFTs priced?",
+      "options": ["Bonding curves", "Fixed price", "Auction only"],
+      "answer": "Bonding curves"
+    },
+    {
+      "question": "What's unique about NFTs?",
+      "options": ["Curve-based pricing", "Random pricing", "Manual pricing"],
+      "answer": "Curve-based pricing"
+    },
+    {
+      "question": "How protect traders?",
+      "options": ["Automatic pricing", "Manual reviews", "Community votes"],
+      "answer": "Automatic pricing"
+    },
+    {
+      "question": "What's the trading mechanism?",
+      "options": ["Smart contracts", "Order books", "P2P trading"],
+      "answer": "Smart contracts"
+    },
+    {
+      "question": "How are fees handled?",
+      "options": ["Transparent & fixed", "Variable", "No fees"],
+      "answer": "Transparent & fixed"
+    },
+    {
+      "question": "What's the staking model?",
+      "options": ["Revenue sharing", "No rewards", "Fixed APY"],
+      "answer": "Revenue sharing"
+    },
+    {
+      "question": "How handle liquidity?",
+      "options": ["Auto-locked", "Manual locking", "No locking"],
+      "answer": "Auto-locked"
+    },
+    {
+      "question": "What's special about UI?",
+      "options": ["One-click creation", "Complex setup", "No interface"],
+      "answer": "One-click creation"
+    },
+    {
+      "question": "How launch new tokens?",
+      "options": ["Fair curve launch", "ICO model", "Airdrop only"],
+      "answer": "Fair curve launch"
+    },
+    {
+      "question": "What happens when buying?",
+      "options": ["Price increases", "Price stays same", "Price drops"],
+      "answer": "Price increases"
+    },
+    {
+      "question": "What's the development focus?",
+      "options": ["User simplicity", "Complex trading", "Gaming"],
+      "answer": "User simplicity"
+    }
+  ]
+}

@@ -133,7 +133,6 @@ export default class UIScene extends Phaser.Scene {
 
         // Calculate safe button positioning for mobile
         const buttonSize = isMobile ? 35 : 40;
-        const touchPadding = isMobile ? 15 : 10;
         const buttonSpacing = isMobile ? 45 : 80; // Reduced spacing for mobile
         const rightMargin = isMobile ? 20 : 20; // Safe margin from right edge
         
@@ -540,7 +539,6 @@ export default class UIScene extends Phaser.Scene {
         this.footerGraphics = footerGraphics;
 
         // Update layout method to handle footer
-        const originalLayout = this.updateLayout;
         this.updateLayout = () => {
             const isMobile = this.scale.width < 768;
             const panelHeight = isMobile ? 70 : 50;
@@ -602,7 +600,7 @@ export default class UIScene extends Phaser.Scene {
         );
         
         // Reposition each button
-        this.headerButtons.forEach((button, index) => {
+        this.headerButtons.forEach((button) => {
             button.setPosition(xPosition, isMobile ? 30 : 25);
             xPosition += buttonSpacing;
         });

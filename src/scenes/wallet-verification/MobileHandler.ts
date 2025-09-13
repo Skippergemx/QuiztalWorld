@@ -50,7 +50,10 @@ export class MobileHandler implements IMobileHandler {
             interactive: false,
             loading: false,
             mobileDetected: false,
-            showingMobileUI: false
+            showingMobileUI: false,
+            touchGesturesEnabled: false,
+            hapticFeedbackEnabled: false,
+            deviceOrientation: 'portrait'
         };
 
         this.initialize();

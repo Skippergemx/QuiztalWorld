@@ -1,0 +1,296 @@
+{
+  "npcId": "profchain",
+  "npcName": "Prof Chain",
+  "theme": "Blockchain Technology",
+  "description": "A knowledgeable professor specializing in blockchain technology, distributed systems, consensus mechanisms, and decentralization principles.",
+  "questions": [
+    {
+      "question": "What is a blockchain?",
+      "options": [
+        "Distributed ledger tech",
+        "Type of cryptocurrency",
+        "Programming language"
+      ],
+      "answer": "Distributed ledger tech"
+    },
+    {
+      "question": "What does 'decentralized' mean?",
+      "options": [
+        "No single point control",
+        "Faster transactions",
+        "Lower energy use"
+      ],
+      "answer": "No single point control"
+    },
+    {
+      "question": "What is consensus mechanism?",
+      "options": [
+        "Network agreement method",
+        "Data encryption way",
+        "User interface design"
+      ],
+      "answer": "Network agreement method"
+    },
+    {
+      "question": "Hash function purpose?",
+      "options": [
+        "Create digital fingerprints",
+        "Store user passwords",
+        "Compress image files"
+      ],
+      "answer": "Create digital fingerprints"
+    },
+    {
+      "question": "Immutable transactions?",
+      "options": [
+        "Crypto linking & consensus",
+        "Government regulations",
+        "Internet requirements"
+      ],
+      "answer": "Crypto linking & consensus"
+    },
+    {
+      "question": "What is Proof of Work?",
+      "options": [
+        "Computational effort consensus",
+        "Job certification system",
+        "Payment verification"
+      ],
+      "answer": "Computational effort consensus"
+    },
+    {
+      "question": "What is Proof of Stake?",
+      "options": [
+        "Token ownership consensus",
+        "Gambling system",
+        "Stock market mechanism"
+      ],
+      "answer": "Token ownership consensus"
+    },
+    {
+      "question": "What is Merkle tree?",
+      "options": [
+        "Binary tree for data",
+        "Crypto creator family tree",
+        "Mining plant type"
+      ],
+      "answer": "Binary tree for data"
+    },
+    {
+      "question": "What is a nonce?",
+      "options": [
+        "Number used once",
+        "Blockchain developer",
+        "Transaction fee type"
+      ],
+      "answer": "Number used once"
+    },
+    {
+      "question": "What is genesis block?",
+      "options": [
+        "First block in chain",
+        "Highest value block",
+        "Error-containing block"
+      ],
+      "answer": "First block in chain"
+    },
+    {
+      "question": "What is blockchain forking?",
+      "options": [
+        "Creating separate versions",
+        "Eating utensils for mining",
+        "Dividing transaction fees"
+      ],
+      "answer": "Creating separate versions"
+    },
+    {
+      "question": "What is a hard fork?",
+      "options": [
+        "Permanent rule divergence",
+        "Difficult mining process",
+        "Hardware failure"
+      ],
+      "answer": "Permanent rule divergence"
+    },
+    {
+      "question": "What is a soft fork?",
+      "options": [
+        "Backward-compatible upgrade",
+        "Easy mining process",
+        "Temporary network issue"
+      ],
+      "answer": "Backward-compatible upgrade"
+    },
+    {
+      "question": "What is a 51% attack?",
+      "options": [
+        "Majority hash power control",
+        "51% user departure",
+        "Transaction fee discount"
+      ],
+      "answer": "Majority hash power control"
+    },
+    {
+      "question": "What is scalability?",
+      "options": [
+        "Handle more transactions",
+        "Blockchain file size",
+        "Number of cryptocurrencies"
+      ],
+      "answer": "Handle more transactions"
+    },
+    {
+      "question": "What is the trilemma?",
+      "options": [
+        "Security vs scalability",
+        "Three consensus types",
+        "Three-step verification"
+      ],
+      "answer": "Security vs scalability"
+    },
+    {
+      "question": "Double-spending problem?",
+      "options": [
+        "Same currency twice use",
+        "Pay twice for item",
+        "Calculation error"
+      ],
+      "answer": "Same currency twice use"
+    },
+    {
+      "question": "Byzantine Fault Tolerance?",
+      "options": [
+        "Function despite bad nodes",
+        "Byzantine empire protection",
+        "Encryption type"
+      ],
+      "answer": "Function despite bad nodes"
+    },
+    {
+      "question": "What is a sidechain?",
+      "options": [
+        "Separate connected chain",
+        "Backup blockchain copy",
+        "Side-worn chain"
+      ],
+      "answer": "Separate connected chain"
+    },
+    {
+      "question": "What is sharding?",
+      "options": [
+        "Split into parallel chains",
+        "Accidental breaking",
+        "Mining technique"
+      ],
+      "answer": "Split into parallel chains"
+    },
+    {
+      "question": "What is Lightning Network?",
+      "options": [
+        "Bitcoin fast solution",
+        "Very fast internet",
+        "Weather monitoring"
+      ],
+      "answer": "Bitcoin fast solution"
+    },
+    {
+      "question": "What is interoperability?",
+      "options": [
+        "Different chains communicate",
+        "Working together projects",
+        "Business hours operation"
+      ],
+      "answer": "Different chains communicate"
+    },
+    {
+      "question": "What is a validator?",
+      "options": [
+        "Transaction verifier node",
+        "Blockchain code checker",
+        "Smart contract tool"
+      ],
+      "answer": "Transaction verifier node"
+    },
+    {
+      "question": "What is slashing?",
+      "options": [
+        "Malicious behavior penalty",
+        "Cutting blockchain size",
+        "Reducing fees"
+      ],
+      "answer": "Malicious behavior penalty"
+    },
+    {
+      "question": "Permissionless blockchain?",
+      "options": [
+        "Anyone can join",
+        "Blockchain without rules",
+        "Free blockchain service"
+      ],
+      "answer": "Anyone can join"
+    },
+    {
+      "question": "Permissioned blockchain?",
+      "options": [
+        "Restricted access only",
+        "View requires permission",
+        "Additional features"
+      ],
+      "answer": "Restricted access only"
+    },
+    {
+      "question": "What is finality?",
+      "options": [
+        "Transaction cannot reverse",
+        "End of lifespan",
+        "Final block in chain"
+      ],
+      "answer": "Transaction cannot reverse"
+    },
+    {
+      "question": "What is a blockchain oracle?",
+      "options": [
+        "External data provider",
+        "Price prediction system",
+        "Ancient prophecy"
+      ],
+      "answer": "External data provider"
+    },
+    {
+      "question": "Cross-chain technology?",
+      "options": [
+        "Different chains interact",
+        "Chains crossing over",
+        "Bridge technology"
+      ],
+      "answer": "Different chains interact"
+    },
+    {
+      "question": "What is governance?",
+      "options": [
+        "Protocol change decisions",
+        "Government control",
+        "User rules"
+      ],
+      "answer": "Protocol change decisions"
+    },
+    {
+      "question": "What is state channel?",
+      "options": [
+        "Off-chain communication",
+        "Government system",
+        "TV channel"
+      ],
+      "answer": "Off-chain communication"
+    },
+    {
+      "question": "Energy consumption related?",
+      "options": [
+        "Proof of Work mining",
+        "Data storage",
+        "Internet bandwidth"
+      ],
+      "answer": "Proof of Work mining"
+    }
+  ]
+}

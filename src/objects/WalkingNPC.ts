@@ -1,0 +1,95 @@
+import Phaser from "phaser";
+import QuizNPC from "./QuizNPC";
+import { WalkingBehavior } from "../managers/WalkingBehavior";
+import PathfindingManager from "../managers/PathfindingManager";
+
+export default class WalkingNPC extends QuizNPC {
+  protected behavior: WalkingBehavior | null = null;
+  protected isInteracting: boolean = false;
+  protected moveSpeed: number = 160;
+  protected lastDirection: string = 'down';
+  protected pathfindingManager: PathfindingManager | null = null; // Add this property
+  
+  constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
+    super(scene, x, y, texture);
+  }
+
+  public setBehavior(behavior: WalkingBehavior): void {
+    this.behavior = behavior;
+  }
+
+  public getBehavior(): WalkingBehavior | null {
+    return this.behavior;
+  }
+
+  public update(deltaTime: number): void {
+    // Update UI element positions
+    if (this.nameLabel) {
+      this.nameLabel.setPosition(this.x, this.y - 40);
+    }
+    
+    if (this.shoutOutText) {
+      this.shoutOutText.setPosition(this.x, this.y - 60);
+    }
+    
+    // Update behavior if set
+    if (this.behavior && !this.isInteracting) {
+      this.behavior.update(this, deltaTime);
+    }
+  }
+
+  public onInteractionStart(): void {
+    this.isInteracting = true;
+    if (this.behavior) {
+      this.behavior.onInteractionStart(this);
+    }
+  }
+
+  public onInteractionEnd(): void {
+    this.isInteracting = false;
+    if (this.behavior) {
+      this.behavior.onInteractionEnd(this);
+    }
+  }
+
+  public isCurrentlyInteracting(): boolean {
+    return this.isInteracting;
+  }
+
+  protected playAnimation(key: string, ignoreIfPlaying: boolean = true): void {
+    if (this.scene.anims.exists(key)) {
+      this.play(key, ignoreIfPlaying);
+    }
+  }
+
+  // Make this method public so behaviors can access it
+  public getAnimationKey(type: string, direction: string): string {
+    // Get the texture key and remove any suffixes to get the base name
+    const textureKey = this.texture.key;
+    
+    // Handle different texture naming conventions
+    if (textureKey.includes('_idle')) {
+      // For textures like 'moblin_idle', use 'moblin'
+      const baseName = textureKey.split('_idle')[0];
+      return `${baseName}-${type}-${direction}`;
+    } else if (textureKey.includes('_walk')) {
+      // For textures like 'moblin_walk', use 'moblin'
+      const baseName = textureKey.split('_walk')[0];
+      return `${baseName}-${type}-${direction}`;
+    } else {
+      // For textures like 'npc_mrrugpull', use 'mrrugpull'
+      const baseName = textureKey.replace('npc_', '');
+      return `${baseName}-${type}-${direction}`;
+    }
+  }
+
+  // Add this method to set the pathfinding manager
+  public setPathfindingManager(pathfindingManager: PathfindingManager): void {
+    this.pathfindingManager = pathfindingManager;
+  }
+
+  // Add this method to get the pathfinding manager
+  public getPathfindingManager(): PathfindingManager | null {
+    return this.pathfindingManager;
+  }
+}

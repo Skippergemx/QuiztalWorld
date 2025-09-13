@@ -1,0 +1,296 @@
+{
+  "npcId": "nftcyn",
+  "npcName": "NFT Cyn",
+  "theme": "NFTs and Blockchain",
+  "description": "A knowledgeable guide about NFTs, digital ownership, blockchain technology, and the evolving digital art ecosystem.",
+  "questions": [
+    {
+      "question": "What does NFT stand for?",
+      "options": [
+        "Non-Fungible Token",
+        "New Financial Technology",
+        "Network File Transfer"
+      ],
+      "answer": "Non-Fungible Token"
+    },
+    {
+      "question": "Which blockchain is common?",
+      "options": [
+        "Ethereum",
+        "Bitcoin",
+        "Litecoin"
+      ],
+      "answer": "Ethereum"
+    },
+    {
+      "question": "What makes NFTs unique?",
+      "options": [
+        "They are non-fungible",
+        "They have higher value",
+        "They are faster"
+      ],
+      "answer": "They are non-fungible"
+    },
+    {
+      "question": "What is 'minting' NFTs?",
+      "options": [
+        "Creating new NFTs",
+        "Buying NFTs",
+        "Selling NFTs"
+      ],
+      "answer": "Creating new NFTs"
+    },
+    {
+      "question": "What digital assets for NFTs?",
+      "options": [
+        "Digital art, music",
+        "Only digital images",
+        "Only cryptocurrency tokens"
+      ],
+      "answer": "Digital art, music"
+    },
+    {
+      "question": "What is smart contract?",
+      "options": [
+        "Self-executing code",
+        "Legal document",
+        "Payment method"
+      ],
+      "answer": "Self-executing code"
+    },
+    {
+      "question": "What is NFT marketplace?",
+      "options": [
+        "Platform to buy, sell",
+        "Wallet for storing",
+        "Blockchain network"
+      ],
+      "answer": "Platform to buy, sell"
+    },
+    {
+      "question": "What are gas fees?",
+      "options": [
+        "Transaction costs paid",
+        "Marketplace commission fees",
+        "Artist royalty payments"
+      ],
+      "answer": "Transaction costs paid"
+    },
+    {
+      "question": "What is metadata in NFTs?",
+      "options": [
+        "Data describing properties",
+        "The NFT's purchase price",
+        "The owner's information"
+      ],
+      "answer": "Data describing properties"
+    },
+    {
+      "question": "What is royalty in sales?",
+      "options": [
+        "Percentage to creator",
+        "Government tax on NFTs",
+        "Marketplace listing fee"
+      ],
+      "answer": "Percentage to creator"
+    },
+    {
+      "question": "What is the ERC-721?",
+      "options": [
+        "Token standard for NFTs",
+        "Cryptocurrency exchange",
+        "Digital wallet spec"
+      ],
+      "answer": "Token standard for NFTs"
+    },
+    {
+      "question": "ERC-721 vs ERC-1155?",
+      "options": [
+        "ERC-1155 handles both",
+        "ERC-721 is faster",
+        "ERC-1155 only gaming"
+      ],
+      "answer": "ERC-1155 handles both"
+    },
+    {
+      "question": "What is IPFS for NFTs?",
+      "options": [
+        "Decentralized storage system",
+        "Financial services protocol",
+        "File sharing platform"
+      ],
+      "answer": "Decentralized storage system"
+    },
+    {
+      "question": "What is a 'rug pull'?",
+      "options": [
+        "Creators abandon project",
+        "Type of NFT artwork",
+        "Legitimate exit strategy"
+      ],
+      "answer": "Creators abandon project"
+    },
+    {
+      "question": "What are utility NFTs?",
+      "options": [
+        "NFTs with extra benefits",
+        "NFTs that consume less",
+        "NFTs that are cheaper"
+      ],
+      "answer": "NFTs with extra benefits"
+    },
+    {
+      "question": "What is whitelist drop?",
+      "options": [
+        "Pre-approved buyer list",
+        "List of banned users",
+        "White-colored NFTs"
+      ],
+      "answer": "Pre-approved buyer list"
+    },
+    {
+      "question": "What is 'floor price'?",
+      "options": [
+        "Lowest listed price",
+        "Minimum bid amount",
+        "Original mint price"
+      ],
+      "answer": "Lowest listed price"
+    },
+    {
+      "question": "What are PFP NFTs?",
+      "options": [
+        "Social media avatars",
+        "Personal photos NFTs",
+        "Photographs only NFTs"
+      ],
+      "answer": "Social media avatars"
+    },
+    {
+      "question": "What is 'diamond hands'?",
+      "options": [
+        "Holding for long-term",
+        "Quick buying/selling",
+        "Type of artwork"
+      ],
+      "answer": "Holding for long-term"
+    },
+    {
+      "question": "What are generative NFTs?",
+      "options": [
+        "Algorithmically created",
+        "NFTs that generate income",
+        "NFTs that create others"
+      ],
+      "answer": "Algorithmically created"
+    },
+    {
+      "question": "What is burning an NFT?",
+      "options": [
+        "Permanently destroying",
+        "Selling quickly",
+        "Creating copies"
+      ],
+      "answer": "Permanently destroying"
+    },
+    {
+      "question": "What are soulbound tokens?",
+      "options": [
+        "Non-transferable NFTs",
+        "Supernatural themed",
+        "No gas fees"
+      ],
+      "answer": "Non-transferable NFTs"
+    },
+    {
+      "question": "What is a DAO?",
+      "options": [
+        "Community governance org",
+        "Digital Art Org",
+        "Data Access Object"
+      ],
+      "answer": "Community governance org"
+    },
+    {
+      "question": "Cross-chain compatibility?",
+      "options": [
+        "Move between chains",
+        "Work on devices",
+        "Support file formats"
+      ],
+      "answer": "Move between chains"
+    },
+    {
+      "question": "What are fractionalized?",
+      "options": [
+        "Divided into shares",
+        "Broken or damaged",
+        "Sold in bundles"
+      ],
+      "answer": "Divided into shares"
+    },
+    {
+      "question": "Environmental concern?",
+      "options": [
+        "Energy from mining",
+        "Physical waste",
+        "Radiation screens"
+      ],
+      "answer": "Energy from mining"
+    },
+    {
+      "question": "What is lazy minting?",
+      "options": [
+        "Mint when purchased",
+        "Slow minting",
+        "Mint without effort"
+      ],
+      "answer": "Mint when purchased"
+    },
+    {
+      "question": "Rarity ranking system?",
+      "options": [
+        "Rates by scarcity",
+        "Quality assessment",
+        "Price comparison"
+      ],
+      "answer": "Rates by scarcity"
+    },
+    {
+      "question": "What are composable?",
+      "options": [
+        "Can be combined",
+        "Made of files",
+        "Decompose over time"
+      ],
+      "answer": "Can be combined"
+    },
+    {
+      "question": "OpenSea significance?",
+      "options": [
+        "Largest marketplace",
+        "Blockchain for NFTs",
+        "NFT creation tool"
+      ],
+      "answer": "Largest marketplace"
+    },
+    {
+      "question": "What are dynamic NFTs?",
+      "options": [
+        "Change properties",
+        "Moving animations",
+        "Variable prices"
+      ],
+      "answer": "Change properties"
+    },
+    {
+      "question": "Role of oracles?",
+      "options": [
+        "Provide external data",
+        "Predict prices",
+        "Verify authenticity"
+      ],
+      "answer": "Provide external data"
+    }
+  ]
+}

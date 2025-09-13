@@ -1,0 +1,168 @@
+{
+  "npcId": "basesage",
+  "npcName": "Base Sage",
+  "theme": "Base Blockchain Knowledge",
+  "description": "Quiz questions about Base Layer 2 blockchain and Ethereum scaling",
+  "questions": [
+    {
+      "question": "What is Base, really?",
+      "options": ["Layer 1", "Layer 2", "DEX"],
+      "answer": "Layer 2"
+    },
+    {
+      "question": "Who built this magic?",
+      "options": ["Coinbase", "Binance", "OpenSea"],
+      "answer": "Coinbase"
+    },
+    {
+      "question": "Base's mainnet buddy?",
+      "options": ["Solana", "Ethereum", "Polygon"],
+      "answer": "Ethereum"
+    },
+    {
+      "question": "Why use Base?",
+      "options": ["Cheap transactions", "Free money", "Unicorn tokens"],
+      "answer": "Cheap transactions"
+    },
+    {
+      "question": "Base's secret sauce?",
+      "options": ["Proof of Work", "Optimistic Rollup", "Proof of Stake"],
+      "answer": "Optimistic Rollup"
+    },
+    {
+      "question": "Built on what tech?",
+      "options": ["Arbitrum", "Optimism", "zkSync"],
+      "answer": "Optimism"
+    },
+    {
+      "question": "What can you do?",
+      "options": ["Deploy smart contracts", "Mine Bitcoin", "Create Layer 1"],
+      "answer": "Deploy smart contracts"
+    },
+    {
+      "question": "Security provided by?",
+      "options": ["Solana", "Ethereum", "BNB Chain"],
+      "answer": "Ethereum"
+    },
+    {
+      "question": "Network type?",
+      "options": ["Sidechain", "Layer 2", "Layer 1"],
+      "answer": "Layer 2"
+    },
+    {
+      "question": "Why is Base cool?",
+      "options": ["Cheaper than L1", "Magically free", "Faster than grandma"],
+      "answer": "Cheaper than L1"
+    },
+    {
+      "question": "Wallet compatibility?",
+      "options": ["Just Coinbase", "Any EVM wallet", "Only MetaMask"],
+      "answer": "Any EVM wallet"
+    },
+    {
+      "question": "Decentralization style?",
+      "options": ["Fully centralized", "Progressive", "Instant"],
+      "answer": "Progressive"
+    },
+    {
+      "question": "Coding language?",
+      "options": ["Solidity", "Python", "Java"],
+      "answer": "Solidity"
+    },
+    {
+      "question": "Block speed?",
+      "options": ["2 seconds", "12 seconds", "1 minute"],
+      "answer": "2 seconds"
+    },
+    {
+      "question": "Bridge to use?",
+      "options": ["Base Bridge", "Rainbow", "Polygon"],
+      "answer": "Base Bridge"
+    },
+    {
+      "question": "Gas token?",
+      "options": ["ETH", "BASE", "MATIC"],
+      "answer": "ETH"
+    },
+    {
+      "question": "Address style?",
+      "options": ["Ethereum-style", "Solana-style", "Bitcoin-style"],
+      "answer": "Ethereum-style"
+    },
+    {
+      "question": "Dev framework?",
+      "options": ["Hardhat", "Unity", "Android SDK"],
+      "answer": "Hardhat"
+    },
+    {
+      "question": "Security model?",
+      "options": ["From Ethereum", "Independent", "No security"],
+      "answer": "From Ethereum"
+    },
+    {
+      "question": "Deployment method?",
+      "options": ["Standard tools", "Special tools", "Cannot deploy"],
+      "answer": "Standard tools"
+    },
+    {
+      "question": "Base's focus?",
+      "options": ["Onchain access", "Gaming", "Social media"],
+      "answer": "Onchain access"
+    },
+    {
+      "question": "Transaction finality?",
+      "options": ["Optimistic rollups", "Instant", "Proof of Work"],
+      "answer": "Optimistic rollups"
+    },
+    {
+      "question": "Challenge period?",
+      "options": ["7 days", "1 day", "30 days"],
+      "answer": "7 days"
+    },
+    {
+      "question": "Ecosystem member?",
+      "options": ["Ethereum", "Solana", "Cardano"],
+      "answer": "Ethereum"
+    },
+    {
+      "question": "Base's superpower?",
+      "options": ["Lower costs", "Free tokens", "Better graphics"],
+      "answer": "Lower costs"
+    },
+    {
+      "question": "Scaling method?",
+      "options": ["Batch off-chain", "More validators", "Bigger blocks"],
+      "answer": "Batch off-chain"
+    },
+    {
+      "question": "Ethereum relationship?",
+      "options": ["Layer 2", "Competitor", "No relation"],
+      "answer": "Layer 2"
+    },
+    {
+      "question": "Dev can build?",
+      "options": ["DApps", "Only NFTs", "Only DeFi"],
+      "answer": "DApps"
+    },
+    {
+      "question": "Contract deployment?",
+      "options": ["Like Ethereum", "Different", "Not supported"],
+      "answer": "Like Ethereum"
+    },
+    {
+      "question": "Base's purpose?",
+      "options": ["Scale Ethereum", "Replace Ethereum", "Mine crypto"],
+      "answer": "Scale Ethereum"
+    },
+    {
+      "question": "Transaction processing?",
+      "options": ["Batch to Ethereum", "Independent", "Through mining"],
+      "answer": "Batch to Ethereum"
+    },
+    {
+      "question": "Development style?",
+      "options": ["Open-source", "Closed source", "No development"],
+      "answer": "Open-source"
+    }
+  ]
+}

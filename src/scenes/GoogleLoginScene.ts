@@ -53,7 +53,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
         });
     }
 
-    private updateBackgroundGradient(hueShift: number = 0) {
+    private updateBackgroundGradient() {
         this.backgroundGraphics.clear();
         
         // Create animated gradient
@@ -434,11 +434,6 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private createModernLoadingOverlay() {
-        const overlay = this.add.rectangle(
-            this.scale.width / 2, this.scale.height / 2,
-            this.scale.width, this.scale.height,
-            UIHelpers.hexToNumber(modernUITheme.colors.background.overlay), 0.8
-        ).setDepth(1000);
 
         this.loadingText = this.add.text(
             this.scale.width / 2, this.scale.height / 2 - 30,
