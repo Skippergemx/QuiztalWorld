@@ -881,6 +881,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
         // Create NFT cards with proper spacing
         let maxHeight = 0;
+        
         nfts.forEach((nft, index) => {
             const row = Math.floor(index / gridConfig.itemsPerRow);
             const col = index % gridConfig.itemsPerRow;
@@ -896,12 +897,6 @@ export default class WalletVerificationScene extends Phaser.Scene {
             // Update maxHeight including bottom margin
             maxHeight = Math.max(maxHeight, y + gridConfig.cardHeight / 2 + gridConfig.bottomMargin);
         });
-
-        // If any images were queued for loading, start the loader.
-        // This is more efficient than calling start() inside the loop.
-        if (this.load.inflight.size > 0) {
-            this.load.start();
-        }
 
         // Add scroll zone with adjusted dimensions
         const scrollZone = this.add.zone(
@@ -1012,54 +1007,105 @@ export default class WalletVerificationScene extends Phaser.Scene {
         // Use different loading logic based on collection type
         const imageKey = `nft-${nft.collectionType}-${nft.tokenId}`;
         
-        if (nft.collectionType === 'erc1155') {
-            // For Gemante GIFs, use type assertion with the correct Phaser loader type
-            this.load.image({
-                key: imageKey,
-                url: nft.image
-            });
-
-            // Set crossOrigin after loading
-            const image = this.textures.get(imageKey);
-            if (image) {
-                image.source[0].setFilter(Phaser.Textures.LINEAR);
+        // Function to load and display the image
+        const loadImage = () => {
+            // Check if image is already loaded
+            if (this.textures.exists(imageKey)) {
+                displayImage();
+                return;
+            }
+            
+            if (nft.collectionType === 'erc1155') {
+                // For Gemante GIFs, use type assertion with the correct Phaser loader type
+                this.load.image({
+                    key: imageKey,
+                    url: nft.image
+                });
+            } else {
+                this.load.image(imageKey, nft.image);
             }
 
-            console.log('Loading Gemante GIF:', nft.image);
-        } else {
-            this.load.image(imageKey, nft.image);
-        }
+            // Handle successful load
+            this.load.once(`filecomplete-image-${imageKey}`, () => {
+                displayImage();
+            });
 
-        this.load.once(`filecomplete-image-${imageKey}`, () => {
+            // Handle load error
+            this.load.once(`loaderror`, (fileObj: any) => {
+                if (fileObj && fileObj.key === imageKey) {
+                    console.error('Error loading image:', nft.image);
+                    displayImageError();
+                }
+            });
+
+            // Start loading if not already loading
+            if (!this.load.isLoading()) {
+                this.load.start();
+            }
+        };
+
+        // Function to display the loaded image
+        const displayImage = () => {
+            // Ensure the image exists in the texture manager before trying to display it
+            if (!this.textures.exists(imageKey)) {
+                console.error('WalletVerificationScene: Image texture not found for key', imageKey);
+                displayImageError();
+                return;
+            }
+
             const image = this.add.image(0, 0, imageKey);
+            
+            // Check if image was created successfully
+            if (!image || !image.width || !image.height) {
+                console.error('WalletVerificationScene: Failed to create image object for key', imageKey);
+                displayImageError();
+                return;
+            }
+            
             const scale = Math.min(
                 imageSize / image.width,
                 imageSize / image.height
             );
             
             image.setScale(scale);
-            imagePlaceholder.destroy();
-            imageContainer.add(image);
-
-            // Add collection badge for Gemante
-            if (nft.collectionType === 'erc1155') {
-                const badge = this.add.text(-imageSize/2 + 10, -imageSize/2 + 10, '✨', {
-                    fontSize: '16px'
-                });
-                imageContainer.add(badge);
-            }
-        });
-
-        this.load.on(`loaderror`, (fileObj: any) => {
-            if (fileObj.key === imageKey) {
-                console.error('Error loading image:', nft.image);
+            
+            // Only destroy placeholder if it still exists
+            if (imagePlaceholder && imagePlaceholder.scene) {
                 imagePlaceholder.destroy();
+            }
+            
+            // Only add image if container still exists
+            if (imageContainer && imageContainer.scene) {
+                imageContainer.add(image);
+
+                // Add collection badge for Gemante
+                if (nft.collectionType === 'erc1155') {
+                    const badge = this.add.text(-imageSize/2 + 10, -imageSize/2 + 10, '✨', {
+                        fontSize: '16px'
+                    });
+                    imageContainer.add(badge);
+                }
+            }
+        };
+
+        // Function to handle image display errors
+        const displayImageError = () => {
+            // Only destroy placeholder if it still exists
+            if (imagePlaceholder && imagePlaceholder.scene) {
+                imagePlaceholder.destroy();
+            }
+            
+            // Only add error text if container still exists
+            if (imageContainer && imageContainer.scene) {
                 const errorText = this.add.text(0, 0, '❌', {
                     fontSize: '32px'
                 }).setOrigin(0.5);
                 imageContainer.add(errorText);
             }
-        });
+        };
+
+        // Load the image
+        loadImage();
 
         const name = this.add.text(0, height/4, nft.name, {
             fontSize: width < 200 ? '14px' : '16px',

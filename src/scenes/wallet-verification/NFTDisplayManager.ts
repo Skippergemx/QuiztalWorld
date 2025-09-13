@@ -204,6 +204,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
         console.log('NFTDisplayManager: Created', nfts.length, 'NFT cards, waiting for images to load');
 
         // Wait for all images to load or fail
+        // Use Promise.allSettled to ensure all promises are resolved even if some fail
         await Promise.allSettled(loadPromises);
 
         // Initialize currentScrollConfig and store max height for scrolling calculations
@@ -603,6 +604,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
 
             // Load image based on collection type
             if (nft.collectionType === 'erc1155') {
+                // For Gemante GIFs, use type assertion with the correct Phaser loader type
                 this.scene.load.image({
                     key: imageKey,
                     url: nft.image
@@ -612,24 +614,40 @@ export class NFTDisplayManager implements INFTDisplayManager {
             }
 
             // Handle successful load
-            this.scene.load.once(`filecomplete-image-${imageKey}`, () => {
+            const onLoadComplete = () => {
+                // Remove the event listeners to prevent memory leaks
+                this.scene.load.off(`filecomplete-image-${imageKey}`, onLoadComplete);
+                this.scene.load.off('loaderror', onLoadError);
+                
                 this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
                 this.state.nftsLoaded++;
                 resolve();
-            });
+            };
 
             // Handle load error
-            this.scene.load.once(`loaderror`, (fileObj: any) => {
-                if (fileObj.key === imageKey) {
+            const onLoadError = (fileObj: any) => {
+                // Only handle errors for this specific image
+                if (fileObj && fileObj.key === imageKey) {
+                    // Remove the event listeners to prevent memory leaks
+                    this.scene.load.off(`filecomplete-image-${imageKey}`, onLoadComplete);
+                    this.scene.load.off('loaderror', onLoadError);
+                    
                     console.error('NFTDisplayManager: Error loading image', nft.image);
                     this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
                     this.state.nftsLoaded++;
                     resolve();
                 }
-            });
+            };
+
+            // Attach event listeners
+            this.scene.load.once(`filecomplete-image-${imageKey}`, onLoadComplete);
+            this.scene.load.on('loaderror', onLoadError);
 
             // Start loading immediately for this image
-            this.scene.load.start();
+            // Check if loader is already active, if not start it
+            if (!this.scene.load.isLoading()) {
+                this.scene.load.start();
+            }
         });
     }
 
@@ -641,7 +659,23 @@ export class NFTDisplayManager implements INFTDisplayManager {
         imageSize: number,
         nft: NFTData
     ): void {
+        // Ensure the image exists in the texture manager before trying to display it
+        if (!this.scene.textures.exists(imageKey)) {
+            console.error('NFTDisplayManager: Image texture not found for key', imageKey);
+            this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
+            return;
+        }
+
         const image = this.scene.add.image(0, 0, imageKey);
+        
+        // Check if image was created successfully
+        if (!image || !image.width || !image.height) {
+            console.error('NFTDisplayManager: Failed to create image object for key', imageKey);
+            this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
+            return;
+        }
+        
+        // Scale the image to fit within the container while maintaining aspect ratio
         const scale = Math.min(
             imageSize / image.width,
             imageSize / image.height
@@ -657,14 +691,23 @@ export class NFTDisplayManager implements INFTDisplayManager {
             loadingSpinner.destroy();
         }
         
-        imageContainer.add(image);
+        // Make sure the image container exists before adding to it
+        if (imageContainer && imageContainer.scene) {
+            imageContainer.add(image);
 
-        // Add collection badge for Gemante
-        if (nft.collectionType === 'erc1155') {
-            const badge = this.scene.add.text(-imageSize/2 + 10, -imageSize/2 + 10, '✨', {
-                fontSize: '16px'
-            });
-            imageContainer.add(badge);
+            // Add collection badge for Gemante
+            if (nft.collectionType === 'erc1155') {
+                const badge = this.scene.add.text(-imageSize/2 + 10, -imageSize/2 + 10, '✨', {
+                    fontSize: '16px'
+                });
+                imageContainer.add(badge);
+            }
+        } else {
+            console.warn('NFTDisplayManager: Image container not available for image', imageKey);
+            // Clean up the image if we can't display it
+            if (image && image.scene) {
+                image.destroy();
+            }
         }
     }
 
@@ -673,7 +716,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
         imagePlaceholder: Phaser.GameObjects.Graphics,
         loadingSpinner: Phaser.GameObjects.Text
     ): void {
-        // Remove placeholder and spinner
+        // Remove placeholder and spinner if they exist
         if (imagePlaceholder && imagePlaceholder.scene) {
             imagePlaceholder.destroy();
         }
@@ -681,10 +724,13 @@ export class NFTDisplayManager implements INFTDisplayManager {
             loadingSpinner.destroy();
         }
         
-        const errorText = this.scene.add.text(0, 0, '❌', {
-            fontSize: '32px'
-        }).setOrigin(0.5);
-        imageContainer.add(errorText);
+        // Only add error text if the container still exists
+        if (imageContainer && imageContainer.scene) {
+            const errorText = this.scene.add.text(0, 0, '❌', {
+                fontSize: '32px'
+            }).setOrigin(0.5);
+            imageContainer.add(errorText);
+        }
     }
 
     private addCardInteractions(

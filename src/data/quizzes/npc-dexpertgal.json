@@ -8,8 +8,8 @@
       "question": "What does DEX mean?",
       "options": [
         "Decentralized Exchange",
-        "Digital Exchange",
-        "Data Exchange"
+        "Don't Exchange",
+        "Dad's Exchange"
       ],
       "answer": "Decentralized Exchange"
     },
@@ -26,8 +26,8 @@
       "question": "What is an AMM?",
       "options": [
         "Algorithmic trading bot",
-        "Human market maker",
-        "Centralized trading bot"
+        "Automated market manipulator",
+        "A really good DJ"
       ],
       "answer": "Algorithmic trading bot"
     },
@@ -44,8 +44,8 @@
       "question": "What is slippage?",
       "options": [
         "Price surprise factor",
-        "DEX fee charge",
-        "Trade delay time"
+        "Sliding on a banana peel",
+        "DEX fee charge"
       ],
       "answer": "Price surprise factor"
     },

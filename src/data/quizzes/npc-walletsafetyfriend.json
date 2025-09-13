@@ -5,7 +5,7 @@
   "description": "A friendly security expert specializing in cryptocurrency wallet safety, best practices, and protection against scams and threats.",
   "questions": [
     {
-      "question": "What is the safest type of wallet for storing large amounts of cryptocurrency?",
+      "question": "Safest wallet for large crypto amounts?",
       "options": [
         "Hardware wallet (cold storage)",
         "Mobile wallet app",
@@ -14,265 +14,265 @@
       "answer": "Hardware wallet (cold storage)"
     },
     {
-      "question": "What should you NEVER do with your seed phrase?",
+      "question": "NEVER do with your seed phrase?",
       "options": [
-        "Share it with anyone or store it digitally",
+        "Share or store it digitally",
         "Write it down on paper",
         "Keep it in a safe place"
       ],
-      "answer": "Share it with anyone or store it digitally"
+      "answer": "Share or store it digitally"
     },
     {
       "question": "What is a seed phrase?",
       "options": [
-        "A 12-24 word backup phrase that can restore your wallet",
+        "12-24 word backup phrase",
         "Your wallet password",
         "Your wallet address"
       ],
-      "answer": "A 12-24 word backup phrase that can restore your wallet"
+      "answer": "12-24 word backup phrase"
     },
     {
-      "question": "How can you identify a phishing website?",
+      "question": "How to identify a phishing website?",
       "options": [
-        "Check the URL carefully for misspellings or wrong domains",
-        "Look at the website design",
+        "Check URL for misspellings",
+        "Look at website design",
         "Check if it loads quickly"
       ],
-      "answer": "Check the URL carefully for misspellings or wrong domains"
+      "answer": "Check URL for misspellings"
     },
     {
       "question": "What is two-factor authentication (2FA)?",
       "options": [
-        "An extra security layer requiring a second verification method",
-        "Using two different passwords",
-        "Having two separate wallets"
+        "Extra security layer",
+        "Using two passwords",
+        "Having two wallets"
       ],
-      "answer": "An extra security layer requiring a second verification method"
+      "answer": "Extra security layer"
     },
     {
-      "question": "What should you do before connecting your wallet to a new DApp?",
+      "question": "Before connecting to a new DApp?",
       "options": [
-        "Research the DApp and verify its legitimacy",
+        "Research and verify legitimacy",
         "Connect immediately if it looks good",
         "Ask friends on social media"
       ],
-      "answer": "Research the DApp and verify its legitimacy"
+      "answer": "Research and verify legitimacy"
     },
     {
       "question": "What is a dusting attack?",
       "options": [
-        "Sending tiny amounts of crypto to track wallet activity",
-        "Stealing large amounts of cryptocurrency",
-        "A type of mining attack"
+        "Track wallet activity",
+        "Stealing cryptocurrency",
+        "A mining attack"
       ],
-      "answer": "Sending tiny amounts of crypto to track wallet activity"
+      "answer": "Track wallet activity"
     },
     {
-      "question": "Where is the safest place to store your seed phrase?",
+      "question": "Safest place to store seed phrase?",
       "options": [
-        "Written on paper in a secure physical location",
-        "In your phone's notes app",
-        "In your email drafts"
+        "Paper in secure location",
+        "Phone's notes app",
+        "Email drafts"
       ],
-      "answer": "Written on paper in a secure physical location"
+      "answer": "Paper in secure location"
     },
     {
       "question": "What is a hot wallet?",
       "options": [
-        "A wallet connected to the internet",
-        "A wallet that's physically warm",
-        "A wallet with high transaction fees"
+        "Wallet connected to internet",
+        "Wallet physically warm",
+        "High transaction fees"
       ],
-      "answer": "A wallet connected to the internet"
+      "answer": "Wallet connected to internet"
     },
     {
       "question": "What is a cold wallet?",
       "options": [
-        "A wallet not connected to the internet",
-        "A wallet stored in a refrigerator",
-        "A wallet with frozen funds"
+        "Wallet not on internet",
+        "Wallet in refrigerator",
+        "Wallet with frozen funds"
       ],
-      "answer": "A wallet not connected to the internet"
+      "answer": "Wallet not on internet"
     },
     {
-      "question": "What should you do if someone asks for your private keys?",
+      "question": "Someone asks for private keys?",
       "options": [
-        "Never share them - it's likely a scam",
-        "Share them if they seem trustworthy",
-        "Share them only with official support"
+        "Never share - likely scam",
+        "Share if trustworthy",
+        "Share with official support"
       ],
-      "answer": "Never share them - it's likely a scam"
+      "answer": "Never share - likely scam"
     },
     {
       "question": "What is wallet address poisoning?",
       "options": [
-        "Creating similar addresses to trick users into sending funds to the wrong place",
-        "Putting malware in wallet software",
+        "Trick users to wrong place",
+        "Malware in wallet software",
         "Corrupting wallet data files"
       ],
-      "answer": "Creating similar addresses to trick users into sending funds to the wrong place"
+      "answer": "Trick users to wrong place"
     },
     {
-      "question": "What is the best practice for wallet software updates?",
+      "question": "Best practice for wallet updates?",
       "options": [
-        "Only download updates from official sources",
-        "Update from any website that offers it",
-        "Never update wallet software"
+        "Official sources only",
+        "Update from any website",
+        "Never update software"
       ],
-      "answer": "Only download updates from official sources"
+      "answer": "Official sources only"
     },
     {
-      "question": "What is a multi-signature (multisig) wallet?",
+      "question": "What is a multi-signature wallet?",
       "options": [
-        "A wallet requiring multiple signatures to approve transactions",
-        "A wallet that supports multiple cryptocurrencies",
-        "A wallet with multiple addresses"
+        "Multiple signatures to approve",
+        "Supports multiple cryptos",
+        "Multiple addresses"
       ],
-      "answer": "A wallet requiring multiple signatures to approve transactions"
+      "answer": "Multiple signatures to approve"
     },
     {
-      "question": "What should you check before entering your seed phrase anywhere?",
+      "question": "Check before entering seed phrase?",
       "options": [
-        "Verify you're on the official website and it's legitimate",
-        "Make sure your internet is fast",
-        "Check that your device is charged"
+        "Verify official website",
+        "Make sure internet is fast",
+        "Device is charged"
       ],
-      "answer": "Verify you're on the official website and it's legitimate"
+      "answer": "Verify official website"
     },
     {
-      "question": "What is social engineering in crypto scams?",
+      "question": "Social engineering in crypto scams?",
       "options": [
-        "Manipulating people to reveal sensitive information",
-        "Using social media for legitimate crypto education",
-        "Building social networks for traders"
+        "Manipulate to reveal info",
+        "Legitimate crypto education",
+        "Build trader networks"
       ],
-      "answer": "Manipulating people to reveal sensitive information"
+      "answer": "Manipulate to reveal info"
     },
     {
-      "question": "What should you do if you suspect your wallet is compromised?",
+      "question": "Wallet is compromised?",
       "options": [
-        "Immediately transfer funds to a new secure wallet",
-        "Wait and see what happens",
-        "Change your password only"
+        "Transfer funds to new wallet",
+        "Wait and see",
+        "Change password only"
       ],
-      "answer": "Immediately transfer funds to a new secure wallet"
+      "answer": "Transfer funds to new wallet"
     },
     {
       "question": "What is clipboard malware?",
       "options": [
-        "Malware that replaces copied wallet addresses with attacker's address",
-        "Malware that corrupts clipboard functionality",
-        "Malware that steals clipboard history"
+        "Replaces addresses with attacker's",
+        "Corrupts clipboard",
+        "Steals history"
       ],
-      "answer": "Malware that replaces copied wallet addresses with attacker's address"
+      "answer": "Replaces addresses with attacker's"
     },
     {
-      "question": "How often should you backup your wallet?",
+      "question": "How often backup wallet?",
       "options": [
-        "Regularly, especially after creating new addresses",
-        "Only once when you first create it",
-        "Never, it's not necessary"
+        "Regularly, after new addresses",
+        "Only once",
+        "Never"
       ],
-      "answer": "Regularly, especially after creating new addresses"
+      "answer": "Regularly, after new addresses"
     },
     {
-      "question": "What is the difference between a private key and a public key?",
+      "question": "Private vs public key?",
       "options": [
-        "Private key controls funds, public key receives funds",
-        "They are the same thing",
-        "Public key controls funds, private key receives funds"
+        "Private controls, public receives",
+        "They are the same",
+        "Public controls, private receives"
       ],
-      "answer": "Private key controls funds, public key receives funds"
+      "answer": "Private controls, public receives"
     },
     {
       "question": "What is a paper wallet?",
       "options": [
-        "A wallet where keys are printed on paper",
-        "A wallet made from recycled materials",
-        "A wallet documentation method"
+        "Keys printed on paper",
+        "Made from recycled materials",
+        "Documentation method"
       ],
-      "answer": "A wallet where keys are printed on paper"
+      "answer": "Keys printed on paper"
     },
     {
-      "question": "What should you verify before making a large transaction?",
+      "question": "Verify before large transaction?",
       "options": [
-        "Double-check the recipient address character by character",
-        "Just check the first few characters",
-        "Only check that it looks similar"
+        "Double-check recipient address",
+        "Check first few chars",
+        "Looks similar"
       ],
-      "answer": "Double-check the recipient address character by character"
+      "answer": "Double-check recipient address"
     },
     {
-      "question": "What is a honeypot in crypto security?",
+      "question": "Honeypot in crypto security?",
       "options": [
-        "A fake opportunity designed to trap and identify attackers",
-        "A sweet reward for good security practices",
-        "A type of hardware wallet"
+        "Trap and identify attackers",
+        "Reward good practices",
+        "Hardware wallet"
       ],
-      "answer": "A fake opportunity designed to trap and identify attackers"
+      "answer": "Trap and identify attackers"
     },
     {
-      "question": "What should you do with old wallet software?",
+      "question": "What to do with old software?",
       "options": [
-        "Securely delete it after transferring funds to updated wallet",
-        "Keep it as backup forever",
-        "Share it with friends"
+        "Securely delete after transfer",
+        "Keep as backup",
+        "Share with friends"
       ],
-      "answer": "Securely delete it after transferring funds to updated wallet"
+      "answer": "Securely delete after transfer"
     },
     {
-      "question": "What is the safest way to generate a new wallet?",
+      "question": "Safest way to generate wallet?",
       "options": [
-        "Use official wallet software on a secure, offline device",
-        "Use any online wallet generator",
-        "Ask someone else to create it for you"
+        "Official software, offline device",
+        "Any online generator",
+        "Ask someone else"
       ],
-      "answer": "Use official wallet software on a secure, offline device"
+      "answer": "Official software, offline device"
     },
     {
-      "question": "What is key stretching in wallet security?",
+      "question": "Key stretching in wallet security?",
       "options": [
-        "A method to make passwords harder to crack through repeated hashing",
-        "Physically stretching storage devices",
-        "Extending private key length"
+        "Harding passwords to crack",
+        "Stretching devices",
+        "Extending key length"
       ],
-      "answer": "A method to make passwords harder to crack through repeated hashing"
+      "answer": "Harding passwords to crack"
     },
     {
-      "question": "What should you do if you receive unexpected crypto in your wallet?",
+      "question": "Unexpected crypto in wallet?",
       "options": [
-        "Don't interact with it - it might be a scam token",
-        "Immediately try to sell it",
-        "Transfer it to another wallet"
+        "Don't interact - scam token",
+        "Immediately sell",
+        "Transfer to another"
       ],
-      "answer": "Don't interact with it - it might be a scam token"
+      "answer": "Don't interact - scam token"
     },
     {
-      "question": "What is the most secure way to connect to DeFi protocols?",
+      "question": "Secure DeFi connection?",
       "options": [
-        "Use a dedicated wallet with limited funds",
-        "Use your main wallet with all funds",
-        "Use exchange wallets only"
+        "Dedicated wallet, limited funds",
+        "Main wallet, all funds",
+        "Exchange wallets only"
       ],
-      "answer": "Use a dedicated wallet with limited funds"
+      "answer": "Dedicated wallet, limited funds"
     },
     {
-      "question": "What is deterministic wallet generation?",
+      "question": "Deterministic wallet generation?",
       "options": [
-        "Creating multiple addresses from a single seed phrase",
-        "Randomly generating wallet addresses",
-        "Using predetermined wallet addresses"
+        "Multiple addresses from seed",
+        "Randomly generate",
+        "Predetermined addresses"
       ],
-      "answer": "Creating multiple addresses from a single seed phrase"
+      "answer": "Multiple addresses from seed"
     },
     {
-      "question": "What should you never do when troubleshooting wallet issues?",
+      "question": "Never do when troubleshooting?",
       "options": [
-        "Share your seed phrase or private keys with support",
-        "Check official documentation",
-        "Update to the latest software version"
+        "Share seed phrase",
+        "Check documentation",
+        "Update software"
       ],
-      "answer": "Share your seed phrase or private keys with support"
+      "answer": "Share seed phrase"
     }
   ]
 }

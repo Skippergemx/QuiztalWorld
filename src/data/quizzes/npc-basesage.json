@@ -5,163 +5,163 @@
   "description": "Quiz questions about Base Layer 2 blockchain and Ethereum scaling",
   "questions": [
     {
-      "question": "What is Base, really?",
-      "options": ["Layer 1", "Layer 2", "DEX"],
+      "question": "Base: Layer 2 or something else?",
+      "options": ["All your base are belong to us", "Layer 2", "The foundation of a building (literally!)"],
       "answer": "Layer 2"
     },
     {
-      "question": "Who built this magic?",
-      "options": ["Coinbase", "Binance", "OpenSea"],
+      "question": "Coinbase built Base, but why though?",
+      "options": ["Coinbase", "A wizard", "My mom"],
       "answer": "Coinbase"
     },
     {
       "question": "Base's mainnet buddy?",
-      "options": ["Solana", "Ethereum", "Polygon"],
+      "options": ["Solana (frenemy)", "Ethereum", "Polygon (sidekick)"],
       "answer": "Ethereum"
     },
     {
       "question": "Why use Base?",
-      "options": ["Cheap transactions", "Free money", "Unicorn tokens"],
+      "options": ["Cheap transactions", "To get rich quick", "Because I heard it's cool"],
       "answer": "Cheap transactions"
     },
     {
       "question": "Base's secret sauce?",
-      "options": ["Proof of Work", "Optimistic Rollup", "Proof of Stake"],
+      "options": ["Proof of Work (like digging for gold)", "Optimistic Rollup", "Proof of Stake (like vampires!)"],
       "answer": "Optimistic Rollup"
     },
     {
       "question": "Built on what tech?",
-      "options": ["Arbitrum", "Optimism", "zkSync"],
+      "options": ["Arbitrum (the sequel)", "Optimism", "zkSync (the mysterious one)"],
       "answer": "Optimism"
     },
     {
       "question": "What can you do?",
-      "options": ["Deploy smart contracts", "Mine Bitcoin", "Create Layer 1"],
+      "options": ["Deploy smart contracts", "Become a crypto whale", "Build a new internet"],
       "answer": "Deploy smart contracts"
     },
     {
       "question": "Security provided by?",
-      "options": ["Solana", "Ethereum", "BNB Chain"],
+      "options": ["Solana (maybe?)", "Ethereum", "BNB Chain (probably not)"],
       "answer": "Ethereum"
     },
     {
       "question": "Network type?",
-      "options": ["Sidechain", "Layer 2", "Layer 1"],
+      "options": ["Sidechain (the road less traveled)", "Layer 2", "Layer 1 (the OG)"],
       "answer": "Layer 2"
     },
     {
       "question": "Why is Base cool?",
-      "options": ["Cheaper than L1", "Magically free", "Faster than grandma"],
+      "options": ["Cheaper than L1", "It prints money", "Because a sage told me so"],
       "answer": "Cheaper than L1"
     },
     {
       "question": "Wallet compatibility?",
-      "options": ["Just Coinbase", "Any EVM wallet", "Only MetaMask"],
+      "options": ["Just Coinbase (for now)", "Any EVM wallet", "The one I have"],
       "answer": "Any EVM wallet"
     },
     {
       "question": "Decentralization style?",
-      "options": ["Fully centralized", "Progressive", "Instant"],
+      "options": ["Fully centralized (for now)", "Progressive", "As fast as possible"],
       "answer": "Progressive"
     },
     {
       "question": "Coding language?",
-      "options": ["Solidity", "Python", "Java"],
+      "options": ["Solidity", "The language of the future", "The one I know"],
       "answer": "Solidity"
     },
     {
       "question": "Block speed?",
-      "options": ["2 seconds", "12 seconds", "1 minute"],
+      "options": ["2 seconds", "Faster than a speeding bullet", "As fast as my internet allows"],
       "answer": "2 seconds"
     },
     {
       "question": "Bridge to use?",
-      "options": ["Base Bridge", "Rainbow", "Polygon"],
+      "options": ["Base Bridge", "The one that works", "The one I can find"],
       "answer": "Base Bridge"
     },
     {
       "question": "Gas token?",
-      "options": ["ETH", "BASE", "MATIC"],
+      "options": ["ETH", "The cheapest one", "The one I have"],
       "answer": "ETH"
     },
     {
       "question": "Address style?",
-      "options": ["Ethereum-style", "Solana-style", "Bitcoin-style"],
+      "options": ["Ethereum-style", "The long one", "The one I always mess up"],
       "answer": "Ethereum-style"
     },
     {
       "question": "Dev framework?",
-      "options": ["Hardhat", "Unity", "Android SDK"],
+      "options": ["Hardhat", "The one I learned in school", "The one that's trending"],
       "answer": "Hardhat"
     },
     {
       "question": "Security model?",
-      "options": ["From Ethereum", "Independent", "No security"],
+      "options": ["From Ethereum", "Trust me bro", "Hope for the best"],
       "answer": "From Ethereum"
     },
     {
       "question": "Deployment method?",
-      "options": ["Standard tools", "Special tools", "Cannot deploy"],
+      "options": ["Standard tools", "With a prayer", "I'll figure it out"],
       "answer": "Standard tools"
     },
     {
       "question": "Base's focus?",
-      "options": ["Onchain access", "Gaming", "Social media"],
+      "options": ["Onchain access", "Making me rich", "The future"],
       "answer": "Onchain access"
     },
     {
       "question": "Transaction finality?",
-      "options": ["Optimistic rollups", "Instant", "Proof of Work"],
+      "options": ["Optimistic rollups", "Eventually", "When the stars align"],
       "answer": "Optimistic rollups"
     },
     {
       "question": "Challenge period?",
-      "options": ["7 days", "1 day", "30 days"],
+      "options": ["7 days", "A week is a long time in crypto", "As long as it takes"],
       "answer": "7 days"
     },
     {
       "question": "Ecosystem member?",
-      "options": ["Ethereum", "Solana", "Cardano"],
+      "options": ["Ethereum", "The cool kids club", "The other guys"],
       "answer": "Ethereum"
     },
     {
       "question": "Base's superpower?",
-      "options": ["Lower costs", "Free tokens", "Better graphics"],
+      "options": ["Lower costs", "Making dreams come true", "Being awesome"],
       "answer": "Lower costs"
     },
     {
       "question": "Scaling method?",
-      "options": ["Batch off-chain", "More validators", "Bigger blocks"],
+      "options": ["Batch off-chain", "Magic", "Hoping for the best"],
       "answer": "Batch off-chain"
     },
     {
       "question": "Ethereum relationship?",
-      "options": ["Layer 2", "Competitor", "No relation"],
+      "options": ["Layer 2", "Besties", "It's complicated"],
       "answer": "Layer 2"
     },
     {
       "question": "Dev can build?",
-      "options": ["DApps", "Only NFTs", "Only DeFi"],
+      "options": ["DApps", "The next big thing", "Whatever they want"],
       "answer": "DApps"
     },
     {
       "question": "Contract deployment?",
-      "options": ["Like Ethereum", "Different", "Not supported"],
+      "options": ["Like Ethereum", "Easy peasy", "I'll figure it out"],
       "answer": "Like Ethereum"
     },
     {
       "question": "Base's purpose?",
-      "options": ["Scale Ethereum", "Replace Ethereum", "Mine crypto"],
+      "options": ["Scale Ethereum", "Take over the world", "Make everyone happy"],
       "answer": "Scale Ethereum"
     },
     {
       "question": "Transaction processing?",
-      "options": ["Batch to Ethereum", "Independent", "Through mining"],
+      "options": ["Batch to Ethereum", "Super fast", "With a smile"],
       "answer": "Batch to Ethereum"
     },
     {
       "question": "Development style?",
-      "options": ["Open-source", "Closed source", "No development"],
+      "options": ["Open-source", "Top secret", "We'll see"],
       "answer": "Open-source"
     }
   ]
