@@ -78,7 +78,7 @@ export default class NPCQuizManager {
      */
     private async loadQuizData(npcId: string): Promise<void> {
         try {
-            const response = await fetch(`/src/data/quizzes/npc-${npcId}.json`);
+            const response = await fetch(`/assets/quizzes/npc-${npcId}.json`);
             if (!response.ok) {
                 throw new Error(`Failed to load quiz data for ${npcId}: ${response.statusText}`);
             }
