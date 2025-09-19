@@ -279,21 +279,36 @@ export class NFTDisplayManager implements INFTDisplayManager {
         // Store loading spinner reference for cleanup
         (card as any).loadingSpinner = loadingSpinner;
 
-        // NFT name
-        const name = this.scene.add.text(0, dimensions.height/4, nft.name, {
+        // Calculate text areas with proper containment
+        const textAreaWidth = dimensions.width - 30; // Leave 15px padding on each side
+        // const textAreaHeight = dimensions.height / 3; // Allocate 1/3 of card height for text (unused)
+        const nameY = dimensions.height/3 - 10; // Position name in upper third
+        const idY = dimensions.height/3 + 20; // Position ID below name
+
+        // NFT name with proper containment
+        const name = this.scene.add.text(0, nameY, nft.name, {
             fontSize: dimensions.width < 200 ? '14px' : '16px',
             color: '#ffffff',
             align: 'center',
             fontStyle: 'bold',
-            wordWrap: { width: dimensions.width - 20 }
+            wordWrap: { 
+                width: textAreaWidth,
+                useAdvancedWrap: true
+            },
+            maxLines: 2 // Limit to 2 lines to prevent overflow
         }).setOrigin(0.5);
 
-        // NFT ID and collection info
+        // NFT ID and collection info with proper containment
         const idText = `#${nft.tokenId}${nft.collectionType === 'erc1155' ? ' • Gemante' : ''}`;
-        const id = this.scene.add.text(0, dimensions.height/4 + 30, idText, {
+        const id = this.scene.add.text(0, idY, idText, {
             fontSize: dimensions.width < 200 ? '12px' : '14px',
             color: '#3498db',
-            align: 'center'
+            align: 'center',
+            wordWrap: { 
+                width: textAreaWidth,
+                useAdvancedWrap: true
+            },
+            maxLines: 1 // Limit to 1 line
         }).setOrigin(0.5);
 
         // Add hover effects
@@ -366,24 +381,37 @@ export class NFTDisplayManager implements INFTDisplayManager {
         // Create message container
         const container = this.scene.add.container(this.scene.scale.width / 2, this.scene.scale.height / 2);
 
-        // Add message text
+        // Calculate message dimensions for proper containment
+        const messageWidth = Math.min(this.scene.scale.width * 0.8, 500);
+        
+        // Add message text with proper containment
         const message = this.scene.add.text(0, -20, 'No NFTs found in this wallet', {
             fontSize: '20px',
             color: '#ffffff',
-            align: 'center'
+            align: 'center',
+            wordWrap: { 
+                width: messageWidth,
+                useAdvancedWrap: true
+            },
+            maxLines: 2
         }).setOrigin(0.5);
 
-        // Add marketplace link
+        // Add marketplace link with proper containment
         const link = this.scene.add.text(0, 20, 'Visit Marketplace', {
             fontSize: '16px',
             color: '#3498db',
             backgroundColor: '#ffffff',
-            padding: { x: 10, y: 5 }
+            padding: { x: 10, y: 5 },
+            align: 'center',
+            wordWrap: { 
+                width: messageWidth,
+                useAdvancedWrap: true
+            }
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-            window.open('https://market.crystle.world', '_blank');
+            window.open('https://market.quiztal.world', '_blank');
         });
 
         container.add([message, link]);
@@ -486,10 +514,17 @@ export class NFTDisplayManager implements INFTDisplayManager {
             0x000000, 0.9
         ).setOrigin(0);
 
-        // Add window frame
+        // Add window frame with proper containment
+        const framePadding = 20;
         const frame = this.scene.add.graphics();
         frame.lineStyle(2, 0x3498db, 1);
-        frame.strokeRoundedRect(20, 20, this.scene.scale.width - 40, this.scene.scale.height - 40, 10);
+        frame.strokeRoundedRect(
+            framePadding, 
+            framePadding, 
+            this.scene.scale.width - (framePadding * 2), 
+            this.scene.scale.height - (framePadding * 2), 
+            10
+        );
 
         // Create content container for NFT cards
         this.contentContainer = this.scene.add.container(0, 0);
@@ -505,28 +540,45 @@ export class NFTDisplayManager implements INFTDisplayManager {
         // Create header container
         const headerContainer = this.scene.add.container(0, 0);
         
-        // Add title with icon
+        // Calculate header dimensions to ensure containment within window
+        const windowPadding = 20;
+        const headerWidth = this.scene.scale.width - (windowPadding * 2) - 40; // Account for window frame
+        const headerX = this.scene.scale.width / 2;
+        
+        // Add title with icon and proper containment
         const title = this.scene.add.text(
-            this.scene.scale.width / 2,
+            headerX,
             60,
             '✨ NFT Collection Verified',
             {
                 fontSize: '32px',
                 color: '#ffffff',
                 fontStyle: 'bold',
-                shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 4, fill: true }
+                shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 4, fill: true },
+                align: 'center',
+                wordWrap: { 
+                    width: headerWidth,
+                    useAdvancedWrap: true
+                },
+                maxLines: 1 // Keep title to single line
             }
         ).setOrigin(0.5);
 
-        // Add subtitle
+        // Add subtitle with proper containment
         const subtitle = this.scene.add.text(
-            this.scene.scale.width / 2,
+            headerX,
             100,
             'Your NFTs have been successfully verified',
             {
                 fontSize: '18px',
                 color: '#4CAF50',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
+                align: 'center',
+                wordWrap: { 
+                    width: headerWidth,
+                    useAdvancedWrap: true
+                },
+                maxLines: 2 // Limit subtitle to 2 lines
             }
         ).setOrigin(0.5);
 
@@ -537,9 +589,14 @@ export class NFTDisplayManager implements INFTDisplayManager {
     private createCloseButton(): void {
         if (!this.nftContainer) return;
 
+        // Position close button within window boundaries
+        const windowPadding = 20;
+        const closeButtonX = this.scene.scale.width - windowPadding - 40; // Account for window frame
+        const closeButtonY = windowPadding + 30;
+
         const closeBtn = this.scene.add.text(
-            this.scene.scale.width - 60,
-            30,
+            closeButtonX,
+            closeButtonY,
             '✖',
             {
                 fontSize: '32px',
@@ -560,7 +617,9 @@ export class NFTDisplayManager implements INFTDisplayManager {
         const isMobile = this.scene.scale.width < 768;
         const itemsPerRow = isMobile ? 2 : 3;
         
-        const availableWidth = this.scene.scale.width - (this.SCROLL_DEFAULTS.padding * 3);
+        // Calculate available width with proper containment
+        const windowPadding = 20;
+        const availableWidth = this.scene.scale.width - (windowPadding * 2) - (this.SCROLL_DEFAULTS.padding * 2);
         const spacingTotal = this.GRID_DEFAULTS.spacing * (itemsPerRow - 1);
         const cardWidth = Math.min(
             (availableWidth - spacingTotal) / itemsPerRow,
@@ -578,10 +637,13 @@ export class NFTDisplayManager implements INFTDisplayManager {
     }
 
     private calculateScrollConfig(): ScrollConfig {
+        // Calculate scroll config with proper window containment
+        const windowPadding = 20;
+        
         return {
             padding: this.SCROLL_DEFAULTS.padding,
             headerHeight: this.SCROLL_DEFAULTS.headerHeight,
-            viewportHeight: this.scene.scale.height - 180,
+            viewportHeight: this.scene.scale.height - (windowPadding * 2) - 180, // Account for header and footer
             scrollSpeed: this.SCROLL_DEFAULTS.scrollSpeed
         };
     }
@@ -613,11 +675,18 @@ export class NFTDisplayManager implements INFTDisplayManager {
                 this.scene.load.image(imageKey, nft.image);
             }
 
+            let loadCompleteListener: Function | null = null;
+            let loadErrorListener: Function | null = null;
+
             // Handle successful load
-            const onLoadComplete = () => {
+            loadCompleteListener = () => {
                 // Remove the event listeners to prevent memory leaks
-                this.scene.load.off(`filecomplete-image-${imageKey}`, onLoadComplete);
-                this.scene.load.off('loaderror', onLoadError);
+                if (loadCompleteListener) {
+                    this.scene.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
+                }
+                if (loadErrorListener) {
+                    this.scene.load.off('loaderror', loadErrorListener);
+                }
                 
                 this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
                 this.state.nftsLoaded++;
@@ -625,12 +694,16 @@ export class NFTDisplayManager implements INFTDisplayManager {
             };
 
             // Handle load error
-            const onLoadError = (fileObj: any) => {
+            loadErrorListener = (fileObj: any) => {
                 // Only handle errors for this specific image
                 if (fileObj && fileObj.key === imageKey) {
                     // Remove the event listeners to prevent memory leaks
-                    this.scene.load.off(`filecomplete-image-${imageKey}`, onLoadComplete);
-                    this.scene.load.off('loaderror', onLoadError);
+                    if (loadCompleteListener) {
+                        this.scene.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
+                    }
+                    if (loadErrorListener) {
+                        this.scene.load.off('loaderror', loadErrorListener);
+                    }
                     
                     console.error('NFTDisplayManager: Error loading image', nft.image);
                     this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
@@ -640,8 +713,8 @@ export class NFTDisplayManager implements INFTDisplayManager {
             };
 
             // Attach event listeners
-            this.scene.load.once(`filecomplete-image-${imageKey}`, onLoadComplete);
-            this.scene.load.on('loaderror', onLoadError);
+            this.scene.load.once(`filecomplete-image-${imageKey}`, loadCompleteListener);
+            this.scene.load.on('loaderror', loadErrorListener);
 
             // Start loading immediately for this image
             // Check if loader is already active, if not start it
@@ -806,15 +879,21 @@ export class NFTDisplayManager implements INFTDisplayManager {
         if (!this.nftContainer || !this.currentScrollConfig?.maxHeight) return;
         
         if (this.currentScrollConfig.maxHeight > config.viewportHeight) {
+            // Position scroll indicator within window boundaries
+            const windowPadding = 20;
+            const indicatorX = this.scene.scale.width - windowPadding - 50; // Account for window frame
+            const indicatorY = config.headerHeight + 15;
+
             const scrollIndicator = this.scene.add.text(
-                this.scene.scale.width - config.padding - 10,
-                config.headerHeight + 15,
+                indicatorX,
+                indicatorY,
                 '⚡ Scroll',
                 {
                     fontSize: '16px',
                     color: '#3498db',
                     backgroundColor: '#2c3e50',
-                    padding: { x: 12, y: 8 }
+                    padding: { x: 12, y: 8 },
+                    align: 'center'
                 }
             ).setOrigin(1, 0).setAlpha(0.8);
 

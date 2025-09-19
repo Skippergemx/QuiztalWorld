@@ -138,6 +138,14 @@ export default class AssetManager {
         spritePath: 'assets/npc/npc_smartcontractguy_idle_1.png',
         frameWidth: 32,
         frameHeight: 64
+      },
+      {
+        avatarKey: 'npc_mrrugpull_avatar',
+        avatarPath: 'assets/npc/npc_mrrugpull_avatar.png',
+        spriteKey: 'npc_mrrugpull',
+        spritePath: 'assets/npc/npc_mrrugpull_idle_1.png',
+        frameWidth: 32,
+        frameHeight: 53
       }
     ];
 

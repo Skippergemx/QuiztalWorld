@@ -3,48 +3,72 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
-import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class instead of WalkingNPC
+import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC
 import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Import the SimplePatrolBehavior
+import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
+import rugPullQuizData from '../data/quizzes/npc-mrrugpull.json'; // Import Mr. Rug Pull's quiz data
 
-export default class MrRugPull extends QuizNPC {
-  private directions = ["right", "up", "left", "down"];
+export default class MrRugPull extends WalkingNPC {
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
   private readonly npcId = 'mrrugpull';
-  // Remove the private declaration of nameLabel and shoutOutText as they're inherited from QuizNPC
+  private hasQuizData: boolean = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "npc_mrrugpull");
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
-
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
-
-    // Make the NPC immovable so it can't be pushed by the player
-    this.setImmovable(true);
-    this.setDepth(10); // Same as other NPCs
-
-    // Debug texture cache to check for conflicts
-    console.log('MrRugPull texture cache check:', {
-      idleTextureExists: scene.textures.exists("npc_mrrugpull"),
-      walkTextureExists: scene.textures.exists("npc_mrrugpull_walk"),
-      idleTextureInfo: scene.textures.exists("npc_mrrugpull") ? {
-        key: "npc_mrrugpull",
-        width: scene.textures.get("npc_mrrugpull").getSourceImage()?.width,
-        height: scene.textures.get("npc_mrrugpull").getSourceImage()?.height
-      } : null,
-      walkTextureInfo: scene.textures.exists("npc_mrrugpull_walk") ? {
-        key: "npc_mrrugpull_walk",
-        width: scene.textures.get("npc_mrrugpull_walk").getSourceImage()?.width,
-        height: scene.textures.get("npc_mrrugpull_walk").getSourceImage()?.height
-      } : null
-    });
+    
+    // Load quiz data for Mr. Rug Pull
+    if (rugPullQuizData && rugPullQuizData.questions && rugPullQuizData.questions.length > 0) {
+      // Use the NPCQuizManager's loadQuizData method which now takes an npcId parameter
+      this.quizManager.loadQuizData(this.npcId);
+      this.hasQuizData = true;
+      console.log('✅ MrRugPull: Successfully loaded quiz data');
+    } else {
+      console.warn('⚠️ MrRugPull: No quiz data found or data is invalid');
+    }
+    
+    // Add physics properties
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
+    
+    // Set up physics
+    this.setImmovable(true);  // Make Mr. Rug Pull immovable
+    this.setCollideWorldBounds(true);
+    
+    // Register with PhysicsManager for proper collision handling
+    const physicsManager = PhysicsManager.getInstance(scene);
+    if (physicsManager) {
+      physicsManager.setupNPCCollisions(this);
+      
+      // Add specific collider for player interaction
+      const player = this.getClosestPlayer();
+      if (player) {
+        physicsManager.addCollision(this, player);
+        console.log('✅ MrRugPull: Set up direct collision with player');
+      }
+      
+      console.log('✅ MrRugPull: Set up collisions with environment');
+    }
+    
+    // Define patrol points (Point A and Point B)
+    // Adjust these coordinates as needed for the desired patrol area
+    const pointA = { x: x - 100, y: y };  // 100 pixels to the left
+    const pointB = { x: x + 100, y: y };  // 100 pixels to the right
+    
+    // Set up the simple patrol behavior
+    const patrolBehavior = new SimplePatrolBehavior(pointA, pointB);
+    this.setBehavior(patrolBehavior);
 
     this.createAnimations(scene);
     this.play("mrrugpull-idle-down"); // Set initial animation
+
+    // Register with the scene as an updateable object
+    scene.events.on('update', this.update, this);
 
     // Use the inherited nameLabel property
     this.nameLabel = scene.add.text(x, y - 40, "MR Rug Pull", {
@@ -68,16 +92,43 @@ export default class MrRugPull extends QuizNPC {
 
     this.startShouting(scene);
 
-    // Register for network status change notifications
-    this.networkMonitor.addNetworkStatusChangeListener(() => {
-      // Trigger a shout when network status changes
-      this.triggerNetworkStatusShout();
-    });
-
     this.setInteractive({ useHandCursor: true });
     this.on("pointerdown", () => this.interact());
+    
+    // Set proper depth for rendering
+    this.setDepth(10);
+    
+    console.log('✅ MrRugPull: Initialized with physics and collisions');
   }
 
+  // Handle world bounds collision by switching patrol direction
+  private handleWorldBoundsCollision(): void {
+    console.log('💥 MrRugPull: Hit world bounds, switching patrol direction');
+    const currentBehavior = this.getBehavior() as SimplePatrolBehavior | null;
+    
+    if (currentBehavior) {
+      // Get current target
+      const currentTarget = currentBehavior['currentTarget'];
+      
+      // Switch to the opposite point
+      currentBehavior['currentTarget'] = (currentTarget === currentBehavior['pointA']) 
+        ? currentBehavior['pointB'] 
+        : currentBehavior['pointA'];
+      
+      console.log(`🔄 MrRugPull: Switched patrol direction`);
+    }
+  }
+
+  // Override the update method to handle world bounds collision
+  public update(): void {
+    // Check if we've hit the world bounds
+    if (this.body && (this.body.blocked.left || this.body.blocked.right || 
+        this.body.blocked.up || this.body.blocked.down)) {
+      this.handleWorldBoundsCollision();
+    }
+  }
+
+  // Create animations for Mr. Rug Pull
   private createAnimations(scene: Phaser.Scene) {
     // Check if animations already exist to prevent conflicts
     if (scene.anims.exists("mrrugpull-idle-down")) {
@@ -85,63 +136,84 @@ export default class MrRugPull extends QuizNPC {
       return;
     }
 
-    this.directions.forEach((dir, index) => {
+    console.log("MrRugPull: Creating animations...");
+
+    // Create animations using the exact frame order as confirmed:
+    // Right: frames 0-5, Up: frames 6-11, Left: frames 12-17, Down: frames 18-23
+    const animationConfig = [
+      { name: 'right', idleStart: 0, idleEnd: 5, walkStart: 0, walkEnd: 5 },
+      { name: 'up', idleStart: 6, idleEnd: 11, walkStart: 6, walkEnd: 11 },
+      { name: 'left', idleStart: 12, idleEnd: 17, walkStart: 12, walkEnd: 17 },
+      { name: 'down', idleStart: 18, idleEnd: 23, walkStart: 18, walkEnd: 23 }
+    ];
+    
+    console.log("MrRugPull: Animation configuration:", animationConfig);
+    
+    animationConfig.forEach(config => {
+      console.log(`MrRugPull: Processing ${config.name} animations`);
+      
       // Idle animation
-      const idleKey = `mrrugpull-idle-${dir}`;
+      const idleKey = `mrrugpull-idle-${config.name}`;
+      console.log(`MrRugPull: Checking if idle animation ${idleKey} exists: ${scene.anims.exists(idleKey)}`);
+      
       if (!scene.anims.exists(idleKey)) {
+        const idleFrames = scene.anims.generateFrameNumbers("npc_mrrugpull", {
+          start: config.idleStart,
+          end: config.idleEnd,
+        });
+        console.log(`MrRugPull: Creating idle animation ${idleKey} with frames:`, idleFrames);
+        
         scene.anims.create({
           key: idleKey,
-          frames: scene.anims.generateFrameNumbers("npc_mrrugpull", {
-            start: index * 6,
-            end: index * 6 + 5,
-          }),
+          frames: idleFrames,
           frameRate: 3,
           repeat: -1,
         });
-        console.log(`Created MrRugPull idle animation: ${idleKey}`);
+        console.log(`MrRugPull: Created idle animation: ${idleKey}`);
+      } else {
+        console.log(`MrRugPull: Idle animation ${idleKey} already exists`);
       }
 
-      // Walk animation (keep for consistency, but won't be used for movement)
-      const walkKey = `mrrugpull-walk-${dir}`;
+      // Walk animation
+      const walkKey = `mrrugpull-walk-${config.name}`;
+      console.log(`MrRugPull: Checking if walk animation ${walkKey} exists: ${scene.anims.exists(walkKey)}`);
+      
       if (!scene.anims.exists(walkKey)) {
+        const walkFrames = scene.anims.generateFrameNumbers("npc_mrrugpull_walk", {
+          start: config.walkStart,
+          end: config.walkEnd,
+        });
+        console.log(`MrRugPull: Creating walk animation ${walkKey} with frames:`, walkFrames);
+        
         scene.anims.create({
           key: walkKey,
-          frames: scene.anims.generateFrameNumbers("npc_mrrugpull_walk", {
-            start: index * 6,
-            end: index * 6 + 5,
-          }),
+          frames: walkFrames,
           frameRate: 8,
           repeat: -1,
         });
-        console.log(`Created MrRugPull walk animation: ${walkKey}`);
+        console.log(`MrRugPull: Created walk animation: ${walkKey}`);
+      } else {
+        console.log(`MrRugPull: Walk animation ${walkKey} already exists`);
       }
     });
+    
+    // Log all created animations for debugging
+    console.log("MrRugPull: All animations created:");
+    animationConfig.forEach(config => {
+      const idleKey = `mrrugpull-idle-${config.name}`;
+      const walkKey = `mrrugpull-walk-${config.name}`;
+      console.log(`  - ${idleKey}: ${scene.anims.exists(idleKey)}`);
+      console.log(`  - ${walkKey}: ${scene.anims.exists(walkKey)}`);
+    });
   }
-
+  
   public interact() {
+    // Call the parent's onInteractionStart method to handle walking behavior
+    this.onInteractionStart();
+    
     // Check if a dialog is already open
     if (this.currentDialog) {
       console.log("MR Rug Pull: Dialog already open, ignoring interaction");
-      return;
-    }
-
-    // Check network connectivity before allowing interactions
-    if (!this.networkMonitor.getIsOnline()) {
-      console.log("MR Rug Pull: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
-        {
-          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-          isExitDialog: true
-        }
-      ]);
-
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
-
-      // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
-      this.setupDialogAutoReset(3000);
-      
       return;
     }
 
@@ -167,6 +239,12 @@ export default class MrRugPull extends QuizNPC {
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
       console.log("MR Rug Pull: Interaction blocked, cannot start quiz");
+      return;
+    }
+
+    // Check if we have quiz data
+    if (!this.hasQuizData) {
+      console.warn("MR Rug Pull: No quiz data available, cannot start quiz");
       return;
     }
 
@@ -251,7 +329,6 @@ export default class MrRugPull extends QuizNPC {
       this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
       
     });
@@ -262,6 +339,11 @@ export default class MrRugPull extends QuizNPC {
 
     // Reset last question index so player can get the same question again in future interactions
     this.lastQuestionIndex = -1;
+    
+    // Resume walking after interaction
+    this.scene.time.delayedCall(3000, () => {
+      this.onInteractionEnd();
+    });
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -270,19 +352,10 @@ export default class MrRugPull extends QuizNPC {
 
   private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
     const playerId = player.name || `anon_${Date.now()}`;
-    saveQuiztalsToDatabase(playerId, reward, "MR Rug Pull");
+    saveQuiztalsToDatabase(playerId, reward, "MrRugPull");
 
     // Also log to local session tracker
-    QuiztalRewardLog.logReward("MR Rug Pull", reward);
-
-    // Log reward to reward logger
-    if (typeof window !== 'undefined' && (window as any).game) {
-      const game = (window as any).game;
-      const loggerScene = game.scene.getScene('LoggerScene');
-      if (loggerScene && loggerScene.addReward) {
-        loggerScene.addReward(reward, "MR Rug Pull", "MR Rug Pull");
-      }
-    }
+    QuiztalRewardLog.logReward("MrRugPull", reward);
   }
 
   private startShouting(scene: Phaser.Scene) {
@@ -295,29 +368,10 @@ export default class MrRugPull extends QuizNPC {
       "Send me your crypto and I'll double it! Easy money! 💸"
     ];
 
-    // Network-specific shout messages
-    const networkOfflineMessages = [
-      "Network down! Can't scam anyone right now! 🚫📡",
-      "Internet connection lost! My rug pull is on hold! 😢🔌",
-      "Offline mode: Rug pull disabled! ⏸️",
-      "No network, no scamming! 🔌",
-      "Connection error: Rug pull unavailable! 📡"
-    ];
-
     scene.time.addEvent({
       delay: Phaser.Math.Between(5000, 10000),
       callback: () => {
-        let randomMessage;
-
-        // Check network connectivity to determine which message to show
-        if (!this.networkMonitor.getIsOnline()) {
-          // Network is offline, show offline message
-          randomMessage = Phaser.Utils.Array.GetRandom(networkOfflineMessages);
-        } else {
-          // Network is online, show regular message
-          randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
-        }
-
+        const randomMessage = Phaser.Utils.Array.GetRandom(shoutMessages);
         this.showShout(randomMessage);
         this.startShouting(scene);
       },
@@ -333,20 +387,6 @@ export default class MrRugPull extends QuizNPC {
       duration: 2000,
       delay: 3000,
     });
-  }
-
-  private triggerNetworkStatusShout(): void {
-    let message: string;
-
-    if (!this.networkMonitor.getIsOnline()) {
-      // Network is offline
-      message = "🚨 Network connection lost! My rug pull is disabled! 🚫";
-    } else {
-      // Network is online
-      message = "✅ Network connection restored! Time to rug pull! 🌐";
-    }
-
-    this.showShout(message);
   }
 
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
@@ -367,19 +407,22 @@ export default class MrRugPull extends QuizNPC {
   }
 
   protected showCooldownDialog() {
-    const remainingTime = this.getRemainingCooldownTime();
-    const formattedTime = this.formatTimeWithFractional(remainingTime);
-
-    this.currentDialog = showDialog(this.scene, [
-      {
-        text: `🕒 Hey there! I'm taking a short break from rug pulling! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-        avatar: "npc_mrrugpull_avatar",
-        isExitDialog: true
-      }
-    ]);
-
-    // Set up auto-reset for the dialog after 3 seconds
-    // This ensures the dialog reference is cleared even if the player doesn't click
-    this.setupDialogAutoReset(3000);
+    // Add a delay before showing the cooldown dialog
+    this.scene.time.delayedCall(3000, () => {
+      const remainingTime = this.getRemainingCooldownTime();
+      const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      this.currentDialog = showDialog(this.scene, [
+        {
+          text: `😈 Hey there! I'm currently counting my ill-gotten gains. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have legitimate knowledge to share! 🏫`,
+          avatar: "npc_mrrugpull_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      this.setupDialogAutoReset(3000);
+      
+    });
   }
 }

@@ -8,6 +8,7 @@ import UIScene from "./scenes/UIScene";
 import GoogleLoginScene from "./scenes/GoogleLoginScene";
 import InventoryScene from "./scenes/InventoryScene";
 import TokenClaimScene from "./scenes/TokenClaimScene";
+import GuideBookScene from "./scenes/GuideBookScene"; // Added GuideBookScene import
 
 // Mobile detection utility
 const isMobile = () => {
@@ -65,6 +66,7 @@ const config: Phaser.Types.Core.GameConfig = {
     UIScene,
     InventoryScene,
     TokenClaimScene,
+    GuideBookScene, // Added GuideBookScene to scene list
   ],
   scale: {
     mode: Phaser.Scale.RESIZE,

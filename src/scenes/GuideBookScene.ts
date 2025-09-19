@@ -30,16 +30,21 @@ export default class GuideBookScene extends Phaser.Scene {
     this.createGuideBook();
     this.setupKeyboardControls();
     this.updateCurrentSection();
+    
+    // Set depth to ensure guide book appears above other UI elements
+    if (this.guideContainer) {
+      this.guideContainer.setDepth(2000);
+    }
   }
 
   private initializeGuideContent() {
     this.sections = [
       {
         id: 'welcome',
-        title: 'Welcome to Crystle World',
+        title: 'Welcome to Quiztal World',
         emoji: '🌍',
         content: [
-          'Welcome to the Crystle Metaverse, explorer!',
+          'Welcome to the Quiztal Metaverse, explorer!',
           '',
           '🎮 This is a solar-punk inspired world where knowledge fuels your journey.',
           '',
@@ -57,7 +62,7 @@ export default class GuideBookScene extends Phaser.Scene {
         title: 'Game Controls',
         emoji: '🎮',
         content: [
-          'Master the controls to navigate Crystle World effectively:',
+          'Master the controls to navigate Quiztal World effectively:',
           '',
           '🖱️ DESKTOP CONTROLS:',
           '• ⬅️➡️⬆️⬇️ Arrow Keys or WASD - Move your character',
@@ -81,8 +86,8 @@ export default class GuideBookScene extends Phaser.Scene {
         content: [
           'Learn about the various NPCs and their specialties:',
           '',
-          '🧑‍🏫 MR. GEMX - Crystle Metaverse Guide',
-          '• Explains the Crystle Metaverse and Gemante NFTs',
+          '🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide',
+          '• Explains the Quiztal Metaverse and Gemante NFTs',
           '• Perfect starting point for new players',
           '',
           '👩‍🎨 NFT CYN - NFT & Blockchain Expert',
@@ -163,7 +168,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '',
           '💎 WHAT ARE GEMANTE NFTS?',
           '• ERC-1155 gemstone NFTs with special properties',
-          '• Act as powerful boosters in Crystle World',
+          '• Act as powerful boosters in Quiztal World',
           '• Each gem has unique effects and rarities',
           '',
           '⚡ BOOST EFFECTS:',
@@ -190,7 +195,7 @@ export default class GuideBookScene extends Phaser.Scene {
         title: 'Pro Tips & Strategies',
         emoji: '🏆',
         content: [
-          'Master these strategies to excel in Crystle World:',
+          'Master these strategies to excel in Quiztal World:',
           '',
           '🎯 QUIZ STRATEGIES:',
           '• Take your time to read questions carefully',
@@ -241,7 +246,7 @@ export default class GuideBookScene extends Phaser.Scene {
     titleBg.fillRoundedRect(-bookWidth/2 + 10, -bookHeight/2 + 10, bookWidth - 20, 80, 10);
 
     // Guide book title
-    const mainTitle = this.add.text(0, -bookHeight/2 + 30, '📖 Crystle World Guide Book', {
+    const mainTitle = this.add.text(0, -bookHeight/2 + 30, '📖 Quiztal World Guide Book', {
       fontSize: isMobile ? '20px' : '24px',
       color: '#f1c40f',
       fontStyle: 'bold',
@@ -273,6 +278,9 @@ export default class GuideBookScene extends Phaser.Scene {
 
     // Add all elements to container
     this.guideContainer.add([bookBg, titleBg, mainTitle, this.titleText, this.contentText, this.navigationContainer]);
+    
+    // Set depth to ensure guide book appears above other UI elements
+    this.guideContainer.setDepth(2000);
   }
 
   private createNavigationButtons(bookWidth: number, bookHeight: number, isMobile: boolean) {
@@ -341,38 +349,42 @@ export default class GuideBookScene extends Phaser.Scene {
     this.navigationContainer.add([prevButton, nextButton, dotsContainer]);
   }
 
-  private createCloseButton(bookWidth: number, bookHeight: number) {
-    const closeButton = this.add.container(bookWidth/2 - 30, -bookHeight/2 + 30);
-    const closeBg = this.add.graphics();
-    closeBg.fillStyle(0xe74c3c, 1);
-    closeBg.fillCircle(0, 0, 15);
-    const closeText = this.add.text(0, 0, '✕', {
-      fontSize: '16px',
-      color: '#ffffff'
-    }).setOrigin(0.5);
+  private createCloseButton(_bookWidth: number, _bookHeight: number) {
+    // Create a close button in the top-right corner of the right page
+    const closeButton = this.add.text(
+      this.cameras.main.centerX + 250, // Position on the right side
+      this.cameras.main.centerY - 180, // Position at the top
+      'X',
+      {
+        fontSize: '24px',
+        color: '#ff0000',
+        fontStyle: 'bold'
+      }
+    );
     
-    closeButton.add([closeBg, closeText]);
-    closeButton.setInteractive(new Phaser.Geom.Circle(0, 0, 15), Phaser.Geom.Circle.Contains);
-    closeButton.on('pointerdown', () => this.closeGuideBook());
+    closeButton.setOrigin(0.5);
+    closeButton.setInteractive({ useHandCursor: true });
+    closeButton.on('pointerdown', () => {
+      this.toggleGuideBook();
+    });
+    
+    // Add hover effects
     closeButton.on('pointerover', () => {
-      closeBg.clear();
-      closeBg.fillStyle(0xc0392b, 1);
-      closeBg.fillCircle(0, 0, 15);
+      closeButton.setColor('#ff5555');
     });
+    
     closeButton.on('pointerout', () => {
-      closeBg.clear();
-      closeBg.fillStyle(0xe74c3c, 1);
-      closeBg.fillCircle(0, 0, 15);
+      closeButton.setColor('#ff0000');
     });
-
-    this.guideContainer.add(closeButton);
+    
+    return closeButton;
   }
 
   private setupKeyboardControls() {
     if (this.input.keyboard) {
-      // G key to close guide book
+      // G key to toggle guide book
       this.keyG = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
-      this.keyG.on('down', () => this.closeGuideBook());
+      this.keyG.on('down', () => this.toggleGuideBook());
 
       // Arrow keys for navigation
       const leftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -382,6 +394,17 @@ export default class GuideBookScene extends Phaser.Scene {
       rightKey.on('down', () => this.nextSection());
     }
   }
+  
+  /**
+   * Toggle the guide book open/closed
+   */
+  private toggleGuideBook() {
+    // Resume the game scene and stop this scene
+    this.scene.resume('GameScene');
+    this.scene.stop();
+  }
+  
+// Removed unused closeGuideBook method
 
   private updateCurrentSection() {
     const section = this.sections[this.currentSection];
@@ -418,12 +441,6 @@ export default class GuideBookScene extends Phaser.Scene {
       this.currentSection++;
       this.updateCurrentSection();
     }
-  }
-
-  private closeGuideBook() {
-    // Resume the game scene
-    this.scene.resume('GameScene');
-    this.scene.stop();
   }
 
   shutdown() {

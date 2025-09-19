@@ -112,7 +112,7 @@ export default class TokenClaimScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        // Message
+        // Message with proper text containment
         const message = this.add.text(0, 20, 
             'Token claiming is only available on desktop/PC.\n\n' +
             'Please use a desktop computer or laptop\n' +
@@ -122,7 +122,10 @@ export default class TokenClaimScene extends Phaser.Scene {
                 color: '#ffffff',
                 align: 'center',
                 lineSpacing: 8,
-                wordWrap: { width: cardWidth - 40 }
+                wordWrap: { 
+                    width: cardWidth - 40,
+                    useAdvancedWrap: true
+                }
             }
         ).setOrigin(0.5);
 
@@ -239,7 +242,10 @@ export default class TokenClaimScene extends Phaser.Scene {
         bg.fillStyle(0x000000, 0.8);
         bg.fillRect(0, 0, this.scale.width, this.scale.height);
 
-        // Create title
+        // Calculate title width for proper containment
+        const titleWidth = isMobile ? this.scale.width * 0.9 : 500;
+        
+        // Create title with proper text containment
         this.add.text(
             this.scale.width / 2,
             isMobile ? 60 : 100,
@@ -254,11 +260,17 @@ export default class TokenClaimScene extends Phaser.Scene {
                     color: '#000000',
                     blur: 5,
                     fill: true
+                },
+                align: 'center',
+                wordWrap: { 
+                    width: titleWidth,
+                    useAdvancedWrap: true
                 }
             }
         ).setOrigin(0.5);
 
-        // Add subtitle
+        // Add subtitle with proper text containment
+        const subtitleWidth = isMobile ? this.scale.width * 0.9 : 500;
         this.add.text(
             this.scale.width / 2,
             isMobile ? 120 : 170,
@@ -266,7 +278,12 @@ export default class TokenClaimScene extends Phaser.Scene {
             {
                 fontSize: isMobile ? '18px' : '24px',
                 color: '#3498db',
-                fontStyle: 'bold'
+                fontStyle: 'bold',
+                align: 'center',
+                wordWrap: { 
+                    width: subtitleWidth,
+                    useAdvancedWrap: true
+                }
             }
         ).setOrigin(0.5);
 
@@ -364,133 +381,214 @@ export default class TokenClaimScene extends Phaser.Scene {
 
         // Add semi-transparent background overlay
         const bg = this.add.graphics();
-        bg.fillStyle(0x000000, 0.8);
+        bg.fillStyle(0x000000, 0.85); // Darker background for better contrast
         bg.fillRect(0, 0, this.scale.width, this.scale.height);
 
-        // Create title with glow effect - add to scene directly
+        // Calculate title width for proper containment
+        const titleWidth = isMobile ? this.scale.width * 0.9 : 600;
+        
+        // Create title with improved styling and more spacing
         this.add.text(
             this.scale.width / 2,
-            isMobile ? 60 : 100,
-            '💎 Claim Quiztal Tokens',
+            isMobile ? 100 : 150, // Increased vertical spacing
+            '💎 Claim Your Quiztal Tokens',
             {
-                fontSize: isMobile ? '28px' : '36px',
+                fontSize: isMobile ? '32px' : '48px', // Larger font size
                 color: '#ffffff',
                 fontStyle: 'bold',
                 shadow: {
-                    offsetX: 2,
-                    offsetY: 2,
+                    offsetX: 3,
+                    offsetY: 3,
                     color: '#000000',
-                    blur: 5,
+                    blur: 6,
                     fill: true
+                },
+                align: 'center',
+                wordWrap: { 
+                    width: titleWidth,
+                    useAdvancedWrap: true
                 }
             }
         ).setOrigin(0.5);
 
-        // Create card background
-        const cardWidth = isMobile ? this.scale.width * 0.9 : 400;
-        const cardHeight = 280; // Reduced height since we removed input
-        const cardY = this.scale.height / 2 - 50;
-        
-        // Create card graphics
-        const card = this.add.graphics();
-        card.fillStyle(0x1a1a1a, 0.9);
-        card.fillRoundedRect(
-            (this.scale.width - cardWidth) / 2,
-            cardY,
-            cardWidth,
-            cardHeight,
-            16
-        );
-        card.lineStyle(2, 0x3498db, 1);
-        card.strokeRoundedRect(
-            (this.scale.width - cardWidth) / 2,
-            cardY,
-            cardWidth,
-            cardHeight,
-            16
-        );
-
-        // Display current balance with max claim info
-        this.balanceText = this.add.text(
+        // Add subtitle with description and more spacing
+        this.add.text(
             this.scale.width / 2,
-            cardY + 80,
+            isMobile ? 170 : 240, // Increased vertical spacing
+            'Claim your earned tokens and add them to your wallet',
+            {
+                fontSize: isMobile ? '18px' : '24px', // Larger font size
+                color: '#3498db',
+                align: 'center',
+                wordWrap: { 
+                    width: isMobile ? this.scale.width * 0.8 : 500,
+                    useAdvancedWrap: true
+                }
+            }
+        ).setOrigin(0.5);
+
+        // Create card background with more spacious design
+        const cardWidth = isMobile ? this.scale.width * 0.95 : 600; // Increased width
+        const cardX = this.scale.width / 2;
+        const cardY = isMobile ? 300 : this.scale.height / 2 + 30; // Adjusted position
+        
+        // Create card container for better organization
+        const cardContainer = this.add.container(cardX, cardY);
+        
+        // Create card graphics with enhanced styling and more height
+        const card = this.add.graphics();
+        card.fillStyle(0x2c3e50, 0.95); // Darker card background
+        card.fillRoundedRect(-cardWidth/2, -250, cardWidth, 500, 25); // Increased height
+        card.lineStyle(3, 0x3498db, 1); // Thicker border
+        card.strokeRoundedRect(-cardWidth/2, -250, cardWidth, 500, 25);
+        
+        // Add decorative elements
+        const topAccent = this.add.graphics();
+        topAccent.fillStyle(0x3498db, 0.7);
+        topAccent.fillRoundedRect(-cardWidth/2 + 20, -240, cardWidth - 40, 10, 5);
+        
+        // Increased spacing between elements
+        const balanceY = -150;  // More spacing from top
+        const claimInfoY = -20; // More spacing between elements
+        const buttonY = 150;    // More spacing from claim info
+
+        // Display current balance with improved styling and more spacing
+        this.balanceText = this.add.text(
+            0,
+            balanceY,
             'Loading balance...',
             {
-                fontSize: isMobile ? '24px' : '28px',
+                fontSize: isMobile ? '30px' : '36px', // Larger font size
                 color: '#f1c40f',
                 fontStyle: 'bold',
                 align: 'center',
                 shadow: {
-                    offsetX: 1,
-                    offsetY: 1,
+                    offsetX: 2,
+                    offsetY: 2,
                     color: '#000000',
-                    blur: 2,
+                    blur: 3,
                     fill: true
+                },
+                wordWrap: { 
+                    width: cardWidth - 80, // More space for text
+                    useAdvancedWrap: true
                 }
             }
         ).setOrigin(0.5);
 
-        // Update claim info text to show new minimum
-        this.add.text(
-            this.scale.width / 2,
-            cardY + 130,
-            'Maximum claim amount: 100 Quiztals\nMinimum claim amount: 50 Quiztals',  // Changed from 10 to 50
+        // Add icon next to balance for visual enhancement
+        const balanceIcon = this.add.text(
+            -((cardWidth/2) - 50),
+            balanceY,
+            '💰',
             {
-                fontSize: isMobile ? '14px' : '16px',
-                color: '#3498db',
-                align: 'center',
-                lineSpacing: 10
+                fontSize: isMobile ? '28px' : '32px' // Larger icon
             }
         ).setOrigin(0.5);
 
-        // Create claim button
-        const buttonWidth = isMobile ? 200 : 240;
+        // Update claim info text with improved styling and more spacing
+        const claimInfoText = this.add.text(
+            0,
+            claimInfoY,
+            'Maximum claim amount: 100 Quiztals\n\nMinimum claim amount: 50 Quiztals', // Added extra line break
+            {
+                fontSize: isMobile ? '20px' : '22px', // Larger font size
+                color: '#3498db',
+                align: 'center',
+                lineSpacing: 20, // Increased line spacing
+                wordWrap: { 
+                    width: cardWidth - 100, // More space for text
+                    useAdvancedWrap: true
+                }
+            }
+        ).setOrigin(0.5);
+
+        // Add icons for claim info for visual enhancement
+        const maxIcon = this.add.text(
+            -((cardWidth/2) - 60),
+            claimInfoY - 40, // Adjusted position
+            '🔺',
+            {
+                fontSize: '20px', // Larger icon
+                color: '#e74c3c'
+            }
+        ).setOrigin(0.5);
+
+        const minIcon = this.add.text(
+            -((cardWidth/2) - 60),
+            claimInfoY + 40, // Adjusted position
+            '🔻',
+            {
+                fontSize: '20px', // Larger icon
+                color: '#2ecc71'
+            }
+        ).setOrigin(0.5);
+
+        // Create claim button with improved design and more spacing
+        const buttonWidth = isMobile ? cardWidth * 0.8 : 350; // Increased width
         this.claimButton = this.createClaimButton(
-            this.scale.width / 2,
-            cardY + 200,
+            0,
+            buttonY,
             buttonWidth
         );
+
+        // Add all elements to card container
+        cardContainer.add([card, topAccent, this.balanceText, balanceIcon, claimInfoText, maxIcon, minIcon, this.claimButton]);
     }
 
     private createClaimButton(x: number, y: number, width: number): Phaser.GameObjects.Container {
-        const buttonContainer = this.add.container(0, 0);
+        const buttonContainer = this.add.container(x, y);
 
         // Button background with gradient - disabled if mobile
         const buttonBg = this.add.graphics();
         const bgColor = this.isMobile ? 0x7f8c8d : 0x2ecc71;
         buttonBg.fillGradientStyle(bgColor, bgColor, bgColor, bgColor, 1);
-        buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
+        buttonBg.fillRoundedRect(-width/2, -35, width, 70, 15); // Increased size
 
         // Button glow effect
         const buttonGlow = this.add.graphics();
-        buttonGlow.lineStyle(2, bgColor, 0.5);
-        buttonGlow.strokeRoundedRect(-width/2 - 2, -27, width + 4, 54, 8);
+        buttonGlow.lineStyle(3, bgColor, 0.6); // Enhanced glow
+        buttonGlow.strokeRoundedRect(-width/2 - 3, -38, width + 6, 76, 15);
 
+        // Enhanced button text
         const buttonText = this.add.text(0, 0, 
-            this.isMobile ? '🚫 Mobile Not Supported' : '💎 Claim Tokens', 
+            this.isMobile ? '🚫 Mobile Not Supported' : '💎 Claim Tokens Now', 
             {
-                fontSize: this.isMobile ? '16px' : '20px',
+                fontSize: this.isMobile ? '20px' : '26px', // Larger font size
                 color: '#ffffff',
                 fontStyle: 'bold'
             }
         ).setOrigin(0.5);
 
         buttonContainer.add([buttonBg, buttonGlow, buttonText]);
-        buttonContainer.setPosition(x, y);
 
         // Only make interactive if not mobile
         if (!this.isMobile) {
             buttonContainer
-                .setInteractive(new Phaser.Geom.Rectangle(-width/2, -25, width, 50), Phaser.Geom.Rectangle.Contains)
+                .setInteractive(new Phaser.Geom.Rectangle(-width/2, -35, width, 70), Phaser.Geom.Rectangle.Contains)
                 .on('pointerover', () => {
                     buttonBg.clear();
                     buttonBg.fillGradientStyle(0x27ae60, 0x27ae60, 0x2ecc71, 0x2ecc71, 1);
-                    buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
+                    buttonBg.fillRoundedRect(-width/2, -35, width, 70, 15);
+                    // Add scale effect
+                    this.tweens.add({
+                        targets: buttonContainer,
+                        scale: 1.05,
+                        duration: 200,
+                        ease: 'Power2'
+                    });
                 })
                 .on('pointerout', () => {
                     buttonBg.clear();
                     buttonBg.fillGradientStyle(0x2ecc71, 0x2ecc71, 0x27ae60, 0x27ae60, 1);
-                    buttonBg.fillRoundedRect(-width/2, -25, width, 50, 8);
+                    buttonBg.fillRoundedRect(-width/2, -35, width, 70, 15);
+                    // Reset scale
+                    this.tweens.add({
+                        targets: buttonContainer,
+                        scale: 1,
+                        duration: 200,
+                        ease: 'Power2'
+                    });
                 })
                 .on('pointerdown', async () => {
                     await this.processClaimRequest();
@@ -623,6 +721,9 @@ export default class TokenClaimScene extends Phaser.Scene {
     }
 
     private showError(message: string) {
+        // Calculate message width for proper containment
+        const messageWidth = Math.min(this.scale.width * 0.9, 500);
+        
         const errorText = this.add.text(
             this.scale.width / 2,
             this.scale.height - 100,
@@ -639,6 +740,11 @@ export default class TokenClaimScene extends Phaser.Scene {
                     color: '#000000',
                     blur: 3,
                     fill: true
+                },
+                align: 'center',
+                wordWrap: { 
+                    width: messageWidth,
+                    useAdvancedWrap: true
                 }
             }
         ).setOrigin(0.5);
@@ -661,10 +767,17 @@ export default class TokenClaimScene extends Phaser.Scene {
             this.scale.height - 120  // Moved up slightly to accommodate link
         );
 
+        // Calculate container width for proper containment
+        const containerWidth = Math.min(this.scale.width * 0.9, 400);
+        const containerHeight = 100;
+        
         const bg = this.add.graphics()
             .fillStyle(0x2d3436, 0.9)
-            .fillRoundedRect(-200, -50, 400, 100, 8);  // Made taller for link
+            .fillRoundedRect(-containerWidth/2, -containerHeight/2, containerWidth, containerHeight, 8);  // Made taller for link
 
+        // Calculate text width for proper containment
+        const textWidth = containerWidth - 40;
+        
         const successText = this.add.text(
             0,
             -25,
@@ -672,30 +785,39 @@ export default class TokenClaimScene extends Phaser.Scene {
             {
                 fontSize: '18px',
                 color: '#00b894',
-                align: 'center'
+                align: 'center',
+                wordWrap: { 
+                    width: textWidth,
+                    useAdvancedWrap: true
+                }
             }
         ).setOrigin(0.5);
 
-        // Create View on Basescan link
+        // Create View on Basescan link with proper containment
+        const linkText = `🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`;
         const viewOnBasescan = this.add.text(
             0,
             10,
-            `🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`,
+            linkText,
             {
                 fontSize: '14px',
                 color: '#3498db',
-                align: 'center'
+                align: 'center',
+                wordWrap: { 
+                    width: textWidth,
+                    useAdvancedWrap: true
+                }
             }
         )
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true })
         .on('pointerover', () => {
             viewOnBasescan.setStyle({ color: '#2980b9' });
-            viewOnBasescan.setText(`🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`);
+            viewOnBasescan.setText(linkText);
         })
         .on('pointerout', () => {
             viewOnBasescan.setStyle({ color: '#3498db' });
-            viewOnBasescan.setText(`🔍 View on Basescan (${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)})`);
+            viewOnBasescan.setText(linkText);
         })
         .on('pointerdown', () => {
             const basescanUrl = `https://basescan.org/tx/${txHash}`;
@@ -741,11 +863,13 @@ export default class TokenClaimScene extends Phaser.Scene {
             {
                 fontSize: isMobile ? '20px' : '24px',
                 color: '#ffffff',
-                fontStyle: 'bold'
+                fontStyle: 'bold',
+                align: 'center'
             }
         ).setOrigin(0.5);
 
-        // Status text
+        // Status text with proper containment
+        const statusWidth = width - 40;
         this.statusText = this.add.text(
             0,
             0,
@@ -754,7 +878,11 @@ export default class TokenClaimScene extends Phaser.Scene {
                 fontSize: isMobile ? '16px' : '18px',
                 color: '#3498db',
                 align: 'center',
-                lineSpacing: 8
+                lineSpacing: 8,
+                wordWrap: { 
+                    width: statusWidth,
+                    useAdvancedWrap: true
+                }
             }
         ).setOrigin(0.5);
 

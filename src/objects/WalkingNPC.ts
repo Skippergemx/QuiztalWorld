@@ -34,6 +34,7 @@ export default class WalkingNPC extends QuizNPC {
     
     // Update behavior if set
     if (this.behavior && !this.isInteracting) {
+      console.log(`WalkingNPC: Updating behavior for ${this.texture.key}`);
       this.behavior.update(this, deltaTime);
     }
   }
@@ -67,19 +68,32 @@ export default class WalkingNPC extends QuizNPC {
     // Get the texture key and remove any suffixes to get the base name
     const textureKey = this.texture.key;
     
+    // Special case for Mr. Rug Pull's animations
+    if (textureKey === 'npc_mrrugpull' || textureKey === 'npc_mrrugpull_walk') {
+      const key = `mrrugpull-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
+    }
+    
     // Handle different texture naming conventions
     if (textureKey.includes('_idle')) {
       // For textures like 'moblin_idle', use 'moblin'
       const baseName = textureKey.split('_idle')[0];
-      return `${baseName}-${type}-${direction}`;
+      const key = `${baseName}-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
     } else if (textureKey.includes('_walk')) {
       // For textures like 'moblin_walk', use 'moblin'
       const baseName = textureKey.split('_walk')[0];
-      return `${baseName}-${type}-${direction}`;
+      const key = `${baseName}-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
     } else {
-      // For textures like 'npc_mrrugpull', use 'mrrugpull'
+      // For textures like 'npc_huntboy', use 'huntboy'
       const baseName = textureKey.replace('npc_', '');
-      return `${baseName}-${type}-${direction}`;
+      const key = `${baseName}-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
     }
   }
 

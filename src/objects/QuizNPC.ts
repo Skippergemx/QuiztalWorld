@@ -192,12 +192,16 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
   }
   
   protected showCooldownDialog() {
-    // This method should be overridden by subclasses to show a specific dialog
-    console.log("NPC is in cooldown mode. Please try again later.");
-    
-    // Set a timer to reset dialog state after a delay
-    this.scene.time.delayedCall(3000, () => {
-      this.resetDialogState();
+    // Add a delay before showing the cooldown dialog
+    // This allows players to see their reward from the third quiz
+    this.scene.time.delayedCall(3000, () => { // 3 second delay
+      // This method should be overridden by subclasses to show a specific dialog
+      console.log("NPC is in cooldown mode. Please try again later.");
+      
+      // Set a timer to reset dialog state after a delay
+      this.scene.time.delayedCall(3000, () => {
+        this.resetDialogState();
+      });
     });
   }
   

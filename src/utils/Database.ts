@@ -25,7 +25,7 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     }
 
     // Validate source
-    const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "Unknown"];
+    const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "DexpertGal", "MrRugPull", "NftCyn", "ProfChain", "SecurityKai", "SmartContractGuy", "WalletSafetyFriend", "Unknown"];
     if (!validSources.includes(source)) {
       console.error("❌ Invalid source for quiztal reward:", source);
       return;

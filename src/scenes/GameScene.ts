@@ -12,6 +12,10 @@ import MobileControlsManager from '../managers/MobileControlsManager';
 import PhysicsManager from '../managers/PhysicsManager';
 import PetManager from '../managers/PetManager';
 
+// Import walking NPC system
+import WalkingNPCManager from '../managers/WalkingNPCManager';
+// Removed unused import SamplePatrolNPC
+
 export default class GameScene extends Phaser.Scene {
   // Core game objects
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -24,6 +28,7 @@ export default class GameScene extends Phaser.Scene {
   private mobileControlsManager!: MobileControlsManager;
   private physicsManager!: PhysicsManager;
   private petManager!: PetManager;
+  private walkingNPCManager!: WalkingNPCManager;
 
   // System managers
   private quizAntiSpamManager!: QuizAntiSpamManager;
@@ -67,19 +72,22 @@ export default class GameScene extends Phaser.Scene {
     // 5. Initialize NPCs
     this.initializeNPCs();
 
-    // 6. Set up input handling
+    // 6. Initialize walking NPCs (new)
+    this.initializeWalkingNPCs(); // Add this line
+
+    // 7. Set up input handling
     this.setupInputHandling();
 
-    // 7. Initialize mobile controls
+    // 8. Initialize mobile controls
     this.initializeMobileControls();
 
-    // 8. Initialize pet system
+    // 9. Initialize pet system
     this.initializePetSystem();
 
-    // 9. Create player UI (title, name, etc.)
+    // 10. Create player UI (title, name, etc.)
     await this.initializePlayerUI();
 
-    // 10. Final setup
+    // 11. Final setup
     this.finalizeSetup();
 
     console.log('✅ GameScene: Game world created successfully!');
@@ -91,6 +99,7 @@ export default class GameScene extends Phaser.Scene {
     this.playerManager?.updatePlayerUI();
     this.npcManager?.updateNPCProximity();
     this.petManager?.updatePetSystem();
+    this.walkingNPCManager?.updateWalkingNPCs(); // Add this line
   }
 
   // === INITIALIZATION METHODS ===
@@ -168,6 +177,34 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  private initializePetSystem(): void {
+    console.log('🐾 GameScene: Initializing pet system...');
+
+    this.petManager = PetManager.getInstance(this, this.player, this.networkMonitor);
+    
+    // Initialize the pet if the player is eligible
+    this.petManager.initializePetSystem();
+  }
+
+  // Add this new method for walking NPC initialization
+  private initializeWalkingNPCs(): void {
+    console.log('🚶 GameScene: Initializing walking NPCs...');
+
+    // Initialize the WalkingNPCManager
+    this.walkingNPCManager = WalkingNPCManager.getInstance(this);
+
+    // Get the MrRugPull instance from the NPCManager and register it with the WalkingNPCManager
+    const mrRugPull = this.npcManager.getNPC('mrrugpull');
+    if (mrRugPull) {
+      this.walkingNPCManager.registerWalkingNPC(mrRugPull);
+      console.log('✅ GameScene: MrRugPull registered with WalkingNPCManager');
+    } else {
+      console.warn('⚠️ GameScene: MrRugPull not found in NPCManager, cannot register with WalkingNPCManager');
+    }
+
+    console.log('✅ GameScene: Walking NPC system initialized');
+  }
+
   private setupInputHandling(): void {
     console.log('🎮 GameScene: Setting up input handling...');
 
@@ -176,6 +213,8 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-c', () => this.handleInteraction('C'));
     this.input.keyboard?.on('keydown-O', () => this.handleInteraction('O'));
     this.input.keyboard?.on('keydown-o', () => this.handleInteraction('O'));
+    this.input.keyboard?.on('keydown-G', () => this.toggleGuideBook());
+    this.input.keyboard?.on('keydown-g', () => this.toggleGuideBook());
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
@@ -190,13 +229,6 @@ export default class GameScene extends Phaser.Scene {
       this.networkMonitor
     );
     this.mobileControlsManager.initializeMobileControls();
-  }
-
-  private initializePetSystem(): void {
-    console.log('🐾 GameScene: Initializing pet system...');
-
-    this.petManager = PetManager.getInstance(this, this.player, this.networkMonitor);
-    this.petManager.initializePetSystem();
   }
 
   private async initializePlayerUI(): Promise<void> {
@@ -293,6 +325,24 @@ export default class GameScene extends Phaser.Scene {
     
     if (this.networkMonitor) {
       this.networkMonitor.destroy();
+    }
+  }
+
+  /**
+   * Toggle the guide book scene
+   */
+  private toggleGuideBook(): void {
+    // Check if GuideBookScene is active
+    const isGuideBookOpen = this.scene.isActive('GuideBookScene');
+
+    if (isGuideBookOpen) {
+      // Close guide book if it's open
+      this.scene.stop('GuideBookScene');
+      this.scene.resume('GameScene');
+    } else {
+      // Open guide book if it's closed
+      this.scene.launch('GuideBookScene');
+      this.scene.pause('GameScene');
     }
   }
 

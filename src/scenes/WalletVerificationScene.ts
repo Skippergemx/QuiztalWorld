@@ -254,18 +254,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         // Create animated connect wallet button
         this.connectButtonContainer = this.add.container(0, this.scale.height * 0.45);
         
-        // Button background with gradient
-        const buttonWidth = 300;
-        const buttonHeight = 60;
-        const buttonBg = this.add.graphics();
-        buttonBg.fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1);
-        buttonBg.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
-        
-        // Button glow effect
-        const buttonGlow = this.add.graphics()
-            .lineStyle(4, 0x3498db, 0.3)
-            .strokeRoundedRect(-buttonWidth/2 - 2, -buttonHeight/2 - 2, buttonWidth + 4, buttonHeight + 4, 15);
-
+        // Create button text first to measure its dimensions
         this.connectButtonText = this.add.text(
             0,
             0,
@@ -276,6 +265,22 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 fontStyle: 'bold'
             }
         ).setOrigin(0.5);
+
+        // Calculate button dimensions based on text size with padding
+        const paddingX = 30;
+        const paddingY = 20;
+        const buttonWidth = this.connectButtonText.width + paddingX * 2;
+        const buttonHeight = this.connectButtonText.height + paddingY * 2;
+        
+        // Button background with gradient
+        const buttonBg = this.add.graphics();
+        buttonBg.fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1);
+        buttonBg.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
+        
+        // Button glow effect
+        const buttonGlow = this.add.graphics()
+            .lineStyle(4, 0x3498db, 0.3)
+            .strokeRoundedRect(-buttonWidth/2 - 2, -buttonHeight/2 - 2, buttonWidth + 4, buttonHeight + 4, 15);
 
         // Loading spinner with simple rotation
         this.loadingSpinner = this.add.text(
@@ -290,7 +295,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
         this.connectButtonContainer.add([buttonBg, buttonGlow, this.loadingSpinner, this.connectButtonText]);
 
-        // Add simple hover effect
+        // Add simple hover effect with dynamic sizing
         this.connectButtonText
             .setInteractive({ useHandCursor: true })
             .on('pointerover', () => {
@@ -345,6 +350,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
             // Disable button and show loading state
             this.connectButtonText.disableInteractive();
             this.connectButtonText.setText('Connecting Wallet...');
+            this.updateButtonDimensions();
             this.loadingSpinner.setVisible(true);
 
             // Connect wallet
@@ -385,6 +391,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         try {
             await saveWalletAddress(this.playerData.uid, address);
             this.connectButtonText.setText('✅ Wallet Bound');
+            this.updateButtonDimensions();
             
             // Show success message
             this.showSuccessMessage('Wallet successfully bound!');
@@ -510,7 +517,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         ).setOrigin(0.5);
 
         this.time.delayedCall(3000, () => successText.destroy());
-    }
+      }
 
       private async handleDisconnect() {
         await this.web3Service.disconnect();
@@ -520,6 +527,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         
         if (this.connectButtonText) {
             this.connectButtonText.setText('💎 Connect Wallet');
+            this.updateButtonDimensions();
         }
         if (this.walletStatus) {
             this.walletStatus.setText('Wallet not connected');
@@ -532,6 +540,9 @@ export default class WalletVerificationScene extends Phaser.Scene {
         }
         if (this.continueButton) {
             this.continueButton.setVisible(true);
+        }
+        if (this.loadingSpinner) {
+            this.loadingSpinner.setVisible(false);
         }
     }
 
@@ -597,7 +608,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
             // Open marketplace in new tab
-            window.open('https://market.crystle.world', '_blank');
+            window.open('https://market.quiztal.world', '_blank');
         });
 
         // Add texts to container
@@ -1015,6 +1026,41 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 return;
             }
             
+            let loadCompleteListener: Function | null = null;
+            let loadErrorListener: Function | null = null;
+
+            // Handle successful load
+            loadCompleteListener = () => {
+                // Remove the event listeners to prevent memory leaks
+                if (loadCompleteListener) {
+                    this.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
+                }
+                if (loadErrorListener) {
+                    this.load.off('loaderror', loadErrorListener);
+                }
+                displayImage();
+            };
+
+            // Handle load error
+            loadErrorListener = (fileObj: any) => {
+                // Only handle errors for this specific image
+                if (fileObj && fileObj.key === imageKey) {
+                    // Remove the event listeners to prevent memory leaks
+                    if (loadCompleteListener) {
+                        this.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
+                    }
+                    if (loadErrorListener) {
+                        this.load.off('loaderror', loadErrorListener);
+                    }
+                    console.error('Error loading image:', nft.image);
+                    displayImageError();
+                }
+            };
+
+            // Attach event listeners
+            this.load.once(`filecomplete-image-${imageKey}`, loadCompleteListener);
+            this.load.on('loaderror', loadErrorListener);
+
             if (nft.collectionType === 'erc1155') {
                 // For Gemante GIFs, use type assertion with the correct Phaser loader type
                 this.load.image({
@@ -1024,19 +1070,6 @@ export default class WalletVerificationScene extends Phaser.Scene {
             } else {
                 this.load.image(imageKey, nft.image);
             }
-
-            // Handle successful load
-            this.load.once(`filecomplete-image-${imageKey}`, () => {
-                displayImage();
-            });
-
-            // Handle load error
-            this.load.once(`loaderror`, (fileObj: any) => {
-                if (fileObj && fileObj.key === imageKey) {
-                    console.error('Error loading image:', nft.image);
-                    displayImageError();
-                }
-            });
 
             // Start loading if not already loading
             if (!this.load.isLoading()) {
@@ -1227,9 +1260,43 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 .setText('💎 Connect Wallet')
                 .setInteractive({ useHandCursor: true });
         }
+        this.updateButtonDimensions();
         if (this.loadingSpinner) {
             this.loadingSpinner.setVisible(false);
         }
       }
 
+      /**
+       * Updates the connect button dimensions based on the current text size
+       */
+      private updateButtonDimensions() {
+        if (this.connectButtonText && this.connectButtonContainer) {
+            // Get the button background elements (first two children of container)
+            const buttonBg = this.connectButtonContainer.getAt(0) as Phaser.GameObjects.Graphics;
+            const buttonGlow = this.connectButtonContainer.getAt(1) as Phaser.GameObjects.Graphics;
+            
+            if (buttonBg && buttonGlow) {
+                // Calculate new dimensions based on text size with padding
+                const paddingX = 30;
+                const paddingY = 20;
+                const buttonWidth = this.connectButtonText.width + paddingX * 2;
+                const buttonHeight = this.connectButtonText.height + paddingY * 2;
+                
+                // Redraw button background with new dimensions
+                buttonBg.clear();
+                buttonBg.fillGradientStyle(0x3498db, 0x2980b9, 0x2980b9, 0x3498db, 1);
+                buttonBg.fillRoundedRect(-buttonWidth/2, -buttonHeight/2, buttonWidth, buttonHeight, 15);
+                
+                // Redraw button glow with new dimensions
+                buttonGlow.clear();
+                buttonGlow.lineStyle(4, 0x3498db, 0.3);
+                buttonGlow.strokeRoundedRect(-buttonWidth/2 - 2, -buttonHeight/2 - 2, buttonWidth + 4, buttonHeight + 4, 15);
+                
+                // Reposition loading spinner
+                if (this.loadingSpinner) {
+                    this.loadingSpinner.setPosition(-buttonWidth/2 + 30, 0);
+                }
+            }
+        }
+      }
 }

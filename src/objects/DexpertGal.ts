@@ -316,18 +316,22 @@ export default class DexpertGal extends QuizNPC {
   }
 
   protected showCooldownDialog() {
-    const remainingTime = this.getRemainingCooldownTime();
-    const formattedTime = this.formatTimeWithFractional(remainingTime);
-    
-    this.currentDialog = showDialog(this.scene, [
-      {
-        text: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
-        avatar: "npc_dexpertgal_avatar",
-        isExitDialog: true
-      }
-    ]);
-    
-    // Set up auto-reset for the dialog after 3 seconds
-    this.setupDialogAutoReset(3000);
+    // Add a delay before showing the cooldown dialog
+    // This allows players to see their reward from the third quiz
+    this.scene.time.delayedCall(3000, () => { // 3 second delay
+      const remainingTime = this.getRemainingCooldownTime();
+      const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      this.currentDialog = showDialog(this.scene, [
+        {
+          text: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
+          avatar: "npc_dexpertgal_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      this.setupDialogAutoReset(3000);
+    });
   }
 }

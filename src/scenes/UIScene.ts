@@ -102,6 +102,13 @@ export default class UIScene extends Phaser.Scene {
         const isMobile = this.scale.width < 768;
         const buttonConfigs = [
             {
+                text: '📖',  // Guide book button
+                tooltip: 'Guide Book',
+                color: '#3498db',  // Blue color for guide book
+                hoverColor: '#2980b9',
+                callback: () => this.openGuideBook()
+            },
+            {
                 text: '💎',  // Claim tokens button
                 tooltip: 'Claim Tokens',
                 color: '#9b59b6',  // Purple color for claim button
@@ -639,6 +646,24 @@ export default class UIScene extends Phaser.Scene {
             this.scene.launch('TokenClaimScene', {
                 onClose: () => this.scene.resume('GameScene')
             });
+            this.scene.pause('GameScene');
+        }
+    }
+
+    /**
+     * Open or close the guide book scene
+     */
+    private openGuideBook() {
+        // Check if GuideBookScene is active
+        const isGuideBookOpen = this.scene.isActive('GuideBookScene');
+
+        if (isGuideBookOpen) {
+            // Close guide book if it's open
+            this.scene.stop('GuideBookScene');
+            this.scene.resume('GameScene');
+        } else {
+            // Open guide book if it's closed
+            this.scene.launch('GuideBookScene');
             this.scene.pause('GameScene');
         }
     }

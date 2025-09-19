@@ -168,6 +168,37 @@
       }
     }
   ],
+  "walking_npc_implementation": {
+    "description": "Guide for creating walking NPCs using the simple patrol behavior",
+    "files": [
+      "src/managers/SimplePatrolBehavior.ts (pre-built behavior)",
+      "docs/simple-patrol-npc-guide.md (detailed documentation)",
+      "docs/walking-npc-setup.md (integration guide)",
+      "docs/walking-quiz-npc-implementation-guide.md (comprehensive walking quiz NPC guide)"
+    ],
+    "implementation_steps": [
+      "1. Create a new class that extends WalkingNPC",
+      "2. Define patrol points (Point A and Point B) in the NPC constructor",
+      "3. Instantiate SimplePatrolBehavior with the patrol points",
+      "4. Set the behavior using setBehavior() method",
+      "5. Configure animations for walk and idle states in each direction",
+      "6. Register the NPC with WalkingNPCManager in GameScene"
+    ],
+    "current_implementations": [
+      "MrRugPull - Converted to use walking behavior with simple patrol between two points"
+    ],
+    "benefits": [
+      "Simplicity: No complex pathfinding or collision detection required",
+      "Performance: Minimal computational overhead",
+      "Predictability: NPCs follow a consistent, predictable path",
+      "Ease of Use: Simple configuration with just two points"
+    ],
+    "limitations": [
+      "No Obstacle Avoidance: NPCs will move through walls or obstacles",
+      "Fixed Path: Movement is limited to straight lines between two points",
+      "No Dynamic Targets: Points are fixed at initialization time"
+    ]
+  },
   "nft_cyn_example": {
     "description": "Real implementation example based on NFT Cyn",
     "files_created": [

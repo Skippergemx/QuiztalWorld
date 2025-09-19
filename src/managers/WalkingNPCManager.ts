@@ -50,6 +50,11 @@ export default class WalkingNPCManager {
     const deltaTime = currentTime - this.lastUpdate;
     this.lastUpdate = currentTime;
 
+    // Debug logging
+    if (this.walkingNPCs.length > 0) {
+      console.log(`WalkingNPCManager: Updating ${this.walkingNPCs.length} walking NPCs`);
+    }
+
     // Update all registered walking NPCs
     this.walkingNPCs.forEach(npc => {
       try {

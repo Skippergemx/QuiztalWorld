@@ -76,7 +76,7 @@ export default class NPCQuizManager {
     /**
      * Load quiz data for a specific NPC
      */
-    private async loadQuizData(npcId: string): Promise<void> {
+    public async loadQuizData(npcId: string): Promise<void> {
         try {
             const response = await fetch(`/assets/quizzes/npc-${npcId}.json`);
             if (!response.ok) {
@@ -200,11 +200,19 @@ export default class NPCQuizManager {
     /**
      * Reload all quiz data (useful for development)
      */
-    public async reload(): Promise<void> {
-        this.isLoaded = false;
-        this.loadingPromise = null;
-        this.quizData.clear();
-        await this.initialize();
+    public async reload(npcId?: string): Promise<void> {
+        if (npcId) {
+            // Reload only specific NPC data
+            console.log(`🔄 Reloading data for ${npcId}`);
+            await this.loadQuizData(npcId);
+            console.log(`✅ Reloaded data for ${npcId}`);
+        } else {
+            // Reload all data
+            this.isLoaded = false;
+            this.loadingPromise = null;
+            this.quizData.clear();
+            await this.initialize();
+        }
     }
 
     /**

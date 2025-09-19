@@ -316,18 +316,22 @@ export default class ProfChain extends QuizNPC {
   }
 
   protected showCooldownDialog() {
-    const remainingTime = this.getRemainingCooldownTime();
-    const formattedTime = this.formatTimeWithFractional(remainingTime);
-    
-    this.currentDialog = showDialog(this.scene, [
-      {
-        text: `🕒 Greetings, student! I'm currently preparing my next blockchain lecture. Please return in ${formattedTime}. In the meantime, why not visit other professors around the campus? They might have knowledge to share! 🏫`,
-        avatar: "npc_profchain_avatar",
-        isExitDialog: true
-      }
-    ]);
-    
-    // Set up auto-reset for the dialog after 3 seconds
-    this.setupDialogAutoReset(3000);
+    // Add a delay before showing the cooldown dialog
+    // This allows players to see their reward from the third quiz
+    this.scene.time.delayedCall(3000, () => { // 3 second delay
+      const remainingTime = this.getRemainingCooldownTime();
+      const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      this.currentDialog = showDialog(this.scene, [
+        {
+          text: `🕒 Greetings, student! I'm currently preparing my next blockchain lecture. Please return in ${formattedTime}. In the meantime, why not visit other professors around the campus? They might have knowledge to share! 🏫`,
+          avatar: "npc_profchain_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      this.setupDialogAutoReset(3000);
+    });
   }
 }

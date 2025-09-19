@@ -337,19 +337,23 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
   }
 
   protected showCooldownDialog() {
-    const remainingTime = this.getRemainingCooldownTime();
-    const formattedTime = this.formatTimeWithFractional(remainingTime);
+    // Add a delay before showing the cooldown dialog
+    // This allows players to see their reward from the third quiz
+    this.scene.time.delayedCall(3000, () => { // 3 second delay
+      const remainingTime = this.getRemainingCooldownTime();
+      const formattedTime = this.formatTimeWithFractional(remainingTime);
 
-    this.currentDialog = showDialog(this.scene, [
-      {
-        text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-        avatar: "npc_securitykai_avatar",
-        isExitDialog: true
-      }
-    ]);
+      this.currentDialog = showDialog(this.scene, [
+        {
+          text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+          avatar: "npc_securitykai_avatar",
+          isExitDialog: true
+        }
+      ]);
 
-    // Set up auto-reset for the dialog after 3 seconds
-    // This ensures the dialog reference is cleared even if the player doesn't click
-    this.setupDialogAutoReset(3000);
+      // Set up auto-reset for the dialog after 3 seconds
+      // This ensures the dialog reference is cleared even if the player doesn't click
+      this.setupDialogAutoReset(3000);
+    });
   }
 }

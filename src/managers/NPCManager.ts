@@ -9,7 +9,7 @@ import DexpertGal from '../objects/DexpertGal';
 import NftCyn from '../objects/NftCyn';
 import ProfChain from '../objects/ProfChain';
 import SmartContractGuy from '../objects/SmartContractGuy';
-
+import MrRugPull from '../objects/MrRugPull'; // Add MrRugPull import
 
 interface NPCConfig {
   id: string;
@@ -100,6 +100,13 @@ export default class NPCManager {
       name: 'Smart Contract Guy',
       class: SmartContractGuy,
       position: { x: 1450, y: 1100 },
+      interactionRange: 100
+    },
+    {
+      id: 'mrrugpull',
+      name: 'Mr. Rug Pull',
+      class: MrRugPull,
+      position: { x: 500, y: 200 }, // Updated position as requested
       interactionRange: 100
     }
   ];

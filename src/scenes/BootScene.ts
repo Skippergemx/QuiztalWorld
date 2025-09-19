@@ -15,6 +15,7 @@ export default class BootScene extends Phaser.Scene {
         ]);
         this.load.audio('Correct_Answer', 'assets/audio/Correct_Answer.wav');
         this.load.audio('Wrong_Answer', 'assets/audio/Wrong_Answer.wav');
+        this.load.audio('moblin-giftbox', 'assets/audio/Moblin_giftbox.wav'); // Add Moblin gift box sound
 
         // ✅ Load Tileset & Map
         this.load.image("tiles", "assets/tilesets/tileset.png");
@@ -22,6 +23,26 @@ export default class BootScene extends Phaser.Scene {
 
         // ✅ Load NPC Huntboy as a spritesheet (REMOVED duplicate image load)
         this.load.spritesheet("npc_huntboy", "assets/npc/npc_huntboy_idle_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+
+        // ✅ Load Mr. Rug Pull spritesheets (idle and walk)
+        this.load.spritesheet("npc_mrrugpull", "assets/npc/npc_mrrugpull_idle_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("npc_mrrugpull_walk", "assets/npc/npc_mrrugpull_walk_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+
+        // ✅ Load Moblin pet spritesheets (idle and walk)
+        this.load.spritesheet("moblin_idle", "assets/pets/moblin_idle.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("moblin_walk", "assets/pets/moblin_walk.png", {
             frameWidth: 32,
             frameHeight: 53,
         });

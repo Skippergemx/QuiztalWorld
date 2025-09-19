@@ -1,0 +1,75 @@
+{
+  "npcId": "mrrugpull",
+  "questions": [
+    {
+      "question": "Why should you never trust a rug pull artist?",
+      "options": [
+        "They're always pulling something",
+        "They specialize in disappearing acts",
+        "They're experts in carpet bombing",
+        "They have a history of floor failures"
+      ],
+      "answer": "They're always pulling something",
+      "feedback": {
+        "correct": "Smart! You see through his tricks!",
+        "incorrect": "Ah, looks like you fell for the oldest trick in the book!"
+      }
+    },
+    {
+      "question": "What's the most secure way to avoid a rug pull?",
+      "options": [
+        "Keep your crypto under your mattress",
+        "Only invest what you're willing to lose",
+        "Trust no one with a mustache",
+        "Buy insurance from a blockchain insurance company"
+      ],
+      "answer": "Only invest what you're willing to lose",
+      "feedback": {
+        "correct": "Wise choice! That's the only way to stay safe in crypto!",
+        "incorrect": "Oops! That's exactly what the rug pull artist wants you to think!"
+      }
+    },
+    {
+      "question": "What's the best way to protect yourself from rug pulls?",
+      "options": [
+        "Use a hardware wallet",
+        "Do thorough research",
+        "Never invest in new projects",
+        "Trust only verified developers"
+      ],
+      "answer": "Do thorough research",
+      "feedback": {
+        "correct": "Great answer! Knowledge is your best defense against rug pulls!",
+        "incorrect": "Not quite... even verified developers can turn out to be scammers!"
+      }
+    },
+    {
+      "question": "What's the first sign of a potential rug pull?",
+      "options": [
+        "Anonymous team members",
+        "Too good to be true returns",
+        "Lack of a whitepaper",
+        "No audit reports"
+      ],
+      "answer": "Too good to be true returns",
+      "feedback": {
+        "correct": "Exactly! If it seems too good to be true, it probably is!",
+        "incorrect": "Close, but the biggest red flag is always unrealistic promises!"
+      }
+    },
+    {
+      "question": "What should you do if you suspect a rug pull?",
+      "options": [
+        "Panic and sell everything",
+        "Invest more to lower your average",
+        "Research thoroughly and consult the community",
+        "Ignore it and hope it goes away"
+      ],
+      "answer": "Research thoroughly and consult the community",
+      "feedback": {
+        "correct": "Excellent choice! Rational research is your best defense!",
+        "incorrect": "That's not the best approach. Always verify first!"
+      }
+    }
+  ]
+}
