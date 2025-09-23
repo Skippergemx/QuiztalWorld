@@ -35,8 +35,24 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     
     // Check if player is returning (has already selected a character)
     if (this.user.character) {
-      // Player is returning, redirect to GoogleLoginScene for re-authentication
-      this.scene.start("GoogleLoginScene");
+      // Player is returning, go directly to GameScene with their selected character
+      // Stop any potentially running game scenes to prevent conflicts
+      try {
+        const scenesToStop = ['GameScene', 'UIScene'];
+        scenesToStop.forEach(sceneKey => {
+          if (this.scene.get(sceneKey)) {
+            if (this.scene.isActive(sceneKey)) {
+              this.scene.stop(sceneKey);
+            }
+          }
+        });
+      } catch (e) {
+        console.warn('⚠️ CharacterSelectionScene: Error stopping existing scenes', e);
+      }
+      
+      this.scene.start("GameScene", {
+        selectedCharacter: this.user.character
+      });
       return;
     }
     
@@ -52,14 +68,19 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     
     // Start character selection immediately
     this.startCharacterSelection();
+    
+    // Setup resize handler for orientation changes
+    this.scale.on('resize', this.handleResize, this);
   }
 
   async checkLogin() {
     const playerData = localStorage.getItem("quiztal-player");
     if (playerData) {
       this.user = JSON.parse(playerData);
-      // Start wallet verification scene
-      this.scene.start('WalletVerificationScene');
+      // Go directly to GameScene instead of WalletVerificationScene
+      this.scene.start('GameScene', {
+        selectedCharacter: this.user.character
+      });
     } else {
       this.showLoginButton();
     }
@@ -111,12 +132,12 @@ export default class CharacterSelectionScene extends Phaser.Scene {
 
         this.updateLoadingProgress(1);
 
-        // Cleanup and move to wallet verification
+        // Cleanup and move to CharacterSelectionScene (not GameScene directly since character not selected yet)
         button.destroy();
         this.loadingBar.destroy();
         this.loadingText.destroy();
         
-        this.scene.start('WalletVerificationScene');
+        this.scene.start('CharacterSelectionScene');
       } catch (error) {
         console.error("Login failed:", error);
         this.showError("Login failed. Please try again.");
@@ -125,15 +146,30 @@ export default class CharacterSelectionScene extends Phaser.Scene {
   }
 
   preload() {
-    // ...existing code...
-    this.load.image('arrow-left', 'assets/ui/arrow-left.png');
-    this.load.image('arrow-right', 'assets/ui/arrow-right.png');
-    this.load.image('button-confirm', 'assets/ui/button-confirm.png');
-    
-    // Initialize character animations
+    // Assets should already be loaded by BootScene
+    // Only create animations here since they're scene-specific
     this.characterKeys.forEach(key => {
         this.createCharacterAnimation(key);
     });
+  }
+
+  private createCharacterAnimation(key: string) {
+    const animKey = `player_${key}_walk_1`;
+    // Only create animation if it doesn't exist
+    if (!this.anims.exists(animKey)) {
+      this.anims.create({
+        key: animKey,
+        frames: this.anims.generateFrameNumbers(`player_${key}_walk_1`, {
+          start: 0,
+          end: 5,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    } else {
+      // If animation exists, don't recreate it but ensure it's properly configured
+      console.log(`Animation ${animKey} already exists, skipping creation`);
+    }
   }
 
   private startCharacterSelection() {
@@ -233,6 +269,45 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     ) as Phaser.GameObjects.Container;
   }
 
+  // Handle resize events for better orientation change support
+  private handleResize() {
+    if (this.leftArrow && this.rightArrow && this.confirmButton) {
+      const isMobile = this.scale.width < 768;
+      const arrowOffset = isMobile ? 100 : 150;
+      
+      // Reposition arrow buttons
+      this.leftArrow.setPosition(
+        this.scale.width / 2 - arrowOffset,
+        this.scale.height / 2
+      );
+      
+      this.rightArrow.setPosition(
+        this.scale.width / 2 + arrowOffset,
+        this.scale.height / 2
+      );
+      
+      // Reposition confirm button
+      this.confirmButton.setPosition(
+        this.scale.width / 2,
+        this.scale.height - (isMobile ? 80 : 100)
+      );
+      
+      // Add visual feedback
+      [this.leftArrow, this.rightArrow, this.confirmButton].forEach(button => {
+        if (button) {
+          // Briefly highlight the button
+          this.tweens.add({
+            targets: button,
+            scale: 1.1,
+            duration: 100,
+            yoyo: true,
+            repeat: 1
+          });
+        }
+      });
+    }
+  }
+
   private createArrowButton(x: number, y: number, key: string, callback: () => void) {
     const isMobile = this.scale.width < 768;
     const button = this.add.container(x, y);
@@ -326,18 +401,6 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     this.gradientOverlay.fillRect(0, 0, this.scale.width, this.scale.height);
   }
 
-  private createCharacterAnimation(key: string) {
-    this.anims.create({
-      key: `player_${key}_walk_1`,
-      frames: this.anims.generateFrameNumbers(`player_${key}_walk_1`, {
-        start: 0,
-        end: 5,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-  }
-
   selectPrevious() {
     this.characterSprites[this.currentIndex].setVisible(false);
     this.characterSprites[this.currentIndex].stop();
@@ -368,9 +431,9 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     this.isConfirming = true;
 
     // Disable controls to prevent further interaction
-    this.leftArrow.disableInteractive();
-    this.rightArrow.disableInteractive();
-    this.confirmButton.disableInteractive();
+    if (this.leftArrow) this.leftArrow.disableInteractive();
+    if (this.rightArrow) this.rightArrow.disableInteractive();
+    if (this.confirmButton) this.confirmButton.disableInteractive();
 
     this.selectedCharacter = this.characterKeys[this.currentIndex];
     console.log(`✅ Character Selected: ${this.selectedCharacter}`);
@@ -415,40 +478,69 @@ export default class CharacterSelectionScene extends Phaser.Scene {
 
     // Add visual feedback to character sprite
     const selectedSprite = this.characterSprites[this.currentIndex];
-    this.tweens.add({
-      targets: selectedSprite,
-      scale: selectedSprite.scale * 1.1,
-      duration: 300,
-      yoyo: true,
-      repeat: 1
-    });
+    if (selectedSprite) {
+      this.tweens.add({
+        targets: selectedSprite,
+        scale: selectedSprite.scale * 1.1,
+        duration: 300,
+        yoyo: true,
+        repeat: 1
+      });
+    }
 
     // Wait before transitioning to the game scene
-    this.time.delayedCall(1500, () => {
+    this.time.delayedCall(1500, async () => {
       // Add fade out transition
+      const fadeTargets = [statusContainer, ...this.characterSprites.filter(sprite => sprite !== undefined)];
+      
       this.tweens.add({
-        targets: [statusContainer, ...this.characterSprites],
+        targets: fadeTargets,
         alpha: 0,
         duration: 500,
-        onComplete: async () => { // Make the callback async
-          const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
-          const updated = {
-            ...existing,
-            character: this.selectedCharacter,
-          };
+        onComplete: async () => {
+          try {
+            const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
+            const updated = {
+              ...existing,
+              character: this.selectedCharacter,
+            };
 
-          localStorage.setItem("quiztal-player", JSON.stringify(updated));
+            localStorage.setItem("quiztal-player", JSON.stringify(updated));
 
-          const playerRef = doc(db, "players", this.user.uid);
-          // Await the database update to ensure it completes before proceeding
-          await updateDoc(playerRef, {
-            character: this.selectedCharacter,
-          });
+            // Only update database if user exists
+            if (this.user && this.user.uid) {
+              const playerRef = doc(db, "players", this.user.uid);
+              // Await the database update to ensure it completes before proceeding
+              await updateDoc(playerRef, {
+                character: this.selectedCharacter,
+              });
+            }
 
-          // Transition to the game scene AFTER the database is updated
-          this.scene.start("GameScene", {
-            selectedCharacter: this.selectedCharacter,
-          });
+            // Stop any potentially running game scenes to prevent conflicts
+            try {
+              const scenesToStop = ['GameScene', 'UIScene'];
+              scenesToStop.forEach(sceneKey => {
+                if (this.scene.get(sceneKey)) {
+                  if (this.scene.isActive(sceneKey)) {
+                    this.scene.stop(sceneKey);
+                  }
+                }
+              });
+            } catch (e) {
+              console.warn('⚠️ CharacterSelectionScene: Error stopping existing scenes', e);
+            }
+
+            // Transition to the game scene AFTER the database is updated
+            this.scene.start("GameScene", {
+              selectedCharacter: this.selectedCharacter,
+            });
+          } catch (error) {
+            console.error('Error during character selection confirmation:', error);
+            // Even if there's an error, we should still transition to avoid getting stuck
+            this.scene.start("GameScene", {
+              selectedCharacter: this.selectedCharacter,
+            });
+          }
         }
       });
     });
@@ -498,9 +590,37 @@ export default class CharacterSelectionScene extends Phaser.Scene {
 
   // Update shutdown to clean up
   shutdown() {
+    // Clean up event listeners
+    if (this.input && this.input.keyboard) {
+      this.input.keyboard.removeAllListeners();
+    }
+    
+    // Clean up sprites and animations
+    if (this.characterSprites) {
+      this.characterSprites.forEach(sprite => {
+        if (sprite) {
+          sprite.destroy();
+        }
+      });
+      this.characterSprites = [];
+    }
+    
+    // Clean up UI elements
     if (this.leftArrow) this.leftArrow.destroy();
     if (this.rightArrow) this.rightArrow.destroy();
     if (this.confirmButton) this.confirmButton.destroy();
     if (this.gradientOverlay) this.gradientOverlay.destroy();
+    
+    // Clean up animations
+    try {
+      this.characterKeys.forEach(key => {
+        const animKey = `player_${key}_walk_1`;
+        if (this.anims.exists(animKey)) {
+          this.anims.remove(animKey);
+        }
+      });
+    } catch (e) {
+      console.warn('⚠️ CharacterSelectionScene: Error removing animations', e);
+    }
   }
 }

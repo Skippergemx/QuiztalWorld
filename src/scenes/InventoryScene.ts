@@ -355,18 +355,27 @@ export default class InventoryScene extends Phaser.Scene {
 
 
     private createPageButton(x: number, y: number, symbol: string, onClick: () => void): Phaser.GameObjects.Container {
+        const isMobile = this.isMobile;
         const button = this.add.container(x, y);
         
-        // Smaller, more subtle button
-        const bg = this.add.circle(0, 0, 20, 0x3498db);
+        // Larger touch target for mobile
+        const touchTargetSize = isMobile ? 44 : 30; // Minimum 44px for mobile touch targets
+        const visualSize = isMobile ? 30 : 20;
+        
+        // Create invisible touch area for better targeting
+        const touchArea = this.add.rectangle(0, 0, touchTargetSize, touchTargetSize, 0x000000, 0)
+            .setInteractive({ useHandCursor: true });
+        
+        // Visual button
+        const bg = this.add.circle(0, 0, visualSize, 0x3498db);
         const text = this.add.text(0, 0, symbol, {
-            fontSize: '16px',
+            fontSize: isMobile ? '20px' : '16px',
             color: '#ffffff'
         }).setOrigin(0.5);
 
-        button.add([bg, text]);
+        button.add([touchArea, bg, text]);
         
-        bg.setInteractive({ useHandCursor: true })
+        touchArea
             .on('pointerover', () => {
                 bg.setFillStyle(0x2980b9);
                 this.input.setDefaultCursor('pointer');

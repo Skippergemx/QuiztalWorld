@@ -153,14 +153,30 @@ private notifyNetworkStatusChange(): void {
 }
 
 public destroy() {
+  // Clear the timer first
   if (this.checkTimer) {
     this.checkTimer.remove();
+    this.checkTimer = null;
   }
   
+  // Remove event listeners
+  try {
+    window.removeEventListener('online', this.setupEventListeners as any);
+    window.removeEventListener('offline', this.setupEventListeners as any);
+  } catch (e) {
+    console.warn('⚠️ NetworkMonitor: Error removing event listeners', e);
+  }
+  
+  // Destroy UI elements
   if (this.networkStatusContainer) {
     this.networkStatusContainer.destroy();
+    this.networkStatusContainer = null;
   }
   
+  // Clear callbacks
+  this.networkStatusChangeCallbacks = [];
+  
+  // Clear instance reference
   NetworkMonitor.instance = null as any;
 }
 }

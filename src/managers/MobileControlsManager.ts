@@ -24,10 +24,10 @@ export default class MobileControlsManager {
   
   // Configuration
   private config: MobileControlsConfig = {
-    joystickScale: 1.2,
-    buttonScale: 1.3,
-    joystickAlpha: 0.7,
-    buttonAlpha: 0.8
+    joystickScale: 1.4, // Increased scale for better visibility
+    buttonScale: 1.5,   // Increased scale for better touch targets
+    joystickAlpha: 0.9, // Increased alpha for better visibility
+    buttonAlpha: 0.95   // Increased alpha for better visibility
   };
 
   private static instance: MobileControlsManager;
@@ -143,37 +143,58 @@ export default class MobileControlsManager {
   }
 
   private createJoystick(screenWidth: number, screenHeight: number): void {
-    // Position joystick in bottom-left area
-    const joystickX = screenWidth * 0.2; // 20% from left edge
-    const joystickY = screenHeight * 0.8; // 80% from top (near bottom)
+    // Position joystick in bottom-left area with better safe margins
+    const joystickX = Math.max(screenWidth * 0.15, 80); // Ensure minimum distance from edge
+    const joystickY = screenHeight - Math.max(screenHeight * 0.2, 80); // Ensure it's above UI elements
 
-    // Create joystick base
+    // Create joystick base with improved visibility
     this.joyStickBase = this.scene.add.image(joystickX, joystickY, 'joystick-base')
       .setScrollFactor(0)
       .setDepth(100)
       .setAlpha(this.config.joystickAlpha)
       .setScale(this.config.joystickScale)
-      .setInteractive();
+      .setInteractive()
+      .setOrigin(0.5); // Ensure proper centering
 
     // Create joystick stick
     this.joyStick = this.scene.add.image(joystickX, joystickY, 'joystick')
       .setScrollFactor(0)
       .setDepth(101)
       .setAlpha(this.config.joystickAlpha)
-      .setScale(this.config.joystickScale * 0.8); // Make stick smaller than base
+      .setScale(this.config.joystickScale * 0.7) // Make stick smaller than base
+      .setOrigin(0.5); // Ensure proper centering
   }
 
   private createInteractButton(screenWidth: number, screenHeight: number): void {
-    // Position interact button in bottom-right area
-    const buttonX = screenWidth - (screenWidth * 0.15); // 15% from right edge
-    const buttonY = screenHeight * 0.8; // 80% from top
+    // Position interact button in bottom-right area with better safe margins
+    const buttonX = screenWidth - Math.max(screenWidth * 0.15, 80); // Ensure minimum distance from edge
+    const buttonY = screenHeight - Math.max(screenHeight * 0.2, 80); // Ensure it's above UI elements
 
     this.interactButton = this.scene.add.image(buttonX, buttonY, 'button-interact')
       .setScrollFactor(0)
       .setDepth(100)
       .setAlpha(this.config.buttonAlpha)
       .setScale(this.config.buttonScale)
-      .setInteractive();
+      .setInteractive()
+      .setOrigin(0.5) // Ensure proper centering
+      .on('pointerdown', () => {
+        // Visual feedback on press
+        if (this.interactButton) {
+          this.interactButton.setScale(this.config.buttonScale * 0.9);
+        }
+      })
+      .on('pointerup', () => {
+        // Restore scale on release
+        if (this.interactButton) {
+          this.interactButton.setScale(this.config.buttonScale);
+        }
+      })
+      .on('pointerout', () => {
+        // Restore scale if pointer leaves
+        if (this.interactButton) {
+          this.interactButton.setScale(this.config.buttonScale);
+        }
+      });
   }
 
   private setupEventListeners(): void {
@@ -321,16 +342,31 @@ export default class MobileControlsManager {
     const screenWidth = this.scene.cameras.main.width;
     const screenHeight = this.scene.cameras.main.height;
 
-    // Reposition joystick
-    const joystickX = screenWidth * 0.2;
-    const joystickY = screenHeight * 0.8;
+    // Reposition joystick with better safe margins
+    const joystickX = Math.max(screenWidth * 0.15, 80); // Ensure minimum distance from edge
+    const joystickY = screenHeight - Math.max(screenHeight * 0.2, 80); // Ensure it's above UI elements
     this.joyStickBase.setPosition(joystickX, joystickY);
     this.joyStick?.setPosition(joystickX, joystickY);
 
-    // Reposition interact button
-    const buttonX = screenWidth - (screenWidth * 0.15);
-    const buttonY = screenHeight * 0.8;
+    // Reposition interact button with better safe margins
+    const buttonX = screenWidth - Math.max(screenWidth * 0.15, 80); // Ensure minimum distance from edge
+    const buttonY = screenHeight - Math.max(screenHeight * 0.2, 80); // Ensure it's above UI elements
     this.interactButton.setPosition(buttonX, buttonY);
+    
+    // Add visual feedback during orientation change
+    if (this.joyStickBase && this.joyStick && this.interactButton) {
+      // Briefly highlight controls to show they've been repositioned
+      this.joyStickBase.setAlpha(this.config.joystickAlpha * 1.5);
+      this.joyStick.setAlpha(this.config.joystickAlpha * 1.5);
+      this.interactButton.setAlpha(this.config.buttonAlpha * 1.5);
+      
+      // Reset alpha after a short delay
+      this.scene.time.delayedCall(300, () => {
+        if (this.joyStickBase) this.joyStickBase.setAlpha(this.config.joystickAlpha);
+        if (this.joyStick) this.joyStick.setAlpha(this.config.joystickAlpha);
+        if (this.interactButton) this.interactButton.setAlpha(this.config.buttonAlpha);
+      });
+    }
   }
 
   /**

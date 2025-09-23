@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../utils/firebase';
-import { Web3Service } from '../services/Web3Service';
+// import { Web3Service } from '../services/Web3Service';
 import QuiztalRewardTracker from '../components/QuiztalRewardTracker';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import modernUITheme, { UIHelpers } from '../utils/UITheme';
@@ -15,7 +15,7 @@ export default class UIScene extends Phaser.Scene {
     private keyI!: Phaser.Input.Keyboard.Key; // <-- Added keyI property
     private keyR!: Phaser.Input.Keyboard.Key; // <-- Added keyR property for rewards
     private walletBtn!: Phaser.GameObjects.Text; // Update or add this property
-    private web3Service: Web3Service;
+    // private web3Service: Web3Service;
     private rewardTracker!: QuiztalRewardTracker; // Reward tracker component
     private headerButtons: Phaser.GameObjects.Container[] = []; // Track header buttons for resize
     private footerBg!: Phaser.GameObjects.Rectangle; // Footer background
@@ -24,7 +24,7 @@ export default class UIScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'UIScene' });
-        this.web3Service = new Web3Service();
+        // this.web3Service = new Web3Service();
     }
 
     create() {
@@ -116,6 +116,13 @@ export default class UIScene extends Phaser.Scene {
                 callback: () => this.openTokenClaim()
             },
             {
+                text: '💎',  // Wallet verification button
+                tooltip: 'Wallet',
+                color: '#9b59b6',  // Purple color for wallet
+                hoverColor: '#8e44ad',
+                callback: () => this.openWalletWindow()
+            },
+            {
                 text: '🎯',  // Session rewards tracker button
                 tooltip: 'Session Rewards',
                 color: '#f39c12',  // Orange/gold color for rewards
@@ -172,9 +179,9 @@ export default class UIScene extends Phaser.Scene {
 
     private createNavButton(text: string, tooltip: string, color: string, hoverColor: string, callback: () => void): Phaser.GameObjects.Container {
         const isMobile = this.scale.width < 768;
-        const buttonSize = isMobile ? 38 : 44; // Slightly larger for better aesthetics
+        const buttonSize = isMobile ? 44 : 44; // Minimum 44px for mobile touch targets
         const button = this.add.container(0, 0);
-        const touchPadding = isMobile ? 8 : 10;
+        const touchPadding = isMobile ? 12 : 10; // Increased padding for mobile
         
         // Create modern button background with gradient
         const buttonGraphics = this.add.graphics();
@@ -199,7 +206,7 @@ export default class UIScene extends Phaser.Scene {
 
         // Create icon with better typography
         const icon = this.add.text(0, 0, text, {
-            fontSize: UIHelpers.getResponsiveFontSize(isMobile, '18px'),
+            fontSize: UIHelpers.getResponsiveFontSize(isMobile, '20px'), // Slightly larger for better visibility
             fontFamily: modernUITheme.typography.fontFamily.primary,
             color: modernUITheme.colors.text.primary,
             padding: { x: 2, y: 2 }
@@ -220,11 +227,12 @@ export default class UIScene extends Phaser.Scene {
         .setVisible(false)
         .setAlpha(0) : null;
 
-        // Create interactive area
+        // Create interactive area with minimum touch target size
+        const touchAreaSize = Math.max(buttonSize + (touchPadding * 2), 44); // Ensure minimum 44px touch target
         const touchArea = this.add.rectangle(
             0, 0, 
-            buttonSize + (touchPadding * 2), 
-            buttonSize + (touchPadding * 2), 
+            touchAreaSize, 
+            touchAreaSize, 
             0x000000, 
             0
         )
@@ -339,7 +347,7 @@ export default class UIScene extends Phaser.Scene {
         if (tooltipText) elements.push(tooltipText);
         button.add(elements);
         
-        button.setSize(buttonSize + (touchPadding * 2), buttonSize + (touchPadding * 2));
+        button.setSize(touchAreaSize, touchAreaSize);
 
         return button;
     }
@@ -417,34 +425,80 @@ export default class UIScene extends Phaser.Scene {
 
     // Update setupBalanceListener method
     private setupBalanceListener() {
-        if (!this.playerId) return;
+      // Clear any existing listener first
+      try {
+        if (this.balanceUnsubscribe && typeof this.balanceUnsubscribe === 'function') {
+          this.balanceUnsubscribe();
+          this.balanceUnsubscribe = undefined;
+        }
+      } catch (e) {
+        console.warn('⚠️ UIScene: Error unsubscribing from previous balance listener', e);
+      }
+      
+      // Only set up listener if we have a valid player ID
+      if (!this.playerId) {
+        console.log('ℹ️ UIScene: No player ID, skipping balance listener setup');
+        return;
+      }
 
+      try {
         const playerRef = doc(db, "players", this.playerId);
         
-        this.balanceUnsubscribe = onSnapshot(playerRef, (doc) => {
-            if (doc.exists()) {
-                const playerData = doc.data();
-                // Update balance
-                const balance = playerData.quiztals || 0;
-                this.updateBalanceDisplay(balance);
-                
-                // Update wallet display
-                const boundWallet = playerData.walletAddress;
-                if (boundWallet) {
-                    const shortAddress = `${boundWallet.substring(0, 6)}...${boundWallet.substring(boundWallet.length - 4)}`;
-                    this.walletBtn.setText(`🦊 ${shortAddress}`).setColor('#2ecc71');
-                } else {
-                    this.walletBtn.setText('🦊 No Wallet Bound').setColor('#e74c3c');
-                }
+        // Add a check for authentication state before setting up listener
+        const unsubscribe = onSnapshot(playerRef, (doc) => {
+          // Add safety check for scene existence
+          if (!this.scene || !this.scene.isActive()) {
+            console.log('ℹ️ UIScene: Scene destroyed, ignoring snapshot update');
+            return;
+          }
+          
+          if (doc.exists()) {
+            const playerData = doc.data();
+            // Update balance
+            const balance = playerData.quiztals || 0;
+            this.updateBalanceDisplay(balance);
+            
+            // Update wallet display
+            const boundWallet = playerData.walletAddress;
+            if (boundWallet) {
+              const shortAddress = `${boundWallet.substring(0, 6)}...${boundWallet.substring(boundWallet.length - 4)}`;
+              this.walletBtn.setText(`🦊 ${shortAddress}`).setColor('#2ecc71');
             } else {
-                this.updateBalanceDisplay(0);
-                this.walletBtn.setText('🦊 No Wallet Bound').setColor('#e74c3c');
+              this.walletBtn.setText('🦊 No Wallet Bound').setColor('#e74c3c');
             }
+          } else {
+            this.updateBalanceDisplay(0);
+            this.walletBtn.setText('🦊 No Wallet Bound').setColor('#e74c3c');
+          }
         }, (error) => {
-            console.error("Error listening to player data:", error);
+          // Add safety check for scene existence
+          if (!this.scene || !this.scene.isActive()) {
+            console.log('ℹ️ UIScene: Scene destroyed, ignoring error');
+            return;
+          }
+          
+          console.error("Error listening to player data:", error);
+          // Add safety check before updating text
+          if (this.balanceText && this.balanceText.active) {
             this.balanceText.setText('Error loading balance');
+          }
+          if (this.walletBtn && this.walletBtn.active) {
             this.walletBtn.setText('❌ Error').setColor('#e74c3c');
+          }
         });
+        
+        // Store the unsubscribe function
+        this.balanceUnsubscribe = unsubscribe;
+      } catch (error) {
+        console.error("Error setting up balance listener:", error);
+        // Add safety check before updating text
+        if (this.balanceText && this.balanceText.active) {
+          this.balanceText.setText('Error loading balance');
+        }
+        if (this.walletBtn && this.walletBtn.active) {
+          this.walletBtn.setText('❌ Error').setColor('#e74c3c');
+        }
+      }
     }
 
     // Remove unnecessary wallet-related methods:
@@ -587,6 +641,28 @@ export default class UIScene extends Phaser.Scene {
         
         // Reposition header buttons on resize
         this.repositionHeaderButtons();
+        
+        // Update footer if it exists
+        if (this.footerBg && this.footerText && this.footerGraphics) {
+            const footerHeight = isMobile ? 35 : 45;
+            this.footerBg.setPosition(0, this.scale.height - footerHeight)
+                .setDisplaySize(this.scale.width, footerHeight);
+            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (footerHeight / 2));
+            
+            // Update footer graphics
+            this.footerGraphics.clear();
+            UIHelpers.createGradientFill(
+                this.footerGraphics,
+                0,
+                this.scale.height - footerHeight,
+                this.scale.width,
+                footerHeight,
+                modernUITheme.gradients.dark,
+                true
+            );
+            this.footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
+            this.footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
+        }
     }
     
     private repositionHeaderButtons() {
@@ -597,18 +673,23 @@ export default class UIScene extends Phaser.Scene {
         const buttonSpacing = isMobile ? 45 : 80;
         const rightMargin = isMobile ? 20 : 20;
         
-        // Calculate total width needed
+        // Calculate total width needed for all buttons including spacing
         const totalButtonsWidth = (this.headerButtons.length * buttonSize) + ((this.headerButtons.length - 1) * (buttonSpacing - buttonSize));
         
-        // Calculate safe starting position
-        let xPosition = Math.max(
+        // Calculate safe starting position to ensure buttons don't go off-screen
+        // Use Math.min to ensure we don't position buttons too far left
+        let xPosition = Math.min(
             this.scale.width - totalButtonsWidth - rightMargin,
-            rightMargin + buttonSize / 2
+            this.scale.width - rightMargin - (buttonSize / 2)
         );
+        
+        // Ensure minimum left position to prevent cut-off on small screens
+        const minLeftPosition = rightMargin + (buttonSize / 2);
+        xPosition = Math.max(xPosition, minLeftPosition);
         
         // Reposition each button
         this.headerButtons.forEach((button) => {
-            button.setPosition(xPosition, isMobile ? 30 : 25);
+            button.setPosition(xPosition, isMobile ? 35 : 25); // Slightly lower on mobile for better visibility
             xPosition += buttonSpacing;
         });
         
@@ -696,6 +777,26 @@ export default class UIScene extends Phaser.Scene {
         }
     }
 
+    /**
+     * Open or close the wallet verification window
+     */
+    private openWalletWindow() {
+        // Check if WalletWindowScene is active
+        const isWalletWindowOpen = this.scene.isActive('WalletWindowScene');
+
+        if (isWalletWindowOpen) {
+            // Close wallet window if it's open
+            this.scene.stop('WalletWindowScene');
+            this.scene.resume('GameScene');
+        } else {
+            // Open wallet window if it's closed
+            this.scene.launch('WalletWindowScene', {
+                onClose: () => this.scene.resume('GameScene')
+            });
+            this.scene.pause('GameScene');
+        }
+    }
+
     private handleLogout() {
         this.cameras.main.fadeOut(500, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -726,33 +827,55 @@ export default class UIScene extends Phaser.Scene {
 
     // Update shutdown method
     shutdown() {
-        if (this.balanceUnsubscribe) {
-            this.balanceUnsubscribe();
-        }
-        this.scale.off('resize', this.updateLayout, this);
+        console.log('🛑 UIScene: Starting shutdown...');
         
-        // Remove keyboard listeners
-        if (this.keyI) {
-            this.keyI.removeAllListeners();
-            if (this.input.keyboard) {
-                this.input.keyboard.removeKey(this.keyI);
+        // Clean up Firebase listeners first
+        try {
+            if (this.balanceUnsubscribe && typeof this.balanceUnsubscribe === 'function') {
+                this.balanceUnsubscribe();
+                this.balanceUnsubscribe = undefined;
             }
-        }
-        
-        if (this.keyR) {
-            this.keyR.removeAllListeners();
-            if (this.input.keyboard) {
-                this.input.keyboard.removeKey(this.keyR);
-            }
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error unsubscribing from balance listener', e);
         }
         
         // Clean up reward tracker
-        if (this.rewardTracker) {
-            this.rewardTracker.destroy();
+        try {
+            if (this.rewardTracker) {
+                this.rewardTracker.destroy();
+                (this.rewardTracker as any) = null;
+            }
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error destroying reward tracker', e);
         }
-
-        // Disconnect wallet
-        this.web3Service.disconnect();
+        
+        // Clean up keyboard listeners
+        try {
+            if (this.input && this.input.keyboard) {
+                this.input.keyboard.removeAllListeners();
+            }
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error cleaning up keyboard listeners', e);
+        }
+        
+        // Clean up UI elements
+        try {
+            if (this.uiContainer) {
+                this.uiContainer.destroy(true); // Destroy children as well
+                (this.uiContainer as any) = null;
+            }
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error destroying UI container', e);
+        }
+        
+        // Clean up header buttons array
+        try {
+            this.headerButtons = [];
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error cleaning up header buttons array', e);
+        }
+        
+        console.log('✅ UIScene: Shutdown complete');
     }
 }
 

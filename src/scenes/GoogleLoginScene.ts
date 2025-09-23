@@ -375,6 +375,13 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private async handleModernLogin(buttonContainer: Phaser.GameObjects.Container) {
+        // Flag to prevent multiple login attempts
+        if ((this as any).isLoggingIn) {
+            console.log('⚠️ GoogleLoginScene: Login already in progress');
+            return;
+        }
+        (this as any).isLoggingIn = true;
+        
         // Create modern loading overlay
         this.createModernLoadingOverlay();
         buttonContainer.setVisible(false);
@@ -384,7 +391,44 @@ export default class GoogleLoginScene extends Phaser.Scene {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             
-            await auth.signOut();
+            // Sign out any existing user and stop any running scenes
+            try {
+                await auth.signOut();
+                console.log('✅ GoogleLoginScene: Signed out existing user');
+            } catch (signOutError) {
+                console.warn('⚠️ GoogleLoginScene: Error during sign out', signOutError);
+            }
+            
+            // Clean up any existing Firebase listeners and data
+            try {
+                // Clear any existing player data
+                localStorage.removeItem("quiztal-player");
+                localStorage.removeItem("quiztal-nfts");
+                console.log('✅ GoogleLoginScene: Cleared existing localStorage data');
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error clearing localStorage', e);
+            }
+            
+            // Stop any potentially running game scenes to prevent conflicts
+            try {
+                const scenesToStop = ['GameScene', 'UIScene', 'CharacterSelectionScene', 'WalletWindowScene', 'NFTWindowScene'];
+                scenesToStop.forEach(sceneKey => {
+                    try {
+                        // Check if scene exists and is active before trying to stop it
+                        if (this.scene.get(sceneKey)) {
+                            if (this.scene.isActive(sceneKey)) {
+                                console.log(`🛑 GoogleLoginScene: Stopping active scene ${sceneKey}`);
+                                this.scene.stop(sceneKey);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`⚠️ GoogleLoginScene: Error checking/stopping scene ${sceneKey}`, e);
+                    }
+                });
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error stopping existing scenes', e);
+            }
+            
             this.updateModernLoadingProgress(0.3, "Opening Google Sign-in...");
             
             const result = await signInWithPopup(auth, provider);
@@ -401,6 +445,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
                     createdAt: Date.now(),
                     displayName: user.displayName || "Unknown Adventurer",
                 });
+                console.log('✅ GoogleLoginScene: Created new player document');
             }
 
             this.updateModernLoadingProgress(0.8, "Setting up your profile...");
@@ -409,8 +454,10 @@ export default class GoogleLoginScene extends Phaser.Scene {
                 uid: user.uid,
                 email: user.email,
                 displayName: user.displayName || "Unknown Adventurer",
+                character: "" // Initialize character as empty
             };
             localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
+            console.log('✅ GoogleLoginScene: Saved player data to localStorage');
 
             this.updateModernLoadingProgress(1, "Welcome to Crystle World!");
 
@@ -422,59 +469,261 @@ export default class GoogleLoginScene extends Phaser.Scene {
                 duration: 500,
                 ease: 'Back.easeIn',
                 onComplete: () => {
-                    this.scene.start('WalletVerificationScene');
+                    // Clean up before transitioning
+                    this.cleanupBeforeTransition();
+                    // Go directly to CharacterSelectionScene instead of WalletVerificationScene
+                    this.scene.start('CharacterSelectionScene');
                 }
             });
             
-        } catch (error) {
-            console.error("Modern login failed:", error);
-            this.showModernError("Sign-in failed. Please try again.");
+        } catch (error: any) {
+            console.error("❌ GoogleLoginScene: Modern login failed:", error);
+            
+            // More detailed error handling
+            let errorMessage = "Sign-in failed. Please try again.";
+            if (error.code) {
+                switch (error.code) {
+                    case 'auth/popup-closed-by-user':
+                        errorMessage = "Sign-in was cancelled. Please try again.";
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = "Network error. Please check your connection and try again.";
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = "This account has been disabled.";
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = "Too many requests. Please try again later.";
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage = "Sign-in popup was cancelled. Please try again.";
+                        break;
+                    case 'auth/popup-blocked':
+                        errorMessage = "Sign-in popup was blocked. Please allow popups for this site and try again.";
+                        break;
+                    default:
+                        errorMessage = `Sign-in error: ${error.code}`;
+                }
+            } else if (error.message && error.message.includes('Cross-Origin-Opener-Policy')) {
+                // Handle Cross-Origin policy issues
+                console.warn('⚠️ GoogleLoginScene: Cross-Origin policy issue detected. This is usually safe to ignore if login was cancelled.');
+                errorMessage = "Sign-in process interrupted. Please try again.";
+            }
+            
+            this.showModernError(errorMessage);
             buttonContainer.setVisible(true);
+            
+            // Clean up loading overlay on error
+            this.cleanupLoadingOverlay();
+        } finally {
+            // Reset login flag
+            (this as any).isLoggingIn = false;
+        }
+    }
+
+    private cleanupBeforeTransition() {
+        console.log('🧹 GoogleLoginScene: Cleaning up before transition...');
+        
+        try {
+            // Clean up any loading overlay
+            this.cleanupLoadingOverlay();
+            
+            // Clean up tweens
+            try {
+                this.tweens.killTweensOf(this);
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error killing tweens during transition', e);
+            }
+            
+            // Clean up any timers
+            try {
+                this.time.removeAllEvents();
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error removing timers during transition', e);
+            }
+            
+            // Perform complete resource cleanup
+            this.cleanupAllResources();
+            
+            console.log('✅ GoogleLoginScene: Pre-transition cleanup completed');
+        } catch (error) {
+            console.warn('⚠️ GoogleLoginScene: Error during pre-transition cleanup', error);
+        }
+    }
+    
+    private cleanupLoadingOverlay() {
+        try {
+            if ((this as any).loadingOverlay) {
+                const overlay = (this as any).loadingOverlay;
+                
+                // Clean up each element individually with error handling
+                const elements = ['overlay', 'cardBg', 'glow', 'icon', 'spinner', 'loadingBar'];
+                elements.forEach(key => {
+                    if (overlay[key]) {
+                        try {
+                            // Check if the element has a destroy method before calling it
+                            if (typeof overlay[key].destroy === 'function') {
+                                overlay[key].destroy();
+                            }
+                        } catch (e) {
+                            console.warn(`⚠️ GoogleLoginScene: Error destroying overlay element ${key}`, e);
+                        }
+                    }
+                });
+                
+                (this as any).loadingOverlay = null;
+            }
+        } catch (error) {
+            console.warn('⚠️ GoogleLoginScene: Error cleaning up loading overlay', error);
         }
     }
 
     private createModernLoadingOverlay() {
+        // Create a semi-transparent background overlay
+        const overlay = this.add.graphics();
+        overlay.fillStyle(0x000000, 0.7);
+        overlay.fillRect(0, 0, this.scale.width, this.scale.height);
+        overlay.setDepth(1000);
 
+        // Create a modern card for the loading content
+        const cardWidth = 350;
+        const cardHeight = 200;
+        const cardX = (this.scale.width - cardWidth) / 2;
+        const cardY = (this.scale.height - cardHeight) / 2;
+
+        const cardBg = this.add.graphics().setDepth(1001);
+        cardBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.95);
+        cardBg.fillRoundedRect(cardX, cardY, cardWidth, cardHeight, modernUITheme.borderRadius.lg);
+        cardBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.6);
+        cardBg.strokeRoundedRect(cardX, cardY, cardWidth, cardHeight, modernUITheme.borderRadius.lg);
+
+        // Add a subtle glow effect
+        const glow = this.add.graphics().setDepth(1000);
+        glow.lineStyle(4, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
+        glow.strokeRoundedRect(cardX - 2, cardY - 2, cardWidth + 4, cardHeight + 4, modernUITheme.borderRadius.lg + 2);
+
+        // Add icon or decorative element
+        const icon = this.add.text(
+            cardX + cardWidth / 2,
+            cardY + 50,
+            "🚀",
+            {
+                fontSize: '48px',
+                align: 'center'
+            }
+        ).setOrigin(0.5).setDepth(1002);
+
+        // Add loading text with modern styling
         this.loadingText = this.add.text(
-            this.scale.width / 2, this.scale.height / 2 - 30,
+            cardX + cardWidth / 2,
+            cardY + 100,
             "Loading...", {
                 fontSize: UIHelpers.getResponsiveFontSize(this.scale.width < 768, '18px'),
                 fontFamily: modernUITheme.typography.fontFamily.primary,
                 color: modernUITheme.colors.text.primary,
-                fontStyle: modernUITheme.typography.fontWeight.medium
+                fontStyle: modernUITheme.typography.fontWeight.medium,
+                align: 'center'
             }
-        ).setOrigin(0.5).setDepth(1001);
+        ).setOrigin(0.5).setDepth(1002);
 
-        this.loadingBar = this.add.graphics().setDepth(1001);
+        // Create animated spinner
+        const spinner = this.add.graphics().setDepth(1002);
+        spinner.lineStyle(4, UIHelpers.hexToNumber(modernUITheme.colors.accent), 1);
+        spinner.strokeCircle(0, 0, 12);
+        spinner.setPosition(cardX + cardWidth / 2, cardY + 150);
+
+        // Animate the spinner
+        this.tweens.add({
+            targets: spinner,
+            rotation: Math.PI * 2,
+            duration: 1000,
+            repeat: -1,
+            ease: 'Linear'
+        });
+
+        // Initialize the loading bar
+        this.loadingBar = this.add.graphics().setDepth(1002);
+
+        // Store references for updates
+        (this as any).loadingOverlay = { overlay, cardBg, glow, icon, spinner, loadingBar: this.loadingBar };
     }
 
     private updateModernLoadingProgress(percent: number, message: string) {
+        // Ensure loadingBar exists
+        if (!this.loadingBar) {
+            console.warn('Loading bar not initialized');
+            return;
+        }
+
         const isMobile = this.scale.width < 768;
-        const barWidth = isMobile ? 280 : 350;
-        const barHeight = 6;
-        const x = (this.scale.width - barWidth) / 2;
-        const y = this.scale.height / 2 + 20;
+        const cardWidth = 350;
+        const cardX = (this.scale.width - cardWidth) / 2;
+        const cardY = (this.scale.height - 200) / 2;
 
         this.loadingText.setText(message);
+        
+        // Update spinner animation based on progress
+        const spinner = (this as any).loadingOverlay?.spinner;
+        if (spinner) {
+            // Add a pulse effect to the spinner
+            this.tweens.add({
+                targets: spinner,
+                scale: 1.1,
+                duration: 300,
+                yoyo: true,
+                repeat: 0
+            });
+        }
+
+        // Update loading bar with modern design
         this.loadingBar.clear();
         
-        // Modern loading bar background
-        this.loadingBar.fillStyle(
-            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary), 0.5
+        const barWidth = isMobile ? 280 : 300;
+        const barHeight = 8;
+        const x = cardX + (cardWidth - barWidth) / 2;
+        const y = cardY + 170;
+
+        // Modern loading bar background with gradient
+        this.loadingBar.fillGradientStyle(
+            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            0.5
         );
-        this.loadingBar.fillRoundedRect(x, y, barWidth, barHeight, 3);
+        this.loadingBar.fillRoundedRect(x, y, barWidth, barHeight, 4);
         
         // Animated progress fill with gradient effect
         if (percent > 0) {
-            this.loadingBar.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent));
-            this.loadingBar.fillRoundedRect(x, y, barWidth * percent, barHeight, 3);
+            // Create a gradient for the progress fill
+            this.loadingBar.fillGradientStyle(
+                UIHelpers.hexToNumber(modernUITheme.colors.accent),
+                UIHelpers.hexToNumber('#f39c12'), // Slightly darker shade
+                UIHelpers.hexToNumber(modernUITheme.colors.accent),
+                UIHelpers.hexToNumber('#f39c12'),
+                1
+            );
+            this.loadingBar.fillRoundedRect(x, y, barWidth * percent, barHeight, 4);
             
-            // Glow effect
-            this.loadingBar.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
+            // Add a shine effect to the progress
+            this.loadingBar.fillStyle(UIHelpers.hexToNumber('#ffffff'), 0.3);
+            this.loadingBar.fillRoundedRect(x, y, barWidth * percent, barHeight / 2, 4);
+            
+            // Glow effect around the progress
+            this.loadingBar.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.4);
             this.loadingBar.strokeRoundedRect(
-                x - 1, y - 1, (barWidth * percent) + 2, barHeight + 2, 4
+                x - 1, y - 1, (barWidth * percent) + 2, barHeight + 2, 5
             );
         }
+        
+        // Add a subtle animation to the progress text
+        this.tweens.add({
+            targets: this.loadingText,
+            alpha: 0.7,
+            duration: 500,
+            yoyo: true,
+            repeat: -1
+        });
     }
 
     private showModernError(message: string) {
@@ -529,15 +778,142 @@ export default class GoogleLoginScene extends Phaser.Scene {
         });
     }
 
-    shutdown() {
-        // Clean up modern elements
-        this.scale.off('resize', this.handleResize, this);
+    private cleanupAllResources() {
+        console.log('🧹 GoogleLoginScene: Starting complete resource cleanup...');
         
-        if (this.backgroundGraphics) this.backgroundGraphics.destroy();
-        if (this.loadingBar) this.loadingBar.destroy();
-        if (this.loadingText) this.loadingText.destroy();
-        if (this.titleContainer) this.titleContainer.destroy();
-        if (this.loginCard) this.loginCard.destroy();
-        if (this.floatingShapesEvent) this.floatingShapesEvent.destroy();
+        try {
+            // Clean up event listeners
+            try {
+                this.scale.off('resize', this.handleResize, this);
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error removing resize listener', e);
+            }
+            
+            // Clean up floating shapes timer
+            if (this.floatingShapesEvent) {
+                try {
+                    this.floatingShapesEvent.remove(false); // Don't dispatch pending events
+                } catch (e) {
+                    console.warn('⚠️ GoogleLoginScene: Error removing floating shapes timer', e);
+                }
+                this.floatingShapesEvent = null as any;
+            }
+            
+            // Clean up all graphics objects
+            const graphicsObjects = [
+                this.backgroundGraphics,
+                this.loadingBar
+            ];
+            
+            graphicsObjects.forEach(obj => {
+                if (obj) {
+                    try {
+                        // Check if the object has a destroy method before calling it
+                        if (typeof obj.destroy === 'function') {
+                            obj.destroy();
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ GoogleLoginScene: Error destroying graphics object', e);
+                    }
+                }
+            });
+            
+            this.backgroundGraphics = null as any;
+            this.loadingBar = null as any;
+            
+            // Clean up text objects
+            if (this.loadingText) {
+                try {
+                    if (typeof this.loadingText.destroy === 'function') {
+                        this.loadingText.destroy();
+                    }
+                } catch (e) {
+                    console.warn('⚠️ GoogleLoginScene: Error destroying loading text', e);
+                }
+            }
+            this.loadingText = null as any;
+            
+            // Clean up container objects
+            const containers = [
+                this.titleContainer,
+                this.loginCard
+            ];
+            
+            containers.forEach(container => {
+                if (container) {
+                    try {
+                        // Check if the container has a destroy method before calling it
+                        if (typeof container.destroy === 'function') {
+                            container.destroy();
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ GoogleLoginScene: Error destroying container', e);
+                    }
+                }
+            });
+            
+            this.titleContainer = null as any;
+            this.loginCard = null as any;
+            
+            // Clean up any loading overlay elements
+            this.cleanupLoadingOverlay();
+            
+            // Clean up any tweens associated with this scene
+            try {
+                this.tweens.killTweensOf(this);
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error killing tweens', e);
+            }
+            
+            // Clean up any timers
+            try {
+                this.time.removeAllEvents();
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error removing timers', e);
+            }
+            
+            // Clean up any remaining game objects
+            try {
+                // Get all children and destroy them
+                if (this.children && typeof this.children.getAll === 'function') {
+                    const children = this.children.getAll();
+                    if (Array.isArray(children)) {
+                        children.forEach((child: any) => {
+                            if (child) {
+                                try {
+                                    // Skip destroying the scene itself
+                                    if (child !== this && typeof child.destroy === 'function') {
+                                        child.destroy();
+                                    }
+                                } catch (e) {
+                                    console.warn('⚠️ GoogleLoginScene: Error destroying child object', e);
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('⚠️ GoogleLoginScene: Error cleaning up child objects', e);
+            }
+            
+            // Reset flags
+            (this as any).isLoggingIn = false;
+            
+            console.log('✅ GoogleLoginScene: Complete resource cleanup completed');
+        } catch (error) {
+            console.error('❌ GoogleLoginScene: Error during complete resource cleanup', error);
+        }
     }
+
+    shutdown() {
+        console.log('🧹 GoogleLoginScene: Starting comprehensive cleanup...');
+        this.cleanupAllResources();
+    }
+    
+    // Phaser scene destroy method
+    destroy() {
+        console.log('🧨 GoogleLoginScene: Destroying scene...');
+        this.cleanupAllResources();
+    }
+
 }

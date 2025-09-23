@@ -67,15 +67,19 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
   private createAnimations(scene: Phaser.Scene) {
     this.directions.forEach((dir, index) => {
-      scene.anims.create({
-        key: `huntboy-idle-${dir}`,
-        frames: scene.anims.generateFrameNumbers("npc_huntboy", {
-          start: index * 6,
-          end: index * 6 + 5,
-        }),
-        frameRate: 3,
-        repeat: -1,
-      });
+      const animKey = `huntboy-idle-${dir}`;
+      // Check if animation already exists before creating it
+      if (!scene.anims.exists(animKey)) {
+        scene.anims.create({
+          key: animKey,
+          frames: scene.anims.generateFrameNumbers("npc_huntboy", {
+            start: index * 6,
+            end: index * 6 + 5,
+          }),
+          frameRate: 3,
+          repeat: -1,
+        });
+      }
     });
   }
 

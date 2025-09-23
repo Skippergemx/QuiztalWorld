@@ -39,8 +39,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: { selectedCharacter?: string }) {
-    if (data.selectedCharacter) {
+    if (data?.selectedCharacter) {
       this.selectedCharacter = data.selectedCharacter;
+    } else {
+      // Try to get character from localStorage if not passed in data
+      const playerDataStr = localStorage.getItem("quiztal-player");
+      if (playerDataStr) {
+        try {
+          const playerData = JSON.parse(playerDataStr);
+          if (playerData.character) {
+            this.selectedCharacter = playerData.character;
+          }
+        } catch (e) {
+          console.warn("Failed to parse player data from localStorage", e);
+        }
+      }
     }
   }
 
@@ -98,7 +111,7 @@ export default class GameScene extends Phaser.Scene {
     this.playerManager?.handleMovement(this.mobileControlsManager?.getIsMobile());
     this.playerManager?.updatePlayerUI();
     this.npcManager?.updateNPCProximity();
-    this.petManager?.updatePetSystem();
+    this.petManager?.update();
     this.walkingNPCManager?.updateWalkingNPCs(); // Add this line
   }
 
@@ -321,11 +334,158 @@ export default class GameScene extends Phaser.Scene {
   private handleSceneShutdown(): void {
     console.log('🛑 GameScene: Shutting down...');
     
-    showDialog(this, []);
-    
-    if (this.networkMonitor) {
-      this.networkMonitor.destroy();
+    // Clear any existing dialogs
+    try {
+      if (typeof showDialog === 'function') {
+        // Don't call with empty array as it will cause an error
+        // Instead, we just want to close any existing dialog
+        // showDialog(this, []); // This was causing the error
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error clearing dialogs during shutdown', e);
     }
+    
+    // Clean up network monitor
+    if (this.networkMonitor) {
+      try {
+        this.networkMonitor.destroy();
+      } catch (e) {
+        console.warn('⚠️ GameScene: Error destroying network monitor', e);
+      }
+    }
+  }
+
+  /**
+   * Clean up mobile-specific resources
+   */
+  shutdown(): void {
+    console.log('🛑 GameScene: Starting shutdown...');
+    
+    // Flag to prevent multiple shutdown calls
+    if ((this as any)._isShuttingDown) {
+      console.log('⚠️ GameScene: Shutdown already in progress, skipping...');
+      return;
+    }
+    (this as any)._isShuttingDown = true;
+    
+    try {
+      // Remove resize listener
+      this.scale.off('resize', this.handleResize, this);
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error removing resize listener', e);
+    }
+    
+    try {
+      // Clean up event listeners
+      this.events.off('shutdown', this.handleSceneShutdown, this);
+      
+      // Clean up keyboard listeners
+      if (this.input && this.input.keyboard) {
+        this.input.keyboard.removeAllListeners();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error cleaning up event listeners', e);
+    }
+    
+    // Stop UIScene if it's running
+    try {
+      if (this.scene.get('UIScene')) {
+        if (this.scene.isActive('UIScene')) {
+          this.scene.stop('UIScene');
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error stopping UIScene', e);
+    }
+    
+    // Clean up managers in reverse order of initialization
+    try {
+      if (this.mobileControlsManager) {
+        this.mobileControlsManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying mobile controls manager', e);
+    }
+    
+    try {
+      if (this.petManager) {
+        this.petManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying pet manager', e);
+    }
+    
+    try {
+      if (this.walkingNPCManager) {
+        this.walkingNPCManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying walking NPC manager', e);
+    }
+    
+    try {
+      if (this.npcManager) {
+        this.npcManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying NPC manager', e);
+    }
+    
+    try {
+      if (this.playerManager) {
+        this.playerManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying player manager', e);
+    }
+    
+    try {
+      if (this.physicsManager) {
+        this.physicsManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying physics manager', e);
+    }
+    
+    try {
+      if (this.assetManager) {
+        this.assetManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying asset manager', e);
+    }
+    
+    // Clean up system managers
+    try {
+      if (this.networkMonitor) {
+        this.networkMonitor.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying network monitor', e);
+    }
+    
+    try {
+      if (this.quizAntiSpamManager) {
+        this.quizAntiSpamManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error destroying quiz anti-spam manager', e);
+    }
+    
+    // Remove global references
+    if (typeof window !== 'undefined') {
+      try {
+        delete (window as any).quizAntiSpamManager;
+        delete (window as any).gameScene;
+      } catch (e) {
+        console.warn('⚠️ GameScene: Error removing global references', e);
+      }
+    }
+    
+    // Clear the shutdown flag
+    (this as any)._isShuttingDown = false;
+    
+    console.log('✅ GameScene: Shutdown complete');
   }
 
   /**
@@ -486,36 +646,22 @@ export default class GameScene extends Phaser.Scene {
     // Update camera bounds if needed
     if (this.cameras.main) {
       this.cameras.main.setViewport(0, 0, this.scale.width, this.scale.height);
+      
+      // Adjust camera zoom for better fit on different screen sizes
+      const aspectRatio = this.scale.width / this.scale.height;
+      if (aspectRatio > 1.5) {
+        // Landscape mode - zoom out slightly
+        this.cameras.main.setZoom(0.9);
+      } else {
+        // Portrait mode - normal zoom
+        this.cameras.main.setZoom(1);
+      }
     }
+    
+    // Notify other systems of resize
+    // Note: PlayerManager and NPCManager don't have handleResize methods
+    // but we could add them in the future if needed
     
     console.log(`📱 GameScene: Resized to ${this.scale.width}x${this.scale.height}`);
-  }
-
-  /**
-   * Clean up mobile-specific resources
-   */
-  shutdown(): void {
-    console.log('🛑 GameScene: Starting shutdown...');
-    
-    // Remove resize listener
-    this.scale.off('resize', this.handleResize, this);
-    
-    // Clean up mobile controls
-    if (this.mobileControlsManager) {
-      this.mobileControlsManager.destroy();
-    }
-    
-    // Clean up other systems
-    if (this.networkMonitor) {
-      this.networkMonitor.destroy();
-    }
-    
-    // Remove global references
-    if (typeof window !== 'undefined') {
-      delete (window as any).quizAntiSpamManager;
-      delete (window as any).gameScene;
-    }
-    
-    console.log('✅ GameScene: Shutdown complete');
   }
 }

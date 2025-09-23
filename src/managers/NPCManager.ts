@@ -10,6 +10,7 @@ import NftCyn from '../objects/NftCyn';
 import ProfChain from '../objects/ProfChain';
 import SmartContractGuy from '../objects/SmartContractGuy';
 import MrRugPull from '../objects/MrRugPull'; // Add MrRugPull import
+import WalkingNPCManager from './WalkingNPCManager'; // Add WalkingNPCManager import
 
 interface NPCConfig {
   id: string;
@@ -482,21 +483,48 @@ export default class NPCManager {
   }
 
   /**
-   * Clean up all NPCs
+   * Clean up NPC resources
    */
   public destroy(): void {
-    console.log('🧹 NPCManager: Cleaning up NPCs...');
+    console.log('🧹 NPCManager: Cleaning up NPC resources...');
     
-    this.npcs.forEach((npcInstance) => {
+    // Get WalkingNPCManager instance if it exists
+    let walkingNPCManager: WalkingNPCManager | null = null;
+    try {
+      walkingNPCManager = WalkingNPCManager.getInstance(this.scene);
+    } catch (e) {
+      console.warn('⚠️ NPCManager: Could not get WalkingNPCManager instance', e);
+    }
+    
+    // Clean up all NPC instances
+    // Create a copy of the map to avoid issues during iteration
+    const npcInstances = Array.from(this.npcs.values());
+    npcInstances.forEach((npcInstance) => {
       try {
-        if (npcInstance.npc && typeof npcInstance.npc.destroy === 'function') {
-          npcInstance.npc.destroy();
+        // If this is a walking NPC, unregister it from WalkingNPCManager first
+        if (walkingNPCManager && npcInstance.npc && typeof npcInstance.npc.getBehavior === 'function') {
+          try {
+            walkingNPCManager.unregisterWalkingNPC(npcInstance.npc);
+            console.log(`✅ NPCManager: Unregistered walking NPC ${npcInstance.config.name} from WalkingNPCManager`);
+          } catch (unregisterError) {
+            console.warn(`⚠️ NPCManager: Error unregistering walking NPC ${npcInstance.config.name}`, unregisterError);
+          }
         }
-      } catch (error) {
-        console.error(`❌ NPCManager: Error destroying ${npcInstance.config.name}:`, error);
+        
+        // Then destroy the NPC
+        if (npcInstance.npc && typeof npcInstance.npc.destroy === 'function') {
+          // Additional safety check to ensure NPC scene is still valid
+          if (npcInstance.npc.scene && npcInstance.npc.scene.game && !npcInstance.npc.scene.game.destroy) {
+            npcInstance.npc.destroy();
+          } else {
+            console.warn(`⚠️ NPCManager: Skipping destruction of NPC ${npcInstance.config.name} with invalid scene`);
+          }
+        }
+      } catch (e) {
+        console.warn(`⚠️ NPCManager: Error destroying NPC ${npcInstance.config.name}`, e);
       }
     });
-
+    
     this.npcs.clear();
     NPCManager.instance = null as any;
     console.log('✅ NPCManager: Cleanup complete');
@@ -532,4 +560,4 @@ export default class NPCManager {
       }))
     };
   }
-}
+}     

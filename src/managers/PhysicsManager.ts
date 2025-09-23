@@ -138,10 +138,15 @@ export default class PhysicsManager {
     
     let colliderCount = 0;
     
-    this.collisionLayers.forEach((layer) => {
+    // Create a copy of the array to avoid issues during iteration
+    const layers = [...this.collisionLayers];
+    layers.forEach((layer) => {
       try {
-        this.scene.physics.add.collider(player, layer);
-        colliderCount++;
+        // Additional safety check to ensure layer is still valid
+        if (layer && layer.scene && !layer.scene.game.destroy) {
+          this.scene.physics.add.collider(player, layer);
+          colliderCount++;
+        }
       } catch (error) {
         console.error('❌ PhysicsManager: Error adding player collider:', error);
       }
@@ -154,9 +159,14 @@ export default class PhysicsManager {
    * Add NPC collisions with all collision layers
    */
   public setupNPCCollisions(npc: Phaser.Physics.Arcade.Sprite): void {
-    this.collisionLayers.forEach((layer) => {
+    // Create a copy of the array to avoid issues during iteration
+    const layers = [...this.collisionLayers];
+    layers.forEach((layer) => {
       try {
-        this.scene.physics.add.collider(npc, layer);
+        // Additional safety check to ensure layer is still valid
+        if (layer && layer.scene && !layer.scene.game.destroy) {
+          this.scene.physics.add.collider(npc, layer);
+        }
       } catch (error) {
         console.error('❌ PhysicsManager: Error adding NPC collider:', error);
       }
@@ -167,9 +177,14 @@ export default class PhysicsManager {
    * Add pet collisions with all collision layers  
    */
   public setupPetCollisions(pet: Phaser.Physics.Arcade.Sprite): void {
-    this.collisionLayers.forEach((layer) => {
+    // Create a copy of the array to avoid issues during iteration
+    const layers = [...this.collisionLayers];
+    layers.forEach((layer) => {
       try {
-        this.scene.physics.add.collider(pet, layer);
+        // Additional safety check to ensure layer is still valid
+        if (layer && layer.scene && !layer.scene.game.destroy) {
+          this.scene.physics.add.collider(pet, layer);
+        }
       } catch (error) {
         console.error('❌ PhysicsManager: Error adding pet collider:', error);
       }
@@ -330,10 +345,14 @@ export default class PhysicsManager {
       issues.push('No collision layers found');
     }
 
-    // Check world bounds
-    const worldBounds = this.scene.physics.world.bounds;
-    if (worldBounds.width <= 0 || worldBounds.height <= 0) {
-      issues.push('Invalid world bounds');
+    // Check world bounds safely
+    if (this.scene && this.scene.physics && this.scene.physics.world) {
+      const worldBounds = this.scene.physics.world.bounds;
+      if (worldBounds && (worldBounds.width <= 0 || worldBounds.height <= 0)) {
+        issues.push('Invalid world bounds');
+      }
+    } else {
+      issues.push('Physics world not properly initialized');
     }
 
     return {
@@ -376,9 +395,38 @@ export default class PhysicsManager {
   public destroy(): void {
     console.log('🧹 PhysicsManager: Cleaning up physics resources...');
     
-    this.layers.clear();
+    // Clean up collision layers first
+    // Create a copy to avoid issues during iteration
+    const layersToClean = [...this.collisionLayers];
+    layersToClean.forEach(layer => {
+      try {
+        // Additional safety check
+        if (layer && typeof layer.destroy === 'function') {
+          layer.destroy();
+        }
+      } catch (e) {
+        console.warn('⚠️ PhysicsManager: Error destroying collision layer', e);
+      }
+    });
     this.collisionLayers = [];
+    
+    // Clean up layers map
+    this.layers.forEach((layerInfo, key) => {
+      try {
+        // Additional safety check
+        if (layerInfo.layer && typeof layerInfo.layer.destroy === 'function') {
+          layerInfo.layer.destroy();
+        }
+      } catch (e) {
+        console.warn(`⚠️ PhysicsManager: Error destroying layer ${key}`, e);
+      }
+    });
+    this.layers.clear();
+    
+    // Set tilemap to undefined
     this.tilemap = undefined;
+    
+    // Clear the instance reference
     PhysicsManager.instance = null as any;
     
     console.log('✅ PhysicsManager: Cleanup complete');

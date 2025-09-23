@@ -23,6 +23,12 @@ export default class WalkingNPC extends QuizNPC {
   }
 
   public update(deltaTime: number): void {
+    // Additional safety checks
+    if (!this.scene || !this.scene.game) {
+      console.warn(`WalkingNPC: Skipping update for ${this.texture ? this.texture.key : 'unknown'} - scene is invalid`);
+      return;
+    }
+    
     // Update UI element positions
     if (this.nameLabel) {
       this.nameLabel.setPosition(this.x, this.y - 40);

@@ -261,12 +261,12 @@ export default class GuideBookScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    // Content area
-    this.contentText = this.add.text(0, -bookHeight/2 + 120, '', {
+    // Content area - adjusted position to avoid navigation buttons
+    this.contentText = this.add.text(0, -bookHeight/2 + 100, '', {
       fontSize: isMobile ? '12px' : '14px',
       color: '#ecf0f1',
       align: 'left',
-      wordWrap: { width: bookWidth - 80 },
+      wordWrap: { width: bookWidth - 160 }, // Reduced width to accommodate side buttons
       lineSpacing: 5
     }).setOrigin(0.5, 0);
 
@@ -274,10 +274,10 @@ export default class GuideBookScene extends Phaser.Scene {
     this.createNavigationButtons(bookWidth, bookHeight, isMobile);
 
     // Close button
-    this.createCloseButton(bookWidth, bookHeight);
+    const closeButton = this.createCloseButton(bookWidth, bookHeight);
 
     // Add all elements to container
-    this.guideContainer.add([bookBg, titleBg, mainTitle, this.titleText, this.contentText, this.navigationContainer]);
+    this.guideContainer.add([bookBg, titleBg, mainTitle, this.titleText, this.contentText, this.navigationContainer, closeButton]);
     
     // Set depth to ensure guide book appears above other UI elements
     this.guideContainer.setDepth(2000);
@@ -286,8 +286,8 @@ export default class GuideBookScene extends Phaser.Scene {
   private createNavigationButtons(bookWidth: number, bookHeight: number, isMobile: boolean) {
     this.navigationContainer = this.add.container(0, 0);
 
-    // Previous button
-    const prevButton = this.add.container(-bookWidth/4, bookHeight/2 - 40);
+    // Previous button - positioned on the left middle side
+    const prevButton = this.add.container(-bookWidth/2 + 60, 0);
     const prevBg = this.add.graphics();
     prevBg.fillStyle(0x3498db, 1);
     prevBg.fillRoundedRect(-40, -15, 80, 30, 8);
@@ -310,8 +310,8 @@ export default class GuideBookScene extends Phaser.Scene {
       prevBg.fillRoundedRect(-40, -15, 80, 30, 8);
     });
 
-    // Next button
-    const nextButton = this.add.container(bookWidth/4, bookHeight/2 - 40);
+    // Next button - positioned on the right middle side
+    const nextButton = this.add.container(bookWidth/2 - 60, 0);
     const nextBg = this.add.graphics();
     nextBg.fillStyle(0x3498db, 1);
     nextBg.fillRoundedRect(-40, -15, 80, 30, 8);
@@ -334,8 +334,8 @@ export default class GuideBookScene extends Phaser.Scene {
       nextBg.fillRoundedRect(-40, -15, 80, 30, 8);
     });
 
-    // Section navigation dots
-    const dotsContainer = this.add.container(0, bookHeight/2 - 70);
+    // Section navigation dots - positioned at the bottom
+    const dotsContainer = this.add.container(0, bookHeight/2 - 50);
     for (let i = 0; i < this.sections.length; i++) {
       const dot = this.add.circle(i * 30 - (this.sections.length - 1) * 15, 0, 6, 0x7f8c8d);
       dot.setInteractive();
@@ -349,35 +349,38 @@ export default class GuideBookScene extends Phaser.Scene {
     this.navigationContainer.add([prevButton, nextButton, dotsContainer]);
   }
 
-  private createCloseButton(_bookWidth: number, _bookHeight: number) {
-    // Create a close button in the top-right corner of the right page
-    const closeButton = this.add.text(
-      this.cameras.main.centerX + 250, // Position on the right side
-      this.cameras.main.centerY - 180, // Position at the top
-      'X',
-      {
-        fontSize: '24px',
-        color: '#ff0000',
-        fontStyle: 'bold'
-      }
+  private createCloseButton(bookWidth: number, bookHeight: number) {
+    // Create a close button in the top-right corner
+    const closeBtnX = bookWidth/2 - 30;
+    const closeBtnY = -bookHeight/2 + 30;
+    
+    const closeBtn = this.add.container(closeBtnX, closeBtnY);
+    const closeBtnBg = this.add.circle(0, 0, 20, 0xe74c3c);
+    const closeBtnText = this.add.text(0, 0, '✖', {
+      fontSize: '16px',
+      color: '#ffffff',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    closeBtn.add([closeBtnBg, closeBtnText]);
+    closeBtn.setInteractive(
+      new Phaser.Geom.Circle(0, 0, 20),
+      Phaser.Geom.Circle.Contains
     );
-    
-    closeButton.setOrigin(0.5);
-    closeButton.setInteractive({ useHandCursor: true });
-    closeButton.on('pointerdown', () => {
-      this.toggleGuideBook();
-    });
-    
-    // Add hover effects
-    closeButton.on('pointerover', () => {
-      closeButton.setColor('#ff5555');
-    });
-    
-    closeButton.on('pointerout', () => {
-      closeButton.setColor('#ff0000');
-    });
-    
-    return closeButton;
+
+    closeBtn
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => {
+        closeBtnBg.setFillStyle(0xc0392b);
+        this.input.setDefaultCursor('pointer');
+      })
+      .on('pointerout', () => {
+        closeBtnBg.setFillStyle(0xe74c3c);
+        this.input.setDefaultCursor('default');
+      })
+      .on('pointerdown', () => this.toggleGuideBook());
+
+    return closeBtn;
   }
 
   private setupKeyboardControls() {
@@ -385,6 +388,10 @@ export default class GuideBookScene extends Phaser.Scene {
       // G key to toggle guide book
       this.keyG = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
       this.keyG.on('down', () => this.toggleGuideBook());
+
+      // ESC key to close guide book (matching inventory behavior)
+      const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+      escKey.on('down', () => this.toggleGuideBook());
 
       // Arrow keys for navigation
       const leftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -401,9 +408,11 @@ export default class GuideBookScene extends Phaser.Scene {
   private toggleGuideBook() {
     // Resume the game scene and stop this scene
     this.scene.resume('GameScene');
-    this.scene.stop();
+    this.scene.stop('GuideBookScene');
+    
+    // Reset default cursor
+    this.input.setDefaultCursor('default');
   }
-  
 // Removed unused closeGuideBook method
 
   private updateCurrentSection() {

@@ -47,17 +47,28 @@ export default class AssetManager {
    * Load all game assets in organized groups
    */
   public loadAllAssets(): void {
-    this.loadNPCAssets();
-    this.loadPlayerAssets();
-    this.loadUIAssets();
-    this.loadAudioAssets();
-    this.loadPetAssets();
+    // Detect if we're on a mobile device
+    const isMobile = this.scene.game.device.os.android || 
+                    this.scene.game.device.os.iOS || 
+                    this.scene.game.device.input.touch ||
+                    this.scene.scale.width < 768;
+    
+    // Load essential assets first
+    this.loadUIAssets(isMobile);
+    this.loadAudioAssets(isMobile);
+    this.loadPetAssets(isMobile);
+    
+    // Load player assets (essential for gameplay)
+    this.loadPlayerAssets(isMobile);
+    
+    // Load NPC assets progressively
+    this.loadNPCAssets(isMobile);
   }
 
   /**
    * Load all NPC-related assets
    */
-  private loadNPCAssets(): void {
+  private loadNPCAssets(isMobile: boolean = false): void {
     const npcConfigs: NPCAssetConfig[] = [
       {
         avatarKey: 'npc_huntboy_avatar',
@@ -149,54 +160,91 @@ export default class AssetManager {
       }
     ];
 
-    // Load NPC assets
-    npcConfigs.forEach(config => {
-      this.scene.load.image(config.avatarKey, config.avatarPath);
-      this.scene.load.spritesheet(config.spriteKey, config.spritePath, {
-        frameWidth: config.frameWidth,
-        frameHeight: config.frameHeight
+    // For mobile, load only essential NPC assets first, others can be loaded later
+    if (isMobile) {
+      // Load only the most commonly used NPCs first
+      // const essentialNPCs = [
+      //   'npc_huntboy_avatar', 'npc_basesage_avatar', 'npc_mintgirl_avatar', 
+      //   'npc_mrrugpull_avatar', 'npc_securitykai_avatar'
+      // ];
+      
+      npcConfigs.forEach(config => {
+        // For mobile, we could compress images or use lower quality versions
+        this.scene.load.image(config.avatarKey, config.avatarPath);
+        this.scene.load.spritesheet(config.spriteKey, config.spritePath, {
+          frameWidth: config.frameWidth,
+          frameHeight: config.frameHeight
+        });
       });
-    });
+    } else {
+      // Load all NPC assets for desktop
+      npcConfigs.forEach(config => {
+        this.scene.load.image(config.avatarKey, config.avatarPath);
+        this.scene.load.spritesheet(config.spriteKey, config.spritePath, {
+          frameWidth: config.frameWidth,
+          frameHeight: config.frameHeight
+        });
+      });
+    }
   }
 
   /**
    * Load all player character assets
    */
-  private loadPlayerAssets(): void {
+  private loadPlayerAssets(isMobile: boolean = false): void {
     const characters = ['lsxd', 'penski', 'sarah', 'xander'];
     
     characters.forEach(character => {
       const walkConfig: PlayerAssetConfig = {
         character,
-        walkPath: `assets/player/player_${character}_walk_1.png`,
-        idlePath: `assets/player/player_${character}_idle_1.png`,
+        walkPath: `assets/characters/player_${character}_walk_1.png`,
+        idlePath: `assets/characters/player_${character}_idle_1.png`,
         frameWidth: 32,
         frameHeight: 53
       };
 
-      this.scene.load.spritesheet(`player_${character}_walk_1`, walkConfig.walkPath, {
-        frameWidth: walkConfig.frameWidth,
-        frameHeight: walkConfig.frameHeight
-      });
+      // For mobile, we might want to load compressed versions or fewer animations
+      if (isMobile) {
+        // Load only essential player assets first
+        this.scene.load.spritesheet(`player_${character}_walk_1`, walkConfig.walkPath, {
+          frameWidth: walkConfig.frameWidth,
+          frameHeight: walkConfig.frameHeight
+        });
 
-      this.scene.load.spritesheet(`player_${character}_idle_1`, walkConfig.idlePath, {
-        frameWidth: walkConfig.frameWidth,
-        frameHeight: walkConfig.frameHeight
-      });
+        this.scene.load.spritesheet(`player_${character}_idle_1`, walkConfig.idlePath, {
+          frameWidth: walkConfig.frameWidth,
+          frameHeight: walkConfig.frameHeight
+        });
+      } else {
+        // Load all player assets for desktop
+        this.scene.load.spritesheet(`player_${character}_walk_1`, walkConfig.walkPath, {
+          frameWidth: walkConfig.frameWidth,
+          frameHeight: walkConfig.frameHeight
+        });
+
+        this.scene.load.spritesheet(`player_${character}_idle_1`, walkConfig.idlePath, {
+          frameWidth: walkConfig.frameWidth,
+          frameHeight: walkConfig.frameHeight
+        });
+      }
     });
   }
 
   /**
    * Load UI and control assets
    */
-  private loadUIAssets(): void {
-    const uiAssets: UIAssetConfig[] = [
+  private loadUIAssets(_isMobile: boolean = false): void {
+    // Essential UI assets that must be loaded first
+    const essentialUIAssets: UIAssetConfig[] = [
       { key: 'joystick', path: 'assets/ui/joystick.png' },
       { key: 'joystick-base', path: 'assets/ui/joystick-base.png' },
       { key: 'button-interact', path: 'assets/ui/button-interact.png' }
     ];
 
-    uiAssets.forEach(asset => {
+    // For mobile, ensure we have optimized versions of UI assets
+    essentialUIAssets.forEach(asset => {
+      // In a real implementation, we might have different paths for mobile-optimized assets
+      // For example: asset.path.replace('.png', '_mobile.png')
       this.scene.load.image(asset.key, asset.path);
     });
   }
@@ -204,29 +252,54 @@ export default class AssetManager {
   /**
    * Load audio assets
    */
-  private loadAudioAssets(): void {
+  private loadAudioAssets(_isMobile: boolean = false): void {
+    // For mobile, we might want to load lower quality audio or fewer audio files
     const audioAssets: AudioAssetConfig[] = [
       { key: 'moblin-giftbox', path: 'assets/audio/Moblin_giftbox.wav' }
     ];
 
-    audioAssets.forEach(asset => {
-      this.scene.load.audio(asset.key, asset.path);
-    });
+    // On mobile, we might skip loading some non-essential audio to save bandwidth
+    if (_isMobile) {
+      // Load only essential audio for mobile
+      audioAssets.forEach(asset => {
+        this.scene.load.audio(asset.key, asset.path);
+      });
+    } else {
+      // Load all audio for desktop
+      audioAssets.forEach(asset => {
+        this.scene.load.audio(asset.key, asset.path);
+      });
+    }
   }
 
   /**
    * Load pet-related assets
    */
-  private loadPetAssets(): void {
-    this.scene.load.spritesheet('moblin_walk', 'assets/pets/moblin_walk.png', {
-      frameWidth: 32,
-      frameHeight: 53
-    });
+  private loadPetAssets(_isMobile: boolean = false): void {
+    // For mobile, we might want to load lower quality versions of pet assets
+    if (_isMobile) {
+      // Load compressed versions for mobile if available
+      this.scene.load.spritesheet('moblin_walk', 'assets/pets/moblin_walk.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
 
-    this.scene.load.spritesheet('moblin_idle', 'assets/pets/moblin_idle.png', {
-      frameWidth: 32,
-      frameHeight: 53
-    });
+      this.scene.load.spritesheet('moblin_idle', 'assets/pets/moblin_idle.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+    } else {
+      // Load full quality versions for desktop
+      this.scene.load.spritesheet('moblin_walk', 'assets/pets/moblin_walk.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+
+      this.scene.load.spritesheet('moblin_idle', 'assets/pets/moblin_idle.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+    }
   }
 
   /**

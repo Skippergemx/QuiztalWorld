@@ -2,13 +2,15 @@
 import Phaser from "phaser";
 import BootScene from "./scenes/BootScene";
 import CharacterSelectionScene from "./scenes/CharacterSelectionScene";
-import WalletVerificationScene from "./scenes/WalletVerificationScene";
+// WalletVerificationScene removed from game flow
 import GameScene from "./scenes/GameScene";
 import UIScene from "./scenes/UIScene";
 import GoogleLoginScene from "./scenes/GoogleLoginScene";
 import InventoryScene from "./scenes/InventoryScene";
 import TokenClaimScene from "./scenes/TokenClaimScene";
 import GuideBookScene from "./scenes/GuideBookScene"; // Added GuideBookScene import
+import WalletWindowScene from "./scenes/WalletWindowScene";
+// NFTWindowScene import removed as it's been integrated into WalletWindowScene
 
 // Mobile detection utility
 const isMobile = () => {
@@ -60,13 +62,15 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [
     BootScene,
     GoogleLoginScene,
-    WalletVerificationScene,
+    // WalletVerificationScene removed from game flow
     CharacterSelectionScene,
     GameScene,
     UIScene,
     InventoryScene,
     TokenClaimScene,
     GuideBookScene, // Added GuideBookScene to scene list
+    WalletWindowScene,
+    // NFTWindowScene removed as it's been integrated into WalletWindowScene
   ],
   scale: {
     mode: Phaser.Scale.RESIZE,
@@ -135,14 +139,69 @@ window.addEventListener("resize", handleResize);
 
 // Handle orientation changes on mobile
 if (isMobile()) {
+  // Enhanced orientation change handling with better timing
   window.addEventListener("orientationchange", () => {
-    setTimeout(handleResize, 100); // Delay to ensure proper dimensions
+    // Add visual feedback during orientation change
+    const loadingElement = document.getElementById('loading');
+    if (loadingElement) {
+      loadingElement.style.display = 'block';
+      loadingElement.textContent = 'Adjusting layout...';
+    }
+    
+    // Use requestAnimationFrame for smoother transitions
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        handleResize();
+        
+        // Hide loading indicator after a short delay
+        setTimeout(() => {
+          if (loadingElement) {
+            loadingElement.style.display = 'none';
+          }
+        }, 300);
+      }, 50); // Reduced delay for faster response
+    });
   });
   
   // Prevent iOS Safari bounce effect
   document.body.addEventListener('touchmove', (e) => {
-    e.preventDefault();
+    // Only prevent default on touchmove events that are not scrollable
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
   }, { passive: false });
+  
+  // Additional handling for screen size changes that might not trigger orientationchange
+  let lastWidth = window.innerWidth;
+  let lastHeight = window.innerHeight;
+  
+  window.addEventListener('resize', () => {
+    const currentWidth = window.innerWidth;
+    const currentHeight = window.innerHeight;
+    
+    // Check if this is likely an orientation change
+    if (Math.abs(currentWidth - lastWidth) > 100 || Math.abs(currentHeight - lastHeight) > 100) {
+      // Add visual feedback
+      const loadingElement = document.getElementById('loading');
+      if (loadingElement) {
+        loadingElement.style.display = 'block';
+        }
+      
+      setTimeout(() => {
+        handleResize();
+        
+        // Hide loading indicator
+        setTimeout(() => {
+          if (loadingElement) {
+            loadingElement.style.display = 'none';
+          }
+        }, 300);
+      }, 50);
+    }
+    
+    lastWidth = currentWidth;
+    lastHeight = currentHeight;
+  });
 }
 
 // Initial loading cleanup

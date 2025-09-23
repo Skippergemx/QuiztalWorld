@@ -141,42 +141,82 @@ export default class PlayerManager {
   }
 
   /**
-   * Handle player movement and animations
+   * Handle player movement based on input
    */
-  public handleMovement(isMobile: boolean = false): void {
-    if (isMobile || !this.controls) return;
-
-    if (!this.player) {
-      console.error('❌ PlayerManager: Player not initialized');
+  handleMovement(isMobile: boolean = false): void {
+    // Add safety check for player existence
+    if (!this.player || !this.player.body) {
+      return;
+    }
+    
+    // Add safety check for scene and game state
+    if (!this.scene || !this.scene.game || !this.scene.game.loop) {
       return;
     }
 
-    const { cursors, wasd } = this.controls;
+    try {
+      // Reset velocity
+      this.player.setVelocity(0, 0);
 
-    const moveLeft = cursors.left?.isDown || wasd.left.isDown;
-    const moveRight = cursors.right?.isDown || wasd.right.isDown;
-    const moveUp = cursors.up?.isDown || wasd.up.isDown;
-    const moveDown = cursors.down?.isDown || wasd.down.isDown;
+      // Handle mobile vs desktop movement differently
+      if (isMobile) {
+        // For mobile, movement is handled by MobileControlsManager
+        // We just need to ensure the player object is valid
+        return;
+      }
 
-    this.player.setVelocity(0);
+      // Desktop keyboard controls
+      const cursors = this.scene.input.keyboard?.createCursorKeys();
+      const wasd = {
+        up: this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        left: this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        down: this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+        right: this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+      };
 
-    if (moveLeft) this.player.setVelocityX(-this.config.speed);
-    if (moveRight) this.player.setVelocityX(this.config.speed);
-    if (moveUp) this.player.setVelocityY(-this.config.speed);
-    if (moveDown) this.player.setVelocityY(this.config.speed);
+      let velocityX = 0;
+      let velocityY = 0;
+      const speed = this.config.speed;
 
-    // Determine direction and animation
-    const direction = moveLeft ? 'left' : 
-                     moveRight ? 'right' : 
-                     moveUp ? 'up' : 
-                     moveDown ? 'down' : 
-                     this.lastDirection;
+      // Handle arrow keys
+      if (cursors) {
+        if (cursors.left?.isDown) velocityX = -speed;
+        if (cursors.right?.isDown) velocityX = speed;
+        if (cursors.up?.isDown) velocityY = -speed;
+        if (cursors.down?.isDown) velocityY = speed;
+      }
 
-    const isMoving = moveLeft || moveRight || moveUp || moveDown;
-    const animationKey = isMoving ? `walk-${direction}` : `idle-${direction}`;
-    
-    this.player.play(animationKey, true);
-    this.lastDirection = direction;
+      // Handle WASD keys (override arrow keys if both are pressed)
+      if (wasd) {
+        if (wasd.left?.isDown) velocityX = -speed;
+        if (wasd.right?.isDown) velocityX = speed;
+        if (wasd.up?.isDown) velocityY = -speed;
+        if (wasd.down?.isDown) velocityY = speed;
+      }
+
+      // Apply velocity
+      this.player.setVelocity(velocityX, velocityY);
+
+      // Determine direction and play appropriate animation
+      if (velocityX !== 0 || velocityY !== 0) {
+        // Moving - determine direction
+        if (Math.abs(velocityX) > Math.abs(velocityY)) {
+          // Horizontal movement
+          this.lastDirection = velocityX > 0 ? 'right' : 'left';
+        } else {
+          // Vertical movement
+          this.lastDirection = velocityY > 0 ? 'down' : 'up';
+        }
+        this.player.play(`walk-${this.lastDirection}`, true);
+      } else {
+        // Idle - play idle animation
+        this.player.play(`idle-${this.lastDirection}`, true);
+      }
+
+
+    } catch (error) {
+      console.warn('PlayerManager: Error handling movement, likely due to scene shutdown', error);
+    }
   }
 
   /**
@@ -275,7 +315,36 @@ export default class PlayerManager {
         console.warn('⚠️ PlayerManager: No player document found in Firestore');
       }
     } catch (error) {
-      console.error('❌ PlayerManager: Error fetching player name:', error);
+      // Handle Firebase permissions error gracefully
+      if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+        console.warn('⚠️ PlayerManager: Insufficient permissions to fetch player name, using default');
+        // Create a default name display
+        if (this.player) {
+          this.playerNameText = this.scene.add.text(
+            this.player.x,
+            this.player.y + 35,
+            'Unknown Adventurer',
+            {
+              fontSize: '10px',
+              fontStyle: 'bold',
+              color: '#ffffff',
+              stroke: '#000000',
+              strokeThickness: 2,
+              shadow: {
+                offsetX: 1,
+                offsetY: 1,
+                color: '#000000',
+                blur: 1,
+                stroke: true,
+                fill: true
+              }
+            }
+          ).setOrigin(0.5)
+           .setDepth(100);
+        }
+      } else {
+        console.error('❌ PlayerManager: Error fetching player name:', error);
+      }
     }
   }
 
@@ -307,16 +376,28 @@ export default class PlayerManager {
    * Update player UI elements positions
    */
   public updatePlayerUI(): void {
-    if (!this.player) return;
+    if (!this.player || !this.scene) return;
 
     // Update title and aura positions
     if (this.playerTitle && this.titleAura) {
       const baseY = this.player.y - 40 + Math.sin(this.scene.time.now / 1500) * 2;
       this.playerTitle.setPosition(this.player.x, baseY);
       
-      this.titleAura.getChildren().forEach(aura => {
-        (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
-      });
+      // Add comprehensive safety check to ensure titleAura is still valid
+      try {
+        if (this.titleAura && typeof this.titleAura.getChildren === 'function') {
+          const children = this.titleAura.getChildren();
+          if (Array.isArray(children)) {
+            children.forEach(aura => {
+              if (aura && (aura as Phaser.GameObjects.Text).setPosition) {
+                (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error updating title aura positions', e);
+      }
     }
 
     // Update player name position
@@ -325,14 +406,23 @@ export default class PlayerManager {
     }
 
     // Update glow position and depth
-    if (this.playerGlow) {
+    if (this.playerGlow && this.player) {
       this.playerGlow
         .setPosition(this.player.x, this.player.y)
         .setDepth(0)
         .setVisible(true);
         
-      // Move below player to ensure it stays behind
-      this.scene.children.moveBelow(this.playerGlow, this.player);
+      // Add safety check for moveBelow operation
+      try {
+        if (this.scene.children && typeof this.scene.children.moveBelow === 'function') {
+          // Ensure both objects exist in the display list before moving
+          if (this.playerGlow.scene && this.player.scene) {
+            this.scene.children.moveBelow(this.playerGlow, this.player);
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error positioning player glow', e);
+      }
     }
   }
 
@@ -361,10 +451,21 @@ export default class PlayerManager {
     
     // Refresh aura depths
     if (this.titleAura) {
-      this.titleAura.getChildren().forEach((child) => {
-        (child as Phaser.GameObjects.Text).setDepth(AURA_DEPTH);
-      });
-      console.log(`✅ PlayerManager: Aura depths refreshed to ${AURA_DEPTH}`);
+      try {
+        if (typeof this.titleAura.getChildren === 'function') {
+          const children = this.titleAura.getChildren();
+          if (Array.isArray(children)) {
+            children.forEach((child) => {
+              if (child && (child as Phaser.GameObjects.Text).setDepth) {
+                (child as Phaser.GameObjects.Text).setDepth(AURA_DEPTH);
+              }
+            });
+            console.log(`✅ PlayerManager: Aura depths refreshed to ${AURA_DEPTH}`);
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error refreshing aura depths', e);
+      }
     }
     
     console.log('✅ PlayerManager: All title depths refreshed');
@@ -521,40 +622,31 @@ export default class PlayerManager {
   }
 
   /**
-   * Clean up player resources
-   */
-  public destroy(): void {
-    console.log('🧹 PlayerManager: Cleaning up player resources...');
-    
-    if (this.playerTitle) {
-      this.playerTitle.destroy();
-    }
-    
-    if (this.titleAura) {
-      this.titleAura.destroy();
-    }
-    
-    if (this.playerNameText) {
-      this.playerNameText.destroy();
-    }
-    
-    if (this.playerGlow) {
-      this.playerGlow.destroy();
-    }
-
-    PlayerManager.instance = null as any;
-    console.log('✅ PlayerManager: Cleanup complete');
-  }
-
-  /**
    * Get debug information
    */
   public getDebugInfo(): any {
     const auraDepths = this.titleAura ? 
-      this.titleAura.getChildren().map((child, index) => ({
-        index,
-        depth: (child as Phaser.GameObjects.Text).depth
-      })) : [];
+      (() => {
+        try {
+          if (typeof this.titleAura.getChildren === 'function') {
+            const children = this.titleAura.getChildren();
+            if (Array.isArray(children)) {
+              return children.map((child, index) => {
+                if (child && (child as Phaser.GameObjects.Text).depth !== undefined) {
+                  return {
+                    index,
+                    depth: (child as Phaser.GameObjects.Text).depth
+                  };
+                }
+                return { index, depth: null };
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('⚠️ PlayerManager: Error getting aura depths for debug info', e);
+        }
+        return [];
+      })() : [];
       
     return {
       playerExists: !!this.player,
@@ -572,5 +664,64 @@ export default class PlayerManager {
       auraDepths: auraDepths,
       controlsSetup: !!this.controls
     };
+  }
+
+  /**
+   * Clean up player resources
+   */
+  public destroy(): void {
+    console.log('🧹 PlayerManager: Cleaning up player resources...');
+    
+    // Clean up UI elements
+    if (this.playerTitle) {
+      try {
+        this.playerTitle.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying player title', e);
+      }
+    }
+    
+    if (this.playerNameText) {
+      try {
+        this.playerNameText.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying player name', e);
+      }
+    }
+    
+    if (this.playerGlow) {
+      try {
+        this.playerGlow.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying player glow', e);
+      }
+    }
+    
+    if (this.titleAura) {
+      try {
+        this.titleAura.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying title aura', e);
+      }
+    }
+    
+    // Clean up controls
+    if (this.controls) {
+      try {
+        // Clean up keyboard listeners
+        if (this.controls.wasd) {
+          Object.values(this.controls.wasd).forEach(key => {
+            if (key) {
+              key.removeAllListeners();
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error cleaning up controls', e);
+      }
+    }
+    
+    PlayerManager.instance = null as any;
+    console.log('✅ PlayerManager: Cleanup complete');
   }
 }

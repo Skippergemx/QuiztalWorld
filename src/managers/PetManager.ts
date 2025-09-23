@@ -264,7 +264,14 @@ export default class PetManager {
         console.log('✅ PetManager: Rewards processed successfully');
       }
     } catch (error) {
-      console.error('❌ PetManager: Error processing gift box rewards:', error);
+      // Handle Firebase permissions error gracefully
+      if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+        console.warn('⚠️ PetManager: Insufficient permissions to save rewards, logging locally only');
+        // Still log to local session tracker
+        QuiztalRewardLog.logReward('Moblin', totalReward);
+      } else {
+        console.error('❌ PetManager: Error processing gift box rewards:', error);
+      }
     }
   }
 
@@ -314,18 +321,38 @@ export default class PetManager {
   }
 
   /**
-   * Update pet system (called from main game loop)
+   * Update pet system each frame
    */
-  public updatePetSystem(): void {
+  update(): void {
+    // Add safety check for moblin
     if (!this.moblin) return;
 
-    // Update pet behavior
-    this.moblin.update();
-    
-    // Check for teleport every few seconds
-    if (this.scene.time.now % 3000 < 50) { // Roughly every 3 seconds
-      this.checkPetTeleport();
+    try {
+      // Update pet behavior (now properly handling async)
+      this.updatePetBehavior();
+      
+      // Check for teleport every few seconds
+      if (this.scene.time.now % 3000 < 50) { // Roughly every 3 seconds
+        this.checkPetTeleport();
+      }
+    } catch (error) {
+      console.warn('PetManager: Error during update, likely due to scene shutdown', error);
     }
+  }
+
+  /**
+   * Update pet behavior (separated from async handling)
+   */
+  private updatePetBehavior(): void {
+    // Add safety check for moblin and scene
+    if (!this.moblin || !this.scene) return;
+    
+    // Call moblin update without awaiting (to prevent blocking)
+    // The async nature of moblin.update is handled internally
+    this.moblin.update().catch(error => {
+      // Catch any async errors without breaking the game loop
+      console.warn('PetManager: Async error in moblin update', error);
+    });
   }
 
   /**

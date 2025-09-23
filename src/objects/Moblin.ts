@@ -328,9 +328,17 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
                 console.log(`Loaded ${this.giftBoxCount} gift boxes from Firestore`);
             }
         } catch (error) {
-            console.error('Error loading gift box data from Firestore:', error);
-            this.giftBoxCount = 0;
-            this.lastGiftTime = Date.now();
+            // Handle Firebase permissions error gracefully
+            if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+                console.warn('⚠️ Moblin: Insufficient permissions to load gift box data, using default values');
+                // Continue with default values
+                this.giftBoxCount = 0;
+                this.lastGiftTime = Date.now();
+            } else {
+                console.error('Error loading gift box data from Firestore:', error);
+                this.giftBoxCount = 0;
+                this.lastGiftTime = Date.now();
+            }
         }
     }
 
@@ -419,6 +427,12 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
     }
 
     private showCollectionAnimation(newBoxes: number) {
+        // Add safety check for scene and add method
+        if (!this.scene || !this.scene.add) {
+            console.warn('Moblin: Scene not available for collection animation');
+            return;
+        }
+        
         // Create temporary text showing the new boxes collected
         const collectText = this.scene.add.text(
             this.x,
@@ -443,18 +457,24 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
             duration: 2000,
             ease: 'Power2',
             onComplete: () => {
-                collectText.destroy();
+                // Add safety check before destroying
+                if (collectText && collectText.active) {
+                    collectText.destroy();
+                }
             }
         });
 
         // Make the moblin "bounce" slightly when collecting
-        this.scene.tweens.add({
-            targets: this,
-            scaleY: 1.1,
-            duration: 150,
-            yoyo: true,
-            ease: 'Back.easeOut'
-        });
+        // Add safety check for scene tweens
+        if (this.scene && this.scene.tweens) {
+            this.scene.tweens.add({
+                targets: this,
+                scaleY: 1.1,
+                duration: 150,
+                yoyo: true,
+                ease: 'Back.easeOut'
+            });
+        }
     }
 
     setTarget(target: Phaser.Physics.Arcade.Sprite) {
@@ -462,69 +482,78 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
     }
 
     async update() {
-        if (!this.target) return;
-
-        // Update gift box collection
-        await this.collectGiftBoxes();
-
-        // Update gift box display position to follow moblin
-        if ((this as any).giftBoxContainer) {
-            // Ensure gift box container is positioned correctly above the moblin
-            const giftBoxYOffset = -40; // Position above the moblin's head
-            // Update the base position for the floating animation
-            (this as any).giftBoxContainer.setData('baseX', this.x);
-            (this as any).giftBoxContainer.setData('baseY', this.y + giftBoxYOffset);
-        }
+        // Add safety checks for scene and target
+        if (!this.scene || !this.target) return;
         
-        // Update shout text position to follow moblin
-        if (this.shoutText) {
-            // Ensure shout text is positioned correctly above the moblin
-            const shoutYOffset = -60; // Position above the gift box
-            this.shoutText.setPosition(this.x, this.y + shoutYOffset);
-        }
+        // Additional safety check for scene state
+        if (!this.scene.game || !this.scene.game.loop) return;
 
-        const distance = Phaser.Math.Distance.Between(
-            this.x, this.y,
-            this.target.x, this.target.y
-        );
+        try {
+            // Update gift box collection
+            await this.collectGiftBoxes();
 
-        // Follow if too far away
-        if (distance > this.followDistance + 20) {
-            const angle = Phaser.Math.Angle.Between(
+            // Update gift box display position to follow moblin
+            if ((this as any).giftBoxContainer) {
+                // Ensure gift box container is positioned correctly above the moblin
+                const giftBoxYOffset = -40; // Position above the moblin's head
+                // Update the base position for the floating animation
+                (this as any).giftBoxContainer.setData('baseX', this.x);
+                (this as any).giftBoxContainer.setData('baseY', this.y + giftBoxYOffset);
+            }
+            
+            // Update shout text position to follow moblin
+            if (this.shoutText && this.shoutText.active) {
+                // Ensure shout text is positioned correctly above the moblin
+                const shoutYOffset = -60; // Position above the gift box
+                this.shoutText.setPosition(this.x, this.y + shoutYOffset);
+            }
+
+            const distance = Phaser.Math.Distance.Between(
                 this.x, this.y,
                 this.target.x, this.target.y
             );
 
-            this.setVelocity(
-                Math.cos(angle) * this.moveSpeed,
-                Math.sin(angle) * this.moveSpeed
-            );
+            // Follow if too far away
+            if (distance > this.followDistance + 20) {
+                const angle = Phaser.Math.Angle.Between(
+                    this.x, this.y,
+                    this.target.x, this.target.y
+                );
 
-            // Determine direction based on angle
-            const direction = this.getDirectionFromAngle(angle);
-            this.lastDirection = direction;
-            this.play(`moblin-walk-${direction}`, true);
-            
-        } else if (distance < this.followDistance - 10) {
-            // Too close, move away slightly
-            const angle = Phaser.Math.Angle.Between(
-                this.target.x, this.target.y,
-                this.x, this.y
-            );
+                this.setVelocity(
+                    Math.cos(angle) * this.moveSpeed,
+                    Math.sin(angle) * this.moveSpeed
+                );
 
-            this.setVelocity(
-                Math.cos(angle) * (this.moveSpeed * 0.5),
-                Math.sin(angle) * (this.moveSpeed * 0.5)
-            );
+                // Determine direction based on angle
+                const direction = this.getDirectionFromAngle(angle);
+                this.lastDirection = direction;
+                this.play(`moblin-walk-${direction}`, true);
+                
+            } else if (distance < this.followDistance - 10) {
+                // Too close, move away slightly
+                const angle = Phaser.Math.Angle.Between(
+                    this.target.x, this.target.y,
+                    this.x, this.y
+                );
 
-            const direction = this.getDirectionFromAngle(angle);
-            this.lastDirection = direction;
-            this.play(`moblin-walk-${direction}`, true);
-            
-        } else {
-            // Perfect distance, idle
-            this.setVelocity(0, 0);
-            this.play(`moblin-idle-${this.lastDirection}`, true);
+                this.setVelocity(
+                    Math.cos(angle) * (this.moveSpeed * 0.5),
+                    Math.sin(angle) * (this.moveSpeed * 0.5)
+                );
+
+                const direction = this.getDirectionFromAngle(angle);
+                this.lastDirection = direction;
+                this.play(`moblin-walk-${direction}`, true);
+                
+            } else {
+                // Perfect distance, idle
+                this.setVelocity(0, 0);
+                this.play(`moblin-idle-${this.lastDirection}`, true);
+            }
+        } catch (error) {
+            console.warn('Moblin: Error during update, likely due to scene shutdown', error);
+            // Don't throw the error to prevent breaking the game loop
         }
     }
 

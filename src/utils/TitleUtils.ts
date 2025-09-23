@@ -13,14 +13,14 @@ export function getPlayerTitle(nfts: NFTData[]): TitleConfig {
 
     if (hasCrystGuard && hasGemante) {
         return {
-            text: 'Crystle Gemante Holder',
+            text: 'Quiztal Master',
             color: '#ffd700',
             glowColor: '#ff8c00',
             auraColor: '#ffa500'  // Orange aura
         };
     } else if (hasCrystGuard) {
         return {
-            text: 'Cryst Guard Holder',
+            text: 'Quiztal Master',
             color: '#4169e1',
             glowColor: '#1e90ff',
             auraColor: '#00bfff'  // Deep sky blue aura

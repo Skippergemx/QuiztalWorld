@@ -120,7 +120,10 @@ export default class MrRugPull extends WalkingNPC {
   }
 
   // Override the update method to handle world bounds collision
-  public update(): void {
+  public update(deltaTime: number): void {
+    // Call the parent update method to ensure walking behavior is updated
+    super.update(deltaTime);
+    
     // Check if we've hit the world bounds
     if (this.body && (this.body.blocked.left || this.body.blocked.right || 
         this.body.blocked.up || this.body.blocked.down)) {

@@ -46,6 +46,12 @@ export default class WalkingNPCManager {
    * This should be called from the main game loop
    */
   public updateWalkingNPCs(): void {
+    // Additional safety check for scene validity
+    if (!this.scene || !this.scene.game) {
+      console.warn('WalkingNPCManager: Scene is invalid or destroyed, skipping update');
+      return;
+    }
+
     const currentTime = this.scene.time.now;
     const deltaTime = currentTime - this.lastUpdate;
     this.lastUpdate = currentTime;
@@ -56,9 +62,21 @@ export default class WalkingNPCManager {
     }
 
     // Update all registered walking NPCs
-    this.walkingNPCs.forEach(npc => {
+    // Create a copy of the array to avoid issues if NPCs are removed during iteration
+    const npcsToUpdate = [...this.walkingNPCs];
+    npcsToUpdate.forEach(npc => {
       try {
-        npc.update(deltaTime);
+        // Additional safety check to ensure NPC is still valid
+        if (npc && typeof npc.update === 'function') {
+          // Check if NPC scene is still valid
+          if (npc.scene && npc.scene.game && !npc.scene.game.destroy) {
+            npc.update(deltaTime);
+          } else {
+            console.warn('WalkingNPCManager: Skipping NPC with invalid scene during update');
+          }
+        } else {
+          console.warn('WalkingNPCManager: Skipping invalid NPC during update');
+        }
       } catch (error) {
         console.error(`❌ WalkingNPCManager: Error updating walking NPC:`, error);
       }
@@ -96,6 +114,20 @@ export default class WalkingNPCManager {
    */
   public destroy(): void {
     console.log('🧹 WalkingNPCManager: Cleaning up walking NPCs...');
+    
+    // Unregister all NPCs before clearing the array
+    const npcsToUnregister = [...this.walkingNPCs];
+    npcsToUnregister.forEach(npc => {
+      try {
+        // Clear the behavior to prevent further updates
+        if (npc && typeof npc.setBehavior === 'function') {
+          npc.setBehavior(undefined as any);
+        }
+      } catch (e) {
+        console.warn('⚠️ WalkingNPCManager: Error clearing behavior for NPC', e);
+      }
+    });
+    
     this.walkingNPCs = [];
     WalkingNPCManager.instance = null as any;
     console.log('✅ WalkingNPCManager: Cleanup complete');
