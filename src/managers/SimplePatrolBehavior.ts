@@ -7,7 +7,7 @@ export class SimplePatrolBehavior implements WalkingBehavior {
   private pointB: { x: number; y: number };
   private currentTarget: { x: number; y: number };
   private moveSpeed: number = 100;
-  private tolerance: number = 10; // How close to target before switching
+  private tolerance: number = 15; // Increased tolerance to ensure NPCs can reach their targets
   private isIdle: boolean = false;
   private idleTimer: number = 0;
   private readonly idleDuration: number = 3000; // 3 seconds in milliseconds
@@ -61,7 +61,7 @@ export class SimplePatrolBehavior implements WalkingBehavior {
         this.idleTimer = 0;
         // Switch target after idle period
         this.currentTarget = (this.currentTarget === this.pointA) ? this.pointB : this.pointA;
-        console.log(`Mr Rug Pull: Completed idle, switching target to x:${this.currentTarget.x}, y:${this.currentTarget.y}`);
+        console.log(`${this.getNPCName(npc)}: Completed idle, switching target to x:${this.currentTarget.x}, y:${this.currentTarget.y}`);
       } else {
         // Continue idle animation
         this.playAnimation(npc, 'idle', npc['lastDirection']);
@@ -79,7 +79,7 @@ export class SimplePatrolBehavior implements WalkingBehavior {
         this.isIdle = true;
         this.idleTimer = 0;
         this.playAnimation(npc, 'idle', npc['lastDirection']);
-        console.log(`Mr Rug Pull: Reached target, starting idle animation for 3 seconds`);
+        console.log(`${this.getNPCName(npc)}: Reached target, starting idle animation for 3 seconds`);
         return; // Skip movement during first frame of idle
       }
 
@@ -103,13 +103,25 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       const direction = this.getDirectionFromAngle(angle);
       
       // Debug logging to see what's happening
-      console.log(`NPC: Moving at angle ${Phaser.Math.RadToDeg(angle)}, direction: ${direction}`);
+      console.log(`${this.getNPCName(npc)}: Moving at angle ${Phaser.Math.RadToDeg(angle)}, direction: ${direction}`);
       
       npc['lastDirection'] = direction;
       
       // Play the correct animation based on direction
       this.playAnimation(npc, 'walk', direction);
     }
+  }
+
+  private getNPCName(npc: WalkingNPC): string {
+    if (npc.texture && npc.texture.key) {
+      const key = npc.texture.key;
+      if (key.includes('mrrugpull')) return 'Mr Rug Pull';
+      if (key.includes('artizengent')) return 'Artizen Gent';
+      if (key.includes('thirdwebguy')) return 'ThirdWeb Guy';
+      if (key.includes('alchemyman')) return 'Alchemy Man';
+      return key;
+    }
+    return 'Unknown NPC';
   }
 
   private getDirectionFromAngle(angle: number): string {
@@ -137,26 +149,28 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       return;
     }
     
+    const npcName = this.getNPCName(npc);
+    
     try {
       // Special handling for Mr. Rug Pull to ensure correct animations
       if (npc.texture && npc.texture.key === 'npc_mrrugpull') {
         const key = `mrrugpull-${type}-${direction}`;
-        console.log(`Mr Rug Pull: Trying to play animation ${key}`);
+        console.log(`${npcName}: Trying to play animation ${key}`);
         
         // Check if the animation exists before trying to play it
         if (npc.scene.anims.exists(key)) {
           // Get the current animation to check if we're already playing it
           const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-          console.log(`Mr Rug Pull: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
+          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
           
           if (!currentAnim || currentAnim.key !== key) {
             npc.play(key, true);
-            console.log(`Mr Rug Pull: Successfully playing animation ${key}`);
+            console.log(`${npcName}: Successfully playing animation ${key}`);
           } else {
-            console.log(`Mr Rug Pull: Already playing animation ${key}`);
+            console.log(`${npcName}: Already playing animation ${key}`);
           }
         } else {
-          console.log(`Mr Rug Pull: Animation ${key} does not exist`);
+          console.log(`${npcName}: Animation ${key} does not exist`);
           
           // Fallback to idle if walk animation doesn't exist
           const idleKey = `mrrugpull-idle-${direction}`;
@@ -164,48 +178,153 @@ export class SimplePatrolBehavior implements WalkingBehavior {
             const currentAnim = npc.anims ? npc.anims.currentAnim : null;
             if (!currentAnim || currentAnim.key !== idleKey) {
               npc.play(idleKey, true);
-              console.log(`Mr Rug Pull: Falling back to idle animation ${idleKey}`);
+              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
             } else {
-              console.log(`Mr Rug Pull: Already playing idle animation ${idleKey}`);
+              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
             }
           } else {
-            console.log(`Mr Rug Pull: Even fallback animation ${idleKey} does not exist`);
+            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
+          }
+        }
+      } 
+      // Special handling for Artizen Gent to ensure correct animations
+      else if (npc.texture && npc.texture.key === 'npc_artizengent') {
+        const key = `artizengent-${type}-${direction}`;
+        console.log(`${npcName}: Trying to play animation ${key}`);
+        
+        // Check if the animation exists before trying to play it
+        if (npc.scene.anims.exists(key)) {
+          // Get the current animation to check if we're already playing it
+          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
+          
+          if (!currentAnim || currentAnim.key !== key) {
+            npc.play(key, true);
+            console.log(`${npcName}: Successfully playing animation ${key}`);
+          } else {
+            console.log(`${npcName}: Already playing animation ${key}`);
+          }
+        } else {
+          console.log(`${npcName}: Animation ${key} does not exist`);
+          
+          // Fallback to idle if walk animation doesn't exist
+          const idleKey = `artizengent-idle-${direction}`;
+          if (npc.scene.anims.exists(idleKey)) {
+            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+            if (!currentAnim || currentAnim.key !== idleKey) {
+              npc.play(idleKey, true);
+              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
+            } else {
+              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
+            }
+          } else {
+            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
+          }
+        }
+      }
+      // Special handling for ThirdWeb Guy to ensure correct animations
+      else if (npc.texture && npc.texture.key === 'npc_thirdwebguy') {
+        const key = `thirdwebguy-${type}-${direction}`;
+        console.log(`${npcName}: Trying to play animation ${key}`);
+        
+        // Check if the animation exists before trying to play it
+        if (npc.scene.anims.exists(key)) {
+          // Get the current animation to check if we're already playing it
+          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
+          
+          if (!currentAnim || currentAnim.key !== key) {
+            npc.play(key, true);
+            console.log(`${npcName}: Successfully playing animation ${key}`);
+          } else {
+            console.log(`${npcName}: Already playing animation ${key}`);
+          }
+        } else {
+          console.log(`${npcName}: Animation ${key} does not exist`);
+          
+          // Fallback to idle if walk animation doesn't exist
+          const idleKey = `thirdwebguy-idle-${direction}`;
+          if (npc.scene.anims.exists(idleKey)) {
+            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+            if (!currentAnim || currentAnim.key !== idleKey) {
+              npc.play(idleKey, true);
+              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
+            } else {
+              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
+            }
+          } else {
+            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
+          }
+        }
+      }
+      // Special handling for Alchemy Man to ensure correct animations
+      else if (npc.texture && npc.texture.key === 'npc_alchemyman') {
+        const key = `alchemyman-${type}-${direction}`;
+        console.log(`${npcName}: Trying to play animation ${key}`);
+        
+        // Check if the animation exists before trying to play it
+        if (npc.scene.anims.exists(key)) {
+          // Get the current animation to check if we're already playing it
+          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
+          
+          if (!currentAnim || currentAnim.key !== key) {
+            npc.play(key, true);
+            console.log(`${npcName}: Successfully playing animation ${key}`);
+          } else {
+            console.log(`${npcName}: Already playing animation ${key}`);
+          }
+        } else {
+          console.log(`${npcName}: Animation ${key} does not exist`);
+          
+          // Fallback to idle if walk animation doesn't exist
+          const idleKey = `alchemyman-idle-${direction}`;
+          if (npc.scene.anims.exists(idleKey)) {
+            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+            if (!currentAnim || currentAnim.key !== idleKey) {
+              npc.play(idleKey, true);
+              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
+            } else {
+              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
+            }
+          } else {
+            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
           }
         }
       } else if (npc.texture) {
         // For other NPCs, use the standard approach
         const key = npc.getAnimationKey(type, direction);
-        console.log(`Other NPC: Trying to play animation ${key}`);
+        console.log(`${npcName}: Trying to play animation ${key}`);
         
         if (npc.scene.anims.exists(key)) {
           const currentAnim = npc.anims ? npc.anims.currentAnim : null;
           if (!currentAnim || currentAnim.key !== key) {
             npc.play(key, true);
-            console.log(`Other NPC: Successfully playing animation ${key}`);
+            console.log(`${npcName}: Successfully playing animation ${key}`);
           } else {
-            console.log(`Other NPC: Already playing animation ${key}`);
+            console.log(`${npcName}: Already playing animation ${key}`);
           }
         } else {
-          console.log(`Other NPC: Animation ${key} does not exist`);
+          console.log(`${npcName}: Animation ${key} does not exist`);
           // Fallback to idle if walk animation doesn't exist
           const idleKey = npc.getAnimationKey('idle', direction);
           if (npc.scene.anims.exists(idleKey)) {
             const currentAnim = npc.anims ? npc.anims.currentAnim : null;
             if (!currentAnim || currentAnim.key !== idleKey) {
               npc.play(idleKey, true);
-              console.log(`Other NPC: Falling back to idle animation ${idleKey}`);
+              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
             } else {
-              console.log(`Other NPC: Already playing idle animation ${idleKey}`);
+              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
             }
           } else {
-            console.log(`Other NPC: Even fallback animation ${idleKey} does not exist`);
+            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
           }
         }
       } else {
         console.warn('WalkingNPC: NPC texture not available');
       }
     } catch (error) {
-      console.warn('WalkingNPC: Error playing animation', error);
+      console.warn(`${npcName}: Error playing animation`, error);
     }
   }
 
@@ -226,6 +345,27 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     // Play idle animation in the last movement direction
     if (npc.texture && npc.texture.key === 'npc_mrrugpull') {
       const key = `mrrugpull-idle-${npc['lastDirection'] || 'down'}`;
+      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
+        npc.play(key, true);
+      }
+    } 
+    // Special handling for Artizen Gent to ensure correct animations
+    else if (npc.texture && npc.texture.key === 'npc_artizengent') {
+      const key = `artizengent-idle-${npc['lastDirection'] || 'down'}`;
+      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
+        npc.play(key, true);
+      }
+    }
+    // Special handling for ThirdWeb Guy to ensure correct animations
+    else if (npc.texture && npc.texture.key === 'npc_thirdwebguy') {
+      const key = `thirdwebguy-idle-${npc['lastDirection'] || 'down'}`;
+      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
+        npc.play(key, true);
+      }
+    }
+    // Special handling for Alchemy Man to ensure correct animations
+    else if (npc.texture && npc.texture.key === 'npc_alchemyman') {
+      const key = `alchemyman-idle-${npc['lastDirection'] || 'down'}`;
       if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
         npc.play(key, true);
       }

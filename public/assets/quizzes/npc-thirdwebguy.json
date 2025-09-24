@@ -1,0 +1,78 @@
+{
+  "npcId": "thirdwebguy",
+  "npcName": "3RDWeb Guy",
+  "theme": "ThirdWeb Platform",
+  "description": "Learn about the ThirdWeb platform and web3 development tools",
+  "questions": [
+    {
+      "question": "What is the primary purpose of ThirdWeb?",
+      "options": [
+        "To create digital art",
+        "To provide a platform for web3 development with pre-built tools and SDKs",
+        "To sell art supplies",
+        "To host art exhibitions"
+      ],
+      "answer": "To provide a platform for web3 development with pre-built tools and SDKs",
+      "feedback": {
+        "correct": "Correct! ThirdWeb helps developers build web3 applications faster with ready-to-use tools.",
+        "incorrect": "Not quite! ThirdWeb is specifically focused on web3 development tools and SDKs."
+      }
+    },
+    {
+      "question": "How does ThirdWeb help developers?",
+      "options": [
+        "By providing free art supplies",
+        "By offering pre-built smart contracts and development tools",
+        "By buying their artwork",
+        "By teaching them traditional art techniques"
+      ],
+      "answer": "By offering pre-built smart contracts and development tools",
+      "feedback": {
+        "correct": "Exactly! ThirdWeb provides ready-to-use smart contracts and development tools to speed up web3 development.",
+        "incorrect": "Close, but not quite! ThirdWeb focuses on pre-built smart contracts and development tools."
+      }
+    },
+    {
+      "question": "What type of technology does ThirdWeb primarily support?",
+      "options": [
+        "Traditional web development",
+        "Web3 and blockchain development",
+        "Mobile app development",
+        "Desktop software development"
+      ],
+      "answer": "Web3 and blockchain development",
+      "feedback": {
+        "correct": "Right! ThirdWeb specializes in web3 and blockchain development tools.",
+        "incorrect": "Not exactly! ThirdWeb focuses specifically on web3 and blockchain development."
+      }
+    },
+    {
+      "question": "What can developers do with ThirdWeb?",
+      "options": [
+        "Only view artwork",
+        "Build, deploy, and manage smart contracts and web3 applications",
+        "Create physical art pieces",
+        "Attend in-person art classes"
+      ],
+      "answer": "Build, deploy, and manage smart contracts and web3 applications",
+      "feedback": {
+        "correct": "Perfect! Developers can build, deploy, and manage smart contracts and web3 applications with ThirdWeb.",
+        "incorrect": "Not quite! ThirdWeb enables building, deploying, and managing smart contracts and web3 applications."
+      }
+    },
+    {
+      "question": "How does ThirdWeb ensure quality in its tools?",
+      "options": [
+        "By only featuring famous developers",
+        "By having a comprehensive documentation and testing process",
+        "By charging high fees",
+        "By limiting the number of developers"
+      ],
+      "answer": "By having a comprehensive documentation and testing process",
+      "feedback": {
+        "correct": "Exactly! ThirdWeb maintains quality through comprehensive documentation and testing processes.",
+        "incorrect": "Close, but not quite! ThirdWeb maintains quality through comprehensive documentation and testing."
+      }
+    }
+  ]
+}

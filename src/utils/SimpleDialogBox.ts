@@ -58,14 +58,13 @@ export class SimpleDialogBox {
     
     this.dialogContainer.add(dialogBg);
 
-    // Avatar
-    const avatarSize = UIHelpers.getResponsiveSpacing(isMobile, 80, 60);
+    // Avatar with fixed dimensions 100x123
     this.avatar = scene.add.image(
       UIHelpers.getResponsiveSpacing(isMobile, 60, 45),
       this.boxHeight / 2,
       "npc_mintgirl_avatar"
     )
-      .setDisplaySize(avatarSize, avatarSize)
+      .setDisplaySize(100, 123)
       .setOrigin(0.5)
       .setVisible(false);
     this.dialogContainer.add(this.avatar);

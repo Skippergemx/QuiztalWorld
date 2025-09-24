@@ -1,0 +1,78 @@
+{
+  "npcId": "artizengent",
+  "npcName": "Artizen Gent",
+  "theme": "Artizen.fund Platform",
+  "description": "Learn about the Artizen.fund platform and NFT art ecosystem",
+  "questions": [
+    {
+      "question": "What is the primary purpose of Artizen.fund?",
+      "options": [
+        "To create digital art",
+        "To provide a platform for discovering and supporting NFT art projects",
+        "To sell art supplies",
+        "To host art exhibitions"
+      ],
+      "answer": "To provide a platform for discovering and supporting NFT art projects",
+      "feedback": {
+        "correct": "Correct! Artizen.fund helps connect art enthusiasts with talented NFT artists.",
+        "incorrect": "Not quite! Artizen.fund is specifically focused on NFT art discovery and support."
+      }
+    },
+    {
+      "question": "How does Artizen.fund support artists?",
+      "options": [
+        "By providing free art supplies",
+        "By offering grants and exposure to a wider audience",
+        "By buying their artwork",
+        "By teaching them traditional art techniques"
+      ],
+      "answer": "By offering grants and exposure to a wider audience",
+      "feedback": {
+        "correct": "Exactly! Artizen.fund provides financial support and visibility to talented artists.",
+        "incorrect": "Close, but not quite! The platform focuses on grants and exposure for artists."
+      }
+    },
+    {
+      "question": "What type of artwork is primarily featured on Artizen.fund?",
+      "options": [
+        "Traditional paintings",
+        "Sculptures",
+        "NFT art and digital collectibles",
+        "Photography"
+      ],
+      "answer": "NFT art and digital collectibles",
+      "feedback": {
+        "correct": "Right! The platform specializes in NFT art and digital collectibles.",
+        "incorrect": "Not exactly! Artizen.fund focuses specifically on NFT art and digital collectibles."
+      }
+    },
+    {
+      "question": "What can users do on Artizen.fund?",
+      "options": [
+        "Only view artwork",
+        "Discover, support, and collect NFT art",
+        "Create physical art pieces",
+        "Attend in-person art classes"
+      ],
+      "answer": "Discover, support, and collect NFT art",
+      "feedback": {
+        "correct": "Perfect! Users can discover, support, and collect NFT art on the platform.",
+        "incorrect": "Not quite! The platform enables discovery, support, and collection of NFT art."
+      }
+    },
+    {
+      "question": "How does Artizen.fund ensure quality in its featured projects?",
+      "options": [
+        "By only featuring famous artists",
+        "By having a curation process",
+        "By charging high fees",
+        "By limiting the number of artists"
+      ],
+      "answer": "By having a curation process",
+      "feedback": {
+        "correct": "Exactly! Artizen.fund uses a careful curation process to maintain quality.",
+        "incorrect": "Close, but not quite! The platform maintains quality through a curation process."
+      }
+    }
+  ]
+}

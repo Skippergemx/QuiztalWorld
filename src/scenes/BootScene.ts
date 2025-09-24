@@ -37,6 +37,36 @@ export default class BootScene extends Phaser.Scene {
             frameHeight: 53,
         });
 
+        // ✅ Load Artizen Gent spritesheets (idle and walk)
+        this.load.spritesheet("npc_artizengent", "assets/npc/npc_artizengent_idle_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("npc_artizengent_walk", "assets/npc/npc_artizengent_walk_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+
+        // ✅ Load 3RDWeb Guy spritesheets (idle and walk)
+        this.load.spritesheet("npc_thirdwebguy", "assets/npc/npc_thirdwebguy_idle_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("npc_thirdwebguy_walk", "assets/npc/npc_thirdwebguy_walk_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+
+        // ✅ Load Alchemy Man spritesheets (idle and walk)
+        this.load.spritesheet("npc_alchemyman", "assets/npc/npc_alchemyman_idle_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("npc_alchemyman_walk", "assets/npc/npc_alchemyman_walk_1.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+
         // ✅ Load Moblin pet spritesheets (idle and walk)
         this.load.spritesheet("moblin_idle", "assets/pets/moblin_idle.png", {
             frameWidth: 32,

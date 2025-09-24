@@ -22,6 +22,20 @@ export default class MobileControlsManager {
   private isMobile: boolean = false;
   private isJoystickActive: boolean = false;
   
+  // Velocity smoothing
+  private targetVelocityX: number = 0;
+  private targetVelocityY: number = 0;
+  private currentVelocityX: number = 0;
+  private currentVelocityY: number = 0;
+  private velocitySmoothing: number = 0.15; // Smoothing factor (0-1, lower = smoother)
+  private stopThreshold: number = 0.5; // Threshold for immediate stop
+  
+  // Animation direction handling
+  private lastDirection: string = 'down';
+  private directionChangeThreshold: number = 0.3; // Minimum joystick movement to trigger direction change
+  private directionChangeTimer: number = 0;
+  private directionChangeDelay: number = 150; // Delay in ms before allowing direction change
+
   // Configuration
   private config: MobileControlsConfig = {
     joystickScale: 1.4, // Increased scale for better visibility
@@ -37,6 +51,9 @@ export default class MobileControlsManager {
     this.playerManager = playerManager;
     this.networkMonitor = networkMonitor;
     this.detectMobile();
+    
+    // Initialize with default parameters
+    this.initializeDefaultParameters();
   }
 
   public static getInstance(scene: Phaser.Scene, playerManager: any, networkMonitor: any): MobileControlsManager {
@@ -84,6 +101,51 @@ export default class MobileControlsManager {
     if (this.interactButton) {
       this.interactButton.setScale(this.config.buttonScale).setAlpha(this.config.buttonAlpha);
     }
+  }
+
+  /**
+   * Set the velocity smoothing factor
+   * @param smoothing - Value between 0-1, lower values = smoother movement
+   */
+  public setVelocitySmoothing(smoothing: number): void {
+    this.velocitySmoothing = Phaser.Math.Clamp(smoothing, 0.01, 1);
+  }
+
+  /**
+   * Get the current velocity smoothing factor
+   */
+  public getVelocitySmoothing(): number {
+    return this.velocitySmoothing;
+  }
+
+  /**
+   * Set the direction change delay
+   * @param delay - Delay in milliseconds before allowing direction change
+   */
+  public setDirectionChangeDelay(delay: number): void {
+    this.directionChangeDelay = delay;
+  }
+
+  /**
+   * Get the current direction change delay
+   */
+  public getDirectionChangeDelay(): number {
+    return this.directionChangeDelay;
+  }
+
+  /**
+   * Set the stop threshold
+   * @param threshold - Speed threshold below which character stops immediately
+   */
+  public setStopThreshold(threshold: number): void {
+    this.stopThreshold = threshold;
+  }
+
+  /**
+   * Get the current stop threshold
+   */
+  public getStopThreshold(): number {
+    return this.stopThreshold;
   }
 
   /**
@@ -239,14 +301,9 @@ export default class MobileControlsManager {
 
     // Convert joystick movement to player velocity
     const speedMultiplier = 200 / 50; // Convert joystick distance to match keyboard speed
-    const velocityX = moveX * speedMultiplier;
-    const velocityY = moveY * speedMultiplier;
+    this.targetVelocityX = moveX * speedMultiplier;
+    this.targetVelocityY = moveY * speedMultiplier;
     
-    // Set player velocity through PlayerManager
-    if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
-      this.playerManager.setPlayerVelocity(velocityX, velocityY);
-    }
-
     // Update player animation direction
     this.updatePlayerAnimation(moveX, moveY);
   }
@@ -260,10 +317,12 @@ export default class MobileControlsManager {
     this.joyStick.x = this.joyStickBase.x;
     this.joyStick.y = this.joyStickBase.y;
     
-    // Stop player movement
-    if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
-      this.playerManager.setPlayerVelocity(0, 0);
-    }
+    // Set target velocity to zero for smooth deceleration
+    this.targetVelocityX = 0;
+    this.targetVelocityY = 0;
+    
+    // Reset direction change timer to allow immediate direction change when joystick is used again
+    this.directionChangeTimer = 0;
     
     // Set idle animation
     if (this.playerManager && typeof this.playerManager.getLastDirection === 'function' && 
@@ -304,14 +363,31 @@ export default class MobileControlsManager {
       return;
     }
 
+    // Only change direction if movement is significant enough
+    const movementMagnitude = Math.sqrt(moveX * moveX + moveY * moveY);
+    if (movementMagnitude < this.directionChangeThreshold) {
+      return;
+    }
+
     // Determine direction based on joystick movement
     const direction = Math.abs(moveX) > Math.abs(moveY) 
       ? (moveX < 0 ? 'left' : 'right')
       : (moveY < 0 ? 'up' : 'down');
     
-    // Play walk animation and update last direction
-    this.playerManager.playPlayerAnimation(`walk-${direction}`);
-    this.playerManager.setLastDirection(direction);
+    // Add delay to prevent rapid direction changes
+    const currentTime = this.scene.time.now;
+    if (direction !== this.lastDirection) {
+      if (currentTime - this.directionChangeTimer > this.directionChangeDelay) {
+        // Play walk animation and update last direction
+        this.playerManager.playPlayerAnimation(`walk-${direction}`);
+        this.playerManager.setLastDirection(direction);
+        this.lastDirection = direction;
+        this.directionChangeTimer = currentTime;
+      }
+    } else {
+      // Maintain current direction animation
+      this.playerManager.playPlayerAnimation(`walk-${this.lastDirection}`);
+    }
   }
 
   private destroyMobileControls(): void {
@@ -331,6 +407,35 @@ export default class MobileControlsManager {
     }
     
     this.isJoystickActive = false;
+  }
+
+  /**
+   * Update method to be called in the game loop for smooth velocity transitions
+   */
+  public update(): void {
+    if (!this.isMobile) return;
+    
+    // Check if we should stop immediately
+    const isStopping = this.targetVelocityX === 0 && this.targetVelocityY === 0;
+    const currentSpeed = Math.sqrt(this.currentVelocityX * this.currentVelocityX + this.currentVelocityY * this.currentVelocityY);
+    
+    if (isStopping && currentSpeed < this.stopThreshold) {
+      // Stop immediately when close to zero and target is zero
+      this.currentVelocityX = 0;
+      this.currentVelocityY = 0;
+      if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
+        this.playerManager.setPlayerVelocity(0, 0);
+      }
+    } else {
+      // Smoothly interpolate velocity towards target
+      this.currentVelocityX += (this.targetVelocityX - this.currentVelocityX) * this.velocitySmoothing;
+      this.currentVelocityY += (this.targetVelocityY - this.currentVelocityY) * this.velocitySmoothing;
+      
+      // Apply smoothed velocity to player
+      if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
+        this.playerManager.setPlayerVelocity(this.currentVelocityX, this.currentVelocityY);
+      }
+    }
   }
 
   /**
@@ -412,7 +517,51 @@ export default class MobileControlsManager {
       hasInteractButton: !!this.interactButton,
       joystickActive: this.isJoystickActive,
       config: this.config,
-      joystickState: this.getJoystickState()
+      joystickState: this.getJoystickState(),
+      velocityInfo: {
+        targetX: this.targetVelocityX,
+        targetY: this.targetVelocityY,
+        currentX: this.currentVelocityX,
+        currentY: this.currentVelocityY,
+        smoothing: this.velocitySmoothing
+      },
+      directionInfo: {
+        lastDirection: this.lastDirection,
+        directionChangeTimer: this.directionChangeTimer,
+        directionChangeDelay: this.directionChangeDelay
+      }
     };
+  }
+
+  /**
+   * Initialize default movement parameters
+   */
+  private initializeDefaultParameters(): void {
+    // These values can be adjusted based on testing and user feedback
+    this.velocitySmoothing = 0.15;
+    this.directionChangeDelay = 150;
+    this.directionChangeThreshold = 0.3;
+  }
+
+  /**
+   * Update movement parameters from configuration
+   * @param config - Configuration object with movement parameters
+   */
+  public updateMovementParameters(config: any): void {
+    if (config.velocitySmoothing !== undefined) {
+      this.setVelocitySmoothing(config.velocitySmoothing);
+    }
+    
+    if (config.directionChangeDelay !== undefined) {
+      this.setDirectionChangeDelay(config.directionChangeDelay);
+    }
+    
+    if (config.directionChangeThreshold !== undefined) {
+      this.directionChangeThreshold = config.directionChangeThreshold;
+    }
+    
+    if (config.stopThreshold !== undefined) {
+      this.stopThreshold = config.stopThreshold;
+    }
   }
 }

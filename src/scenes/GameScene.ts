@@ -86,7 +86,7 @@ export default class GameScene extends Phaser.Scene {
     this.initializeNPCs();
 
     // 6. Initialize walking NPCs (new)
-    this.initializeWalkingNPCs(); // Add this line
+    this.initializeWalkingNPCs();
 
     // 7. Set up input handling
     this.setupInputHandling();
@@ -112,7 +112,10 @@ export default class GameScene extends Phaser.Scene {
     this.playerManager?.updatePlayerUI();
     this.npcManager?.updateNPCProximity();
     this.petManager?.update();
-    this.walkingNPCManager?.updateWalkingNPCs(); // Add this line
+    this.walkingNPCManager?.updateWalkingNPCs();
+    
+    // Update mobile controls for smooth movement
+    this.mobileControlsManager?.update();
   }
 
   // === INITIALIZATION METHODS ===
@@ -213,6 +216,33 @@ export default class GameScene extends Phaser.Scene {
       console.log('✅ GameScene: MrRugPull registered with WalkingNPCManager');
     } else {
       console.warn('⚠️ GameScene: MrRugPull not found in NPCManager, cannot register with WalkingNPCManager');
+    }
+
+    // Get the ArtizenGent instance from the NPCManager and register it with the WalkingNPCManager
+    const artizenGent = this.npcManager.getNPC('artizengent');
+    if (artizenGent) {
+      this.walkingNPCManager.registerWalkingNPC(artizenGent);
+      console.log('✅ GameScene: ArtizenGent registered with WalkingNPCManager');
+    } else {
+      console.warn('⚠️ GameScene: ArtizenGent not found in NPCManager, cannot register with WalkingNPCManager');
+    }
+
+    // Get the ThirdWebGuy instance from the NPCManager and register it with the WalkingNPCManager
+    const thirdWebGuy = this.npcManager.getNPC('thirdwebguy');
+    if (thirdWebGuy) {
+      this.walkingNPCManager.registerWalkingNPC(thirdWebGuy);
+      console.log('✅ GameScene: ThirdWebGuy registered with WalkingNPCManager');
+    } else {
+      console.warn('⚠️ GameScene: ThirdWebGuy not found in NPCManager, cannot register with WalkingNPCManager');
+    }
+
+    // Get the AlchemyMan instance from the NPCManager and register it with the WalkingNPCManager
+    const alchemyMan = this.npcManager.getNPC('alchemyman');
+    if (alchemyMan) {
+      this.walkingNPCManager.registerWalkingNPC(alchemyMan);
+      console.log('✅ GameScene: AlchemyMan registered with WalkingNPCManager');
+    } else {
+      console.warn('⚠️ GameScene: AlchemyMan not found in NPCManager, cannot register with WalkingNPCManager');
     }
 
     console.log('✅ GameScene: Walking NPC system initialized');

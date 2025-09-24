@@ -157,6 +157,30 @@ export default class AssetManager {
         spritePath: 'assets/npc/npc_mrrugpull_idle_1.png',
         frameWidth: 32,
         frameHeight: 53
+      },
+      {
+        avatarKey: 'npc_artizengent_avatar',
+        avatarPath: 'assets/npc/npc_artizengent_avatar.png',
+        spriteKey: 'npc_artizengent',
+        spritePath: 'assets/npc/npc_artizengent_idle_1.png',
+        frameWidth: 32,
+        frameHeight: 53
+      },
+      {
+        avatarKey: 'npc_thirdwebguy_avatar',
+        avatarPath: 'assets/npc/npc_thirdwebguy_avatar.png',
+        spriteKey: 'npc_thirdwebguy',
+        spritePath: 'assets/npc/npc_thirdwebguy_idle_1.png',
+        frameWidth: 32,
+        frameHeight: 53
+      },
+      {
+        avatarKey: 'npc_alchemyman_avatar',
+        avatarPath: 'assets/npc/npc_alchemyman_avatar.png',
+        spriteKey: 'npc_alchemyman',
+        spritePath: 'assets/npc/npc_alchemyman_idle_1.png',
+        frameWidth: 32,
+        frameHeight: 53
       }
     ];
 
@@ -184,6 +208,16 @@ export default class AssetManager {
           frameWidth: config.frameWidth,
           frameHeight: config.frameHeight
         });
+      
+        // Load walk animation if it exists (for walking NPCs)
+        if (config.spriteKey.includes('mrrugpull') || config.spriteKey.includes('artizengent') || config.spriteKey.includes('thirdwebguy') || config.spriteKey.includes('alchemyman')) {
+          const walkKey = config.spriteKey + '_walk';
+          const walkPath = config.spritePath.replace('_idle_1', '_walk_1');
+          this.scene.load.spritesheet(walkKey, walkPath, {
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight
+          });
+        }
       });
     }
   }

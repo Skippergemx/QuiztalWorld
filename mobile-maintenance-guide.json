@@ -36,7 +36,36 @@
             "joystickScale": 1.2,
             "buttonScale": 1.3,
             "joystickAlpha": 0.7,
-            "buttonAlpha": 0.8
+            "buttonAlpha": 0.8,
+            "velocitySmoothing": 0.15,
+            "directionChangeDelay": 150,
+            "directionChangeThreshold": 0.3,
+            "stopThreshold": 0.5
+          },
+          "tuning": {
+            "utility": "src/utils/MovementTuningHelper.ts",
+            "parameters": {
+              "velocitySmoothing": {
+                "description": "Controls how smoothly velocity changes (0.01-1.0, lower = smoother)",
+                "default": 0.15,
+                "range": [0.01, 1.0]
+              },
+              "directionChangeDelay": {
+                "description": "Delay in ms before allowing direction change to prevent flickering",
+                "default": 150,
+                "range": [50, 500]
+              },
+              "directionChangeThreshold": {
+                "description": "Minimum joystick movement to trigger direction change",
+                "default": 0.3,
+                "range": [0.1, 1.0]
+              },
+              "stopThreshold": {
+                "description": "Speed threshold below which character stops immediately",
+                "default": 0.5,
+                "range": [0.1, 2.0]
+              }
+            }
           }
         },
         "interactButton": {

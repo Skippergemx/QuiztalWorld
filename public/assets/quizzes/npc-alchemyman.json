@@ -1,0 +1,78 @@
+{
+  "npcId": "alchemyman",
+  "npcName": "Alchemy Man",
+  "theme": "Alchemy Platform",
+  "description": "Learn about the Alchemy platform and blockchain infrastructure",
+  "questions": [
+    {
+      "question": "What is the primary purpose of Alchemy?",
+      "options": [
+        "To create digital art",
+        "To provide a platform for blockchain infrastructure and development tools",
+        "To sell art supplies",
+        "To host art exhibitions"
+      ],
+      "answer": "To provide a platform for blockchain infrastructure and development tools",
+      "feedback": {
+        "correct": "Correct! Alchemy provides powerful infrastructure and tools for blockchain developers.",
+        "incorrect": "Not quite! Alchemy focuses on blockchain infrastructure and development tools."
+      }
+    },
+    {
+      "question": "How does Alchemy help blockchain developers?",
+      "options": [
+        "By providing free art supplies",
+        "By offering reliable node infrastructure and development APIs",
+        "By buying their artwork",
+        "By teaching them traditional art techniques"
+      ],
+      "answer": "By offering reliable node infrastructure and development APIs",
+      "feedback": {
+        "correct": "Exactly! Alchemy provides reliable node infrastructure and development APIs to help developers build on blockchain.",
+        "incorrect": "Close, but not quite! Alchemy focuses on node infrastructure and development APIs."
+      }
+    },
+    {
+      "question": "What type of technology does Alchemy primarily support?",
+      "options": [
+        "Traditional web development",
+        "Blockchain and Web3 development",
+        "Mobile app development",
+        "Desktop software development"
+      ],
+      "answer": "Blockchain and Web3 development",
+      "feedback": {
+        "correct": "Right! Alchemy specializes in blockchain and Web3 development infrastructure.",
+        "incorrect": "Not exactly! Alchemy focuses specifically on blockchain and Web3 development."
+      }
+    },
+    {
+      "question": "What can developers do with Alchemy?",
+      "options": [
+        "Only view artwork",
+        "Access reliable blockchain data and build decentralized applications",
+        "Create physical art pieces",
+        "Attend in-person art classes"
+      ],
+      "answer": "Access reliable blockchain data and build decentralized applications",
+      "feedback": {
+        "correct": "Perfect! Developers can access reliable blockchain data and build dApps with Alchemy.",
+        "incorrect": "Not quite! Alchemy enables access to blockchain data and dApp development."
+      }
+    },
+    {
+      "question": "How does Alchemy ensure reliability in its services?",
+      "options": [
+        "By only featuring famous developers",
+        "By providing enterprise-grade infrastructure with high uptime",
+        "By charging high fees",
+        "By limiting the number of developers"
+      ],
+      "answer": "By providing enterprise-grade infrastructure with high uptime",
+      "feedback": {
+        "correct": "Exactly! Alchemy maintains reliability through enterprise-grade infrastructure with high uptime.",
+        "incorrect": "Close, but not quite! Alchemy maintains reliability through enterprise-grade infrastructure."
+      }
+    }
+  ]
+}

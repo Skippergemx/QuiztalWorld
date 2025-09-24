@@ -12,7 +12,6 @@ import SmartContractGuy from '../objects/SmartContractGuy';
 import MrRugPull from '../objects/MrRugPull'; // Add MrRugPull import
 import ArtizenGent from '../objects/ArtizenGent'; // Add ArtizenGent import
 import ThirdWebGuy from '../objects/ThirdWebGuy'; // Add ThirdWebGuy import
-import AlchemyMan from '../objects/AlchemyMan'; // Add AlchemyMan import
 import WalkingNPCManager from './WalkingNPCManager'; // Add WalkingNPCManager import
 
 interface NPCConfig {
@@ -125,13 +124,6 @@ export default class NPCManager {
       name: '3RDWeb Guy',
       class: ThirdWebGuy,
       position: { x: 1430, y: 760 }, // Position for ThirdWeb Guy
-      interactionRange: 100
-    },
-    {
-      id: 'alchemyman',
-      name: 'Alchemy Man',
-      class: AlchemyMan,
-      position: { x: 300, y: 760 }, // Position for Alchemy Man
       interactionRange: 100
     }
   ];

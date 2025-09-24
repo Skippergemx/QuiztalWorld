@@ -81,6 +81,27 @@ export default class WalkingNPC extends QuizNPC {
       return key;
     }
     
+    // Special case for Artizen Gent's animations
+    if (textureKey === 'npc_artizengent' || textureKey === 'npc_artizengent_walk') {
+      const key = `artizengent-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
+    }
+    
+    // Special case for ThirdWeb Guy's animations
+    if (textureKey === 'npc_thirdwebguy' || textureKey === 'npc_thirdwebguy_walk') {
+      const key = `thirdwebguy-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
+    }
+    
+    // Special case for Alchemy Man's animations
+    if (textureKey === 'npc_alchemyman' || textureKey === 'npc_alchemyman_walk') {
+      const key = `alchemyman-${type}-${direction}`;
+      console.log(`Generated animation key for ${textureKey}: ${key}`);
+      return key;
+    }
+    
     // Handle different texture naming conventions
     if (textureKey.includes('_idle')) {
       // For textures like 'moblin_idle', use 'moblin'
