@@ -12,7 +12,6 @@
 export class MovementTuningHelper {
   private static instance: MovementTuningHelper | null = null;
   private mobileControlsManager: any;
-  private scene!: Phaser.Scene;
   private guiContainer: Phaser.GameObjects.Container | null = null;
   
   private constructor() {}
@@ -30,7 +29,6 @@ export class MovementTuningHelper {
    * @param mobileControlsManager The MobileControlsManager instance
    */
   public showControls(scene: Phaser.Scene, mobileControlsManager: any): void {
-    this.scene = scene;
     this.mobileControlsManager = mobileControlsManager;
     
     // Create GUI container
