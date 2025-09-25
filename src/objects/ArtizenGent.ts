@@ -36,7 +36,7 @@ export default class ArtizenGent extends WalkingNPC {
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(true);  // Make Artizen Gent immovable
+    this.setImmovable(false);  // Allow Artizen Gent to move for patrol behavior
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling

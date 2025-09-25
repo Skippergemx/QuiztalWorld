@@ -34,7 +34,7 @@ export default class ThirdWebGuy extends WalkingNPC {
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(true);  // Make 3RDWeb Guy immovable
+    this.setImmovable(false);  // Allow 3RDWeb Guy to move for patrol behavior
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling

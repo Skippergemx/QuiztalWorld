@@ -131,7 +131,7 @@ export default class NPCManager {
       id: 'alchemyman',
       name: 'Alchemy Man',
       class: AlchemyMan,
-      position: { x: 300, y: 760 }, // Position for Alchemy Man
+      position: { x: 175, y: 760 }, // Position for Alchemy Man
       interactionRange: 100
     }
   ];

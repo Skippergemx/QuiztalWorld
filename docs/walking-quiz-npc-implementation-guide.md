@@ -587,9 +587,46 @@ export default class {NPCName} extends WalkingNPC {
   }
 }
 
-## Patrol Patterns
+## Patrol Behavior Implementation Best Practices
 
-Walking NPCs can patrol in different patterns depending on the desired behavior:
+### 1. Idle Duration Configuration
+**Recommended Range**: 5-20 seconds for natural variation
+```typescript
+private readonly minIdleDuration: number = 5000;  // 5 seconds minimum
+private readonly maxIdleDuration: number = 20000; // 20 seconds maximum
+```
+
+### 2. Distance Tolerance Settings
+**Recommended Value**: 25 pixels for reliable target detection
+```typescript
+private readonly tolerance: number = 25; // Accounts for movement speed and frame rate
+```
+
+### 3. Real-Time Timing Implementation
+**Always use timestamps for critical timing**:
+```typescript
+// Initialization
+private idleStartTime: number = 0;
+
+// Start idle
+this.idleStartTime = Date.now();
+
+// Check completion
+const elapsedTime = Date.now() - this.idleStartTime;
+if (elapsedTime >= this.currentIdleDuration) {
+  // Idle complete
+}
+```
+
+### 4. Physics Configuration for Walking NPCs
+**Critical**: Always set `setImmovable(false)` for walking NPCs
+```typescript
+// Set up physics for walking NPC
+this.scene.add.existing(this);
+this.scene.physics.add.existing(this);
+this.setImmovable(false);  // CRITICAL: Allow movement for patrol behavior
+this.setCollideWorldBounds(true);
+```
 
 ### Horizontal Patrol (Default)
 NPCs move left and right between two points:
@@ -650,8 +687,127 @@ When implementing patrol patterns, consider:
 **Issue**: "Cannot read properties of undefined (reading 'frame')"
 **Solution**: Ensure animations are created before attempting to play them, and that the animation keys exist.
 
+### 4. NPCs Not Moving (Critical Physics Bug)
+**Issue**: Walking NPCs appear to initialize but don't move or patrol
+**Root Cause**: Setting `setImmovable(true)` in physics configuration completely prevents movement
+**Solution**: 
+```typescript
+// ❌ WRONG - This prevents all movement
+this.setImmovable(true);
+
+// ✅ CORRECT - This allows patrol movement
+this.setImmovable(false);
+```
+**Key Lesson**: In Phaser.js, `setImmovable(true)` is intended for static obstacles like walls and platforms. Setting this on walking NPCs blocks all velocity-based movement, preventing patrol behavior entirely.
+
+### 5. NPCs Not Entering Idle Mode
+**Issue**: NPCs reach patrol points but don't enter idle state
+**Root Cause**: Distance detection tolerance too small or target coordinates incorrect
+**Solution**: 
+```typescript
+// Set appropriate tolerance for target detection
+private readonly tolerance: number = 25; // 25 pixels is usually sufficient
+
+// Ensure patrol points are correctly defined
+const pointA = { x: x - 100, y: y };  // Horizontal patrol
+const pointB = { x: x + 100, y: y };
+```
+**Key Lesson**: Target tolerance should be large enough to account for NPC movement speed and frame rate variations.
+
+### 6. Inconsistent Idle Duration (Critical Timing Bug)
+**Issue**: NPCs idle for much shorter time than configured (e.g., 3-4 seconds instead of 10-15 seconds)
+**Root Cause**: DeltaTime accumulation issues, especially with browser tab switching
+**Solution**: Use real-time timestamps instead of deltaTime accumulation
+```typescript
+// ❌ PROBLEMATIC - deltaTime accumulation
+private idleTimer: number = 0;
+this.idleTimer += deltaTime;
+if (this.idleTimer >= this.currentIdleDuration) { /* ... */ }
+
+// ✅ ROBUST - Real timestamp comparison
+private idleStartTime: number = 0;
+this.idleStartTime = Date.now();
+const elapsedTime = Date.now() - this.idleStartTime;
+if (elapsedTime >= this.currentIdleDuration) { /* ... */ }
+```
+**Key Lesson**: Browser tab switching and performance hiccups can cause massive deltaTime spikes (60+ seconds), breaking deltaTime-based timers. Real timestamps are immune to these issues.
+
+### 7. Large DeltaTime Warnings
+**Issue**: Console spam with "Extremely large deltaTime detected: 66000ms"
+**Root Cause**: Browser tab becomes inactive, causing huge frame gaps
+**Solution**: 
+```typescript
+// Don't cap deltaTime too aggressively, and use timestamps for critical timing
+if (deltaTime > 1000) { // Only cap extreme cases
+  console.warn(`⚠️ Large deltaTime detected: ${deltaTime}ms, capping to 1000ms`);
+  deltaTime = 1000;
+}
+```
+**Key Lesson**: Large deltaTime values are normal when browser tabs become inactive. The key is using appropriate timing methods rather than aggressive capping.
+
+### 8. Animation System Debugging
+**Issue**: NPCs appear to enter idle mode but animations don't change
+**Solution**: Add comprehensive animation debugging:
+```typescript
+private playAnimation(npc: WalkingNPC, type: string, direction: string): void {
+  const key = `{npcid}-${type}-${direction}`;
+  console.log(`🎬 ${npcName}: Attempting to play animation '${key}'`);
+  
+  if (npc.scene.anims.exists(key)) {
+    const currentAnim = npc.anims ? npc.anims.currentAnim : null;
+    const currentKey = currentAnim ? currentAnim.key : 'none';
+    console.log(`🎭 ${npcName}: Animation '${key}' exists. Current: '${currentKey}'`);
+    
+    if (!currentAnim || currentAnim.key !== key) {
+      console.log(`▶️ ${npcName}: Playing animation '${key}'`);
+      npc.play(key, true);
+    } else {
+      console.log(`⏸️ ${npcName}: Animation '${key}' already playing`);
+    }
+  } else {
+    console.error(`❌ ${npcName}: Animation '${key}' does NOT exist!`);
+  }
+}
+```
+**Key Lesson**: Animation debugging should verify animation existence, current state, and playback status.
+
+## Advanced Debugging Techniques
+
+### 1. Real-Time Idle Progress Monitoring
+```typescript
+// Enhanced idle logging with percentage progress
+const progress = (elapsedIdleTime / this.currentIdleDuration) * 100;
+console.log(`🕰️ ${npcName}: Idle progress - ${(elapsedIdleTime / 1000).toFixed(1)}s / ${(this.currentIdleDuration / 1000).toFixed(1)}s (${progress.toFixed(1)}%)`);
+```
+
+### 2. Patrol Point Verification
+```typescript
+// Log patrol configuration on initialization
+console.log(`🎯 SimplePatrolBehavior: Created with Point A (${pointA.x}, ${pointA.y}) and Point B (${pointB.x}, ${pointB.y})`);
+console.log(`🔢 SimplePatrolBehavior: Idle range configured: ${this.minIdleDuration / 1000}-${this.maxIdleDuration / 1000} seconds`);
+```
+
+### 3. Movement State Tracking
+```typescript
+// Continuous movement logging for debugging
+if (this.getNPCName(npc) === 'Debug Target') {
+  console.log(`🚶 ${npcName} MOVING: (${npc.x.toFixed(1)}, ${npc.y.toFixed(1)}) → (${this.currentTarget.x}, ${this.currentTarget.y}) | Distance: ${distanceToTarget.toFixed(1)}px`);
+}
+```
+
+### 4. Velocity Verification
+```typescript
+// Verify velocity is actually being set during idle
+if (npc && npc.body && typeof npc.setVelocity === 'function') {
+  npc.setVelocity(0, 0);
+  const currentVel = npc.body.velocity;
+  console.log(`🛑 ${npcName}: Velocity set to (${currentVel.x}, ${currentVel.y})`);
+}
+```
+
 ## Best Practices
 
+### Code Quality
 1. **Consistent Naming**: Use consistent naming conventions for all assets and identifiers
 2. **Error Handling**: Implement proper error handling for asset loading and quiz data retrieval
 3. **Logging**: Add comprehensive console logging for debugging purposes
@@ -659,24 +815,101 @@ When implementing patrol patterns, consider:
 5. **Performance**: Load assets efficiently and clean up resources when no longer needed
 6. **Key Consistency**: Maintain absolute consistency between asset loading keys and frame generation keys
 
+### Physics and Movement
+7. **Physics Configuration**: Always use `setImmovable(false)` for walking NPCs to enable movement
+8. **Velocity Management**: Set velocity to `(0, 0)` during idle periods and maintain throughout idle duration
+9. **Target Tolerance**: Use appropriate distance tolerance (25px recommended) for reliable patrol point detection
+10. **Boundary Handling**: Implement world bounds collision detection to prevent NPCs from getting stuck
+
+### Timing and State Management
+11. **Real-Time Timing**: Use `Date.now()` timestamps instead of deltaTime accumulation for critical timing
+12. **Idle Randomization**: Implement random idle durations (5-20 seconds) for natural behavior variation
+13. **State Verification**: Add comprehensive logging to verify state transitions and timing accuracy
+14. **DeltaTime Handling**: Cap extreme deltaTime values but don't be overly aggressive (1000ms cap recommended)
+
+### Animation System
+15. **Animation Debugging**: Include extensive animation logging to verify existence, state, and playback
+16. **Direction Tracking**: Properly track and maintain last movement direction for correct idle animations
+17. **Animation Keys**: Ensure animation key generation matches exactly with asset loading keys
+18. **Frame Configuration**: Verify spritesheet frame dimensions match actual asset dimensions
+
+### Debugging and Monitoring
+19. **Progress Tracking**: Implement detailed progress logging with percentage completion for long operations
+20. **State Visualization**: Add clear logging for all major state transitions (moving → idle → moving)
+21. **Error Prevention**: Add safety checks for null/undefined objects before method calls
+22. **Performance Monitoring**: Log and monitor deltaTime values to detect performance issues
+
 ## Testing Checklist
 
 Before deploying a new walking quiz NPC, verify:
 
+### Basic Functionality
 - [ ] All required assets exist in the correct locations
 - [ ] BootScene loads all NPC assets correctly
 - [ ] NPC appears in the game world at the correct position
-- [ ] NPC patrols correctly using walking behavior
-- [ ] NPC displays name label and shout messages
 - [ ] Player can interact with NPC to start quiz
 - [ ] Quiz questions load and display correctly
 - [ ] Correct answers award $Quiztals
 - [ ] Incorrect answers provide appropriate feedback
 - [ ] Cooldown system works correctly
-- [ ] Animations play smoothly for idle and walking states
 - [ ] No console errors during normal operation
+
+### Patrol Behavior (Critical)
+- [ ] NPC physics configured with `setImmovable(false)`
+- [ ] NPC patrols correctly between defined points (Point A ↔ Point B)
+- [ ] NPC reaches patrol endpoints within tolerance (25px)
+- [ ] NPC enters idle mode when reaching patrol points
+- [ ] Idle duration is random between configured range (5-20 seconds)
+- [ ] Idle timing is accurate and consistent (use real timestamps)
+- [ ] NPC resumes movement after idle period completes
+- [ ] Target switching works correctly (A → B → A)
+
+### Animation System
+- [ ] Idle animations play correctly in all directions (up, down, left, right)
+- [ ] Walking animations play correctly in all directions
+- [ ] Animation transitions work smoothly (walk → idle → walk)
+- [ ] Direction tracking maintains correct last direction for idle animations
+- [ ] No animation errors in console logs
+
+### Timing and Performance
+- [ ] Large deltaTime values handled gracefully (browser tab switching)
+- [ ] Idle timing remains accurate despite performance variations
+- [ ] No excessive console logging in production builds
+- [ ] NPC behavior remains consistent at different frame rates
+
+### Edge Cases
+- [ ] NPC behavior when browser tab becomes inactive
+- [ ] NPC response to world boundary collisions
+- [ ] Multiple NPC interactions don't interfere with each other
+- [ ] NPC state recovery after game pause/resume
 
 ## Conclusion
 
-Following this guide will ensure consistent, error-free implementation of walking quiz NPCs. Always test thoroughly and verify all systems work together before deploying to production. Refer to `docs/artizengent-implementation-lessons-learned.md` for specific issues encountered during the Artizen Gent implementation and their solutions.
+Following this guide will ensure consistent, error-free implementation of walking quiz NPCs. The most critical lessons learned from recent implementations:
+
+### 🚨 **Critical Issues to Avoid**:
+1. **Physics Misconfiguration**: Never use `setImmovable(true)` on walking NPCs - it completely prevents movement
+2. **Timing System Failures**: Always use real timestamps (`Date.now()`) instead of deltaTime accumulation for critical timing
+3. **Animation Key Mismatches**: Maintain absolute consistency between asset loading keys and animation generation keys
+4. **Target Detection Issues**: Use appropriate tolerance values (25px) for reliable patrol point detection
+
+### ✅ **Success Patterns**:
+1. **Robust Timing**: Real-time timestamp comparisons immune to browser performance issues
+2. **Comprehensive Debugging**: Extensive logging for all state transitions and timing operations
+3. **Proper Physics Setup**: Correct immovable settings and collision configuration
+4. **Natural Behavior**: Random idle durations (5-20 seconds) for realistic NPC behavior
+
+### 🔧 **Development Workflow**:
+1. **Start with Physics**: Ensure correct `setImmovable(false)` configuration first
+2. **Implement Basic Patrol**: Get movement working before adding complexity
+3. **Add Timing System**: Use timestamp-based idle detection
+4. **Test Extensively**: Verify behavior across different performance conditions
+5. **Add Debugging**: Comprehensive logging for troubleshooting
+
+Always test thoroughly and verify all systems work together before deploying to production. Pay special attention to physics configuration, timing accuracy, and animation consistency. The investment in proper debugging and logging will save significant development time when issues arise.
+
+**Reference Documents**:
+- `docs/artizengent-implementation-lessons-learned.md` - Specific implementation issues and solutions
+- `src/managers/SimplePatrolBehavior.ts` - Current robust patrol behavior implementation
+- `src/objects/MrRugPull.ts` - Reference implementation with proper physics configuration
 ```

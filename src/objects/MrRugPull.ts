@@ -37,7 +37,7 @@ export default class MrRugPull extends WalkingNPC {
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(true);  // Make Mr. Rug Pull immovable
+    this.setImmovable(false);  // Allow Mr. Rug Pull to move for patrol behavior
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling
@@ -55,7 +55,7 @@ export default class MrRugPull extends WalkingNPC {
       console.log('✅ MrRugPull: Set up collisions with environment');
     }
     
-    // Define patrol points (Point A and Point B)
+    // Define patrol points (Point A and Point B) - Using horizontal patrol as requested
     // Adjust these coordinates as needed for the desired patrol area
     const pointA = { x: x - 100, y: y };  // 100 pixels to the left
     const pointB = { x: x + 100, y: y };  // 100 pixels to the right

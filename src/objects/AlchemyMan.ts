@@ -34,7 +34,7 @@ export default class AlchemyMan extends WalkingNPC {
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(true);  // Make Alchemy Man immovable
+    this.setImmovable(false);  // Allow Alchemy Man to move for patrol behavior
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling

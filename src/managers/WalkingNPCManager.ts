@@ -26,7 +26,8 @@ export default class WalkingNPCManager {
   public registerWalkingNPC(npc: WalkingNPC): void {
     if (!this.walkingNPCs.includes(npc)) {
       this.walkingNPCs.push(npc);
-      console.log(`✅ WalkingNPCManager: Registered walking NPC`);
+      console.log(`✅ WalkingNPCManager: Registered walking NPC: ${npc.texture?.key || 'unknown'}`);
+      console.log(`📊 WalkingNPCManager: Total registered NPCs: ${this.walkingNPCs.length}`);
     }
   }
 
@@ -64,7 +65,7 @@ export default class WalkingNPCManager {
     // Update all registered walking NPCs
     // Create a copy of the array to avoid issues if NPCs are removed during iteration
     const npcsToUpdate = [...this.walkingNPCs];
-    npcsToUpdate.forEach(npc => {
+    npcsToUpdate.forEach((npc, index) => {
       try {
         // Additional safety check to ensure NPC is still valid
         if (npc && typeof npc.update === 'function') {
@@ -72,13 +73,25 @@ export default class WalkingNPCManager {
           if (npc.scene && npc.scene.game && !npc.scene.game.destroy) {
             npc.update(deltaTime);
           } else {
-            console.warn('WalkingNPCManager: Skipping NPC with invalid scene during update');
+            console.warn(`WalkingNPCManager: Skipping NPC ${index + 1}/${npcsToUpdate.length} with invalid scene during update`);
+            // Remove the invalid NPC from our list
+            const invalidIndex = this.walkingNPCs.indexOf(npc);
+            if (invalidIndex !== -1) {
+              this.walkingNPCs.splice(invalidIndex, 1);
+              console.log(`🧹 WalkingNPCManager: Removed invalid NPC from list`);
+            }
           }
         } else {
-          console.warn('WalkingNPCManager: Skipping invalid NPC during update');
+          console.warn(`WalkingNPCManager: Skipping invalid NPC ${index + 1}/${npcsToUpdate.length} during update`);
+          // Remove the invalid NPC from our list
+          const invalidIndex = this.walkingNPCs.indexOf(npc);
+          if (invalidIndex !== -1) {
+            this.walkingNPCs.splice(invalidIndex, 1);
+            console.log(`🧹 WalkingNPCManager: Removed invalid NPC from list`);
+          }
         }
       } catch (error) {
-        console.error(`❌ WalkingNPCManager: Error updating walking NPC:`, error);
+        console.error(`❌ WalkingNPCManager: Error updating walking NPC ${index + 1}/${npcsToUpdate.length}:`, error);
       }
     });
   }

@@ -6,109 +6,141 @@ export class SimplePatrolBehavior implements WalkingBehavior {
   private pointA: { x: number; y: number };
   private pointB: { x: number; y: number };
   private currentTarget: { x: number; y: number };
-  private moveSpeed: number = 100;
-  private tolerance: number = 15; // Increased tolerance to ensure NPCs can reach their targets
+  private moveSpeed: number = 80;
   private isIdle: boolean = false;
-  private idleTimer: number = 0;
-  private readonly idleDuration: number = 3000; // 3 seconds in milliseconds
+  private idleStartTime: number = 0; // Real timestamp when idle started
+  private currentIdleDuration: number = 0; // Will be set randomly each time
+  private readonly minIdleDuration: number = 5000; // 5 seconds minimum
+  private readonly maxIdleDuration: number = 20000; // 20 seconds maximum
+  private readonly tolerance: number = 25; // Distance tolerance for reaching target
 
   constructor(pointA: { x: number; y: number }, pointB: { x: number; y: number }) {
     this.pointA = pointA;
     this.pointB = pointB;
     this.currentTarget = this.pointB; // Start by moving to point B
+    this.generateRandomIdleDuration(); // Set initial random idle duration
+    
+    console.log(`🎯 SimplePatrolBehavior: Created with Point A (${pointA.x}, ${pointA.y}) and Point B (${pointB.x}, ${pointB.y})`);
+    console.log(`🎯 SimplePatrolBehavior: Initial target is Point B (${pointB.x}, ${pointB.y})`);
+    console.log(`⚙️ SimplePatrolBehavior: Initial idle duration: ${(this.currentIdleDuration / 1000).toFixed(1)} seconds (${this.currentIdleDuration}ms)`);
+    console.log(`🔢 SimplePatrolBehavior: Idle range configured: ${this.minIdleDuration / 1000}-${this.maxIdleDuration / 1000} seconds`);
+  }
+
+  private generateRandomIdleDuration(): void {
+    // Generate random idle duration between 5-20 seconds
+    this.currentIdleDuration = Math.floor(
+      Math.random() * (this.maxIdleDuration - this.minIdleDuration + 1) + this.minIdleDuration
+    );
+    console.log(`🎲 Random idle duration generated: ${(this.currentIdleDuration / 1000).toFixed(1)} seconds (${this.currentIdleDuration}ms)`);
   }
 
   update(npc: WalkingNPC, deltaTime: number): void {
-    // Add comprehensive safety checks for NPC object and its dependencies
-    if (!npc) {
-      console.warn('WalkingNPC: NPC object is null or undefined');
+    // Safety checks
+    if (!npc || !npc.scene || !npc.body || !npc.anims) {
       return;
     }
     
-    // Check if NPC has been destroyed or scene is invalid
-    if (!npc.scene || !npc.body || !npc.anims) {
-      console.warn('WalkingNPC: NPC has been destroyed or is no longer valid');
+    // CRITICAL: Normalize deltaTime to prevent timer issues
+    // We now use real timestamps for idle timing, so deltaTime issues are less critical
+    if (deltaTime > 1000) { // Only cap if deltaTime is more than 1 second (extreme case)
+      console.warn(`⚠️ ${this.getNPCName(npc)}: Extremely large deltaTime detected: ${deltaTime}ms, capping to 1000ms`);
+      deltaTime = 1000;
+    }
+    
+    // CRITICAL: Check if NPC is stuck in interaction mode during patrol
+    if (npc.isCurrentlyInteracting && npc.isCurrentlyInteracting()) {
+      console.log(`⚠️ ${this.getNPCName(npc)}: NPC is in interaction mode, skipping patrol update`);
       return;
     }
     
-    // Additional check for scene validity
-    if (!npc.scene.game || !npc.scene.anims) {
-      console.warn('WalkingNPC: Scene has been destroyed or is no longer valid');
-      return;
-    }
-    
-    // Additional check to ensure NPC is still part of the scene
-    if (!npc.scene.children || !npc.scene.children.exists(npc)) {
-      console.warn('WalkingNPC: NPC is no longer part of the scene');
-      return;
-    }
-    
-    // Check if scene is shutting down
-    if (npc.scene.sys.isSleeping()) {
-      // Check if we're in a valid transition state
-      if (npc.scene.sys.settings.status !== Phaser.Scenes.RUNNING) {
-        console.warn('WalkingNPC: Scene is not running, skipping update');
-        return;
-      }
-    }
-    
+    // Handle idle state using real-time timestamps (immune to deltaTime issues)
     if (this.isIdle) {
-      this.idleTimer += deltaTime;
+      const currentTime = Date.now();
+      const elapsedIdleTime = currentTime - this.idleStartTime;
       
-      // If idle period is complete, start moving again
-      if (this.idleTimer >= this.idleDuration) {
+      // CRITICAL: Keep stopped during idle - force velocity to zero every frame
+      if (npc && npc.body && typeof npc.setVelocity === 'function') {
+        npc.setVelocity(0, 0);
+      }
+      
+      // Enhanced idle progress logging with real-time calculation
+      const idleSeconds = Math.floor(elapsedIdleTime / 1000);
+      const maxIdleSeconds = Math.floor(this.currentIdleDuration / 1000);
+      const prevIdleSeconds = Math.floor((elapsedIdleTime - 1000) / 1000); // Check previous second
+      
+      if (this.getNPCName(npc) === 'Mr Rug Pull') {
+        if (idleSeconds !== prevIdleSeconds && idleSeconds <= maxIdleSeconds) {
+          console.log(`💤 ${this.getNPCName(npc)} IDLING: ${idleSeconds}/${maxIdleSeconds} seconds | Elapsed: ${elapsedIdleTime.toFixed(0)}ms/${this.currentIdleDuration}ms`);
+        }
+        // Log progress every 3 seconds for debugging
+        if (Math.floor(elapsedIdleTime / 3000) !== Math.floor((elapsedIdleTime - 1000) / 3000)) {
+          console.log(`🕰️ ${this.getNPCName(npc)}: Idle progress - ${(elapsedIdleTime / 1000).toFixed(1)}s / ${(this.currentIdleDuration / 1000).toFixed(1)}s (${((elapsedIdleTime / this.currentIdleDuration) * 100).toFixed(1)}%)`);
+        }
+      }
+      
+      // Continue idle animation
+      this.playAnimation(npc, 'idle', npc['lastDirection'] || 'down');
+      
+      // Check if idle period is complete using real-time calculation
+      if (elapsedIdleTime >= this.currentIdleDuration) {
+        console.log(`✅ ${this.getNPCName(npc)}: IDLE PERIOD COMPLETE! Elapsed: ${elapsedIdleTime.toFixed(0)}ms >= ${this.currentIdleDuration}ms`);
         this.isIdle = false;
-        this.idleTimer = 0;
+        this.idleStartTime = 0;
+        // Generate new random idle duration for next time
+        this.generateRandomIdleDuration();
         // Switch target after idle period
         this.currentTarget = (this.currentTarget === this.pointA) ? this.pointB : this.pointA;
-        console.log(`${this.getNPCName(npc)}: Completed idle, switching target to x:${this.currentTarget.x}, y:${this.currentTarget.y}`);
-      } else {
-        // Continue idle animation
-        this.playAnimation(npc, 'idle', npc['lastDirection']);
-        return; // Skip movement during idle
+        console.log(`🔄 ${this.getNPCName(npc)}: IDLE COMPLETE! Switching target to (${this.currentTarget.x}, ${this.currentTarget.y})`);
       }
-    } else {
-      // Check if we've reached the current target
-      const distanceToTarget = Phaser.Math.Distance.Between(
-        npc.x, npc.y,
-        this.currentTarget.x, this.currentTarget.y
+      
+      return; // Skip movement during idle
+    }
+    
+    // Calculate distance to current target
+    const distanceToTarget = Phaser.Math.Distance.Between(
+      npc.x, npc.y,
+      this.currentTarget.x, this.currentTarget.y
+    );
+    
+    // Check if we've reached the target patrol point
+    if (distanceToTarget <= this.tolerance) {
+      console.log(`🎯 ${this.getNPCName(npc)}: REACHED TARGET! Distance: ${distanceToTarget.toFixed(1)}px (tolerance: ${this.tolerance}px)`);
+      console.log(`🕐 ${this.getNPCName(npc)}: ENTERING IDLE MODE at patrol point for ${(this.currentIdleDuration / 1000).toFixed(1)} seconds`);
+      
+      // CRITICAL: Stop movement immediately and completely
+      if (npc && npc.body && typeof npc.setVelocity === 'function') {
+        npc.setVelocity(0, 0);
+        console.log(`🛑 ${this.getNPCName(npc)}: VELOCITY SET TO ZERO`);
+      }
+      
+      this.isIdle = true;
+      this.idleStartTime = Date.now(); // Use real timestamp instead of accumulated timer
+      this.playAnimation(npc, 'idle', npc['lastDirection'] || 'down');
+      return;
+    }
+    
+    // MOVEMENT: Move towards current target
+    const angle = Phaser.Math.Angle.Between(
+      npc.x, npc.y,
+      this.currentTarget.x, this.currentTarget.y
+    );
+
+    // Move towards target
+    if (npc && typeof npc.setVelocity === 'function') {
+      npc.setVelocity(
+        Math.cos(angle) * this.moveSpeed,
+        Math.sin(angle) * this.moveSpeed
       );
+    }
 
-      if (distanceToTarget <= this.tolerance) {
-        // Start idle period
-        this.isIdle = true;
-        this.idleTimer = 0;
-        this.playAnimation(npc, 'idle', npc['lastDirection']);
-        console.log(`${this.getNPCName(npc)}: Reached target, starting idle animation for 3 seconds`);
-        return; // Skip movement during first frame of idle
-      }
-
-      // Move towards current target
-      const angle = Phaser.Math.Angle.Between(
-        npc.x, npc.y,
-        this.currentTarget.x, this.currentTarget.y
-      );
-
-      // Check if npc has setVelocity method before calling it
-      if (npc && typeof npc.setVelocity === 'function') {
-        npc.setVelocity(
-          Math.cos(angle) * this.moveSpeed,
-          Math.sin(angle) * this.moveSpeed
-        );
-      } else {
-        console.warn('WalkingNPC: setVelocity method not available on npc object');
-      }
-
-      // Determine direction based on movement
-      const direction = this.getDirectionFromAngle(angle);
-      
-      // Debug logging to see what's happening
-      console.log(`${this.getNPCName(npc)}: Moving at angle ${Phaser.Math.RadToDeg(angle)}, direction: ${direction}`);
-      
-      npc['lastDirection'] = direction;
-      
-      // Play the correct animation based on direction
-      this.playAnimation(npc, 'walk', direction);
+    // Determine direction and play animation
+    const direction = this.getDirectionFromAngle(angle);
+    npc['lastDirection'] = direction;
+    this.playAnimation(npc, 'walk', direction);
+    
+    // Debug logging for Mr Rug Pull every 60 frames (~1 second)
+    if (this.getNPCName(npc) === 'Mr Rug Pull') {
+      console.log(`🚶 ${this.getNPCName(npc)} MOVING: (${npc.x.toFixed(1)}, ${npc.y.toFixed(1)}) → (${this.currentTarget.x}, ${this.currentTarget.y}) | Distance: ${distanceToTarget.toFixed(1)}px | Target: ${this.currentTarget === this.pointA ? 'Point A' : 'Point B'}`);
     }
   }
 
@@ -125,12 +157,9 @@ export class SimplePatrolBehavior implements WalkingBehavior {
   }
 
   private getDirectionFromAngle(angle: number): string {
-    // Convert angle to degrees and normalize
     const degrees = Phaser.Math.RadToDeg(angle);
     const normalizedDegrees = (degrees + 360) % 360;
 
-    // Determine direction based on angle
-    // Right: 315-45 degrees, Down: 45-135 degrees, Left: 135-225 degrees, Up: 225-315 degrees
     if (normalizedDegrees >= 315 || normalizedDegrees < 45) {
       return 'right';
     } else if (normalizedDegrees >= 45 && normalizedDegrees < 135) {
@@ -143,185 +172,33 @@ export class SimplePatrolBehavior implements WalkingBehavior {
   }
 
   private playAnimation(npc: WalkingNPC, type: string, direction: string): void {
-    // Add safety checks
     if (!npc || !npc.scene || !npc.scene.anims) {
-      console.warn('WalkingNPC: Cannot play animation - NPC or scene not available');
       return;
     }
     
     const npcName = this.getNPCName(npc);
     
     try {
-      // Special handling for Mr. Rug Pull to ensure correct animations
-      if (npc.texture && npc.texture.key === 'npc_mrrugpull') {
+      // Handle Mr. Rug Pull animations
+      if (npc.texture && npc.texture.key.includes('mrrugpull')) {
         const key = `mrrugpull-${type}-${direction}`;
-        console.log(`${npcName}: Trying to play animation ${key}`);
         
-        // Check if the animation exists before trying to play it
         if (npc.scene.anims.exists(key)) {
-          // Get the current animation to check if we're already playing it
           const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
-          
           if (!currentAnim || currentAnim.key !== key) {
             npc.play(key, true);
-            console.log(`${npcName}: Successfully playing animation ${key}`);
-          } else {
-            console.log(`${npcName}: Already playing animation ${key}`);
-          }
-        } else {
-          console.log(`${npcName}: Animation ${key} does not exist`);
-          
-          // Fallback to idle if walk animation doesn't exist
-          const idleKey = `mrrugpull-idle-${direction}`;
-          if (npc.scene.anims.exists(idleKey)) {
-            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-            if (!currentAnim || currentAnim.key !== idleKey) {
-              npc.play(idleKey, true);
-              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
-            } else {
-              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
-            }
-          } else {
-            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
           }
         }
       } 
-      // Special handling for Artizen Gent to ensure correct animations
-      else if (npc.texture && npc.texture.key === 'npc_artizengent') {
-        const key = `artizengent-${type}-${direction}`;
-        console.log(`${npcName}: Trying to play animation ${key}`);
-        
-        // Check if the animation exists before trying to play it
-        if (npc.scene.anims.exists(key)) {
-          // Get the current animation to check if we're already playing it
-          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
-          
-          if (!currentAnim || currentAnim.key !== key) {
-            npc.play(key, true);
-            console.log(`${npcName}: Successfully playing animation ${key}`);
-          } else {
-            console.log(`${npcName}: Already playing animation ${key}`);
-          }
-        } else {
-          console.log(`${npcName}: Animation ${key} does not exist`);
-          
-          // Fallback to idle if walk animation doesn't exist
-          const idleKey = `artizengent-idle-${direction}`;
-          if (npc.scene.anims.exists(idleKey)) {
-            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-            if (!currentAnim || currentAnim.key !== idleKey) {
-              npc.play(idleKey, true);
-              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
-            } else {
-              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
-            }
-          } else {
-            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
-          }
-        }
-      }
-      // Special handling for ThirdWeb Guy to ensure correct animations
-      else if (npc.texture && npc.texture.key === 'npc_thirdwebguy') {
-        const key = `thirdwebguy-${type}-${direction}`;
-        console.log(`${npcName}: Trying to play animation ${key}`);
-        
-        // Check if the animation exists before trying to play it
-        if (npc.scene.anims.exists(key)) {
-          // Get the current animation to check if we're already playing it
-          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
-          
-          if (!currentAnim || currentAnim.key !== key) {
-            npc.play(key, true);
-            console.log(`${npcName}: Successfully playing animation ${key}`);
-          } else {
-            console.log(`${npcName}: Already playing animation ${key}`);
-          }
-        } else {
-          console.log(`${npcName}: Animation ${key} does not exist`);
-          
-          // Fallback to idle if walk animation doesn't exist
-          const idleKey = `thirdwebguy-idle-${direction}`;
-          if (npc.scene.anims.exists(idleKey)) {
-            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-            if (!currentAnim || currentAnim.key !== idleKey) {
-              npc.play(idleKey, true);
-              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
-            } else {
-              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
-            }
-          } else {
-            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
-          }
-        }
-      }
-      // Special handling for Alchemy Man to ensure correct animations
-      else if (npc.texture && npc.texture.key === 'npc_alchemyman') {
-        const key = `alchemyman-${type}-${direction}`;
-        console.log(`${npcName}: Trying to play animation ${key}`);
-        
-        // Check if the animation exists before trying to play it
-        if (npc.scene.anims.exists(key)) {
-          // Get the current animation to check if we're already playing it
-          const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-          console.log(`${npcName}: Current animation: ${currentAnim ? currentAnim.key : 'none'}, Target: ${key}`);
-          
-          if (!currentAnim || currentAnim.key !== key) {
-            npc.play(key, true);
-            console.log(`${npcName}: Successfully playing animation ${key}`);
-          } else {
-            console.log(`${npcName}: Already playing animation ${key}`);
-          }
-        } else {
-          console.log(`${npcName}: Animation ${key} does not exist`);
-          
-          // Fallback to idle if walk animation doesn't exist
-          const idleKey = `alchemyman-idle-${direction}`;
-          if (npc.scene.anims.exists(idleKey)) {
-            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-            if (!currentAnim || currentAnim.key !== idleKey) {
-              npc.play(idleKey, true);
-              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
-            } else {
-              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
-            }
-          } else {
-            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
-          }
-        }
-      } else if (npc.texture) {
-        // For other NPCs, use the standard approach
+      // Handle other NPCs
+      else if (npc.texture) {
         const key = npc.getAnimationKey(type, direction);
-        console.log(`${npcName}: Trying to play animation ${key}`);
-        
         if (npc.scene.anims.exists(key)) {
           const currentAnim = npc.anims ? npc.anims.currentAnim : null;
           if (!currentAnim || currentAnim.key !== key) {
             npc.play(key, true);
-            console.log(`${npcName}: Successfully playing animation ${key}`);
-          } else {
-            console.log(`${npcName}: Already playing animation ${key}`);
-          }
-        } else {
-          console.log(`${npcName}: Animation ${key} does not exist`);
-          // Fallback to idle if walk animation doesn't exist
-          const idleKey = npc.getAnimationKey('idle', direction);
-          if (npc.scene.anims.exists(idleKey)) {
-            const currentAnim = npc.anims ? npc.anims.currentAnim : null;
-            if (!currentAnim || currentAnim.key !== idleKey) {
-              npc.play(idleKey, true);
-              console.log(`${npcName}: Falling back to idle animation ${idleKey}`);
-            } else {
-              console.log(`${npcName}: Already playing idle animation ${idleKey}`);
-            }
-          } else {
-            console.log(`${npcName}: Even fallback animation ${idleKey} does not exist`);
           }
         }
-      } else {
-        console.warn('WalkingNPC: NPC texture not available');
       }
     } catch (error) {
       console.warn(`${npcName}: Error playing animation`, error);
@@ -329,43 +206,16 @@ export class SimplePatrolBehavior implements WalkingBehavior {
   }
 
   onInteractionStart(npc: WalkingNPC): void {
-    // Add safety checks
-    if (!npc) {
-      console.warn('WalkingNPC: Cannot handle interaction start - NPC not available');
-      return;
-    }
+    if (!npc) return;
     
     // Stop movement during interaction
     if (typeof npc.setVelocity === 'function') {
       npc.setVelocity(0, 0);
-    } else {
-      console.warn('WalkingNPC: setVelocity method not available on npc object');
     }
     
-    // Play idle animation in the last movement direction
-    if (npc.texture && npc.texture.key === 'npc_mrrugpull') {
+    // Play idle animation
+    if (npc.texture && npc.texture.key.includes('mrrugpull')) {
       const key = `mrrugpull-idle-${npc['lastDirection'] || 'down'}`;
-      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
-        npc.play(key, true);
-      }
-    } 
-    // Special handling for Artizen Gent to ensure correct animations
-    else if (npc.texture && npc.texture.key === 'npc_artizengent') {
-      const key = `artizengent-idle-${npc['lastDirection'] || 'down'}`;
-      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
-        npc.play(key, true);
-      }
-    }
-    // Special handling for ThirdWeb Guy to ensure correct animations
-    else if (npc.texture && npc.texture.key === 'npc_thirdwebguy') {
-      const key = `thirdwebguy-idle-${npc['lastDirection'] || 'down'}`;
-      if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
-        npc.play(key, true);
-      }
-    }
-    // Special handling for Alchemy Man to ensure correct animations
-    else if (npc.texture && npc.texture.key === 'npc_alchemyman') {
-      const key = `alchemyman-idle-${npc['lastDirection'] || 'down'}`;
       if (npc.scene && npc.scene.anims && npc.scene.anims.exists(key)) {
         npc.play(key, true);
       }
@@ -385,18 +235,12 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     return "simplePatrol";
   }
   
-  /**
-   * Clean up resources
-   */
   destroy(): void {
-    // Reset all properties to prevent memory leaks
     (this as any).pointA = null;
     (this as any).pointB = null;
     (this as any).currentTarget = null;
     this.moveSpeed = 0;
-    this.tolerance = 0;
     this.isIdle = false;
-    this.idleTimer = 0;
-    // Note: idleDuration is readonly, so we don't modify it
+    this.idleStartTime = 0;
   }
 }
