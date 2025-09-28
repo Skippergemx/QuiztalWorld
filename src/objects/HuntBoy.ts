@@ -6,12 +6,16 @@ import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class HuntBoy extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'huntboy';
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   // Quiz data is now loaded from JSON
 
@@ -20,6 +24,7 @@ export default class HuntBoy extends QuizNPC {
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -140,36 +145,12 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       return;
     }
 
-    // Get random question using the quiz manager
-    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
-
-    if (!questionData) {
-      console.error("HuntBoy: No questions available");
-      return;
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
     }
-
-    // Store the index of the current question
-    this.lastQuestionIndex = questionData.index;
-    const currentQuestion = questionData.question;
-
-    // Notify QuizAntiSpamManager that a quiz has started
-    this.notifyQuizStarted();
-
-    // Create a copy of options and shuffle them
-    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
-
-    showDialog(this.scene, [{
-      text: currentQuestion.question,
-      avatar: "npc_huntboy_avatar",
-      options: shuffledOptions.map(option => ({
-        text: option,
-        callback: () => {
-          this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
-          this.notifyQuizEnded();
-        }
-      }))
-    }]);
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -225,6 +206,139 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
 
     // Reset last question index so player can get the same question again in future interactions
     this.lastQuestionIndex = -1;
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("HuntBoy: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("HuntBoy: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "Hunt Boy",
+        npcAvatar: "npc_huntboy_avatar",
+        theme: "Web3 Development & Hunt Town",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("HuntBoy: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+
+
+  private handleEnhancedAnswer(selectedAnswer: string, question: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Submit answer to enhanced quiz manager
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedAnswer, 1000, playerId);
+    
+    // Notify QuizAntiSpamManager that the quiz has ended
+    this.notifyQuizEnded();
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+
+    // Calculate enhanced reward
+    const baseReward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, question.difficulty);
+    
+    if (isCorrect && baseReward > 0) {
+      // Use enhanced reward saving system
+      this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, baseReward, "HuntBoy");
+    }
+
+    // Close current dialog
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    // Show result dialog after a brief delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const rewardText = isCorrect 
+        ? `🗡️ Nice hunt! You earned ${baseReward.toFixed(2)} $Quiztals for your Web3 knowledge! (${question.difficulty} difficulty)` 
+        : `🎯 Missed the target! The correct answer was "${question.answer}". Keep hunting for knowledge!`;
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: rewardText,
+          avatar: "npc_huntboy_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      this.setupDialogAutoReset(3000);
+    });
+
+    // Complete the enhanced quiz session
+    this.enhancedQuizManager.completeQuizSession();
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
+  }
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Get random question using the quiz manager
+    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
+
+    if (!questionData) {
+      console.error("HuntBoy: No questions available");
+      return;
+    }
+
+    // Store the index of the current question
+    this.lastQuestionIndex = questionData.index;
+    const currentQuestion = questionData.question;
+
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+
+    // Create a copy of options and shuffle them
+    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+
+    showDialog(this.scene, [{
+      text: currentQuestion.question,
+      avatar: "npc_huntboy_avatar",
+      options: shuffledOptions.map(option => ({
+        text: option,
+        callback: () => {
+          this.checkAnswer(option, currentQuestion.answer, player);
+          // Notify QuizAntiSpamManager that the quiz has ended
+          this.notifyQuizEnded();
+        }
+      }))
+    }]);
   }
 
   private calculateReward(isCorrect: boolean): number {

@@ -19,11 +19,6 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     this.pointB = pointB;
     this.currentTarget = this.pointB; // Start by moving to point B
     this.generateRandomIdleDuration(); // Set initial random idle duration
-    
-    console.log(`🎯 SimplePatrolBehavior: Created with Point A (${pointA.x}, ${pointA.y}) and Point B (${pointB.x}, ${pointB.y})`);
-    console.log(`🎯 SimplePatrolBehavior: Initial target is Point B (${pointB.x}, ${pointB.y})`);
-    console.log(`⚙️ SimplePatrolBehavior: Initial idle duration: ${(this.currentIdleDuration / 1000).toFixed(1)} seconds (${this.currentIdleDuration}ms)`);
-    console.log(`🔢 SimplePatrolBehavior: Idle range configured: ${this.minIdleDuration / 1000}-${this.maxIdleDuration / 1000} seconds`);
   }
 
   private generateRandomIdleDuration(): void {
@@ -31,7 +26,6 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     this.currentIdleDuration = Math.floor(
       Math.random() * (this.maxIdleDuration - this.minIdleDuration + 1) + this.minIdleDuration
     );
-    console.log(`🎲 Random idle duration generated: ${(this.currentIdleDuration / 1000).toFixed(1)} seconds (${this.currentIdleDuration}ms)`);
   }
 
   update(npc: WalkingNPC, deltaTime: number): void {
@@ -64,33 +58,17 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       }
       
       // Enhanced idle progress logging with real-time calculation
-      const idleSeconds = Math.floor(elapsedIdleTime / 1000);
-      const maxIdleSeconds = Math.floor(this.currentIdleDuration / 1000);
-      const prevIdleSeconds = Math.floor((elapsedIdleTime - 1000) / 1000); // Check previous second
-      
-      if (this.getNPCName(npc) === 'Mr Rug Pull') {
-        if (idleSeconds !== prevIdleSeconds && idleSeconds <= maxIdleSeconds) {
-          console.log(`💤 ${this.getNPCName(npc)} IDLING: ${idleSeconds}/${maxIdleSeconds} seconds | Elapsed: ${elapsedIdleTime.toFixed(0)}ms/${this.currentIdleDuration}ms`);
-        }
-        // Log progress every 3 seconds for debugging
-        if (Math.floor(elapsedIdleTime / 3000) !== Math.floor((elapsedIdleTime - 1000) / 3000)) {
-          console.log(`🕰️ ${this.getNPCName(npc)}: Idle progress - ${(elapsedIdleTime / 1000).toFixed(1)}s / ${(this.currentIdleDuration / 1000).toFixed(1)}s (${((elapsedIdleTime / this.currentIdleDuration) * 100).toFixed(1)}%)`);
-        }
-      }
-      
       // Continue idle animation
       this.playAnimation(npc, 'idle', npc['lastDirection'] || 'down');
       
       // Check if idle period is complete using real-time calculation
       if (elapsedIdleTime >= this.currentIdleDuration) {
-        console.log(`✅ ${this.getNPCName(npc)}: IDLE PERIOD COMPLETE! Elapsed: ${elapsedIdleTime.toFixed(0)}ms >= ${this.currentIdleDuration}ms`);
         this.isIdle = false;
         this.idleStartTime = 0;
         // Generate new random idle duration for next time
         this.generateRandomIdleDuration();
         // Switch target after idle period
         this.currentTarget = (this.currentTarget === this.pointA) ? this.pointB : this.pointA;
-        console.log(`🔄 ${this.getNPCName(npc)}: IDLE COMPLETE! Switching target to (${this.currentTarget.x}, ${this.currentTarget.y})`);
       }
       
       return; // Skip movement during idle
@@ -104,13 +82,9 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     
     // Check if we've reached the target patrol point
     if (distanceToTarget <= this.tolerance) {
-      console.log(`🎯 ${this.getNPCName(npc)}: REACHED TARGET! Distance: ${distanceToTarget.toFixed(1)}px (tolerance: ${this.tolerance}px)`);
-      console.log(`🕐 ${this.getNPCName(npc)}: ENTERING IDLE MODE at patrol point for ${(this.currentIdleDuration / 1000).toFixed(1)} seconds`);
-      
       // CRITICAL: Stop movement immediately and completely
       if (npc && npc.body && typeof npc.setVelocity === 'function') {
         npc.setVelocity(0, 0);
-        console.log(`🛑 ${this.getNPCName(npc)}: VELOCITY SET TO ZERO`);
       }
       
       this.isIdle = true;
@@ -137,11 +111,6 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     const direction = this.getDirectionFromAngle(angle);
     npc['lastDirection'] = direction;
     this.playAnimation(npc, 'walk', direction);
-    
-    // Debug logging for Mr Rug Pull every 60 frames (~1 second)
-    if (this.getNPCName(npc) === 'Mr Rug Pull') {
-      console.log(`🚶 ${this.getNPCName(npc)} MOVING: (${npc.x.toFixed(1)}, ${npc.y.toFixed(1)}) → (${this.currentTarget.x}, ${this.currentTarget.y}) | Distance: ${distanceToTarget.toFixed(1)}px | Target: ${this.currentTarget === this.pointA ? 'Point A' : 'Point B'}`);
-    }
   }
 
   private getNPCName(npc: WalkingNPC): string {

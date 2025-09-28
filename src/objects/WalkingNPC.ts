@@ -25,7 +25,6 @@ export default class WalkingNPC extends QuizNPC {
   public update(deltaTime: number): void {
     // Additional safety checks
     if (!this.scene || !this.scene.game) {
-      console.warn(`WalkingNPC: Skipping update for ${this.texture ? this.texture.key : 'unknown'} - scene is invalid`);
       return;
     }
     
@@ -40,7 +39,6 @@ export default class WalkingNPC extends QuizNPC {
     
     // Update behavior if set
     if (this.behavior && !this.isInteracting) {
-      console.log(`WalkingNPC: Updating behavior for ${this.texture.key}`);
       this.behavior.update(this, deltaTime);
     }
   }
@@ -77,7 +75,6 @@ export default class WalkingNPC extends QuizNPC {
     // Special case for Mr. Rug Pull's animations
     if (textureKey === 'npc_mrrugpull' || textureKey === 'npc_mrrugpull_walk') {
       const key = `mrrugpull-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     }
     

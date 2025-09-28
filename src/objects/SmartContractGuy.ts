@@ -5,6 +5,8 @@ import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class SmartContractGuy extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -12,6 +14,8 @@ export default class SmartContractGuy extends QuizNPC {
 
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager: EnhancedQuizManager;
+  private useEnhancedDialog: boolean = true;
   private readonly npcId = 'smartcontractguy';
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -22,8 +26,9 @@ export default class SmartContractGuy extends QuizNPC {
     this.setImmovable(true);
     this.setDepth(1);
 
-    // Initialize quiz manager
+    // Initialize quiz managers
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     this.createAnimations(scene);
     this.play("smartcontractguy-idle");
@@ -77,13 +82,11 @@ export default class SmartContractGuy extends QuizNPC {
   public interact() {
     // Check if a dialog is already open
     if (this.currentDialog) {
-      console.log("SmartContractGuy: Dialog already open, ignoring interaction");
       return;
     }
     
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
-      console.log("SmartContractGuy: Network offline - showing offline message");
       const dialog = showDialog(this.scene, [
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
@@ -106,7 +109,6 @@ export default class SmartContractGuy extends QuizNPC {
         // Check if player is on cooldown
         const playerId = player.name || `anon_${Date.now()}`;
         if (this.checkCooldown(playerId)) {
-          console.log("SmartContractGuy: Player is on cooldown or has reached max attempts");
           this.showCooldownDialog();
           return;
         }
@@ -119,10 +121,116 @@ export default class SmartContractGuy extends QuizNPC {
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
-      console.log("SmartContractGuy: Interaction blocked, cannot start quiz");
       return;
     }
 
+    // Determine whether to use enhanced or simple quiz
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
+    }
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("SmartContractGuy: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("SmartContractGuy: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "Smart Contract Guy",
+        npcAvatar: "npc_smartcontractguy_avatar",
+        theme: "Smart Contracts & Development",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("SmartContractGuy: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+
+  private handleEnhancedAnswer(selectedAnswer: string, question: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Submit answer to enhanced quiz manager
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedAnswer, 1000, playerId);
+    
+    // Notify QuizAntiSpamManager that the quiz has ended
+    this.notifyQuizEnded();
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+
+    // Calculate enhanced reward
+    const baseReward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, question.difficulty);
+    
+    if (isCorrect && baseReward > 0) {
+      // Use enhanced reward saving system
+      this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, baseReward, "SmartContractGuy");
+    }
+
+    // Close current dialog
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    // Show result dialog after a brief delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const rewardText = isCorrect 
+        ? `📝 Excellent smart contract knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
+        : `❌ Not executed correctly! The right answer was "${question.answer}". Debug and try again!`;
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: rewardText,
+          avatar: "npc_smartcontractguy_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      this.setupDialogAutoReset(3000);
+    });
+
+    // Complete the enhanced quiz session
+    this.enhancedQuizManager.completeQuizSession();
+  }
+
+
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if quiz manager is ready
     if (!this.quizManager.isReady()) {
       console.warn("SmartContractGuy: Quiz manager not ready yet");
@@ -186,7 +294,6 @@ export default class SmartContractGuy extends QuizNPC {
     this.scene.time.delayedCall(500, () => {
         // Check if interactions are blocked before showing reward dialog
         if (this.isInteractionBlocked()) {
-          console.log("SmartContractGuy: Cannot show reward dialog - interactions are blocked");
           return;
         }
         

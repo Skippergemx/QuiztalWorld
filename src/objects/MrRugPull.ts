@@ -1,4 +1,3 @@
-// MrRugPull.ts
 import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
@@ -8,36 +7,39 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward loggi
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Import the SimplePatrolBehavior
 import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
-import rugPullQuizData from '../data/quizzes/npc-mrrugpull.json'; // Import Mr. Rug Pull's quiz data
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class MrRugPull extends WalkingNPC {
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'mrrugpull';
   private hasQuizData: boolean = false;
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "npc_mrrugpull");
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
     
     // Load quiz data for Mr. Rug Pull
-    if (rugPullQuizData && rugPullQuizData.questions && rugPullQuizData.questions.length > 0) {
-      // Use the NPCQuizManager's loadQuizData method which now takes an npcId parameter
-      this.quizManager.loadQuizData(this.npcId);
+    // NPCQuizManager will load from /public/assets/quizzes/npc-mrrugpull.json
+    this.quizManager.loadQuizData(this.npcId).then(() => {
       this.hasQuizData = true;
-      console.log('✅ MrRugPull: Successfully loaded quiz data');
-    } else {
-      console.warn('⚠️ MrRugPull: No quiz data found or data is invalid');
-    }
+      // Ensure EnhancedQuizManager is also ready
+    }).catch((error) => {
+        console.warn('⚠️ MrRugPull: Failed to load quiz data:', error);
+    });
     
     // Add physics properties
     this.scene.add.existing(this);
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(false);  // Allow Mr. Rug Pull to move for patrol behavior
+    this.setImmovable(true);  // Prevent player from pushing Mr. Rug Pull around
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling
@@ -51,7 +53,6 @@ export default class MrRugPull extends WalkingNPC {
         physicsManager.addCollision(this, player);
         console.log('✅ MrRugPull: Set up direct collision with player');
       }
-      
       console.log('✅ MrRugPull: Set up collisions with environment');
     }
     
@@ -97,13 +98,11 @@ export default class MrRugPull extends WalkingNPC {
     
     // Set proper depth for rendering
     this.setDepth(10);
-    
     console.log('✅ MrRugPull: Initialized with physics and collisions');
   }
 
   // Handle world bounds collision by switching patrol direction
   private handleWorldBoundsCollision(): void {
-    console.log('💥 MrRugPull: Hit world bounds, switching patrol direction');
     const currentBehavior = this.getBehavior() as SimplePatrolBehavior | null;
     
     if (currentBehavior) {
@@ -114,8 +113,6 @@ export default class MrRugPull extends WalkingNPC {
       currentBehavior['currentTarget'] = (currentTarget === currentBehavior['pointA']) 
         ? currentBehavior['pointB'] 
         : currentBehavior['pointA'];
-      
-      console.log(`🔄 MrRugPull: Switched patrol direction`);
     }
   }
 
@@ -135,11 +132,8 @@ export default class MrRugPull extends WalkingNPC {
   private createAnimations(scene: Phaser.Scene) {
     // Check if animations already exist to prevent conflicts
     if (scene.anims.exists("mrrugpull-idle-down")) {
-      console.log("MrRugPull: Animations already exist, skipping creation");
       return;
     }
-
-    console.log("MrRugPull: Creating animations...");
 
     // Create animations using the exact frame order as confirmed:
     // Right: frames 0-5, Up: frames 6-11, Left: frames 12-17, Down: frames 18-23
@@ -150,21 +144,15 @@ export default class MrRugPull extends WalkingNPC {
       { name: 'down', idleStart: 18, idleEnd: 23, walkStart: 18, walkEnd: 23 }
     ];
     
-    console.log("MrRugPull: Animation configuration:", animationConfig);
-    
     animationConfig.forEach(config => {
-      console.log(`MrRugPull: Processing ${config.name} animations`);
-      
       // Idle animation
       const idleKey = `mrrugpull-idle-${config.name}`;
-      console.log(`MrRugPull: Checking if idle animation ${idleKey} exists: ${scene.anims.exists(idleKey)}`);
       
       if (!scene.anims.exists(idleKey)) {
         const idleFrames = scene.anims.generateFrameNumbers("npc_mrrugpull", {
           start: config.idleStart,
           end: config.idleEnd,
         });
-        console.log(`MrRugPull: Creating idle animation ${idleKey} with frames:`, idleFrames);
         
         scene.anims.create({
           key: idleKey,
@@ -172,21 +160,16 @@ export default class MrRugPull extends WalkingNPC {
           frameRate: 3,
           repeat: -1,
         });
-        console.log(`MrRugPull: Created idle animation: ${idleKey}`);
-      } else {
-        console.log(`MrRugPull: Idle animation ${idleKey} already exists`);
       }
 
       // Walk animation
       const walkKey = `mrrugpull-walk-${config.name}`;
-      console.log(`MrRugPull: Checking if walk animation ${walkKey} exists: ${scene.anims.exists(walkKey)}`);
       
       if (!scene.anims.exists(walkKey)) {
         const walkFrames = scene.anims.generateFrameNumbers("npc_mrrugpull_walk", {
           start: config.walkStart,
           end: config.walkEnd,
         });
-        console.log(`MrRugPull: Creating walk animation ${walkKey} with frames:`, walkFrames);
         
         scene.anims.create({
           key: walkKey,
@@ -194,19 +177,7 @@ export default class MrRugPull extends WalkingNPC {
           frameRate: 8,
           repeat: -1,
         });
-        console.log(`MrRugPull: Created walk animation: ${walkKey}`);
-      } else {
-        console.log(`MrRugPull: Walk animation ${walkKey} already exists`);
       }
-    });
-    
-    // Log all created animations for debugging
-    console.log("MrRugPull: All animations created:");
-    animationConfig.forEach(config => {
-      const idleKey = `mrrugpull-idle-${config.name}`;
-      const walkKey = `mrrugpull-walk-${config.name}`;
-      console.log(`  - ${idleKey}: ${scene.anims.exists(idleKey)}`);
-      console.log(`  - ${walkKey}: ${scene.anims.exists(walkKey)}`);
     });
   }
   
@@ -223,9 +194,11 @@ export default class MrRugPull extends WalkingNPC {
     const player = this.getClosestPlayer();
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+      
       if (distance <= 100) {
         // Check if player is on cooldown
         const playerId = player.name || `anon_${Date.now()}`;
+        
         // Use the checkCooldown method which properly handles expired cooldowns
         if (this.checkCooldown(playerId)) {
           console.log("MR Rug Pull: Player is on cooldown or has reached max attempts");
@@ -257,6 +230,117 @@ export default class MrRugPull extends WalkingNPC {
       return;
     }
 
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
+    }
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("MrRugPull: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("MrRugPull: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "MR Rug Pull",
+        npcAvatar: "npc_mrrugpull_avatar",
+        theme: "Rug Pulls and Scams",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("MrRugPull: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+  
+
+
+  // Enhanced answer handler using proper Enhanced Quiz Manager session
+  private handleEnhancedAnswer(selectedOption: string, enhancedQuestion: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    
+    // Submit answer through Enhanced Quiz Manager session (requires timeSpent parameter)
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedOption, 0, playerId);
+    
+    // Calculate reward using enhanced system
+    const reward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, enhancedQuestion.difficulty);
+    
+    // Record quiz attempt for cooldown tracking
+    this.recordQuizAttempt(playerId);
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+    
+    // Complete the quiz session
+    this.enhancedQuizManager.completeQuizSession();
+    
+    // End quiz notification to unblock interactions
+    this.notifyQuizEnded();
+    
+    // Show reward dialog after delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: isCorrect
+            ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
+            : `😈 Haha! You fell for it! The correct answer was: "${enhancedQuestion.answer}". Better luck next time!`,
+          avatar: "npc_mrrugpull_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      
+      // Save reward using enhanced system
+      if (isCorrect) {
+        this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "MrRugPull");
+      }
+      
+      this.setupDialogAutoReset(3000);
+    });
+    
+    // Resume walking after interaction
+    this.scene.time.delayedCall(3500, () => {
+      this.lastQuestionIndex = -1;
+      this.onInteractionEnd();
+    });
+  }
+
+
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Get random question using the quiz manager
     const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
 
@@ -274,11 +358,17 @@ export default class MrRugPull extends WalkingNPC {
 
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+    
+    // Ensure exactly 3 options by adding filler options if needed
+    const optionsWithFiller = [...shuffledOptions];
+    while (optionsWithFiller.length < 3) {
+      optionsWithFiller.push(`Extra Option ${optionsWithFiller.length + 1}`);
+    }
 
     showDialog(this.scene, [{
       text: currentQuestion.question,
       avatar: "npc_mrrugpull_avatar",
-      options: shuffledOptions.map(option => ({
+      options: optionsWithFiller.slice(0, 3).map(option => ({
         text: option,
         callback: () => {
           this.checkAnswer(option, currentQuestion.answer, player);
@@ -322,7 +412,7 @@ export default class MrRugPull extends WalkingNPC {
         {
           text: isCorrect
             ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
-            : `😈 Haha! You fell for it! The correct answer was "${correctAnswer}". Better luck next time!`,
+            : `😈 Haha! You fell for it! The correct answer was: \"${correctAnswer}\". Better luck next time!`,
           avatar: "npc_mrrugpull_avatar",
           isExitDialog: true
         }
@@ -410,22 +500,30 @@ export default class MrRugPull extends WalkingNPC {
   }
 
   protected showCooldownDialog() {
-    // Add a delay before showing the cooldown dialog
-    this.scene.time.delayedCall(3000, () => {
+    // Reduce delay since we fixed the root timing issue
+    // Cooldown state is now activated at 3500ms, so 4000ms gives a clean 500ms buffer
+    this.scene.time.delayedCall(4000, () => {
+      // Double-check that we're still on cooldown before showing dialog
+      if (!this.isOnCooldown) {
+        return;
+      }
+      
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
-        {
-          text: `😈 Hey there! I'm currently counting my ill-gotten gains. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have legitimate knowledge to share! 🏫`,
-          avatar: "npc_mrrugpull_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Set up auto-reset for the dialog after 3 seconds
-      this.setupDialogAutoReset(3000);
-      
+      // Only show dialog if we don't already have one open
+      if (!this.currentDialog) {
+        this.currentDialog = showDialog(this.scene, [
+          {
+            text: `😈 Hey there! I'm currently counting my ill-gotten gains. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have legitimate knowledge to share! 🏫`,
+            avatar: "npc_mrrugpull_avatar",
+            isExitDialog: true
+          }
+        ]);
+        
+        // Set up auto-reset for the dialog after 3 seconds
+        this.setupDialogAutoReset(3000);
+      }
     });
   }
 }

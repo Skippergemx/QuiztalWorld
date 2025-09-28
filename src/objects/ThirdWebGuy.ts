@@ -8,25 +8,30 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward loggi
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Import the SimplePatrolBehavior
 import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class ThirdWebGuy extends WalkingNPC {
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'thirdwebguy';
   private hasQuizData: boolean = false;
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "npc_thirdwebguy");
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
     
     // Load quiz data for 3RDWeb Guy
     this.quizManager.loadQuizData(this.npcId).then(() => {
       this.hasQuizData = true;
-      console.log('✅ ThirdWebGuy: Successfully loaded quiz data');
+      // Ensure EnhancedQuizManager is also ready
     }).catch((error) => {
-      console.warn('⚠️ ThirdWebGuy: Failed to load quiz data:', error);
+        console.warn('⚠️ ThirdWebGuy: Failed to load quiz data:', error);
     });
     
     // Add physics properties
@@ -34,7 +39,7 @@ export default class ThirdWebGuy extends WalkingNPC {
     this.scene.physics.add.existing(this);
     
     // Set up physics
-    this.setImmovable(false);  // Allow 3RDWeb Guy to move for patrol behavior
+    this.setImmovable(true);  // Prevent player from pushing 3RDWeb Guy around
     this.setCollideWorldBounds(true);
     
     // Register with PhysicsManager for proper collision handling
@@ -254,36 +259,12 @@ export default class ThirdWebGuy extends WalkingNPC {
       return;
     }
 
-    // Get random question using the quiz manager
-    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
-
-    if (!questionData) {
-      console.error("3RDWeb Guy: No questions available");
-      return;
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
     }
-
-    // Store the index of the current question
-    this.lastQuestionIndex = questionData.index;
-    const currentQuestion = questionData.question;
-
-    // Notify QuizAntiSpamManager that a quiz has started
-    this.notifyQuizStarted();
-
-    // Create a copy of options and shuffle them
-    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
-
-    showDialog(this.scene, [{
-      text: currentQuestion.question,
-      avatar: "npc_thirdwebguy_avatar",
-      options: shuffledOptions.map(option => ({
-        text: option,
-        callback: () => {
-          this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
-          this.notifyQuizEnded();
-        }
-      }))
-    }]);
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -344,6 +325,142 @@ export default class ThirdWebGuy extends WalkingNPC {
     this.scene.time.delayedCall(3000, () => {
       this.onInteractionEnd();
     });
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("ThirdWebGuy: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("ThirdWebGuy: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "3RDWeb Guy",
+        npcAvatar: "npc_thirdwebguy_avatar",
+        theme: "Web3 Development & ThirdWeb",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("ThirdWebGuy: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+  
+
+
+  // Enhanced answer handler using proper Enhanced Quiz Manager session
+  private handleEnhancedAnswer(selectedOption: string, enhancedQuestion: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    
+    // Submit answer through Enhanced Quiz Manager session (requires timeSpent parameter)
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedOption, 0, playerId);
+    
+    // Calculate reward using enhanced system
+    const reward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, enhancedQuestion.difficulty);
+    
+    // Record quiz attempt for cooldown tracking
+    this.recordQuizAttempt(playerId);
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+    
+    // Complete the quiz session
+    this.enhancedQuizManager.completeQuizSession();
+    
+    // End quiz notification to unblock interactions
+    this.notifyQuizEnded();
+    
+    // Show reward dialog after delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: isCorrect
+            ? `🌐 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your web3 knowledge!`
+            : `🔧 Not quite! The correct answer was: "${enhancedQuestion.answer}". Keep exploring web3 development!`,
+          avatar: "npc_thirdwebguy_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      
+      // Save reward using enhanced system
+      if (isCorrect) {
+        this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "ThirdWebGuy");
+      }
+      
+      this.setupDialogAutoReset(3000);
+    });
+    
+    // Resume walking after interaction
+    this.scene.time.delayedCall(3500, () => {
+      this.lastQuestionIndex = -1;
+      this.onInteractionEnd();
+    });
+  }
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Get random question using the quiz manager
+    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
+
+    if (!questionData) {
+      console.error("3RDWeb Guy: No questions available");
+      return;
+    }
+
+    // Store the index of the current question
+    this.lastQuestionIndex = questionData.index;
+    const currentQuestion = questionData.question;
+
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+
+    // Create a copy of options and shuffle them
+    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+    
+    // Ensure exactly 3 options by selecting first 3 (since some questions have 4 options)
+    const optionsLimited = shuffledOptions.slice(0, 3);
+
+    showDialog(this.scene, [{
+      text: currentQuestion.question,
+      avatar: "npc_thirdwebguy_avatar",
+      options: optionsLimited.map(option => ({
+        text: option,
+        callback: () => {
+          this.checkAnswer(option, currentQuestion.answer, player);
+          // Notify QuizAntiSpamManager that the quiz has ended
+          this.notifyQuizEnded();
+        }
+      }))
+    }]);
   }
 
   private calculateReward(isCorrect: boolean): number {

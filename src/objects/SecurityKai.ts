@@ -6,6 +6,8 @@ import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward logging
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 // SecurityKai class: Defines the SecurityKai NPC, extending the base QuizNPC class.
 export default class SecurityKai extends QuizNPC {
@@ -13,6 +15,8 @@ export default class SecurityKai extends QuizNPC {
   private lastQuestionIndex: number = -1;
   // Manages the quiz data for all NPCs, including SecurityKai.
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager: EnhancedQuizManager;
+  private useEnhancedDialog: boolean = true;
   // Unique identifier for this NPC, used to fetch its quiz data.
   private readonly npcId = 'securitykai';
 
@@ -24,6 +28,7 @@ export default class SecurityKai extends QuizNPC {
 
     // Get the singleton instance of the NPCQuizManager.
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -136,6 +141,114 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       return;
     }
 
+    // Determine whether to use enhanced or simple quiz
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
+    }
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("SecurityKai: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("SecurityKai: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "Security Kai",
+        npcAvatar: "npc_securitykai_avatar",
+        theme: "Web3 Security & Safety",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("SecurityKai: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+
+  private handleEnhancedAnswer(selectedAnswer: string, question: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Submit answer to enhanced quiz manager
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedAnswer, 1000, playerId);
+    
+    // Notify QuizAntiSpamManager that the quiz has ended
+    this.notifyQuizEnded();
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+
+    // Calculate enhanced reward
+    const baseReward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, question.difficulty);
+    
+    if (isCorrect && baseReward > 0) {
+      // Use enhanced reward saving system
+      this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, baseReward, "SecurityKai");
+    }
+
+    // Close current dialog
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    // Show result dialog after a brief delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        console.log("SecurityKai: Cannot show reward dialog - interactions are blocked");
+        return;
+      }
+      
+      const rewardText = isCorrect 
+        ? `🛡️ Excellent security knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
+        : `❌ Not quite! The correct answer was "${question.answer}". Keep learning about Web3 security!`;
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: rewardText,
+          avatar: "npc_securitykai_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      this.setupDialogAutoReset(3000);
+    });
+
+    // Complete the enhanced quiz session
+    this.enhancedQuizManager.completeQuizSession();
+  }
+
+
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if quiz manager is ready.
     if (!this.quizManager.isReady()) {
       console.warn("SecurityKai: Quiz manager not ready yet");

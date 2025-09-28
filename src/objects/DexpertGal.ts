@@ -5,6 +5,8 @@ import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class DexpertGal extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -12,7 +14,9 @@ export default class DexpertGal extends QuizNPC {
 
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'dexpertgal';
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "dexpert_gal");
@@ -24,6 +28,7 @@ export default class DexpertGal extends QuizNPC {
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     this.createAnimations(scene);
     this.play("dexpertgal-idle");
@@ -129,36 +134,12 @@ export default class DexpertGal extends QuizNPC {
       return;
     }
     
-    // Get random question using the quiz manager
-    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
-    
-    if (!questionData) {
-      console.error("DexpertGal: No questions available");
-      return;
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
     }
-    
-    // Store the index of the current question
-    this.lastQuestionIndex = questionData.index;
-    const currentQuestion = questionData.question;
-    
-    // Notify QuizAntiSpamManager that a quiz has started
-    this.notifyQuizStarted();
-    
-    // Create a copy of options and shuffle them
-    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
-    
-    showDialog(this.scene, [{
-        text: currentQuestion.question,
-        avatar: "npc_dexpertgal_avatar",
-        options: shuffledOptions.map(option => ({
-            text: option,
-            callback: () => {
-              this.checkAnswer(option, currentQuestion.answer, player);
-              // Notify QuizAntiSpamManager that the quiz has ended
-              this.notifyQuizEnded();
-            }
-        }))
-    }]);
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -213,6 +194,192 @@ export default class DexpertGal extends QuizNPC {
     
     // Reset last question index so player can get the same question again in future interactions
     this.lastQuestionIndex = -1;
+  }
+
+  private async startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    try {
+      // Get random question using the quiz manager
+      const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
+      
+      if (!questionData) {
+        console.error("DexpertGal: No questions available");
+        return;
+      }
+      
+      // Store the index of the current question
+      this.lastQuestionIndex = questionData.index;
+      const currentQuestion = questionData.question;
+      
+      // Notify QuizAntiSpamManager that a quiz has started
+      this.notifyQuizStarted();
+      
+      // Create enhanced question from basic question
+      const enhancedQuestion = {
+        ...currentQuestion,
+        difficulty: this.determineDifficulty(currentQuestion),
+        explainer: currentQuestion.explainer || `This question relates to fundamental concepts about ${this.npcId} topic.`
+      };
+      
+      // Shuffle options
+      const shuffledOptions = Phaser.Utils.Array.Shuffle([...enhancedQuestion.options]);
+      
+      // Prepare optimized enhanced quiz dialog data
+      const quizData: OptimizedQuizDialogData = {
+        npcName: "Dexpert Gal",
+        npcAvatar: "npc_dexpertgal_avatar",
+        question: enhancedQuestion.question,
+        options: shuffledOptions,
+        theme: "Decentralized Exchanges & DeFi Trading",
+        difficulty: enhancedQuestion.difficulty,
+        questionNumber: 1, // Single question per interaction
+        totalQuestions: 1, // Single question per interaction
+        explainer: enhancedQuestion.explainer,
+        onAnswer: (selectedOption: string) => {
+          this.handleEnhancedAnswer(selectedOption, enhancedQuestion, player);
+        },
+        onClose: () => {
+          // Quiz is already ended in handleEnhancedAnswer
+        }
+      };
+
+      // Show optimized enhanced quiz dialog
+      showOptimizedEnhancedQuizDialog(this.scene, quizData);
+
+    } catch (error) {
+      console.error("DexpertGal: Error starting enhanced quiz:", error);
+      // Fallback to simple quiz
+      this.startSimpleQuiz(player);
+    }
+  }
+  
+  // Helper method to determine difficulty
+  private determineDifficulty(question: any): 'Easy' | 'Medium' | 'Hard' {
+    const questionLength = question.question.length;
+    const optionsLength = question.options.reduce((sum: number, opt: string) => sum + opt.length, 0);
+    
+    if (questionLength < 50 && optionsLength < 100) {
+      return 'Easy';
+    } else if (questionLength < 100 && optionsLength < 200) {
+      return 'Medium';
+    } else {
+      return 'Hard';
+    }
+  }
+
+  // Enhanced answer handler
+  private handleEnhancedAnswer(selectedOption: string, enhancedQuestion: any, player: Phaser.Physics.Arcade.Sprite) {
+    const isCorrect = selectedOption === enhancedQuestion.answer;
+    
+    // Get player ID for tracking
+    const playerId = player.name || `anon_${Date.now()}`;
+    
+    // Calculate reward using enhanced system by difficulty
+    const reward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, enhancedQuestion.difficulty);
+    
+    // Check if this will be the 3rd attempt BEFORE recording
+    const playerAttempts = this.quizAttempts.filter(attempt => attempt.playerId === playerId);
+    const willTriggerCooldown = (playerAttempts.length + 1) >= this.maxAttempts;
+    
+    // Record quiz attempt - but delay cooldown activation if this is 3rd attempt
+    if (willTriggerCooldown) {
+      // For 3rd attempt: record without triggering cooldown immediately
+      this.quizAttempts.push({
+        playerId: playerId,
+        timestamp: Date.now()
+      });
+      // Show remaining attempts
+      this.showRemainingAttempts(playerId);
+    } else {
+      // For 1st and 2nd attempts: use normal recording
+      this.recordQuizAttempt(playerId);
+    }
+    
+    // Play sound using enhanced audio system
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+    
+    // End the quiz immediately to unblock interactions for reward dialog
+    this.notifyQuizEnded();
+    
+    // Delayed feedback (500ms delay):
+    this.scene.time.delayedCall(500, () => {
+      // Check if interactions blocked
+      if (this.isInteractionBlocked()) {
+        console.log("DexpertGal: Cannot show reward dialog - interactions are blocked");
+        return;
+      }
+      
+      // Show reward dialog with result message
+      const dialog = showDialog(this.scene, [
+        {
+          text: isCorrect
+            ? `🔄 Excellent trade! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`
+            : `❌ Trade failed! The correct answer was: "${enhancedQuestion.answer}". Study the market and try again!`,
+          avatar: "npc_dexpertgal_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      // Store reference to the new dialog
+      this.currentDialog = dialog;
+      
+      // Save enhanced reward if correct
+      if (isCorrect) {
+        this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "DexpertGal");
+      }
+      
+      // Set up auto-reset for the dialog after 3 seconds
+      this.setupDialogAutoReset(3000);
+      
+      // If this was the 3rd attempt, activate cooldown AFTER reward dialog
+      if (willTriggerCooldown) {
+        // Activate cooldown after reward dialog is fully processed
+        this.scene.time.delayedCall(3500, () => {
+          const now = Date.now();
+          this.isOnCooldown = true;
+          this.cooldownEndTime = now + this.cooldownDuration;
+          this.showCooldownIndicator();
+        });
+      }
+    });
+    
+    // Cleanup
+    this.scene.time.delayedCall(3500, () => {
+      // Reset question index so player can get the same question again in future interactions
+      this.lastQuestionIndex = -1;
+    });
+  }
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Get random question using the quiz manager
+    const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
+    
+    if (!questionData) {
+      console.error("DexpertGal: No questions available");
+      return;
+    }
+    
+    // Store the index of the current question
+    this.lastQuestionIndex = questionData.index;
+    const currentQuestion = questionData.question;
+    
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Create a copy of options and shuffle them
+    const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+    
+    showDialog(this.scene, [{
+        text: currentQuestion.question,
+        avatar: "npc_dexpertgal_avatar",
+        options: shuffledOptions.map(option => ({
+            text: option,
+            callback: () => {
+              this.checkAnswer(option, currentQuestion.answer, player);
+              // Notify QuizAntiSpamManager that the quiz has ended
+              this.notifyQuizEnded();
+            }
+        }))
+    }]);
   }
 
   private calculateReward(isCorrect: boolean): number {

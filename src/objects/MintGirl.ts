@@ -5,6 +5,8 @@ import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class MintGirl extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -12,7 +14,9 @@ export default class MintGirl extends QuizNPC {
 
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'mintgirl';
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "mint_girl");
@@ -24,6 +28,7 @@ export default class MintGirl extends QuizNPC {
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     this.createAnimations(scene);
     this.play("mintgirl-idle");
@@ -131,6 +136,115 @@ export default class MintGirl extends QuizNPC {
       return;
     }
     
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
+    }
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("MintGirl: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("MintGirl: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "Mint Girl",
+        npcAvatar: "npc_mintgirl_avatar",
+        theme: "NFT Minting & Mint Club",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("MintGirl: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+
+
+  private handleEnhancedAnswer(selectedAnswer: string, question: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Submit answer to enhanced quiz manager
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedAnswer, 1000, playerId);
+    
+    // Notify QuizAntiSpamManager that the quiz has ended
+    this.notifyQuizEnded();
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+
+    // Calculate enhanced reward
+    const baseReward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, question.difficulty);
+    
+    if (isCorrect && baseReward > 0) {
+      // Use enhanced reward saving system
+      this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, baseReward, "MintGirl");
+    }
+
+    // Close current dialog
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    // Show result dialog after a brief delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const rewardText = isCorrect 
+        ? `🍃 Correct! You earned ${baseReward.toFixed(2)} $Quiztals from the Mint Club! (${question.difficulty} difficulty)` 
+        : `🌪️ Not quite! The correct answer was "${question.answer}". Try again later!`;
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: rewardText,
+          avatar: "npc_mintgirl_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      this.setupDialogAutoReset(3000);
+    });
+
+    // Complete the enhanced quiz session
+    this.enhancedQuizManager.completeQuizSession();
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
+  }
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Get random question using the quiz manager
     const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
     

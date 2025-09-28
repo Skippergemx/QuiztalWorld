@@ -25,7 +25,7 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     }
 
     // Validate source
-    const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "DexpertGal", "MrRugPull", "NftCyn", "ProfChain", "SecurityKai", "SmartContractGuy", "WalletSafetyFriend", "Unknown"];
+    const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "DexpertGal", "MrRugPull", "NftCyn", "ProfChain", "SecurityKai", "SmartContractGuy", "WalletSafetyFriend", "ArtizenGent", "AlchemyMan", "ThirdWebGuy", "Unknown"];
     if (!validSources.includes(source)) {
       console.error("❌ Invalid source for quiztal reward:", source);
       return;
@@ -49,12 +49,12 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     } else {
       // New player gets initial 100 quiztals plus reward
       const initialQuiztals = 100 + reward;
+      
       await setDoc(playerRef, {
         quiztals: initialQuiztals,
         lastUpdated: Date.now(),
         rewardsEarned: reward
       });
-
     }
 
     const rewardHistoryRef = collection(db, "players", playerId, "rewardHistory");
@@ -63,7 +63,6 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
       timestamp: Date.now(),
       source: source
     });
-
 
   } catch (error) {
     console.error("❌ Error saving quiztals to database:", error);

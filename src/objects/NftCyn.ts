@@ -2,9 +2,11 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
-import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
+import QuizNPC from "./QuizNPC";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
+import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
+import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 
 export default class NftCyn extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -12,7 +14,9 @@ export default class NftCyn extends QuizNPC {
 
   private lastQuestionIndex: number = -1;
   private quizManager: NPCQuizManager;
+  private enhancedQuizManager!: EnhancedQuizManager;
   private readonly npcId = 'nftcyn';
+  private useEnhancedDialog: boolean = true; // Flag to toggle between dialog systems
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "nftcyn");
@@ -24,6 +28,7 @@ export default class NftCyn extends QuizNPC {
 
     // Initialize quiz manager
     this.quizManager = NPCQuizManager.getInstance(scene);
+    this.enhancedQuizManager = EnhancedQuizManager.getInstance(scene);
 
     this.createAnimations(scene);
     this.play("nftcyn-idle");
@@ -77,13 +82,11 @@ export default class NftCyn extends QuizNPC {
   public interact() {
     // Check if a dialog is already open
     if (this.currentDialog) {
-      console.log("NftCyn: Dialog already open, ignoring interaction");
       return;
     }
     
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
-      console.log("NftCyn: Network offline - showing offline message");
       const dialog = showDialog(this.scene, [
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
@@ -95,7 +98,6 @@ export default class NftCyn extends QuizNPC {
       this.currentDialog = dialog;
       
       // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
       return;
     }
@@ -108,7 +110,6 @@ export default class NftCyn extends QuizNPC {
         const playerId = player.name || `anon_${Date.now()}`;
         // Use the checkCooldown method which properly handles expired cooldowns
         if (this.checkCooldown(playerId)) {
-          console.log("NftCyn: Player is on cooldown or has reached max attempts");
           this.showCooldownDialog();
           return;
         }
@@ -121,7 +122,6 @@ export default class NftCyn extends QuizNPC {
   private startQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
-      console.log("NftCyn: Interaction blocked, cannot start quiz");
       return;
     }
 
@@ -131,6 +131,115 @@ export default class NftCyn extends QuizNPC {
       return;
     }
     
+    // Use enhanced quiz system if enabled
+    if (this.useEnhancedDialog) {
+      this.startEnhancedQuiz(player);
+    } else {
+      this.startSimpleQuiz(player);
+    }
+  }
+
+  private startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
+    // Notify QuizAntiSpamManager that a quiz has started
+    this.notifyQuizStarted();
+    
+    // Start enhanced quiz session
+    this.enhancedQuizManager.startQuizSession(this.npcId).then(session => {
+      if (!session) {
+        console.error("NftCyn: Failed to start enhanced quiz session");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      const currentQuestion = this.enhancedQuizManager.getCurrentQuestion();
+      if (!currentQuestion) {
+        console.error("NftCyn: No enhanced question available");
+        this.startSimpleQuiz(player);
+        return;
+      }
+      
+      // Create enhanced quiz dialog
+      const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+      
+      dialog.showQuizDialog({
+        npcName: "NFT Cyn",
+        npcAvatar: "npc_nftcyn_avatar",
+        theme: "NFTs & Digital Art",
+        difficulty: currentQuestion.difficulty,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        explainer: currentQuestion.explanation,
+        questionNumber: 1,
+        totalQuestions: 1,
+        onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),
+        onClose: () => this.notifyQuizEnded()
+      });
+      
+      this.currentDialog = dialog as any;
+    }).catch(error => {
+      console.error("NftCyn: Enhanced quiz session error:", error);
+      this.startSimpleQuiz(player);
+    });
+  }
+
+
+  private handleEnhancedAnswer(selectedAnswer: string, question: any, player: Phaser.Physics.Arcade.Sprite) {
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Submit answer to enhanced quiz manager
+    const isCorrect = this.enhancedQuizManager.submitAnswer(selectedAnswer, 1000, playerId);
+    
+    // Notify QuizAntiSpamManager that the quiz has ended
+    this.notifyQuizEnded();
+    
+    // Play enhanced audio feedback
+    this.enhancedQuizManager.playRewardAudio(isCorrect);
+
+    // Calculate enhanced reward
+    const baseReward = this.enhancedQuizManager.calculateEnhancedReward(isCorrect, question.difficulty);
+    
+    if (isCorrect && baseReward > 0) {
+      // Use enhanced reward saving system
+      this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, baseReward, "NftCyn");
+    }
+
+    // Close current dialog
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    // Show result dialog after a brief delay
+    this.scene.time.delayedCall(500, () => {
+      if (this.isInteractionBlocked()) {
+        return;
+      }
+      
+      const rewardText = isCorrect 
+        ? `🎨 Amazing! You earned ${baseReward.toFixed(2)} $Quiztals for your NFT knowledge! (${question.difficulty} difficulty)` 
+        : `🖼️ Not quite! The correct answer was "${question.answer}". Keep exploring the NFT world!`;
+      
+      const dialog = showDialog(this.scene, [
+        {
+          text: rewardText,
+          avatar: "npc_nftcyn_avatar",
+          isExitDialog: true
+        }
+      ]);
+      
+      this.currentDialog = dialog;
+      this.setupDialogAutoReset(3000);
+    });
+
+    // Complete the enhanced quiz session
+    this.enhancedQuizManager.completeQuizSession();
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
+  }
+
+  private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Get random question using the quiz manager
     const questionData = this.quizManager.getRandomQuestion(this.npcId, this.lastQuestionIndex);
     
@@ -151,7 +260,7 @@ export default class NftCyn extends QuizNPC {
     
     showDialog(this.scene, [{
         text: currentQuestion.question,
-        avatar: "npc_nftcyn_avatar",
+        avatar: "nfc_nftcyn_avatar",
         options: shuffledOptions.map(option => ({
             text: option,
             callback: () => {
@@ -188,7 +297,6 @@ export default class NftCyn extends QuizNPC {
     this.scene.time.delayedCall(500, () => {
         // Check if interactions are blocked before showing reward dialog
         if (this.isInteractionBlocked()) {
-          console.log("NftCyn: Cannot show reward dialog - interactions are blocked");
           return;
         }
         

@@ -6,6 +6,7 @@ export interface QuizQuestion {
     question: string;
     options: string[];
     answer: string;
+    explainer?: string; // Optional educational explanation
 }
 
 export interface NPCQuizData {
@@ -61,7 +62,7 @@ export default class NPCQuizManager {
      */
     private async loadAllQuizData(): Promise<void> {
         // npcIds: Array of NPC IDs to load quiz data for.  Make sure to include 'securitykai' here.
-        const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai', 'nftcyn', 'profchain', 'smartcontractguy', 'dexpertgal', 'walletsafetyfriend', 'artizengent', 'thirdwebguy', 'alchemyman'];
+        const npcIds = ['mintgirl', 'basesage', 'huntboy', 'securitykai', 'nftcyn', 'profchain', 'smartcontractguy', 'dexpertgal', 'walletsafetyfriend', 'artizengent', 'thirdwebguy', 'alchemyman', 'mrrugpull'];
         const loadPromises = npcIds.map(npcId => this.loadQuizData(npcId));
         
         try {
