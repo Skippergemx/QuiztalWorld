@@ -7,212 +7,254 @@
     {
       "question": "What is Base, really?",
       "options": ["Layer 2 Ethereum", "Bitcoin's weird cousin", "Magic internet money"],
-      "answer": "Layer 2 Ethereum"
+      "answer": "Layer 2 Ethereum",
+      "explainer": "Base is Coinbase's Layer 2 blockchain built on Ethereum, offering faster transactions and lower fees for Web3 applications."
     },
     {
       "question": "What is Hunt Town?",
       "options": ["Web3 wonderland", "Developer paradise", "Code ninja dojo"],
-      "answer": "Web3 wonderland"
+      "answer": "Web3 wonderland",
+      "explainer": "Hunt Town is a vibrant Web3 developer community focused on building innovative decentralized applications and tools."
     },
     {
       "question": "What can devs do here?",
       "options": ["Build Web3 projects", "Hunt for bugs", "Summon blockchain magic"],
-      "answer": "Build Web3 projects"
+      "answer": "Build Web3 projects",
+      "explainer": "Developers can create innovative Web3 applications, smart contracts, and decentralized solutions using modern blockchain tools."
     },
     {
       "question": "Hunt Town's obsession?",
       "options": ["Web3 development", "Gaming all night", "Dancing cats"],
-      "answer": "Web3 development"
+      "answer": "Web3 development",
+      "explainer": "Web3 development is the core passion, focusing on building the future of decentralized internet and blockchain applications."
     },
     {
       "question": "Which chain do they use?",
       "options": ["Base, obviously", "Solana who?", "Polygon pizza"],
-      "answer": "Base, obviously"
+      "answer": "Base, obviously",
+      "explainer": "Base blockchain is the preferred platform, offering Ethereum compatibility with enhanced speed and reduced transaction costs."
     },
     {
       "question": "Community's secret power?",
       "options": ["Developer-focused", "Gamers unite", "NFT traders only"],
-      "answer": "Developer-focused"
+      "answer": "Developer-focused",
+      "explainer": "Developer-focused community prioritizes building useful applications over speculation, creating real value in Web3 ecosystem."
     },
     {
       "question": "What's hiding there?",
       "options": ["Web3 builders", "Pokemon GO", "Flying unicorns"],
-      "answer": "Web3 builders"
+      "answer": "Web3 builders",
+      "explainer": "Talented Web3 builders collaborate to create innovative decentralized applications and contribute to blockchain advancement."
     },
     {
       "question": "How do they Web3?",
       "options": ["Build useful tools", "Just trade NFTs", "Only gaming"],
-      "answer": "Build useful tools"
+      "answer": "Build useful tools",
+      "explainer": "Building useful tools focuses on creating practical solutions that solve real problems and advance Web3 adoption."
     },
     {
       "question": "Why Base, though?",
       "options": ["Low fees & ETH", "Free money printer", "No reason at all"],
-      "answer": "Low fees & ETH"
+      "answer": "Low fees & ETH",
+      "explainer": "Base offers low transaction fees while maintaining Ethereum compatibility, making it ideal for cost-effective dApp development."
     },
     {
       "question": "Their master plan?",
       "options": ["Empower builders", "Just gaming", "NFT trading"],
-      "answer": "Empower builders"
+      "answer": "Empower builders",
+      "explainer": "Empowering builders through education, resources, and community support to accelerate Web3 innovation and adoption."
     },
     {
       "question": "Who's invited?",
       "options": ["Anyone interested", "Only experts", "Literally no one"],
-      "answer": "Anyone interested"
+      "answer": "Anyone interested",
+      "explainer": "Hunt Town welcomes anyone interested in Web3 development, regardless of experience level or technical background."
     },
     {
       "question": "What's their thing?",
       "options": ["Developer community", "High gas fees", "Cabal meeting"],
-      "answer": "Developer community"
+      "answer": "Developer community",
+      "explainer": "Strong developer community provides mentorship, collaboration opportunities, and shared resources for Web3 building."
     },
     {
       "question": "Learn what now?",
       "options": ["Web3 development", "Cooking shows", "Farming simulator"],
-      "answer": "Web3 development"
+      "answer": "Web3 development",
+      "explainer": "Learn Web3 development skills including smart contracts, dApps, and blockchain integration for decentralized applications."
     },
     {
       "question": "Builder support system?",
       "options": ["Community support", "Free lunch", "Free pizza daily"],
-      "answer": "Community support"
+      "answer": "Community support",
+      "explainer": "Community support includes mentorship, code reviews, project feedback, and collaborative problem-solving assistance."
     },
     {
       "question": "How's it with Base?",
       "options": ["Building on Base", "Competing", "No relation"],
-      "answer": "Building on Base"
+      "answer": "Building on Base",
+      "explainer": "Actively building on Base blockchain, leveraging its Layer 2 benefits for faster and cheaper Web3 application deployment."
     },
     {
       "question": "Dev toolkit?",
       "options": ["Ethereum tools", "Special tools", "No tools"],
-      "answer": "Ethereum tools"
+      "answer": "Ethereum tools",
+      "explainer": "Standard Ethereum development tools work seamlessly on Base, including Hardhat, Remix, and MetaMask for development."
     },
     {
       "question": "How do they build?",
       "options": ["Open & collaborative", "Solo building", "Secret clubs"],
-      "answer": "Open & collaborative"
+      "answer": "Open & collaborative",
+      "explainer": "Open and collaborative approach encourages knowledge sharing, code reviews, and collective problem-solving."
     },
     {
       "question": "What's in stock?",
       "options": ["Development resources", "Free tokens", "NFT airdrops"],
-      "answer": "Development resources"
+      "answer": "Development resources",
+      "explainer": "Comprehensive development resources including tutorials, documentation, code samples, and best practices for Web3 building."
     },
     {
       "question": "Builder helpdesk?",
       "options": ["Community & resources", "Money only", "Tumbleweeds only"],
-      "answer": "Community & resources"
+      "answer": "Community & resources",
+      "explainer": "Active community provides technical support, troubleshooting help, and access to educational resources for builders."
     },
     {
       "question": "Their endgame?",
       "options": ["Grow Web3 ecosystem", "Quick profits", "Gaming only"],
-      "answer": "Grow Web3 ecosystem"
+      "answer": "Grow Web3 ecosystem",
+      "explainer": "Long-term goal is growing the Web3 ecosystem by nurturing developers who create valuable decentralized applications."
     },
     {
       "question": "Build what exactly?",
       "options": ["Web3 applications", "Only games", "Only NFTs"],
-      "answer": "Web3 applications"
+      "answer": "Web3 applications",
+      "explainer": "Web3 applications include DeFi protocols, NFT marketplaces, DAOs, and other decentralized solutions using blockchain technology."
     },
     {
       "question": "Why join them?",
       "options": ["Learn & build Web3", "Get rich quick", "Play games"],
-      "answer": "Learn & build Web3"
+      "answer": "Learn & build Web3",
+      "explainer": "Join to learn Web3 development skills, build innovative projects, and contribute to the decentralized internet revolution."
     },
     {
       "question": "What gets built?",
       "options": ["Web3 dApps", "Mobile games", "Desktop software"],
-      "answer": "Web3 dApps"
+      "answer": "Web3 dApps",
+      "explainer": "Decentralized applications (dApps) run on blockchain networks, offering transparency, security, and user ownership of data."
     },
     {
       "question": "Newbie assistance?",
       "options": ["Mentorship & resources", "Cash rewards", "Gaming tournaments"],
-      "answer": "Mentorship & resources"
+      "answer": "Mentorship & resources",
+      "explainer": "Experienced developers provide mentorship, code guidance, and educational resources to help newcomers learn Web3 development."
     },
     {
       "question": "What did they do?",
       "options": ["Growing dev ecosystem", "Creating NFTs", "Running nodes"],
-      "answer": "Growing dev ecosystem"
+      "answer": "Growing dev ecosystem",
+      "explainer": "Focus on growing the developer ecosystem by providing education, tools, and community support for Web3 innovation."
     },
     {
       "question": "Builder special powers?",
       "options": ["Web3 innovation", "Trading focus", "Gaming focus"],
-      "answer": "Web3 innovation"
+      "answer": "Web3 innovation",
+      "explainer": "Web3 innovation involves creating novel solutions using blockchain technology to solve real-world problems and challenges."
     },
     {
       "question": "Teamwork magic?",
       "options": ["Open source projects", "Closed teams", "Solo work"],
-      "answer": "Open source projects"
+      "answer": "Open source projects",
+      "explainer": "Open source projects encourage collaboration, transparency, and community contributions to build better Web3 solutions."
     },
     {
       "question": "Their build philosophy?",
       "options": ["Build & share", "Build in private", "Ctrl+C experts"],
-      "answer": "Build & share"
+      "answer": "Build & share",
+      "explainer": "Build and share philosophy promotes open collaboration, knowledge transfer, and collective advancement of Web3 technology."
     },
     {
       "question": "Base promotion plan?",
       "options": ["Building dApps", "Creating memes", "Trading tokens"],
-      "answer": "Building dApps"
+      "answer": "Building dApps",
+      "explainer": "Promoting Base by building practical decentralized applications that demonstrate the blockchain's capabilities and benefits."
     },
     {
       "question": "Famous for what?",
       "options": ["Helpful developers", "Token traders", "NFT collectors"],
-      "answer": "Helpful developers"
+      "answer": "Helpful developers",
+      "explainer": "Known for helpful developers who actively mentor newcomers, share knowledge, and contribute to community growth."
     },
     {
       "question": "Beginner lessons?",
       "options": ["Web3 development", "Token trading", "Gaming"],
-      "answer": "Web3 development"
+      "answer": "Web3 development",
+      "explainer": "Beginner-friendly Web3 development lessons cover blockchain basics, smart contracts, and dApp creation fundamentals."
     },
     {
       "question": "Learning methods?",
       "options": ["Community workshops", "Trading contests", "Gaming events"],
-      "answer": "Community workshops"
+      "answer": "Community workshops",
+      "explainer": "Interactive community workshops provide hands-on learning experiences with real projects and expert guidance."
     },
     {
       "question": "Web3 role?",
       "options": ["Developer education", "Gaming platform", "NFT marketplace"],
-      "answer": "Developer education"
+      "answer": "Developer education",
+      "explainer": "Primary role is developer education, teaching Web3 skills and providing resources for blockchain application development."
     },
     {
       "question": "What's different?",
       "options": ["Focus on building", "Focus on trading", "Focus on gaming"],
-      "answer": "Focus on building"
+      "answer": "Focus on building",
+      "explainer": "Distinguished by focus on building useful applications rather than speculation, creating real value in Web3 ecosystem."
     },
     {
       "question": "New dev treatment?",
       "options": ["Welcoming & supportive", "Experts only", "Noobs not welcome"],
-      "answer": "Welcoming & supportive"
+      "answer": "Welcoming & supportive",
+      "explainer": "New developers receive welcoming and supportive treatment with mentorship, patience, and encouragement to learn and grow."
     },
     {
       "question": "Favorite projects?",
       "options": ["Innovative solutions", "Copy trading", "Gaming only"],
-      "answer": "Innovative solutions"
+      "answer": "Innovative solutions",
+      "explainer": "Favors innovative solutions that solve real problems, push boundaries, and advance Web3 technology adoption."
     },
     {
       "question": "Base ecosystem help?",
       "options": ["Building dev tools", "Creating memes", "Trading tokens"],
-      "answer": "Building dev tools"
+      "answer": "Building dev tools",
+      "explainer": "Contributes to Base ecosystem by building developer tools, libraries, and infrastructure that enhance the development experience."
     },
     {
       "question": "Learning focus?",
       "options": ["Web3 development", "Traditional gaming", "Social media"],
-      "answer": "Web3 development"
+      "answer": "Web3 development",
+      "explainer": "Learning focus centers on Web3 development skills including blockchain programming, smart contracts, and dApp architecture."
     },
     {
       "question": "Innovation support?",
       "options": ["Open collaboration", "Solo competition", "Closed teams"],
-      "answer": "Open collaboration"
+      "answer": "Open collaboration",
+      "explainer": "Innovation thrives through open collaboration, where diverse perspectives and shared knowledge create breakthrough solutions."
     },
     {
       "question": "How's it organized?",
       "options": ["Open & inclusive", "Hierarchical", "Cool kids club"],
-      "answer": "Open & inclusive"
+      "answer": "Open & inclusive",
+      "explainer": "Open and inclusive organization welcomes developers of all backgrounds, fostering diversity and equal participation opportunities."
     },
     {
       "question": "Teamwork style?",
       "options": ["Knowledge sharing", "Competition", "Lone coder"],
-      "answer": "Knowledge sharing"
+      "answer": "Knowledge sharing",
+      "explainer": "Knowledge sharing teamwork style promotes collective learning, where everyone benefits from shared experiences and insights."
     },
     {
       "question": "Main contribution?",
       "options": ["Growing Web3 talent", "Creating NFTs", "Gaming"],
-      "answer": "Growing Web3 talent"
+      "answer": "Growing Web3 talent",
+      "explainer": "Main contribution is growing Web3 talent pool by educating developers and nurturing the next generation of blockchain builders."
     }
   ]
 }

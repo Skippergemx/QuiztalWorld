@@ -1,6 +1,66 @@
 import Phaser from "phaser";
 import modernUITheme, { UIHelpers } from './UITheme';
 
+// Content height calculation utility for text measurement
+interface TextMeasurementConfig {
+  text: string;
+  width: number;
+  fontSize: string;
+  fontFamily: string;
+  lineSpacing: number;
+}
+
+class TextHeightCalculator {
+  private static tempText: Phaser.GameObjects.Text | null = null;
+  
+  /**
+   * Calculate the height required for given text configuration
+   */
+  static calculateTextHeight(scene: Phaser.Scene, config: TextMeasurementConfig): number {
+    // Create temporary text object for measurement
+    if (!this.tempText) {
+      this.tempText = scene.add.text(0, 0, '', {
+        fontSize: config.fontSize,
+        fontFamily: config.fontFamily,
+        wordWrap: { 
+          width: config.width
+        },
+        lineSpacing: config.lineSpacing
+      });
+      this.tempText.setVisible(false);
+    }
+    
+    // Update temp text with new configuration
+    this.tempText.setStyle({
+      fontSize: config.fontSize,
+      fontFamily: config.fontFamily,
+      wordWrap: { 
+        width: config.width
+      },
+      lineSpacing: config.lineSpacing
+    });
+    
+    // Set text and measure
+    this.tempText.setText(config.text);
+    const height = this.tempText.height;
+    
+    // Clean up
+    this.tempText.setText('');
+    
+    return height;
+  }
+  
+  /**
+   * Clean up the temporary text object
+   */
+  static cleanup(): void {
+    if (this.tempText) {
+      this.tempText.destroy();
+      this.tempText = null;
+    }
+  }
+}
+
 // Optimized Enhanced Quiz Dialog Data Interface
 export interface OptimizedQuizDialogData {
   npcName: string;
@@ -26,14 +86,32 @@ export class OptimizedEnhancedQuizDialog {
   private dialogHeight: number;
   private isMobile: boolean;
   private currentData: OptimizedQuizDialogData | null = null;
+  
+  // Scroll state for the explainer section
+  private scrollState: {
+    currentScrollY: number;
+    maxScrollY: number;
+    contentHeight: number;
+    isScrollable: boolean;
+    scrollContainer?: Phaser.GameObjects.Container;
+    scrollMask?: Phaser.GameObjects.Graphics;
+    topIndicator?: Phaser.GameObjects.Graphics;
+    bottomIndicator?: Phaser.GameObjects.Graphics;
+    interactionArea?: Phaser.GameObjects.Rectangle;
+  } = {
+    currentScrollY: 0,
+    maxScrollY: 0,
+    contentHeight: 0,
+    isScrollable: false
+  };
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.isMobile = scene.scale.width < 768;
     
-    // Optimized sizing similar to simple dialog but enhanced
+    // Optimized sizing for web view - reduced height to avoid UI Scene blocking
     this.dialogWidth = this.isMobile ? scene.scale.width * 0.95 : 750;
-    this.dialogHeight = this.isMobile ? 420 : 500; // Increased for longer explainer content
+    this.dialogHeight = this.isMobile ? 420 : 480; // Reduced from 500/600 to fit between UIScene panels
     
     this.initializeDialog();
     this.setupEventListeners();
@@ -252,8 +330,7 @@ export class OptimizedEnhancedQuizDialog {
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.primary,
         wordWrap: { 
-          width: this.dialogWidth - 60,
-          useAdvancedWrap: true 
+          width: this.dialogWidth - 60
         },
         lineSpacing: 4,
         fontStyle: 'bold'
@@ -312,8 +389,7 @@ export class OptimizedEnhancedQuizDialog {
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.primary,
         wordWrap: { 
-          width: buttonWidth - 50,
-          useAdvancedWrap: true 
+          width: buttonWidth - 50
         }
       }
     ).setOrigin(0, 0.5);
@@ -358,18 +434,49 @@ export class OptimizedEnhancedQuizDialog {
     // Calculate position after options
     const optionsEndY = this.isMobile ? 150 + (this.currentData.options.length * 38) + 10 : 170 + (this.currentData.options.length * 44) + 10;
     
-    // Explainer container
-    const explainerContainer = this.scene.add.container(0, optionsEndY);
+    // Container dimensions - reduced to fit in smaller dialog
+    const containerHeight = this.isMobile ? 100 : 120;
     
-    // Dynamic height based on content length - more space for lengthy explanations
-    const explainerHeight = this.isMobile ? 120 : 140;
+    // Safety check: ensure explainer fits within dialog bounds
+    const maxAllowedY = this.dialogHeight - containerHeight - 20; // 20px margin
+    const finalY = Math.min(optionsEndY, maxAllowedY);
+    
+    // Explainer container
+    const explainerContainer = this.scene.add.container(0, finalY);
+    
+    // Container dimensions - use calculated height or adjusted height
+    const containerWidth = this.dialogWidth - 24;
+    const contentWidth = this.dialogWidth - 60;
+    
+    // Calculate content height using our utility
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '10px');
+    const contentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
+      text: this.currentData.explainer,
+      width: contentWidth,
+      fontSize: fontSize,
+      fontFamily: modernUITheme.typography.fontFamily.primary,
+      lineSpacing: 3
+    });
+    
+    // Check if scrolling is needed - add small buffer to prevent unnecessary scrolling
+    const availableHeight = containerHeight - 28; // Account for icon/label space
+    const scrollThreshold = 5; // Pixels buffer to prevent micro-scrolling
+    const isScrollable = contentHeight > (availableHeight + scrollThreshold);
+    
+    // Update scroll state
+    this.scrollState = {
+      currentScrollY: 0,
+      maxScrollY: isScrollable ? Math.max(0, contentHeight - availableHeight) : 0,
+      contentHeight: contentHeight,
+      isScrollable: isScrollable
+    };
     
     // Explainer background
     const explainerBg = this.scene.add.graphics();
     explainerBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.06);
-    explainerBg.fillRoundedRect(12, 0, this.dialogWidth - 24, explainerHeight, 6);
+    explainerBg.fillRoundedRect(12, 0, containerWidth, containerHeight, 6);
     explainerBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.4);
-    explainerBg.strokeRoundedRect(12, 0, this.dialogWidth - 24, explainerHeight, 6);
+    explainerBg.strokeRoundedRect(12, 0, containerWidth, containerHeight, 6);
     
     // Explainer icon and label
     const iconText = this.scene.add.text(
@@ -384,26 +491,200 @@ export class OptimizedEnhancedQuizDialog {
       }
     );
     
-    // Explainer content text with better wrapping for longer content
+    if (isScrollable) {
+      // Create scrollable content
+      this.createScrollableContent(explainerContainer, contentHeight, availableHeight, containerWidth);
+    } else {
+      // Simple non-scrollable content
+      const explainerText = this.scene.add.text(
+        24,
+        28,
+        this.currentData.explainer,
+        {
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: modernUITheme.colors.text.secondary,
+          wordWrap: { 
+            width: contentWidth
+          },
+          lineSpacing: 3,
+          align: 'left',
+          fontStyle: 'bold'
+        }
+      );
+      
+      explainerContainer.add(explainerText);
+    }
+    
+    explainerContainer.add([explainerBg, iconText]);
+    this.dialogContainer.add(explainerContainer);
+  }
+  
+  private createScrollableContent(container: Phaser.GameObjects.Container, _contentHeight: number, availableHeight: number, containerWidth: number): void {
+    // Create scroll container for the content
+    const scrollContainer = this.scene.add.container(0, 28);
+    this.scrollState.scrollContainer = scrollContainer;
+    
+    // Create the text content
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '12px');
     const explainerText = this.scene.add.text(
       24,
-      28,
-      this.currentData.explainer,
+      0,
+      this.currentData?.explainer || '',
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '10px'),
+        fontSize: fontSize,
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.secondary,
         wordWrap: { 
-          width: this.dialogWidth - 60,
-          useAdvancedWrap: true 
+          width: this.dialogWidth - 60
         },
         lineSpacing: 3,
-        align: 'left'
+        align: 'left',
+        fontStyle: 'bold'
       }
     );
     
-    explainerContainer.add([explainerBg, iconText, explainerText]);
-    this.dialogContainer.add(explainerContainer);
+    scrollContainer.add(explainerText);
+    
+    // Create mask for content clipping
+    const maskGraphics = this.scene.add.graphics();
+    maskGraphics.fillRect(12, 28, containerWidth, availableHeight);
+    this.scrollState.scrollMask = maskGraphics;
+    
+    // Apply mask to scroll container
+    const mask = maskGraphics.createGeometryMask();
+    scrollContainer.setMask(mask);
+    
+    container.add([scrollContainer, maskGraphics]);
+    
+    // Add scroll indicators if needed
+    if (this.scrollState.isScrollable) {
+      this.createScrollIndicators(container, containerWidth, availableHeight);
+      // Set up scroll controls
+      this.setupScrollControls(container, containerWidth, availableHeight);
+    }
+  }
+  
+  private createScrollIndicators(container: Phaser.GameObjects.Container, containerWidth: number, availableHeight: number): void {
+    // Create subtle scroll indicators
+    const indicatorColor = UIHelpers.hexToNumber(modernUITheme.colors.accent);
+    
+    // Top scroll indicator (fade in when scrolled down)
+    const topIndicator = this.scene.add.graphics();
+    topIndicator.fillGradientStyle(indicatorColor, indicatorColor, 0x000000, 0x000000, 0.3, 0);
+    topIndicator.fillRect(12, 28, containerWidth, 8);
+    topIndicator.setAlpha(0); // Initially hidden
+    
+    // Bottom scroll indicator (fade in when more content below)
+    const bottomIndicator = this.scene.add.graphics();
+    bottomIndicator.fillGradientStyle(0x000000, 0x000000, indicatorColor, indicatorColor, 0, 0.3);
+    bottomIndicator.fillRect(12, 28 + availableHeight - 8, containerWidth, 8);
+    bottomIndicator.setAlpha(1); // Initially visible since there's content below
+    
+    container.add([topIndicator, bottomIndicator]);
+    
+    // Store references for scroll updates
+    this.scrollState.topIndicator = topIndicator;
+    this.scrollState.bottomIndicator = bottomIndicator;
+  }
+  
+  private setupScrollControls(container: Phaser.GameObjects.Container, containerWidth: number, availableHeight: number): void {
+    // Create invisible interaction area for scroll input
+    const scrollInteractionArea = this.scene.add.rectangle(
+      12 + containerWidth / 2, 
+      28 + availableHeight / 2, 
+      containerWidth, 
+      availableHeight, 
+      0x000000, 
+      0 // Fully transparent
+    );
+    scrollInteractionArea.setInteractive();
+    
+    // Mouse wheel support (desktop)
+    scrollInteractionArea.on('wheel', (_pointer: any, _deltaX: number, deltaY: number) => {
+      this.handleScroll(deltaY * 0.5); // Scale down scroll speed
+    });
+    
+    // Touch/pointer support (mobile and desktop)
+    let isDragging = false;
+    let lastPointerY = 0;
+    
+    scrollInteractionArea.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      isDragging = true;
+      lastPointerY = pointer.y;
+    });
+    
+    scrollInteractionArea.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (isDragging) {
+        const deltaY = lastPointerY - pointer.y; // Inverted for natural touch feel
+        this.handleScroll(deltaY);
+        lastPointerY = pointer.y;
+      }
+    });
+    
+    scrollInteractionArea.on('pointerup', () => {
+      isDragging = false;
+    });
+    
+    scrollInteractionArea.on('pointerout', () => {
+      isDragging = false;
+    });
+    
+    container.add(scrollInteractionArea);
+    
+    // Store reference for cleanup
+    this.scrollState.interactionArea = scrollInteractionArea;
+  }
+  
+  private handleScroll(deltaY: number): void {
+    if (!this.scrollState.isScrollable || !this.scrollState.scrollContainer) {
+      return;
+    }
+    
+    // Performance optimization: only update if movement is significant
+    if (Math.abs(deltaY) < 0.5) {
+      return;
+    }
+    
+    // Calculate new scroll position
+    const newScrollY = Phaser.Math.Clamp(
+      this.scrollState.currentScrollY + deltaY,
+      0,
+      this.scrollState.maxScrollY
+    );
+    
+    // Only update if position changed significantly
+    if (Math.abs(newScrollY - this.scrollState.currentScrollY) > 0.5) {
+      this.scrollState.currentScrollY = newScrollY;
+      
+      // Update scroll container position
+      this.scrollState.scrollContainer.setY(28 - newScrollY);
+      
+      // Update scroll indicators
+      this.updateScrollIndicators();
+    }
+  }
+  
+  private updateScrollIndicators(): void {
+    if (!this.scrollState.topIndicator || !this.scrollState.bottomIndicator || !this.scrollState.isScrollable) {
+      return;
+    }
+    
+    // Edge case: ensure maxScrollY is valid
+    if (this.scrollState.maxScrollY <= 0) {
+      this.scrollState.topIndicator.setAlpha(0);
+      this.scrollState.bottomIndicator.setAlpha(0);
+      return;
+    }
+    
+    // Top indicator: show when scrolled down (with smooth fade)
+    const topAlpha = Phaser.Math.Clamp(this.scrollState.currentScrollY / 10, 0, 1);
+    this.scrollState.topIndicator.setAlpha(topAlpha);
+    
+    // Bottom indicator: show when there's content below (with smooth fade)
+    const scrollProgress = this.scrollState.currentScrollY / this.scrollState.maxScrollY;
+    const bottomAlpha = Phaser.Math.Clamp((1 - scrollProgress) * 1.2, 0, 1);
+    this.scrollState.bottomIndicator.setAlpha(bottomAlpha);
   }
 
   private createCloseButton(): void {
@@ -474,6 +755,17 @@ export class OptimizedEnhancedQuizDialog {
       this.scene.cameras.main.off('cameramove', this.updatePosition, this);
       this.scene.cameras.main.off('scroll', this.updatePosition, this);
     }
+    
+    // Clean up text height calculator
+    TextHeightCalculator.cleanup();
+    
+    // Clean up scroll state
+    this.scrollState = {
+      currentScrollY: 0,
+      maxScrollY: 0,
+      contentHeight: 0,
+      isScrollable: false
+    };
     
     if (optimizedSingletonInstance === this) {
       optimizedSingletonInstance = null;

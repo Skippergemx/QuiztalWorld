@@ -10,6 +10,7 @@
         "They have a history of floor failures"
       ],
       "answer": "They're always pulling something",
+      "explainer": "Rug pull artists are notorious for their deceptive practices in the cryptocurrency world. A 'rug pull' refers to when developers abandon a project and run away with investors' funds. The phrase 'pulling something' is a play on words - they literally pull the rug out from under investors by removing liquidity from their projects, causing token values to crash. Always research the development team, check for locked liquidity, and look for red flags like anonymous developers or unrealistic promises before investing.",
       "feedback": {
         "correct": "Smart! You see through his tricks!",
         "incorrect": "Ah, looks like you fell for the oldest trick in the book!"
@@ -24,6 +25,7 @@
         "Buy insurance from a blockchain insurance company"
       ],
       "answer": "Only invest what you're willing to lose",
+      "explainer": "The golden rule of cryptocurrency investing is to never invest more than you can afford to lose completely. This principle protects you from devastating financial losses when projects fail or turn out to be scams. Rug pulls can happen to any project, even those that seem legitimate initially. By limiting your exposure to amounts you're comfortable losing, you maintain financial stability while still participating in the crypto ecosystem. Other protective measures include diversifying your portfolio, researching projects thoroughly, and understanding that high returns often come with high risks.",
       "feedback": {
         "correct": "Wise choice! That's the only way to stay safe in crypto!",
         "incorrect": "Oops! That's exactly what the rug pull artist wants you to think!"
@@ -38,6 +40,7 @@
         "Trust only verified developers"
       ],
       "answer": "Do thorough research",
+      "explainer": "Thorough research is your most powerful defense against rug pulls and cryptocurrency scams. This includes checking the project's whitepaper, examining the development team's backgrounds and previous work, verifying smart contract audits, analyzing tokenomics and liquidity locks, reading community discussions, and understanding the project's real-world use case. While hardware wallets protect your stored crypto and verified developers are generally safer, even legitimate-seeming projects can turn malicious. Research helps you identify red flags like anonymous teams, unrealistic promises, missing documentation, lack of community engagement, or suspicious token distribution patterns.",
       "feedback": {
         "correct": "Great answer! Knowledge is your best defense against rug pulls!",
         "incorrect": "Not quite... even verified developers can turn out to be scammers!"
@@ -52,6 +55,7 @@
         "No audit reports"
       ],
       "answer": "Too good to be true returns",
+      "explainer": "Unrealistic return promises are the biggest red flag for potential rug pulls. Scammers often lure victims with promises of 'guaranteed' returns, astronomical APY rates (like 10,000% annual returns), or 'risk-free' investments. These promises exploit people's greed and desire for quick profits. In legitimate finance, higher returns always come with higher risks - there's no such thing as a free lunch. While anonymous teams, missing whitepapers, and lack of audits are also concerning, the promise of impossible returns is usually the primary hook that rug pull artists use to attract victims. Always be skeptical of any investment opportunity that seems too good to be true.",
       "feedback": {
         "correct": "Exactly! If it seems too good to be true, it probably is!",
         "incorrect": "Close, but the biggest red flag is always unrealistic promises!"
@@ -66,6 +70,7 @@
         "Ignore it and hope it goes away"
       ],
       "answer": "Research thoroughly and consult the community",
+      "explainer": "When you suspect a rug pull, the best approach is methodical research and community consultation. Start by checking recent project updates, social media activity, and developer communications. Look for signs like developers going silent, liquidity being removed, or unusual token transfers. Consult cryptocurrency communities, Discord servers, Telegram groups, and forums like Reddit to see if others share your concerns. Check blockchain explorers for suspicious transactions. However, avoid panic selling based on rumors alone, as this can lead to unnecessary losses. Also, never invest more money to 'average down' in a potentially failing project - this is known as throwing good money after bad and can amplify your losses.",
       "feedback": {
         "correct": "Excellent choice! Rational research is your best defense!",
         "incorrect": "That's not the best approach. Always verify first!"

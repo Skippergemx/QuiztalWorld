@@ -11,7 +11,8 @@
         "Mobile wallet app",
         "Exchange wallet"
       ],
-      "answer": "Hardware wallet (cold storage)"
+      "answer": "Hardware wallet (cold storage)",
+      "explainer": "Hardware wallets store private keys offline on secure chips, protecting large amounts from online threats like hacking and malware."
     },
     {
       "question": "What should you NEVER do with your seed phrase?",
@@ -20,7 +21,8 @@
         "Write it down on paper",
         "Keep it in a safe place"
       ],
-      "answer": "Share it with anyone or store it digitally"
+      "answer": "Share it with anyone or store it digitally",
+      "explainer": "Seed phrases are master keys to your wallet. Sharing or storing them digitally exposes your funds to theft and permanent loss."
     },
     {
       "question": "What is a seed phrase?",
@@ -29,7 +31,8 @@
         "Your wallet password",
         "Your wallet address"
       ],
-      "answer": "A 12-24 word backup phrase that can restore your wallet"
+      "answer": "A 12-24 word backup phrase that can restore your wallet",
+      "explainer": "A seed phrase is a human-readable backup that can regenerate all your wallet's private keys and restore complete access to your funds."
     },
     {
       "question": "How can you identify a phishing website?",
@@ -38,7 +41,8 @@
         "Look at the website design",
         "Check if it loads quickly"
       ],
-      "answer": "Check the URL carefully for misspellings or wrong domains"
+      "answer": "Check the URL carefully for misspellings or wrong domains",
+      "explainer": "Phishing sites use similar-looking URLs with subtle misspellings or wrong domains to trick users into entering sensitive information."
     },
     {
       "question": "What is two-factor authentication (2FA)?",
@@ -47,7 +51,8 @@
         "Using two different passwords",
         "Having two separate wallets"
       ],
-      "answer": "An extra security layer requiring a second verification method"
+      "answer": "An extra security layer requiring a second verification method",
+      "explainer": "2FA adds security by requiring something you know (password) plus something you have (phone/token) to access accounts."
     },
     {
       "question": "What should you do before connecting your wallet to a new DApp?",
@@ -56,7 +61,8 @@
         "Connect immediately if it looks good",
         "Ask friends on social media"
       ],
-      "answer": "Research the DApp and verify its legitimacy"
+      "answer": "Research the DApp and verify its legitimacy",
+      "explainer": "Research DApps thoroughly - check audits, community feedback, and official sources before connecting to avoid malicious applications."
     },
     {
       "question": "What is a dusting attack?",
@@ -65,7 +71,8 @@
         "Stealing large amounts of cryptocurrency",
         "A type of mining attack"
       ],
-      "answer": "Sending tiny amounts of crypto to track wallet activity"
+      "answer": "Sending tiny amounts of crypto to track wallet activity",
+      "explainer": "Dusting attacks send tiny amounts to many wallets to track spending patterns and potentially identify wallet owners for targeted attacks."
     },
     {
       "question": "Where is the safest place to store your seed phrase?",
@@ -74,7 +81,8 @@
         "In your phone's notes app",
         "In your email drafts"
       ],
-      "answer": "Written on paper in a secure physical location"
+      "answer": "Written on paper in a secure physical location",
+      "explainer": "Physical paper storage in secure locations prevents digital theft while ensuring you can access your funds when needed."
     },
     {
       "question": "What is a hot wallet?",
@@ -83,7 +91,8 @@
         "A wallet that's physically warm",
         "A wallet with high transaction fees"
       ],
-      "answer": "A wallet connected to the internet"
+      "answer": "A wallet connected to the internet",
+      "explainer": "Hot wallets are internet-connected for easy transactions but are vulnerable to online attacks. Good for small amounts and daily use."
     },
     {
       "question": "What is a cold wallet?",
@@ -92,7 +101,8 @@
         "A wallet stored in a refrigerator",
         "A wallet with frozen funds"
       ],
-      "answer": "A wallet not connected to the internet"
+      "answer": "A wallet not connected to the internet",
+      "explainer": "Cold wallets stay offline to prevent remote attacks, making them ideal for long-term storage of large cryptocurrency amounts."
     },
     {
       "question": "What should you do if someone asks for your private keys?",
@@ -101,7 +111,8 @@
         "Share them if they seem trustworthy",
         "Share them only with official support"
       ],
-      "answer": "Never share them - it's likely a scam"
+      "answer": "Never share them - it's likely a scam",
+      "explainer": "Private keys control your funds completely. No legitimate service ever needs them - sharing means giving away total control of your wallet."
     },
     {
       "question": "What is wallet address poisoning?",
@@ -110,7 +121,8 @@
         "Putting malware in wallet software",
         "Corrupting wallet data files"
       ],
-      "answer": "Creating similar addresses to trick users into sending funds to the wrong place"
+      "answer": "Creating similar addresses to trick users into sending funds to the wrong place",
+      "explainer": "Address poisoning uses similar-looking addresses in transaction history to trick users into copying the wrong destination address."
     },
     {
       "question": "What is the best practice for wallet software updates?",
@@ -119,7 +131,8 @@
         "Update from any website that offers it",
         "Never update wallet software"
       ],
-      "answer": "Only download updates from official sources"
+      "answer": "Only download updates from official sources",
+      "explainer": "Official sources ensure updates are genuine and secure. Fake updates can contain malware designed to steal your cryptocurrency."
     },
     {
       "question": "What is a multi-signature (multisig) wallet?",
@@ -128,7 +141,8 @@
         "A wallet that supports multiple cryptocurrencies",
         "A wallet with multiple addresses"
       ],
-      "answer": "A wallet requiring multiple signatures to approve transactions"
+      "answer": "A wallet requiring multiple signatures to approve transactions",
+      "explainer": "Multisig wallets require approval from multiple parties or devices, adding security layers and preventing single points of failure."
     },
     {
       "question": "What should you check before entering your seed phrase anywhere?",
@@ -137,7 +151,8 @@
         "Make sure your internet is fast",
         "Check that your device is charged"
       ],
-      "answer": "Verify you're on the official website and it's legitimate"
+      "answer": "Verify you're on the official website and it's legitimate",
+      "explainer": "Always verify website authenticity before entering seed phrases. Fake sites steal this information to access your funds permanently."
     },
     {
       "question": "What is social engineering in crypto scams?",
@@ -146,7 +161,8 @@
         "Using social media for legitimate crypto education",
         "Building social networks for traders"
       ],
-      "answer": "Manipulating people to reveal sensitive information"
+      "answer": "Manipulating people to reveal sensitive information",
+      "explainer": "Social engineering exploits human psychology to trick people into revealing passwords, keys, or performing actions that compromise security."
     },
     {
       "question": "What should you do if you suspect your wallet is compromised?",
@@ -155,7 +171,8 @@
         "Wait and see what happens",
         "Change your password only"
       ],
-      "answer": "Immediately transfer funds to a new secure wallet"
+      "answer": "Immediately transfer funds to a new secure wallet",
+      "explainer": "Act fast when compromised - transfer funds to a new, secure wallet immediately before attackers can drain your original wallet."
     },
     {
       "question": "What is clipboard malware?",
@@ -164,7 +181,8 @@
         "Malware that corrupts clipboard functionality",
         "Malware that steals clipboard history"
       ],
-      "answer": "Malware that replaces copied wallet addresses with attacker's address"
+      "answer": "Malware that replaces copied wallet addresses with attacker's address",
+      "explainer": "Clipboard malware silently replaces copied addresses with attacker addresses, redirecting your transactions to thieves' wallets."
     },
     {
       "question": "How often should you backup your wallet?",
@@ -173,7 +191,8 @@
         "Only once when you first create it",
         "Never, it's not necessary"
       ],
-      "answer": "Regularly, especially after creating new addresses"
+      "answer": "Regularly, especially after creating new addresses",
+      "explainer": "Regular backups ensure you can recover funds if devices fail. New addresses need backing up to prevent permanent fund loss."
     },
     {
       "question": "What is the difference between a private key and a public key?",
@@ -182,7 +201,8 @@
         "They are the same thing",
         "Public key controls funds, private key receives funds"
       ],
-      "answer": "Private key controls funds, public key receives funds"
+      "answer": "Private key controls funds, public key receives funds",
+      "explainer": "Private keys sign transactions to spend funds (keep secret), while public keys generate addresses for receiving funds (shareable)."
     },
     {
       "question": "What is a paper wallet?",
@@ -191,7 +211,8 @@
         "A wallet made from recycled materials",
         "A wallet documentation method"
       ],
-      "answer": "A wallet where keys are printed on paper"
+      "answer": "A wallet where keys are printed on paper",
+      "explainer": "Paper wallets store private keys offline on physical paper, providing cold storage security but requiring careful physical protection."
     },
     {
       "question": "What should you verify before making a large transaction?",
@@ -200,7 +221,8 @@
         "Just check the first few characters",
         "Only check that it looks similar"
       ],
-      "answer": "Double-check the recipient address character by character"
+      "answer": "Double-check the recipient address character by character",
+      "explainer": "Verify addresses completely to prevent sending funds to wrong destinations. Crypto transactions are irreversible once confirmed."
     },
     {
       "question": "What is a honeypot in crypto security?",
@@ -209,7 +231,8 @@
         "A sweet reward for good security practices",
         "A type of hardware wallet"
       ],
-      "answer": "A fake opportunity designed to trap and identify attackers"
+      "answer": "A fake opportunity designed to trap and identify attackers",
+      "explainer": "Security honeypots are intentional traps designed to detect and study attack methods, helping improve overall security measures."
     },
     {
       "question": "What should you do with old wallet software?",
@@ -218,7 +241,8 @@
         "Keep it as backup forever",
         "Share it with friends"
       ],
-      "answer": "Securely delete it after transferring funds to updated wallet"
+      "answer": "Securely delete it after transferring funds to updated wallet",
+      "explainer": "Remove old wallet software after safely migrating to prevent security vulnerabilities from outdated, unpatched versions."
     },
     {
       "question": "What is the safest way to generate a new wallet?",
@@ -227,7 +251,8 @@
         "Use any online wallet generator",
         "Ask someone else to create it for you"
       ],
-      "answer": "Use official wallet software on a secure, offline device"
+      "answer": "Use official wallet software on a secure, offline device",
+      "explainer": "Generate wallets offline using official software to ensure randomness isn't compromised and keys aren't exposed to online threats."
     },
     {
       "question": "What is key stretching in wallet security?",
@@ -236,7 +261,8 @@
         "Physically stretching storage devices",
         "Extending private key length"
       ],
-      "answer": "A method to make passwords harder to crack through repeated hashing"
+      "answer": "A method to make passwords harder to crack through repeated hashing",
+      "explainer": "Key stretching uses repeated hashing to slow down brute force attacks, making weak passwords computationally expensive to crack."
     },
     {
       "question": "What should you do if you receive unexpected crypto in your wallet?",
@@ -245,7 +271,8 @@
         "Immediately try to sell it",
         "Transfer it to another wallet"
       ],
-      "answer": "Don't interact with it - it might be a scam token"
+      "answer": "Don't interact with it - it might be a scam token",
+      "explainer": "Unexpected tokens can be scams designed to drain your wallet when you try to interact or trade them. Avoid touching unknown tokens."
     },
     {
       "question": "What is the most secure way to connect to DeFi protocols?",
@@ -254,7 +281,8 @@
         "Use your main wallet with all funds",
         "Use exchange wallets only"
       ],
-      "answer": "Use a dedicated wallet with limited funds"
+      "answer": "Use a dedicated wallet with limited funds",
+      "explainer": "Dedicated DeFi wallets limit exposure if protocols are compromised, protecting your main holdings from smart contract risks."
     },
     {
       "question": "What is deterministic wallet generation?",
@@ -263,7 +291,8 @@
         "Randomly generating wallet addresses",
         "Using predetermined wallet addresses"
       ],
-      "answer": "Creating multiple addresses from a single seed phrase"
+      "answer": "Creating multiple addresses from a single seed phrase",
+      "explainer": "Deterministic generation creates unlimited addresses from one seed phrase, enabling easy backup and recovery of multiple addresses."
     },
     {
       "question": "What should you never do when troubleshooting wallet issues?",
@@ -272,7 +301,8 @@
         "Check official documentation",
         "Update to the latest software version"
       ],
-      "answer": "Share your seed phrase or private keys with support"
+      "answer": "Share your seed phrase or private keys with support",
+      "explainer": "Never share private keys or seed phrases with anyone claiming to be support. This is always a scam attempting to steal your funds."
     }
   ]
 }

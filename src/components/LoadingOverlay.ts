@@ -129,7 +129,7 @@ export class LoadingOverlay {
         });
 
         this.scene.load.on('loaderror', (file: Phaser.Loader.File) => {
-            console.error(`Error loading NFT image: ${file.key}`);
+            // Error loading NFT image silently handled
             this.loadedImages++;
             this.updateProgress();
         });

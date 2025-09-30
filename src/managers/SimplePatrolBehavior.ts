@@ -37,13 +37,13 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     // CRITICAL: Normalize deltaTime to prevent timer issues
     // We now use real timestamps for idle timing, so deltaTime issues are less critical
     if (deltaTime > 1000) { // Only cap if deltaTime is more than 1 second (extreme case)
-      console.warn(`⚠️ ${this.getNPCName(npc)}: Extremely large deltaTime detected: ${deltaTime}ms, capping to 1000ms`);
+      // Cap extremely large deltaTime values
       deltaTime = 1000;
     }
     
     // CRITICAL: Check if NPC is stuck in interaction mode during patrol
     if (npc.isCurrentlyInteracting && npc.isCurrentlyInteracting()) {
-      console.log(`⚠️ ${this.getNPCName(npc)}: NPC is in interaction mode, skipping patrol update`);
+      // NPC is in interaction mode, skip patrol update
       return;
     }
     

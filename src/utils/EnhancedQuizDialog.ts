@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import modernUITheme, { UIHelpers } from './UITheme';
+import { BaseDialog } from './BaseDialog';
 
 // Enhanced Quiz Dialog Data Interface
 export interface QuizDialogData {
@@ -11,6 +12,7 @@ export interface QuizDialogData {
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   questionNumber?: number;
   totalQuestions?: number;
+  explanation?: string;
   onAnswer: (selectedOption: string) => void;
   onClose?: () => void;
 }
@@ -18,10 +20,7 @@ export interface QuizDialogData {
 // Singleton instance
 let enhancedSingletonInstance: EnhancedQuizDialog | null = null;
 
-export class EnhancedQuizDialog {
-  private scene: Phaser.Scene;
-  private dialogContainer!: Phaser.GameObjects.Container;
-  
+export class EnhancedQuizDialog extends BaseDialog {
   // Header Section Components
   private headerContainer!: Phaser.GameObjects.Container;
   private npcAvatar!: Phaser.GameObjects.Image;
@@ -38,115 +37,86 @@ export class EnhancedQuizDialog {
   private optionsContainer!: Phaser.GameObjects.Container;
   private optionButtons: Phaser.GameObjects.Container[] = [];
   
+  // Explanation Section Components
+  private explanationContainer!: Phaser.GameObjects.Container;
+  private explanationText!: Phaser.GameObjects.Text;
+  
   // Footer Section Components
   private footerContainer!: Phaser.GameObjects.Container;
   private closeButton!: Phaser.GameObjects.Container;
-  
-  // Layout Configuration
-  private dialogWidth: number;
-  private dialogHeight: number;
-  private isMobile: boolean;
   
   // Current Dialog Data
   private currentData: QuizDialogData | null = null;
 
   constructor(scene: Phaser.Scene) {
-    this.scene = scene;
-    this.isMobile = scene.scale.width < 768;
+    super(scene, { 
+      width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
+      height: scene.scale.width < 768 ? 500 : 600,
+      depth: 2000
+    });
     
-    // Enhanced sizing for sectioned layout
-    this.dialogWidth = this.isMobile ? scene.scale.width * 0.95 : 800;
-    this.dialogHeight = this.isMobile ? scene.scale.height * 0.8 : 600;
-    
-    this.initializeDialog();
-    this.setupEventListeners();
+    this.initializeSections();
   }
 
-  private initializeDialog(): void {
-    // Main dialog container
-    this.dialogContainer = this.scene.add.container(0, 0);
-    this.dialogContainer.setDepth(2000); // Higher than simple dialog
-    this.dialogContainer.setVisible(false);
-    
-    // Create background with enhanced styling
-    this.createDialogBackground();
-    
+  private initializeSections(): void {
     // Initialize all sections
     this.initializeHeaderSection();
     this.initializeQuestionSection();
     this.initializeOptionsSection();
+    this.initializeExplanationSection();
     this.initializeFooterSection();
+  }
+
+  public showQuizDialog(data: QuizDialogData): void {
+    this.currentData = data;
+    this.updateDialogContent();
+    this.showWithAnimation();
+  }
+
+  private updateDialogContent(): void {
+    if (!this.currentData) return;
     
-    this.updatePosition();
+    this.dialogContainer.removeAll(true);
+    
+    // Recreate all sections with updated content
+    this.createDialogBackground();
+    this.updateHeaderSection();
+    this.updateQuestionSection();
+    this.updateOptionsSection();
+    this.updateExplanationSection();
+    this.updateFooterSection();
   }
 
   private createDialogBackground(): void {
-    const background = this.scene.add.graphics();
-    
-    // Main background with gradient effect
-    background.fillGradientStyle(
-      UIHelpers.hexToNumber(modernUITheme.colors.background.card),
-      UIHelpers.hexToNumber(modernUITheme.colors.background.card),
-      UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
-      UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
-      0.98
-    );
-    
-    background.fillRoundedRect(0, 0, this.dialogWidth, this.dialogHeight, 
-      UIHelpers.getResponsiveSpacing(this.isMobile, 16, 12));
-    
-    // Enhanced border with accent color
-    background.lineStyle(
-      UIHelpers.getResponsiveSpacing(this.isMobile, 4, 3),
-      UIHelpers.hexToNumber(modernUITheme.colors.accent),
-      0.9
-    );
-    background.strokeRoundedRect(0, 0, this.dialogWidth, this.dialogHeight,
-      UIHelpers.getResponsiveSpacing(this.isMobile, 16, 12));
-    
-    // Add subtle inner glow
-    background.lineStyle(
-      UIHelpers.getResponsiveSpacing(this.isMobile, 2, 1),
-      UIHelpers.hexToNumber('#ffffff'),
-      0.3
-    );
-    background.strokeRoundedRect(2, 2, this.dialogWidth - 4, this.dialogHeight - 4,
-      UIHelpers.getResponsiveSpacing(this.isMobile, 14, 10));
-    
-    this.dialogContainer.add(background);
+    this.createStandardBackground();
   }
 
   private initializeHeaderSection(): void {
-    const headerHeight = this.isMobile ? 80 : 100;
+    const headerHeight = this.isMobile ? 60 : 70;
     
     this.headerContainer = this.scene.add.container(0, 0);
     
     // Header background
-    const headerBg = this.scene.add.graphics();
-    headerBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.1);
-    headerBg.fillRoundedRect(8, 8, this.dialogWidth - 16, headerHeight - 8, 8);
-    headerBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
-    headerBg.strokeRoundedRect(8, 8, this.dialogWidth - 16, headerHeight - 8, 8);
-    this.headerContainer.add(headerBg);
+    this.createHeaderBackground(0, headerHeight);
     
-    // NPC Avatar (larger in enhanced version)
+    // NPC Avatar
     this.npcAvatar = this.scene.add.image(
-      this.isMobile ? 40 : 50,
+      this.isMobile ? 35 : 45,
       headerHeight / 2,
       "npc_mintgirl_avatar"
     )
-    .setDisplaySize(this.isMobile ? 60 : 80, this.isMobile ? 74 : 98)
+    .setDisplaySize(this.isMobile ? 50 : 65, this.isMobile ? 61 : 80)
     .setOrigin(0.5)
     .setVisible(false);
     this.headerContainer.add(this.npcAvatar);
     
     // NPC Name
     this.npcNameText = this.scene.add.text(
-      this.isMobile ? 80 : 110,
-      this.isMobile ? 20 : 25,
+      this.isMobile ? 65 : 85,
+      this.isMobile ? 18 : 22,
       "",
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '18px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.accent,
         fontStyle: 'bold'
@@ -156,11 +126,11 @@ export class EnhancedQuizDialog {
     
     // Theme text
     this.themeText = this.scene.add.text(
-      this.isMobile ? 80 : 110,
-      this.isMobile ? 40 : 50,
+      this.isMobile ? 65 : 85,
+      this.isMobile ? 35 : 42,
       "",
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.secondary,
         fontStyle: 'italic'
@@ -176,182 +146,49 @@ export class EnhancedQuizDialog {
       {
         fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
-        color: modernUITheme.colors.text.secondary
+        color: modernUITheme.colors.text.secondary,
+        fontStyle: 'bold'
       }
     ).setOrigin(1, 0);
     this.headerContainer.add(this.progressText);
     
     // Difficulty badge placeholder
-    this.difficultyBadge = this.scene.add.container(this.dialogWidth - 20, this.isMobile ? 50 : 60);
+    this.difficultyBadge = this.scene.add.container(this.dialogWidth - 20, this.isMobile ? 45 : 52);
     this.headerContainer.add(this.difficultyBadge);
     
     this.dialogContainer.add(this.headerContainer);
   }
 
-  private initializeQuestionSection(): void {
-    const questionY = this.isMobile ? 100 : 120;
-    const questionHeight = this.isMobile ? 120 : 140;
-    
-    this.questionContainer = this.scene.add.container(0, questionY);
-    
-    // Question background
-    const questionBg = this.scene.add.graphics();
-    questionBg.fillStyle(UIHelpers.hexToNumber('#ffffff'), 0.05);
-    questionBg.fillRoundedRect(16, 0, this.dialogWidth - 32, questionHeight, 8);
-    questionBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.2);
-    questionBg.strokeRoundedRect(16, 0, this.dialogWidth - 32, questionHeight, 8);
-    this.questionContainer.add(questionBg);
-    
-    // Question text
-    this.questionText = this.scene.add.text(
-      32,
-      20,
-      "",
-      {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
-        fontFamily: modernUITheme.typography.fontFamily.primary,
-        color: modernUITheme.colors.text.primary,
-        wordWrap: { 
-          width: this.dialogWidth - 80,
-          useAdvancedWrap: true 
-        },
-        lineSpacing: 6,
-        fontStyle: 'bold'
-      }
-    );
-    this.questionContainer.add(this.questionText);
-    
-    this.dialogContainer.add(this.questionContainer);
-  }
-
-  private initializeOptionsSection(): void {
-    const optionsY = this.isMobile ? 240 : 280;
-    
-    this.optionsContainer = this.scene.add.container(0, optionsY);
-    this.dialogContainer.add(this.optionsContainer);
-  }
-
-  private initializeFooterSection(): void {
-    const footerY = this.dialogHeight - (this.isMobile ? 60 : 80);
-    
-    this.footerContainer = this.scene.add.container(0, footerY);
-    
-    // Footer separator line
-    const separator = this.scene.add.graphics();
-    separator.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
-    separator.lineBetween(16, 0, this.dialogWidth - 16, 0);
-    this.footerContainer.add(separator);
-    
-    // Close button
-    this.createCloseButton();
-    
-    this.dialogContainer.add(this.footerContainer);
-  }
-
-  private createCloseButton(): void {
-    this.closeButton = this.scene.add.container(this.dialogWidth - 80, 20);
-    
-    // Close button background
-    const buttonBg = this.scene.add.graphics();
-    buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 0.8);
-    buttonBg.fillRoundedRect(0, 0, 60, 30, 6);
-    buttonBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.5);
-    buttonBg.strokeRoundedRect(0, 0, 60, 30, 6);
-    
-    // Close button text
-    const buttonText = this.scene.add.text(30, 15, "Close", {
-      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
-      fontFamily: modernUITheme.typography.fontFamily.primary,
-      color: modernUITheme.colors.text.primary
-    }).setOrigin(0.5);
-    
-    this.closeButton.add([buttonBg, buttonText]);
-    this.closeButton.setSize(60, 30);
-    this.closeButton.setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.handleClose())
-      .on('pointerover', () => this.closeButton.setAlpha(0.8))
-      .on('pointerout', () => this.closeButton.setAlpha(1));
-    
-    this.footerContainer.add(this.closeButton);
-  }
-
-  private setupEventListeners(): void {
-    // Camera movement tracking
-    this.scene.events.once('create', () => {
-      if (this.scene.cameras && this.scene.cameras.main) {
-        this.scene.cameras.main.on('cameramove', this.updatePosition, this);
-        this.scene.cameras.main.on('scroll', this.updatePosition, this);
-      }
-    });
-
-    this.scene.events.on('shutdown', () => {
-      this.cleanup();
-    });
-  }
-
-  private updatePosition = (): void => {
-    if (!this.scene?.cameras?.main || !this.dialogContainer) {
-      return;
-    }
-
-    const camera = this.scene.cameras.main;
-    const centerX = (camera.scrollX + camera.width / 2) || 0;
-    const centerY = (camera.scrollY + camera.height / 2) || 0;
-
-    this.dialogContainer.setPosition(
-      centerX - this.dialogWidth / 2,
-      centerY - this.dialogHeight / 2
-    );
-  };
-
-  public showQuizDialog(data: QuizDialogData): void {
-    this.currentData = data;
-    this.updateDialogContent();
-    
-    // Show with fade-in animation
-    this.dialogContainer.setVisible(true);
-    this.dialogContainer.setAlpha(0);
-    
-    this.scene.tweens.add({
-      targets: this.dialogContainer,
-      alpha: 1,
-      duration: 300,
-      ease: 'Power2'
-    });
-    
-    this.updatePosition();
-  }
-
-  private updateDialogContent(): void {
+  private updateHeaderSection(): void {
     if (!this.currentData) return;
     
-    // Update header
+    // Update NPC Name
     this.npcNameText.setText(this.currentData.npcName);
+    
+    // Update Theme
     this.themeText.setText(this.currentData.theme);
     
+    // Update Progress
     if (this.currentData.questionNumber && this.currentData.totalQuestions) {
-      this.progressText.setText(`Question ${this.currentData.questionNumber}/${this.currentData.totalQuestions}`);
+      this.progressText.setText(`${this.currentData.questionNumber}/${this.currentData.totalQuestions}`);
     }
     
-    // Set avatar
+    // Update Avatar
     if (this.scene.textures.exists(this.currentData.npcAvatar)) {
-      this.npcAvatar.setTexture(this.currentData.npcAvatar).setVisible(true);
+      this.npcAvatar.setTexture(this.currentData.npcAvatar);
+      this.npcAvatar.setVisible(true);
+    } else {
+      this.npcAvatar.setVisible(false);
     }
     
-    // Update difficulty badge
+    // Update Difficulty Badge
     this.updateDifficultyBadge();
-    
-    // Update question
-    this.questionText.setText(this.currentData.question);
-    
-    // Update options
-    this.createOptionButtons();
   }
 
   private updateDifficultyBadge(): void {
-    this.difficultyBadge.removeAll(true);
-    
     if (!this.currentData?.difficulty) return;
+    
+    this.difficultyBadge.removeAll(true);
     
     const colors = {
       'Easy': '#4CAF50',
@@ -359,14 +196,15 @@ export class EnhancedQuizDialog {
       'Hard': '#F44336'
     };
     
-    const color = colors[this.currentData.difficulty];
+    const difficulty = this.currentData.difficulty;
+    const color = colors[difficulty];
     
     const badge = this.scene.add.graphics();
     badge.fillStyle(UIHelpers.hexToNumber(color), 0.8);
-    badge.fillRoundedRect(-25, -8, 50, 16, 8);
+    badge.fillRoundedRect(-30, -8, 60, 16, 8);
     
-    const badgeText = this.scene.add.text(0, 0, this.currentData.difficulty, {
-      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '10px'),
+    const badgeText = this.scene.add.text(0, 0, difficulty, {
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '9px'),
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: '#ffffff',
       fontStyle: 'bold'
@@ -375,42 +213,81 @@ export class EnhancedQuizDialog {
     this.difficultyBadge.add([badge, badgeText]);
   }
 
-  private createOptionButtons(): void {
+  private initializeQuestionSection(): void {
+    const questionY = this.isMobile ? 75 : 85;
+    
+    this.questionContainer = this.scene.add.container(0, questionY);
+    
+    // Question background
+    this.createSectionBackground(12, 0, this.dialogWidth - 24, this.isMobile ? 60 : 70);
+    
+    // Question text
+    this.questionText = this.scene.add.text(
+      24,
+      12,
+      "",
+      {
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '15px'),
+        fontFamily: modernUITheme.typography.fontFamily.primary,
+        color: modernUITheme.colors.text.primary,
+        wordWrap: { 
+          width: this.dialogWidth - 60
+        },
+        lineSpacing: 4,
+        fontStyle: 'bold'
+      }
+    );
+    this.questionContainer.add(this.questionText);
+    
+    this.dialogContainer.add(this.questionContainer);
+  }
+
+  private updateQuestionSection(): void {
+    if (!this.currentData) return;
+    this.questionText.setText(this.currentData.question);
+  }
+
+  private initializeOptionsSection(): void {
+    this.optionsContainer = this.scene.add.container(0, this.isMobile ? 150 : 170);
+    this.dialogContainer.add(this.optionsContainer);
+  }
+
+  private updateOptionsSection(): void {
+    if (!this.currentData) return;
+    
     this.optionsContainer.removeAll(true);
     this.optionButtons = [];
     
-    if (!this.currentData?.options) return;
-    
-    const buttonHeight = this.isMobile ? 40 : 50;
-    const buttonSpacing = this.isMobile ? 50 : 60;
-    const startY = 20;
+    const optionHeight = this.isMobile ? 32 : 38;
+    const optionSpacing = this.isMobile ? 38 : 44;
     
     this.currentData.options.forEach((option, index) => {
-      const optionButton = this.createOptionButton(option, index, startY + (index * buttonSpacing), buttonHeight);
-      this.optionsContainer.add(optionButton);
-      this.optionButtons.push(optionButton);
+      const y = index * optionSpacing;
+      const button = this.createOptionButton(option, index, y, optionHeight);
+      this.optionsContainer.add(button);
+      this.optionButtons.push(button);
     });
   }
 
   private createOptionButton(option: string, index: number, y: number, height: number): Phaser.GameObjects.Container {
     const buttonContainer = this.scene.add.container(0, y);
-    const buttonWidth = this.dialogWidth - 40;
+    const buttonWidth = this.dialogWidth - 32;
     
     // Button background
     const buttonBg = this.scene.add.graphics();
-    buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.7);
-    buttonBg.fillRoundedRect(20, 0, buttonWidth, height, 8);
-    buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
-    buttonBg.strokeRoundedRect(20, 0, buttonWidth, height, 8);
+    buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.6);
+    buttonBg.fillRoundedRect(16, 0, buttonWidth, height, 6);
+    buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.5);
+    buttonBg.strokeRoundedRect(16, 0, buttonWidth, height, 6);
     
-    // Option letter (A, B, C)
-    const optionLetter = String.fromCharCode(65 + index); // A, B, C
+    // Option letter circle (A, B, C)
+    const optionLetter = String.fromCharCode(65 + index);
     const letterCircle = this.scene.add.graphics();
-    letterCircle.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.9);
-    letterCircle.fillCircle(40, height / 2, 12);
+    letterCircle.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+    letterCircle.fillCircle(32, height / 2, 10);
     
-    const letterText = this.scene.add.text(40, height / 2, optionLetter, {
-      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+    const letterText = this.scene.add.text(32, height / 2, optionLetter, {
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: '#ffffff',
       fontStyle: 'bold'
@@ -418,112 +295,158 @@ export class EnhancedQuizDialog {
     
     // Option text
     const optionText = this.scene.add.text(
-      60,
+      48,
       height / 2,
       option,
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '13px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.primary,
         wordWrap: { 
-          width: buttonWidth - 60,
-          useAdvancedWrap: true 
+          width: buttonWidth - 50
         }
       }
     ).setOrigin(0, 0.5);
     
-    buttonContainer.add([buttonBg, letterCircle, letterText, optionText]);
+    // Interactive elements
+    buttonBg.setInteractive(new Phaser.Geom.Rectangle(16, 0, buttonWidth, height), Phaser.Geom.Rectangle.Contains);
     
-    // Make interactive
-    buttonContainer.setSize(buttonWidth, height);
-    buttonContainer.setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.handleOptionSelected(option))
-      .on('pointerover', () => {
-        buttonBg.clear();
-        buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.1);
-        buttonBg.fillRoundedRect(20, 0, buttonWidth, height, 8);
-        buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.9);
-        buttonBg.strokeRoundedRect(20, 0, buttonWidth, height, 8);
-      })
-      .on('pointerout', () => {
-        buttonBg.clear();
-        buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.7);
-        buttonBg.fillRoundedRect(20, 0, buttonWidth, height, 8);
-        buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
-        buttonBg.strokeRoundedRect(20, 0, buttonWidth, height, 8);
-      });
+    buttonBg.on('pointerover', () => {
+      buttonBg.clear();
+      buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
+      buttonBg.fillRoundedRect(16, 0, buttonWidth, height, 6);
+      buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+      buttonBg.strokeRoundedRect(16, 0, buttonWidth, height, 6);
+    });
+    
+    buttonBg.on('pointerout', () => {
+      buttonBg.clear();
+      buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.6);
+      buttonBg.fillRoundedRect(16, 0, buttonWidth, height, 6);
+      buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.5);
+      buttonBg.strokeRoundedRect(16, 0, buttonWidth, height, 6);
+    });
+    
+    buttonBg.on('pointerdown', () => {
+      if (this.currentData) {
+        this.currentData.onAnswer(option);
+      }
+    });
+    
+    buttonContainer.add([buttonBg, letterCircle, letterText, optionText]);
     
     return buttonContainer;
   }
 
-  private handleOptionSelected(option: string): void {
-    if (this.currentData?.onAnswer) {
-      // Immediately close the quiz dialog to match existing behavior
-      this.dialogContainer.setVisible(false);
+  private initializeExplanationSection(): void {
+    this.explanationContainer = this.scene.add.container(0, this.isMobile ? 300 : 380);
+    this.dialogContainer.add(this.explanationContainer);
+  }
+
+  private updateExplanationSection(): void {
+    if (!this.currentData) return;
+    
+    this.explanationContainer.removeAll(true);
+    
+    if (this.currentData.explanation) {
+      // Explanation background
+      const explanationBg = this.scene.add.graphics();
+      explanationBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.06);
+      explanationBg.fillRoundedRect(12, 0, this.dialogWidth - 24, this.isMobile ? 80 : 100, 6);
+      explanationBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.4);
+      explanationBg.strokeRoundedRect(12, 0, this.dialogWidth - 24, this.isMobile ? 80 : 100, 6);
       
-      // Call the answer handler immediately
-      this.currentData.onAnswer(option);
+      // Explanation label
+      const label = this.scene.add.text(
+        24,
+        8,
+        '📚 Study Notes:',
+        {
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: modernUITheme.colors.accent,
+          fontStyle: 'bold'
+        }
+      );
       
-      // Clean up current data
-      this.currentData = null;
+      // Explanation text
+      this.explanationText = this.scene.add.text(
+        24,
+        28,
+        this.currentData.explanation,
+        {
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: modernUITheme.colors.text.secondary,
+          wordWrap: { 
+            width: this.dialogWidth - 60
+          },
+          lineSpacing: 3,
+          fontStyle: 'bold'
+        }
+      );
+      
+      this.explanationContainer.add([explanationBg, label, this.explanationText]);
     }
   }
 
-  private handleClose(): void {
-    if (this.currentData?.onClose) {
-      this.currentData.onClose();
-    }
-    this.close();
-  }
-
-  public close(): void {
-    this.scene.tweens.add({
-      targets: this.dialogContainer,
-      alpha: 0,
-      duration: 200,
-      onComplete: () => {
-        this.dialogContainer.setVisible(false);
-        this.currentData = null;
-      }
+  private initializeFooterSection(): void {
+    this.footerContainer = this.scene.add.container(0, this.dialogHeight - 40);
+    this.dialogContainer.add(this.footerContainer);
+    
+    // Close button
+    this.closeButton = this.scene.add.container(this.dialogWidth - 30, 0);
+    
+    const closeBg = this.scene.add.graphics();
+    closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 0.7);
+    closeBg.fillCircle(0, 0, 12);
+    closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.5);
+    closeBg.strokeCircle(0, 0, 12);
+    
+    const closeText = this.scene.add.text(0, 0, '✕', {
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+      fontFamily: modernUITheme.typography.fontFamily.primary,
+      color: modernUITheme.colors.text.primary,
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    closeBg.setInteractive(new Phaser.Geom.Circle(0, 0, 12), Phaser.Geom.Circle.Contains);
+    closeBg.on('pointerover', () => {
+      closeBg.clear();
+      closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 1);
+      closeBg.fillCircle(0, 0, 12);
+      closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.8);
+      closeBg.strokeCircle(0, 0, 12);
     });
+    
+    closeBg.on('pointerout', () => {
+      closeBg.clear();
+      closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 0.7);
+      closeBg.fillCircle(0, 0, 12);
+      closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.5);
+      closeBg.strokeCircle(0, 0, 12);
+    });
+    
+    closeBg.on('pointerdown', () => {
+      if (this.currentData?.onClose) {
+        this.currentData.onClose();
+      }
+      this.hide();
+    });
+    
+    this.closeButton.add([closeBg, closeText]);
+    this.footerContainer.add(this.closeButton);
   }
 
-  private cleanup(): void {
-    // Remove camera listeners
-    if (this.scene.cameras && this.scene.cameras.main) {
-      this.scene.cameras.main.off('cameramove', this.updatePosition, this);
-      this.scene.cameras.main.off('scroll', this.updatePosition, this);
-    }
-    
-    // Clean up the singleton reference
-    if (enhancedSingletonInstance === this) {
-      enhancedSingletonInstance = null;
-    }
-    
-    // Destroy the container and all its children
-    this.dialogContainer.destroy();
+  private updateFooterSection(): void {
+    // Footer section is static, no update needed
   }
-}
 
-// Factory function for enhanced quiz dialog
-export function showEnhancedQuizDialog(scene: Phaser.Scene, data: QuizDialogData): EnhancedQuizDialog | null {
-  try {
-    if (!scene || !scene.add) {
-      console.error('Invalid scene provided to showEnhancedQuizDialog');
-      return null;
-    }
-
-    // Create singleton instance if it doesn't exist
+  // Singleton accessor
+  public static getInstance(scene: Phaser.Scene): EnhancedQuizDialog {
     if (!enhancedSingletonInstance) {
       enhancedSingletonInstance = new EnhancedQuizDialog(scene);
     }
-    
-    // Show the enhanced quiz dialog
-    enhancedSingletonInstance.showQuizDialog(data);
     return enhancedSingletonInstance;
-
-  } catch (error) {
-    console.error('Error showing enhanced quiz dialog:', error);
-    return null;
   }
 }

@@ -214,9 +214,10 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
     if (this.currentDialog) {
       // If the dialog is still visible, close it first
       try {
-        this.currentDialog.close();
+        // Use the new hide method instead of close
+        this.currentDialog.hide();
       } catch (e) {
-        console.log("Error closing dialog:", e);
+        console.log("Error hiding dialog:", e);
       }
       
       // Nullify the reference
@@ -243,11 +244,11 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
       this.dialogCooldownText.setText(`🕒 Please come back in ${formattedTime}`);
     }
     
-    // Also update the dialog if it's currently open
-    if (this.currentDialog) {
+    // Also update the dialog if it's currently open and has the updateDialogText method
+    if (this.currentDialog && typeof (this.currentDialog as any).updateDialogText === 'function') {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
-      this.currentDialog.updateDialogText(`🕒 Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`);
+      (this.currentDialog as any).updateDialogText(`🕒 Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`);
     }
   }
   
@@ -308,7 +309,7 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
   
   protected isInteractionBlocked(): boolean {
     const antiSpamManager = QuizAntiSpamManager.getInstance();
-    return antiSpamManager.isInteractionBlocked();
+    return antiSpamManager.isInteractionBlocked() || (this as any)._quizBlocked === true;
   }
   
   protected notifyQuizStarted() {
@@ -388,13 +389,10 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
         alpha: 0,
         duration: 2000,
         onComplete: () => {
+          if (attemptsText && !attemptsText.scene) return;
           attemptsText.destroy();
         }
       });
     }
-  }
-  
-  public getIsOnCooldown(): boolean {
-    return this.isOnCooldown;
   }
 }

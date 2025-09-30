@@ -13,6 +13,7 @@
         "To host art exhibitions"
       ],
       "answer": "To provide a platform for blockchain infrastructure and development tools",
+      "explainer": "Alchemy provides robust blockchain infrastructure, APIs, and developer tools to build and scale Web3 applications.",
       "feedback": {
         "correct": "Correct! Alchemy provides powerful infrastructure and tools for blockchain developers.",
         "incorrect": "Not quite! Alchemy focuses on blockchain infrastructure and development tools."
@@ -27,6 +28,7 @@
         "By teaching them traditional art techniques"
       ],
       "answer": "By offering reliable node infrastructure and development APIs",
+      "explainer": "Alchemy offers managed blockchain nodes and comprehensive APIs, eliminating infrastructure headaches for developers.",
       "feedback": {
         "correct": "Exactly! Alchemy provides reliable node infrastructure and development APIs to help developers build on blockchain.",
         "incorrect": "Close, but not quite! Alchemy focuses on node infrastructure and development APIs."
@@ -41,6 +43,7 @@
         "Desktop software development"
       ],
       "answer": "Blockchain and Web3 development",
+      "explainer": "Alchemy specializes in blockchain and Web3 development with multi-chain support and comprehensive tooling.",
       "feedback": {
         "correct": "Right! Alchemy specializes in blockchain and Web3 development infrastructure.",
         "incorrect": "Not exactly! Alchemy focuses specifically on blockchain and Web3 development."
@@ -55,6 +58,7 @@
         "Attend in-person art classes"
       ],
       "answer": "Access reliable blockchain data and build decentralized applications",
+      "explainer": "Alchemy enables developers to access real-time blockchain data and build scalable decentralized applications efficiently.",
       "feedback": {
         "correct": "Perfect! Developers can access reliable blockchain data and build dApps with Alchemy.",
         "incorrect": "Not quite! Alchemy enables access to blockchain data and dApp development."
@@ -69,6 +73,7 @@
         "By limiting the number of developers"
       ],
       "answer": "By providing enterprise-grade infrastructure with high uptime",
+      "explainer": "Alchemy maintains enterprise-grade infrastructure with 99.9% uptime, redundancy, and automatic failover systems.",
       "feedback": {
         "correct": "Exactly! Alchemy maintains reliability through enterprise-grade infrastructure with high uptime.",
         "incorrect": "Close, but not quite! Alchemy maintains reliability through enterprise-grade infrastructure."

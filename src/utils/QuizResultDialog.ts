@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import modernUITheme, { UIHelpers } from '../utils/UITheme';
 import { QuizSession } from '../managers/EnhancedQuizManager';
+import { BaseDialog } from './BaseDialog';
 
 export interface QuizResultData {
   session: QuizSession;
@@ -12,85 +13,22 @@ export interface QuizResultData {
 // Singleton instance
 let resultSingletonInstance: QuizResultDialog | null = null;
 
-export class QuizResultDialog {
-  private scene: Phaser.Scene;
-  private dialogContainer!: Phaser.GameObjects.Container;
-  
-  // Layout configuration
-  private dialogWidth: number;
-  private dialogHeight: number;
-  private isMobile: boolean;
-  
+export class QuizResultDialog extends BaseDialog {
   // Current result data
   private currentData: QuizResultData | null = null;
 
   constructor(scene: Phaser.Scene) {
-    this.scene = scene;
-    this.isMobile = scene.scale.width < 768;
-    
-    // Result dialog sizing
-    this.dialogWidth = this.isMobile ? scene.scale.width * 0.9 : 600;
-    this.dialogHeight = this.isMobile ? scene.scale.height * 0.7 : 500;
-    
-    this.initializeDialog();
-    this.setupEventListeners();
-  }
-
-  private initializeDialog(): void {
-    this.dialogContainer = this.scene.add.container(0, 0);
-    this.dialogContainer.setDepth(2500); // Higher than quiz dialog
-    this.dialogContainer.setVisible(false);
-    
-    this.updatePosition();
-  }
-
-  private setupEventListeners(): void {
-    // Camera movement tracking
-    this.scene.events.once('create', () => {
-      if (this.scene.cameras && this.scene.cameras.main) {
-        this.scene.cameras.main.on('cameramove', this.updatePosition, this);
-        this.scene.cameras.main.on('scroll', this.updatePosition, this);
-      }
-    });
-
-    this.scene.events.on('shutdown', () => {
-      this.cleanup();
+    super(scene, { 
+      width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
+      height: scene.scale.width < 768 ? 420 : 480,
+      depth: 2500
     });
   }
-
-  private updatePosition = (): void => {
-    if (!this.scene?.cameras?.main || !this.dialogContainer) {
-      return;
-    }
-
-    const camera = this.scene.cameras.main;
-    const centerX = (camera.scrollX + camera.width / 2) || 0;
-    const centerY = (camera.scrollY + camera.height / 2) || 0;
-
-    this.dialogContainer.setPosition(
-      centerX - this.dialogWidth / 2,
-      centerY - this.dialogHeight / 2
-    );
-  };
 
   public showResults(data: QuizResultData): void {
     this.currentData = data;
     this.createResultContent();
-    
-    // Show with animation
-    this.dialogContainer.setVisible(true);
-    this.dialogContainer.setAlpha(0);
-    this.dialogContainer.setScale(0.8);
-    
-    this.scene.tweens.add({
-      targets: this.dialogContainer,
-      alpha: 1,
-      scale: 1,
-      duration: 400,
-      ease: 'Back.easeOut'
-    });
-    
-    this.updatePosition();
+    this.showWithAnimation();
   }
 
   private createResultContent(): void {
@@ -104,7 +42,7 @@ export class QuizResultDialog {
     const timeSpent = ((session.endTime! - session.startTime) / 1000).toFixed(1);
     
     // Background
-    this.createBackground();
+    this.createStandardBackground();
     
     // Header section
     this.createHeader(session, correctAnswers, session.answers.length);
@@ -119,41 +57,19 @@ export class QuizResultDialog {
     this.createActionButtons();
   }
 
-  private createBackground(): void {
-    const background = this.scene.add.graphics();
-    
-    // Gradient background
-    background.fillGradientStyle(
-      UIHelpers.hexToNumber('#1a1a2e'),
-      UIHelpers.hexToNumber('#16213e'),
-      UIHelpers.hexToNumber('#0f3460'),
-      UIHelpers.hexToNumber('#533483'),
-      0.98
-    );
-    
-    background.fillRoundedRect(0, 0, this.dialogWidth, this.dialogHeight, 16);
-    
-    // Border
-    background.lineStyle(3, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
-    background.strokeRoundedRect(0, 0, this.dialogWidth, this.dialogHeight, 16);
-    
-    // Inner glow
-    background.lineStyle(1, UIHelpers.hexToNumber('#ffffff'), 0.3);
-    background.strokeRoundedRect(2, 2, this.dialogWidth - 4, this.dialogHeight - 4, 14);
-    
-    this.dialogContainer.add(background);
-  }
-
   private createHeader(session: QuizSession, correct: number, total: number): void {
-    const headerY = 20;
+    const headerHeight = this.isMobile ? 60 : 70;
+    
+    // Header background
+    this.createHeaderBackground(0, headerHeight);
     
     // Title
     const title = this.scene.add.text(
       this.dialogWidth / 2,
-      headerY,
+      this.isMobile ? 15 : 20,
       'Quiz Complete!',
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '24px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '20px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.accent,
         fontStyle: 'bold'
@@ -163,10 +79,10 @@ export class QuizResultDialog {
     // NPC name and theme
     const subtitle = this.scene.add.text(
       this.dialogWidth / 2,
-      headerY + 35,
+      this.isMobile ? 35 : 45,
       `${session.npcName} - ${session.theme}`,
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.secondary,
         fontStyle: 'italic'
@@ -174,24 +90,24 @@ export class QuizResultDialog {
     ).setOrigin(0.5, 0);
     
     // Score circle
-    this.createScoreCircle(correct, total, this.dialogWidth / 2, headerY + 70);
+    this.createScoreCircle(correct, total, this.dialogWidth / 2, headerHeight + 20);
     
     this.dialogContainer.add([title, subtitle]);
   }
 
   private createScoreCircle(correct: number, total: number, x: number, y: number): void {
-    const radius = this.isMobile ? 40 : 50;
+    const radius = this.isMobile ? 35 : 45;
     const percentage = (correct / total) * 100;
     
     // Background circle
     const bgCircle = this.scene.add.graphics();
-    bgCircle.lineStyle(8, UIHelpers.hexToNumber('#333333'), 0.5);
+    bgCircle.lineStyle(6, UIHelpers.hexToNumber('#333333'), 0.5);
     bgCircle.strokeCircle(x, y, radius);
     
     // Progress circle
     const progressCircle = this.scene.add.graphics();
     const color = percentage >= 80 ? '#4CAF50' : percentage >= 60 ? '#FF9800' : '#F44336';
-    progressCircle.lineStyle(8, UIHelpers.hexToNumber(color), 0.9);
+    progressCircle.lineStyle(6, UIHelpers.hexToNumber(color), 0.9);
     
     // Calculate arc based on percentage
     const startAngle = Phaser.Math.DegToRad(-90);
@@ -204,22 +120,22 @@ export class QuizResultDialog {
     // Score text
     const scoreText = this.scene.add.text(
       x,
-      y - 10,
+      y - 8,
       `${correct}/${total}`,
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '18px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: color,
         fontStyle: 'bold'
       }
     ).setOrigin(0.5);
-    
+
     const percentText = this.scene.add.text(
       x,
-      y + 10,
+      y + 8,
       `${percentage.toFixed(0)}%`,
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.secondary
       }
@@ -229,15 +145,15 @@ export class QuizResultDialog {
   }
 
   private createStatisticsSection(accuracy: string, timeSpent: string, score: number, reward: number): void {
-    const statsY = 180;
+    const statsY = this.isMobile ? 150 : 170;
     const statsContainer = this.scene.add.container(0, statsY);
     
-    // Stats background
+    // Background
     const statsBg = this.scene.add.graphics();
     statsBg.fillStyle(UIHelpers.hexToNumber('#ffffff'), 0.05);
-    statsBg.fillRoundedRect(20, 0, this.dialogWidth - 40, 80, 8);
+    statsBg.fillRoundedRect(20, 0, this.dialogWidth - 40, this.isMobile ? 70 : 80, 8);
     statsBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
-    statsBg.strokeRoundedRect(20, 0, this.dialogWidth - 40, 80, 8);
+    statsBg.strokeRoundedRect(20, 0, this.dialogWidth - 40, this.isMobile ? 70 : 80, 8);
     statsContainer.add(statsBg);
     
     // Stats grid
@@ -259,7 +175,7 @@ export class QuizResultDialog {
         15,
         stat.icon,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '20px')
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px')
         }
       ).setOrigin(0.5);
       
@@ -269,7 +185,7 @@ export class QuizResultDialog {
         35,
         stat.value,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
           fontFamily: modernUITheme.typography.fontFamily.primary,
           color: modernUITheme.colors.accent,
           fontStyle: 'bold'
@@ -282,7 +198,7 @@ export class QuizResultDialog {
         55,
         stat.label,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '10px'),
           fontFamily: modernUITheme.typography.fontFamily.primary,
           color: modernUITheme.colors.text.secondary
         }
@@ -295,7 +211,7 @@ export class QuizResultDialog {
   }
 
   private createPerformanceBreakdown(session: QuizSession): void {
-    const breakdownY = 280;
+    const breakdownY = this.isMobile ? 240 : 270;
     const breakdownContainer = this.scene.add.container(0, breakdownY);
     
     // Section title
@@ -304,7 +220,7 @@ export class QuizResultDialog {
       0,
       'Question Breakdown',
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.primary,
         fontStyle: 'bold'
@@ -312,112 +228,88 @@ export class QuizResultDialog {
     );
     breakdownContainer.add(title);
     
-    // Questions list
-    const listY = 25;
-    const maxQuestions = this.isMobile ? 3 : 5; // Show limited questions on mobile
-    const questionsToShow = session.answers.slice(0, maxQuestions);
+    // Questions list (simplified for space)
+    const maxQuestionsToShow = this.isMobile ? 3 : 5;
+    const questionsToShow = session.questions.slice(0, maxQuestionsToShow);
     
-    questionsToShow.forEach((answer, index) => {
-      const questionY = listY + (index * 25);
+    questionsToShow.forEach((question, index) => {
+      const answer = session.answers.find(a => a.question === question.question);
+      if (!answer) return;
       
-      // Status icon
-      const statusIcon = this.scene.add.text(
-        40,
-        questionY,
-        answer.isCorrect ? '✅' : '❌',
+      const y = 25 + (index * 25);
+      
+      // Question number and status
+      const statusText = this.scene.add.text(
+        30,
+        y,
+        `${index + 1}. ${answer.isCorrect ? '✅' : '❌'}`,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px')
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: answer.isCorrect ? modernUITheme.colors.success : modernUITheme.colors.error
         }
       );
       
-      // Question number
-      const questionNum = this.scene.add.text(
+      // Question text (truncated)
+      const maxTextLength = this.isMobile ? 30 : 50;
+      const questionText = question.question.length > maxTextLength 
+        ? question.question.substring(0, maxTextLength) + '...' 
+        : question.question;
+        
+      const questionLabel = this.scene.add.text(
         60,
-        questionY,
-        `Q${index + 1}:`,
+        y,
+        questionText,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
-          fontFamily: modernUITheme.typography.fontFamily.primary,
-          color: modernUITheme.colors.text.secondary,
-          fontStyle: 'bold'
-        }
-      );
-      
-      // Answer summary
-      const answerText = this.scene.add.text(
-        90,
-        questionY,
-        answer.isCorrect ? 'Correct' : `Wrong (${answer.correctAnswer})`,
-        {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
-          fontFamily: modernUITheme.typography.fontFamily.primary,
-          color: answer.isCorrect ? '#4CAF50' : '#F44336',
-          wordWrap: { width: this.dialogWidth - 150 }
-        }
-      );
-      
-      // Time spent
-      const timeText = this.scene.add.text(
-        this.dialogWidth - 80,
-        questionY,
-        `${answer.timeSpent.toFixed(1)}s`,
-        {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '10px'),
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '11px'),
           fontFamily: modernUITheme.typography.fontFamily.primary,
           color: modernUITheme.colors.text.secondary
         }
-      ).setOrigin(1, 0);
+      );
       
-      breakdownContainer.add([statusIcon, questionNum, answerText, timeText]);
+      breakdownContainer.add([statusText, questionLabel]);
     });
-    
-    // Show more indicator if there are more questions
-    if (session.answers.length > maxQuestions) {
-      const moreText = this.scene.add.text(
-        this.dialogWidth / 2,
-        listY + (maxQuestions * 25) + 10,
-        `... and ${session.answers.length - maxQuestions} more questions`,
-        {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
-          fontFamily: modernUITheme.typography.fontFamily.primary,
-          color: modernUITheme.colors.text.secondary,
-          fontStyle: 'italic'
-        }
-      ).setOrigin(0.5, 0);
-      
-      breakdownContainer.add(moreText);
-    }
     
     this.dialogContainer.add(breakdownContainer);
   }
 
   private createActionButtons(): void {
-    const buttonsY = this.dialogHeight - 60;
+    const buttonsY = this.isMobile ? 340 : 390;
     const buttonsContainer = this.scene.add.container(0, buttonsY);
     
     // Close button
     const closeButton = this.createButton(
-      this.dialogWidth / 2 - (this.currentData?.onRetry ? 75 : 0),
+      this.dialogWidth / 2 - (this.isMobile ? 60 : 80),
       0,
-      this.currentData?.onRetry ? 120 : 160,
-      40,
-      'Continue',
-      modernUITheme.colors.primary,
-      () => this.handleClose()
+      this.isMobile ? 100 : 120,
+      35,
+      'Close',
+      modernUITheme.colors.secondary,
+      () => {
+        if (this.currentData?.onClose) {
+          this.currentData.onClose();
+        }
+        this.hide();
+      }
     );
     
     buttonsContainer.add(closeButton);
     
-    // Retry button (if available)
+    // Retry button (if provided)
     if (this.currentData?.onRetry) {
       const retryButton = this.createButton(
-        this.dialogWidth / 2 + 75,
+        this.dialogWidth / 2 + (this.isMobile ? 60 : 80),
         0,
-        120,
-        40,
+        this.isMobile ? 100 : 120,
+        35,
         'Try Again',
-        modernUITheme.colors.secondary,
-        () => this.handleRetry()
+        modernUITheme.colors.primary,
+        () => {
+          if (this.currentData?.onRetry) {
+            this.currentData.onRetry();
+          }
+          this.hide();
+        }
       );
       
       buttonsContainer.add(retryButton);
@@ -440,105 +332,41 @@ export class QuizResultDialog {
     // Button background
     const buttonBg = this.scene.add.graphics();
     buttonBg.fillStyle(UIHelpers.hexToNumber(color), 0.8);
-    buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 8);
-    buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
-    buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 8);
+    buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 6);
+    buttonBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
+    buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 6);
     
     // Button text
     const buttonText = this.scene.add.text(0, 0, text, {
-      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
     
+    // Interactive elements
+    buttonBg.setInteractive(new Phaser.Geom.Rectangle(-width/2, -height/2, width, height), Phaser.Geom.Rectangle.Contains);
+    buttonBg.on('pointerover', () => {
+      buttonBg.clear();
+      buttonBg.fillStyle(UIHelpers.hexToNumber(color), 1);
+      buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 6);
+      buttonBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+      buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 6);
+    });
+    
+    buttonBg.on('pointerout', () => {
+      buttonBg.clear();
+      buttonBg.fillStyle(UIHelpers.hexToNumber(color), 0.8);
+      buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 6);
+      buttonBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
+      buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 6);
+    });
+    
+    buttonBg.on('pointerdown', callback);
+    
     button.add([buttonBg, buttonText]);
     button.setSize(width, height);
-    button.setInteractive({ useHandCursor: true })
-      .on('pointerdown', callback)
-      .on('pointerover', () => {
-        button.setScale(1.05);
-        buttonBg.clear();
-        buttonBg.fillStyle(UIHelpers.hexToNumber(color), 1);
-        buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 8);
-        buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
-        buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 8);
-      })
-      .on('pointerout', () => {
-        button.setScale(1);
-        buttonBg.clear();
-        buttonBg.fillStyle(UIHelpers.hexToNumber(color), 0.8);
-        buttonBg.fillRoundedRect(-width/2, -height/2, width, height, 8);
-        buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.6);
-        buttonBg.strokeRoundedRect(-width/2, -height/2, width, height, 8);
-      });
     
     return button;
-  }
-
-  private handleClose(): void {
-    if (this.currentData?.onClose) {
-      this.currentData.onClose();
-    }
-    this.close();
-  }
-
-  private handleRetry(): void {
-    if (this.currentData?.onRetry) {
-      this.currentData.onRetry();
-    }
-    this.close();
-  }
-
-  public close(): void {
-    this.scene.tweens.add({
-      targets: this.dialogContainer,
-      alpha: 0,
-      scale: 0.8,
-      duration: 300,
-      onComplete: () => {
-        this.dialogContainer.setVisible(false);
-        this.currentData = null;
-      }
-    });
-  }
-
-  private cleanup(): void {
-    // Remove camera listeners
-    if (this.scene.cameras && this.scene.cameras.main) {
-      this.scene.cameras.main.off('cameramove', this.updatePosition, this);
-      this.scene.cameras.main.off('scroll', this.updatePosition, this);
-    }
-    
-    // Clean up the singleton reference
-    if (resultSingletonInstance === this) {
-      resultSingletonInstance = null;
-    }
-    
-    // Destroy the container and all its children
-    this.dialogContainer.destroy();
-  }
-}
-
-// Factory function for quiz result dialog
-export function showQuizResultDialog(scene: Phaser.Scene, data: QuizResultData): QuizResultDialog | null {
-  try {
-    if (!scene || !scene.add) {
-      console.error('Invalid scene provided to showQuizResultDialog');
-      return null;
-    }
-
-    // Create singleton instance if it doesn't exist
-    if (!resultSingletonInstance) {
-      resultSingletonInstance = new QuizResultDialog(scene);
-    }
-    
-    // Show the result dialog
-    resultSingletonInstance.showResults(data);
-    return resultSingletonInstance;
-
-  } catch (error) {
-    console.error('Error showing quiz result dialog:', error);
-    return null;
   }
 }

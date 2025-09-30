@@ -26,8 +26,6 @@ export default class WalkingNPCManager {
   public registerWalkingNPC(npc: WalkingNPC): void {
     if (!this.walkingNPCs.includes(npc)) {
       this.walkingNPCs.push(npc);
-      console.log(`✅ WalkingNPCManager: Registered walking NPC: ${npc.texture?.key || 'unknown'}`);
-      console.log(`📊 WalkingNPCManager: Total registered NPCs: ${this.walkingNPCs.length}`);
     }
   }
 
@@ -38,7 +36,6 @@ export default class WalkingNPCManager {
     const index = this.walkingNPCs.indexOf(npc);
     if (index !== -1) {
       this.walkingNPCs.splice(index, 1);
-      console.log(`✅ WalkingNPCManager: Unregistered walking NPC`);
     }
   }
 
@@ -49,7 +46,6 @@ export default class WalkingNPCManager {
   public updateWalkingNPCs(): void {
     // Additional safety check for scene validity
     if (!this.scene || !this.scene.game) {
-      console.warn('WalkingNPCManager: Scene is invalid or destroyed, skipping update');
       return;
     }
 
@@ -68,25 +64,21 @@ export default class WalkingNPCManager {
           if (npc.scene && npc.scene.game && !npc.scene.game.destroy) {
             npc.update(deltaTime);
           } else {
-            console.warn(`WalkingNPCManager: Skipping NPC ${index + 1}/${npcsToUpdate.length} with invalid scene during update`);
             // Remove the invalid NPC from our list
             const invalidIndex = this.walkingNPCs.indexOf(npc);
             if (invalidIndex !== -1) {
               this.walkingNPCs.splice(invalidIndex, 1);
-              console.log(`🧹 WalkingNPCManager: Removed invalid NPC from list`);
             }
           }
         } else {
-          console.warn(`WalkingNPCManager: Skipping invalid NPC ${index + 1}/${npcsToUpdate.length} during update`);
           // Remove the invalid NPC from our list
           const invalidIndex = this.walkingNPCs.indexOf(npc);
           if (invalidIndex !== -1) {
             this.walkingNPCs.splice(invalidIndex, 1);
-            console.log(`🧹 WalkingNPCManager: Removed invalid NPC from list`);
           }
         }
       } catch (error) {
-        console.error(`❌ WalkingNPCManager: Error updating walking NPC ${index + 1}/${npcsToUpdate.length}:`, error);
+        // Error updating walking NPC silently handled
       }
     });
   }
@@ -121,8 +113,6 @@ export default class WalkingNPCManager {
    * Clean up all resources
    */
   public destroy(): void {
-    console.log('🧹 WalkingNPCManager: Cleaning up walking NPCs...');
-    
     // Unregister all NPCs before clearing the array
     const npcsToUnregister = [...this.walkingNPCs];
     npcsToUnregister.forEach(npc => {
@@ -132,12 +122,11 @@ export default class WalkingNPCManager {
           npc.setBehavior(undefined as any);
         }
       } catch (e) {
-        console.warn('⚠️ WalkingNPCManager: Error clearing behavior for NPC', e);
+        // Error clearing behavior for NPC silently handled
       }
     });
     
     this.walkingNPCs = [];
     WalkingNPCManager.instance = null as any;
-    console.log('✅ WalkingNPCManager: Cleanup complete');
   }
 }

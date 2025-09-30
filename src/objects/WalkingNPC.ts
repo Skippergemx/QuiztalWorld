@@ -81,21 +81,18 @@ export default class WalkingNPC extends QuizNPC {
     // Special case for Artizen Gent's animations
     if (textureKey === 'npc_artizengent' || textureKey === 'npc_artizengent_walk') {
       const key = `artizengent-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     }
     
     // Special case for ThirdWeb Guy's animations
     if (textureKey === 'npc_thirdwebguy' || textureKey === 'npc_thirdwebguy_walk') {
       const key = `thirdwebguy-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     }
     
     // Special case for Alchemy Man's animations
     if (textureKey === 'npc_alchemyman' || textureKey === 'npc_alchemyman_walk') {
       const key = `alchemyman-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     }
     
@@ -104,19 +101,16 @@ export default class WalkingNPC extends QuizNPC {
       // For textures like 'moblin_idle', use 'moblin'
       const baseName = textureKey.split('_idle')[0];
       const key = `${baseName}-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     } else if (textureKey.includes('_walk')) {
       // For textures like 'moblin_walk', use 'moblin'
       const baseName = textureKey.split('_walk')[0];
       const key = `${baseName}-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     } else {
       // For textures like 'npc_huntboy', use 'huntboy'
       const baseName = textureKey.replace('npc_', '');
       const key = `${baseName}-${type}-${direction}`;
-      console.log(`Generated animation key for ${textureKey}: ${key}`);
       return key;
     }
   }

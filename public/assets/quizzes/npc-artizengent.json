@@ -13,6 +13,7 @@
         "To host art exhibitions"
       ],
       "answer": "To provide a platform for discovering and supporting NFT art projects",
+      "explainer": "Artizen.fund connects art enthusiasts with talented NFT artists through discovery, funding, and community support.",
       "feedback": {
         "correct": "Correct! Artizen.fund helps connect art enthusiasts with talented NFT artists.",
         "incorrect": "Not quite! Artizen.fund is specifically focused on NFT art discovery and support."
@@ -27,6 +28,7 @@
         "By teaching them traditional art techniques"
       ],
       "answer": "By offering grants and exposure to a wider audience",
+      "explainer": "Artizen.fund provides financial grants and platform visibility to help emerging NFT artists grow their careers.",
       "feedback": {
         "correct": "Exactly! Artizen.fund provides financial support and visibility to talented artists.",
         "incorrect": "Close, but not quite! The platform focuses on grants and exposure for artists."
@@ -41,6 +43,7 @@
         "Photography"
       ],
       "answer": "NFT art and digital collectibles",
+      "explainer": "Artizen.fund specializes in blockchain-based digital art, NFTs, and collectibles from innovative creators.",
       "feedback": {
         "correct": "Right! The platform specializes in NFT art and digital collectibles.",
         "incorrect": "Not exactly! Artizen.fund focuses specifically on NFT art and digital collectibles."
@@ -55,6 +58,7 @@
         "Attend in-person art classes"
       ],
       "answer": "Discover, support, and collect NFT art",
+      "explainer": "Users can explore curated NFT collections, fund artist projects, and build their own digital art portfolios.",
       "feedback": {
         "correct": "Perfect! Users can discover, support, and collect NFT art on the platform.",
         "incorrect": "Not quite! The platform enables discovery, support, and collection of NFT art."
@@ -69,6 +73,7 @@
         "By limiting the number of artists"
       ],
       "answer": "By having a curation process",
+      "explainer": "Artizen.fund uses careful curation to select high-quality projects and maintain platform standards for excellence.",
       "feedback": {
         "correct": "Exactly! Artizen.fund uses a careful curation process to maintain quality.",
         "incorrect": "Close, but not quite! The platform maintains quality through a curation process."

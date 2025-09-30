@@ -8,7 +8,6 @@ import modernUITheme, { UIHelpers } from '../utils/UITheme';
 
 export default class UIScene extends Phaser.Scene {
     private uiContainer!: Phaser.GameObjects.Container;
-    private backgroundPanel!: Phaser.GameObjects.Rectangle;
     private balanceText!: Phaser.GameObjects.Text;
     private playerId: string = '';
     private balanceUnsubscribe?: () => void;
@@ -18,9 +17,13 @@ export default class UIScene extends Phaser.Scene {
     // private web3Service: Web3Service;
     private rewardTracker!: QuiztalRewardTracker; // Reward tracker component
     private headerButtons: Phaser.GameObjects.Container[] = []; // Track header buttons for resize
-    private footerBg!: Phaser.GameObjects.Rectangle; // Footer background
     private footerText!: Phaser.GameObjects.Text; // Footer text
     private footerGraphics!: Phaser.GameObjects.Graphics; // Footer graphics
+    
+    // Mobile-specific UI elements
+    private mobileMenuButton!: Phaser.GameObjects.Container; // Hamburger menu for mobile
+    private mobileMenuPanel!: Phaser.GameObjects.Container; // Expanded menu panel
+    private isMobileMenuOpen: boolean = false; // Track mobile menu state
 
     constructor() {
         super({ key: 'UIScene' });
@@ -40,13 +43,18 @@ export default class UIScene extends Phaser.Scene {
             }
 
             // Create main UI container
-            this.uiContainer = this.add.container(0, 0).setDepth(1000);
+            this.uiContainer = this.add.container(0, 0).setDepth(1000).setScrollFactor(0);
 
             // Create UI elements
             this.createUIPanel();
             this.createButtons();
             this.createBalanceDisplay();
             this.createFooterInstructions();
+            
+            // Add mobile-specific UI elements
+            if (this.scale.width < 768) {
+                this.createMobileSpecificElements();
+            }
 
             // Initialize reward tracking
             this.initializeRewardTracking();
@@ -71,34 +79,72 @@ export default class UIScene extends Phaser.Scene {
         }
     }
 
+    private createMobileSpecificElements() {
+        // Add orientation change handler
+        this.scale.on('orientationchange', this.handleOrientationChange, this);
+    }
+
+    private handleOrientationChange() {
+        // Handle orientation changes if needed
+        // No action needed for now
+    }
+
     private createUIPanel() {
         const isMobile = this.scale.width < 768;
         const panelHeight = isMobile ? 70 : 50;
 
-        // Create modern gradient background
-        const graphics = this.add.graphics();
-        UIHelpers.createGradientFill(
-            graphics, 
-            0, 0, 
-            this.scale.width, panelHeight,
-            modernUITheme.gradients.dark,
-            true
+        // Create enhanced dialog-style background
+        const background = this.add.graphics();
+        
+        // Enhanced gradient background matching dialog aesthetic
+        background.fillGradientStyle(
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            0.98
         );
         
-        // Add subtle glow effect
-        graphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.3);
-        graphics.strokeRect(0, 0, this.scale.width, panelHeight);
+        background.fillRoundedRect(0, 0, this.scale.width, panelHeight, 
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
         
-        this.backgroundPanel = this.add.rectangle(0, 0, this.scale.width, panelHeight, 
-            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary), 0.95)
-            .setOrigin(0)
-            .setStrokeStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.6)
-            .setScrollFactor(0);
+        // Enhanced border with accent color
+        background.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+            UIHelpers.hexToNumber(modernUITheme.colors.accent),
+            0.8
+        );
+        background.strokeRoundedRect(0, 0, this.scale.width, panelHeight,
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Add subtle inner glow
+        background.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+            UIHelpers.hexToNumber('#ffffff'),
+            0.3
+        );
+        background.strokeRoundedRect(2, 2, this.scale.width - 4, panelHeight - 4,
+            UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
 
-        this.uiContainer.add([graphics, this.backgroundPanel]);
+        // Set proper depths for header elements
+        background.setDepth(998);
+        
+        this.uiContainer.add(background);
     }
 
     private createButtons() {
+        const isMobile = this.scale.width < 768;
+        
+        if (isMobile) {
+            // Create mobile-friendly hamburger menu
+            this.createMobileMenu();
+        } else {
+            // Create desktop button layout
+            this.createDesktopButtons();
+        }
+    }
+
+    private createDesktopButtons() {
         const isMobile = this.scale.width < 768;
         const buttonConfigs = [
             {
@@ -177,31 +223,185 @@ export default class UIScene extends Phaser.Scene {
         });
     }
 
+    private createMobileMenu() {
+        const panelHeight = 70; // Mobile panel height
+        // Create hamburger menu button
+        this.mobileMenuButton = this.createNavButton(
+            '☰',
+            'Menu',
+            '#3498db',
+            '#2980b9',
+            () => this.toggleMobileMenu()
+        ).setPosition(this.scale.width - 40, panelHeight / 2);
+        
+        this.uiContainer.add(this.mobileMenuButton);
+        
+        // Create mobile menu panel (initially hidden)
+        this.createMobileMenuPanel();
+    }
+
+    private createMobileMenuPanel() {
+        const isMobile = this.scale.width < 768;
+        const panelWidth = Math.min(250, this.scale.width * 0.8);
+        const panelHeight = this.scale.height * 0.6;
+        const headerHeight = 70; // Mobile header height
+        
+        this.mobileMenuPanel = this.add.container(this.scale.width, headerHeight / 2);
+        
+        // Create enhanced dialog-style background
+        const panelBg = this.add.graphics();
+        
+        // Enhanced gradient background matching dialog aesthetic
+        panelBg.fillGradientStyle(
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            0.98
+        );
+        
+        panelBg.fillRoundedRect(0, 0, panelWidth, panelHeight, 
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Enhanced border with accent color
+        panelBg.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+            UIHelpers.hexToNumber(modernUITheme.colors.accent),
+            0.8
+        );
+        panelBg.strokeRoundedRect(0, 0, panelWidth, panelHeight,
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Add subtle inner glow
+        panelBg.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+            UIHelpers.hexToNumber('#ffffff'),
+            0.3
+        );
+        panelBg.strokeRoundedRect(2, 2, panelWidth - 4, panelHeight - 4,
+            UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
+        
+        // Menu items
+        const menuItems = [
+            { icon: '📖', text: 'Guide Book', callback: () => this.openGuideBook() },
+            { icon: '💎', text: 'Claim Tokens', callback: () => this.openTokenClaim() },
+            { icon: '💎', text: 'Wallet', callback: () => this.openWalletWindow() },
+            { icon: '🎯', text: 'Session Rewards', callback: () => this.toggleRewardTracker() },
+            { icon: '🎒', text: 'Inventory', callback: () => this.openInventory() },
+            { icon: '🚪', text: 'Logout', callback: () => this.handleLogout() }
+        ];
+        
+        // Add panel background first so it's behind menu items
+        this.mobileMenuPanel.add(panelBg);
+        
+        menuItems.forEach((item, index) => {
+            const yPosition = 50 + (index * 50);
+            
+            const menuItem = this.add.container(20, yPosition);
+            
+            // Icon
+            const icon = this.add.text(0, 0, item.icon, {
+                fontSize: '24px',
+                fontFamily: modernUITheme.typography.fontFamily.primary
+            }).setOrigin(0, 0.5);
+            
+            // Text
+            const text = this.add.text(40, 0, item.text, {
+                fontSize: '16px',
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.text.primary
+            }).setOrigin(0, 0.5);
+            
+            // Interactive area
+            const touchArea = this.add.rectangle(
+                0, 0, 
+                panelWidth - 40, 40,
+                0x000000, 0
+            ).setOrigin(0, 0.5)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => {
+                this.toggleMobileMenu();
+                item.callback();
+            });
+            
+            menuItem.add([icon, text, touchArea]);
+            this.mobileMenuPanel.add(menuItem);
+        });
+        
+        this.mobileMenuPanel.setVisible(false);
+        this.mobileMenuPanel.setDepth(1001); // Ensure menu panel is above other UI elements
+        this.mobileMenuPanel.setScrollFactor(0); // Ensure menu panel doesn't scroll with camera
+        this.uiContainer.add(this.mobileMenuPanel);
+    }
+
+    private toggleMobileMenu() {
+        this.isMobileMenuOpen = !this.isMobileMenuOpen;
+        
+        if (this.isMobileMenuOpen) {
+            // Slide in from right
+            this.tweens.add({
+                targets: this.mobileMenuPanel,
+                x: this.scale.width - Math.min(250, this.scale.width * 0.8),
+                duration: 300,
+                ease: 'Power2'
+            });
+            this.mobileMenuPanel.setVisible(true);
+        } else {
+            // Slide out to right
+            this.tweens.add({
+                targets: this.mobileMenuPanel,
+                x: this.scale.width,
+                duration: 300,
+                ease: 'Power2',
+                onComplete: () => {
+                    this.mobileMenuPanel.setVisible(false);
+                }
+            });
+        }
+    }
+
     private createNavButton(text: string, tooltip: string, color: string, hoverColor: string, callback: () => void): Phaser.GameObjects.Container {
         const isMobile = this.scale.width < 768;
         const buttonSize = isMobile ? 44 : 44; // Minimum 44px for mobile touch targets
         const button = this.add.container(0, 0);
         const touchPadding = isMobile ? 12 : 10; // Increased padding for mobile
         
-        // Create modern button background with gradient
+        // Create enhanced dialog-style button background
         const buttonGraphics = this.add.graphics();
+        
+        // Enhanced gradient background matching dialog aesthetic
         const bgColor1 = UIHelpers.hexToNumber(color);
         const bgColor2 = UIHelpers.hexToNumber(hoverColor);
         
-        // Initial state - subtle gradient
         buttonGraphics.fillGradientStyle(bgColor1, bgColor1, bgColor2, bgColor2, 0.9);
         buttonGraphics.fillRoundedRect(
             -buttonSize/2, -buttonSize/2, 
             buttonSize, buttonSize, 
-            modernUITheme.borderRadius.md
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
         );
         
-        // Add border with glow effect
-        buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.4);
+        // Enhanced border with accent color
+        buttonGraphics.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+            UIHelpers.hexToNumber(modernUITheme.colors.accent),
+            0.8
+        );
         buttonGraphics.strokeRoundedRect(
             -buttonSize/2, -buttonSize/2, 
             buttonSize, buttonSize, 
-            modernUITheme.borderRadius.md
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
+        );
+        
+        // Add subtle inner glow
+        buttonGraphics.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+            UIHelpers.hexToNumber('#ffffff'),
+            0.3
+        );
+        buttonGraphics.strokeRoundedRect(
+            -buttonSize/2 + 2, -buttonSize/2 + 2, 
+            buttonSize - 4, buttonSize - 4, 
+            UIHelpers.getResponsiveSpacing(isMobile, 14, 10)
         );
 
         // Create icon with better typography
@@ -254,13 +454,29 @@ export default class UIScene extends Phaser.Scene {
             buttonGraphics.fillRoundedRect(
                 -buttonSize/2, -buttonSize/2, 
                 buttonSize, buttonSize, 
-                modernUITheme.borderRadius.md
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
             );
-            buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+            buttonGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+                UIHelpers.hexToNumber(modernUITheme.colors.accent),
+                0.8
+            );
             buttonGraphics.strokeRoundedRect(
                 -buttonSize/2, -buttonSize/2, 
                 buttonSize, buttonSize, 
-                modernUITheme.borderRadius.md
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
+            );
+            
+            // Add subtle inner glow
+            buttonGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+                UIHelpers.hexToNumber('#ffffff'),
+                0.3
+            );
+            buttonGraphics.strokeRoundedRect(
+                -buttonSize/2 + 2, -buttonSize/2 + 2, 
+                buttonSize - 4, buttonSize - 4, 
+                UIHelpers.getResponsiveSpacing(isMobile, 14, 10)
             );
             
             // Show tooltip with animation
@@ -291,13 +507,29 @@ export default class UIScene extends Phaser.Scene {
             buttonGraphics.fillRoundedRect(
                 -buttonSize/2, -buttonSize/2, 
                 buttonSize, buttonSize, 
-                modernUITheme.borderRadius.md
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
             );
-            buttonGraphics.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.4);
+            buttonGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+                UIHelpers.hexToNumber(modernUITheme.colors.border.accent),
+                0.4
+            );
             buttonGraphics.strokeRoundedRect(
                 -buttonSize/2, -buttonSize/2, 
                 buttonSize, buttonSize, 
-                modernUITheme.borderRadius.md
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12)
+            );
+            
+            // Add subtle inner glow
+            buttonGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+                UIHelpers.hexToNumber('#ffffff'),
+                0.3
+            );
+            buttonGraphics.strokeRoundedRect(
+                -buttonSize/2 + 2, -buttonSize/2 + 2, 
+                buttonSize - 4, buttonSize - 4, 
+                UIHelpers.getResponsiveSpacing(isMobile, 14, 10)
             );
             
             // Hide tooltip with animation
@@ -359,19 +591,27 @@ export default class UIScene extends Phaser.Scene {
         // Create container with improved positioning
         const balanceContainer = this.add.container(
             UIHelpers.getResponsiveSpacing(isMobile, 20, 15), 
-            UIHelpers.getResponsiveSpacing(isMobile, 10, 8)
+            isMobile ? 35 : 25 // Center vertically in header
         );
 
+        // Create enhanced dialog-style balance display
+        const balanceBg = this.add.graphics();
+        
+        // Enhanced gradient background matching dialog aesthetic
+        balanceBg.fillGradientStyle(
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            0.98
+        );
+        
         // Create modern balance text with better typography
-        this.balanceText = this.add.text(0, 0, 'Loading balance...', {
+        this.balanceText = this.add.text(10, 8, 'Loading balance...', {
             fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.md),
             fontFamily: modernUITheme.typography.fontFamily.primary,
             color: modernUITheme.colors.accent,
-            fontStyle: 'bold', // Use fontStyle instead of fontWeight
-            padding: { 
-                x: UIHelpers.getResponsiveSpacing(isMobile, 12, 8), 
-                y: UIHelpers.getResponsiveSpacing(isMobile, 6, 4) 
-            },
+            fontStyle: 'bold',
             shadow: {
                 offsetX: 2,
                 offsetY: 2,
@@ -383,44 +623,79 @@ export default class UIScene extends Phaser.Scene {
 
         // Create modern wallet display with card-like appearance
         this.walletBtn = this.add.text(
-            0,
-            this.balanceText.height + UIHelpers.getResponsiveSpacing(isMobile, 6, 4),
+            10,
+            this.balanceText.height + 15,
             '🦊 Loading wallet...', 
             {
                 fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.sm),
                 fontFamily: modernUITheme.typography.fontFamily.primary,
-                color: modernUITheme.colors.info,
-                backgroundColor: modernUITheme.colors.background.card,
-                padding: { 
-                    x: UIHelpers.getResponsiveSpacing(isMobile, 10, 8), 
-                    y: UIHelpers.getResponsiveSpacing(isMobile, 4, 3) 
-                }
+                color: modernUITheme.colors.info
             }
         ).setScrollFactor(0);
 
         // Add subtle interactive effects
         this.walletBtn.setInteractive({ useHandCursor: true })
             .on('pointerover', () => {
-                this.tweens.add({
-                    targets: this.walletBtn,
-                    scaleX: 1.02,
-                    scaleY: 1.02,
-                    duration: modernUITheme.animations.duration.fast,
-                    ease: modernUITheme.animations.easing.easeOut
-                });
+                if (!isMobile) { // Only for desktop
+                    this.tweens.add({
+                        targets: this.walletBtn,
+                        scaleX: 1.02,
+                        scaleY: 1.02,
+                        duration: modernUITheme.animations.duration.fast,
+                        ease: modernUITheme.animations.easing.easeOut
+                    });
+                }
             })
             .on('pointerout', () => {
-                this.tweens.add({
-                    targets: this.walletBtn,
-                    scaleX: 1,
-                    scaleY: 1,
-                    duration: modernUITheme.animations.duration.fast,
-                    ease: modernUITheme.animations.easing.easeOut
-                });
+                if (!isMobile) { // Only for desktop
+                    this.tweens.add({
+                        targets: this.walletBtn,
+                        scaleX: 1,
+                        scaleY: 1,
+                        duration: modernUITheme.animations.duration.fast,
+                        ease: modernUITheme.animations.easing.easeOut
+                    });
+                }
+            })
+            .on('pointerdown', () => {
+                // Open wallet window on click
+                this.openWalletWindow();
             });
 
-        balanceContainer.add([this.balanceText, this.walletBtn]);
+        // Position elements and add to container
+        const totalHeight = this.walletBtn.y + this.walletBtn.height + 10;
+        const totalWidth = Math.max(this.balanceText.width, this.walletBtn.width) + 20;
+        
+        balanceBg.fillRoundedRect(0, 0, totalWidth, totalHeight, 
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Enhanced border with accent color
+        balanceBg.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+            UIHelpers.hexToNumber(modernUITheme.colors.accent),
+            0.8
+        );
+        balanceBg.strokeRoundedRect(0, 0, totalWidth, totalHeight,
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Add subtle inner glow
+        balanceBg.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+            UIHelpers.hexToNumber('#ffffff'),
+            0.3
+        );
+        balanceBg.strokeRoundedRect(2, 2, totalWidth - 4, totalHeight - 4,
+            UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
+
+        balanceContainer.add([balanceBg, this.balanceText, this.walletBtn]);
+        balanceContainer.setDepth(1000); // Ensure balance display is above background
         this.uiContainer.add(balanceContainer);
+        
+        // On mobile, position balance in a more compact way
+        if (isMobile) {
+            // Stack elements vertically with less spacing
+            this.walletBtn.setPosition(10, this.balanceText.height + 15);
+        }
     }
 
     // Update setupBalanceListener method
@@ -530,48 +805,55 @@ export default class UIScene extends Phaser.Scene {
     private createFooterInstructions() {
         const isMobile = this.scale.width < 768;
         
-        // Enhanced instructions with better context
+        // Enhanced instructions with better context - more concise for mobile
         const instructions = isMobile ?
-            '👍 Tap NPCs to learn | 🎯 Session Rewards | 🎒 Your Items' :
+            'Tap NPCs to learn • Session Rewards • Your Items' :
             'WASD/⬅️➡️⬆️⬇️ Move | C Interact | R Rewards | I Inventory | PgUp/PgDn Scroll';
 
-        // Create modern footer background with gradient
-        const footerHeight = isMobile ? 35 : 45;
+        // Create enhanced dialog-style footer background
+        const footerHeight = isMobile ? 30 : 45;
+        const footerY = this.scale.height - footerHeight;
+        
+        // Create enhanced dialog-style background
         const footerGraphics = this.add.graphics();
         
-        UIHelpers.createGradientFill(
-            footerGraphics,
-            0,
-            this.scale.height - footerHeight,
-            this.scale.width,
-            footerHeight,
-            modernUITheme.gradients.dark,
-            true
+        // Enhanced gradient background matching dialog aesthetic
+        footerGraphics.fillGradientStyle(
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+            0.98
         );
         
-        // Add subtle top border
-        footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
-        footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
-
-        const footerBg = this.add.rectangle(
-            0,
-            this.scale.height - footerHeight,
-            this.scale.width,
-            footerHeight,
-            UIHelpers.hexToNumber(modernUITheme.colors.background.secondary),
-            0.9
-        )
-        .setOrigin(0)
-        .setScrollFactor(0)
-        .setDepth(999);
+        footerGraphics.fillRoundedRect(0, footerY, this.scale.width, footerHeight, 
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Enhanced border with accent color
+        footerGraphics.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+            UIHelpers.hexToNumber(modernUITheme.colors.accent),
+            0.8
+        );
+        footerGraphics.strokeRoundedRect(0, footerY, this.scale.width, footerHeight,
+            UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+        
+        // Add subtle inner glow
+        footerGraphics.lineStyle(
+            UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+            UIHelpers.hexToNumber('#ffffff'),
+            0.3
+        );
+        footerGraphics.strokeRoundedRect(2, footerY + 2, this.scale.width - 4, footerHeight - 4,
+            UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
 
         // Create modern instructions text
         const instructionsText = this.add.text(
             this.scale.width / 2,
-            this.scale.height - (footerHeight / 2),
+            footerY + (footerHeight / 2),
             instructions,
             {
-                fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.sm),
+                fontSize: UIHelpers.getResponsiveFontSize(isMobile, isMobile ? '11px' : modernUITheme.typography.fontSize.sm),
                 fontFamily: modernUITheme.typography.fontFamily.primary,
                 color: modernUITheme.colors.text.secondary,
                 align: 'center',
@@ -592,10 +874,13 @@ export default class UIScene extends Phaser.Scene {
         .setScrollFactor(0)
         .setDepth(1000);
 
-        this.uiContainer.add([footerGraphics, footerBg, instructionsText]);
+        // Set proper depths for footer elements
+        footerGraphics.setDepth(998);
+        instructionsText.setDepth(1000);
+        
+        this.uiContainer.add([footerGraphics, instructionsText]);
 
         // Store footer elements for resize handling
-        this.footerBg = footerBg;
         this.footerText = instructionsText;
         this.footerGraphics = footerGraphics;
 
@@ -603,32 +888,65 @@ export default class UIScene extends Phaser.Scene {
         this.updateLayout = () => {
             const isMobile = this.scale.width < 768;
             const panelHeight = isMobile ? 70 : 50;
-            const footerHeight = isMobile ? 35 : 45;
+            const footerHeight = isMobile ? 30 : 45;
+            const footerY = this.scale.height - footerHeight;
             
             // Update background panel
-            this.backgroundPanel.setSize(this.scale.width, panelHeight);
+            // Header background is now part of the UI panel
             
-            // Reposition header buttons
-            this.repositionHeaderButtons();
+            // Reposition header buttons or mobile menu
+            if (isMobile) {
+                if (this.mobileMenuButton) {
+                    this.mobileMenuButton.setPosition(this.scale.width - 40, panelHeight / 2);
+                }
+            } else {
+                this.repositionHeaderButtons();
+            }
             
             // Update footer
-            this.footerBg.setPosition(0, this.scale.height - footerHeight)
-                .setDisplaySize(this.scale.width, footerHeight);
-            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (footerHeight / 2));
-            
-            // Update footer graphics
+            // Clear and recreate footer graphics with new dimensions
             this.footerGraphics.clear();
-            UIHelpers.createGradientFill(
-                this.footerGraphics,
-                0,
-                this.scale.height - footerHeight,
-                this.scale.width,
-                footerHeight,
-                modernUITheme.gradients.dark,
-                true
+            
+            // Enhanced gradient background matching dialog aesthetic
+            this.footerGraphics.fillGradientStyle(
+                UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+                0.98
             );
-            this.footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
-            this.footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
+            
+            this.footerGraphics.fillRoundedRect(0, footerY, this.scale.width, footerHeight, 
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+            
+            // Enhanced border with accent color
+            this.footerGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+                UIHelpers.hexToNumber(modernUITheme.colors.accent),
+                0.8
+            );
+            this.footerGraphics.strokeRoundedRect(0, footerY, this.scale.width, footerHeight,
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+            
+            // Add subtle inner glow
+            this.footerGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+                UIHelpers.hexToNumber('#ffffff'),
+                0.3
+            );
+            this.footerGraphics.strokeRoundedRect(2, footerY + 2, this.scale.width - 4, footerHeight - 4,
+                UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
+                
+            this.footerText.setPosition(this.scale.width / 2, footerY + (footerHeight / 2))
+                .setStyle({
+                    fontSize: UIHelpers.getResponsiveFontSize(isMobile, isMobile ? '11px' : modernUITheme.typography.fontSize.sm),
+                    fontFamily: modernUITheme.typography.fontFamily.primary,
+                    color: modernUITheme.colors.text.secondary,
+                    align: 'center'
+                })
+                .setText(isMobile ? 
+                    'Tap NPCs to learn • Session Rewards • Your Items' :
+                    'WASD/⬅️➡️⬆️⬇️ Move | C Interact | R Rewards | I Inventory | PgUp/PgDn Scroll');
         };
     }
 
@@ -636,32 +954,70 @@ export default class UIScene extends Phaser.Scene {
         const isMobile = this.scale.width < 768;
         const panelHeight = isMobile ? 70 : 50;
         
-        // Update background panel
-        this.backgroundPanel.setSize(this.scale.width, panelHeight);
-        
-        // Reposition header buttons on resize
-        this.repositionHeaderButtons();
+        // Handle mobile vs desktop layout
+        if (isMobile) {
+            // Update mobile menu button position
+            if (this.mobileMenuButton) {
+                this.mobileMenuButton.setPosition(this.scale.width - 40, panelHeight / 2);
+            }
+            
+            // Update mobile menu panel position
+            if (this.mobileMenuPanel && this.isMobileMenuOpen) {
+                this.mobileMenuPanel.setX(this.scale.width - Math.min(250, this.scale.width * 0.8));
+            }
+        } else {
+            // Update desktop header buttons
+            this.repositionHeaderButtons();
+        }
         
         // Update footer if it exists
-        if (this.footerBg && this.footerText && this.footerGraphics) {
-            const footerHeight = isMobile ? 35 : 45;
-            this.footerBg.setPosition(0, this.scale.height - footerHeight)
-                .setDisplaySize(this.scale.width, footerHeight);
-            this.footerText.setPosition(this.scale.width / 2, this.scale.height - (footerHeight / 2));
+        if (this.footerText && this.footerGraphics) {
+            const footerHeight = isMobile ? 30 : 45;
+            const footerY = this.scale.height - footerHeight;
             
-            // Update footer graphics
+            // Clear and recreate footer graphics with new dimensions
             this.footerGraphics.clear();
-            UIHelpers.createGradientFill(
-                this.footerGraphics,
-                0,
-                this.scale.height - footerHeight,
-                this.scale.width,
-                footerHeight,
-                modernUITheme.gradients.dark,
-                true
+            
+            // Enhanced gradient background matching dialog aesthetic
+            this.footerGraphics.fillGradientStyle(
+                UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.card),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+                UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
+                0.98
             );
-            this.footerGraphics.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.3);
-            this.footerGraphics.strokeRect(0, this.scale.height - footerHeight, this.scale.width, 1);
+            
+            this.footerGraphics.fillRoundedRect(0, footerY, this.scale.width, footerHeight, 
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+            
+            // Enhanced border with accent color
+            this.footerGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 3, 2),
+                UIHelpers.hexToNumber(modernUITheme.colors.accent),
+                0.8
+            );
+            this.footerGraphics.strokeRoundedRect(0, footerY, this.scale.width, footerHeight,
+                UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
+            
+            // Add subtle inner glow
+            this.footerGraphics.lineStyle(
+                UIHelpers.getResponsiveSpacing(isMobile, 1, 1),
+                UIHelpers.hexToNumber('#ffffff'),
+                0.3
+            );
+            this.footerGraphics.strokeRoundedRect(2, footerY + 2, this.scale.width - 4, footerHeight - 4,
+                UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
+                
+            this.footerText.setPosition(this.scale.width / 2, footerY + (footerHeight / 2))
+                .setStyle({
+                    fontSize: UIHelpers.getResponsiveFontSize(isMobile, isMobile ? '11px' : modernUITheme.typography.fontSize.sm),
+                    fontFamily: modernUITheme.typography.fontFamily.primary,
+                    color: modernUITheme.colors.text.secondary,
+                    align: 'center'
+                })
+                .setText(isMobile ? 
+                    'Tap NPCs to learn • Session Rewards • Your Items' :
+                    'WASD/⬅️➡️⬆️⬇️ Move | C Interact | R Rewards | I Inventory | PgUp/PgDn Scroll');
         }
     }
     
@@ -856,6 +1212,22 @@ export default class UIScene extends Phaser.Scene {
             }
         } catch (e) {
             console.warn('⚠️ UIScene: Error cleaning up keyboard listeners', e);
+        }
+        
+        // Clean up mobile-specific elements
+        try {
+            if (this.scale) {
+                this.scale.off('orientationchange', this.handleOrientationChange, this);
+            }
+            
+            // Clean up mobile touch controls
+            if ((this as any).mobileMoveArea) {
+                (this as any).mobileMoveArea.destroy();
+                (this as any).mobileMoveIndicator.destroy();
+                (this as any).mobileMoveText.destroy();
+            }
+        } catch (e) {
+            console.warn('⚠️ UIScene: Error cleaning up mobile-specific elements', e);
         }
         
         // Clean up UI elements

@@ -7,162 +7,194 @@
     {
       "question": "Common phishing technique?",
       "options": ["Fake airdrop links", "Validating transactions", "Using hardware wallet"],
-      "answer": "Fake airdrop links"
+      "answer": "Fake airdrop links",
+      "explainer": "Fake airdrop links trick users into connecting wallets to malicious sites that steal funds or private keys."
     },
     {
       "question": "What is hardware wallet?",
       "options": ["Software wallet", "Physical key storage", "Browser extension"],
-      "answer": "Physical key storage"
+      "answer": "Physical key storage",
+      "explainer": "Hardware wallets are physical devices that store private keys offline, providing maximum security against online threats."
     },
     {
       "question": "What is seed phrase?",
       "options": ["Password", "12-24 word backup", "Transaction hash"],
-      "answer": "12-24 word backup"
+      "answer": "12-24 word backup",
+      "explainer": "Seed phrases are 12-24 word backups that can restore your entire wallet and all associated private keys."
     },
     {
       "question": "Never share seed phrase?",
       "options": ["Not important", "Funds get stolen", "Public information"],
-      "answer": "Funds get stolen"
+      "answer": "Funds get stolen",
+      "explainer": "Sharing seed phrases allows anyone to access and steal all funds from your wallet permanently and irreversibly."
     },
     {
       "question": "What is rug pull?",
       "options": ["NFT type", "Scam artist trick", "Decentralized exchange"],
-      "answer": "Scam artist trick"
+      "answer": "Scam artist trick",
+      "explainer": "Rug pulls occur when project creators abandon projects and disappear with investor funds, leaving worthless tokens."
     },
     {
       "question": "Smart contract audit?",
       "options": ["Code vulnerability review", "Cryptocurrency type", "Legal document"],
-      "answer": "Code vulnerability review"
+      "answer": "Code vulnerability review",
+      "explainer": "Smart contract audits are security reviews that identify vulnerabilities and bugs before deployment to prevent exploits."
     },
     {
       "question": "What is gas?",
       "options": ["Fuel type", "Transaction fee", "Measurement unit"],
-      "answer": "Transaction fee"
+      "answer": "Transaction fee",
+      "explainer": "Gas represents transaction fees paid to blockchain validators for processing and executing operations on the network."
     },
     {
       "question": "Transaction signing?",
       "options": ["Approve with private key", "Sending transaction", "Cancelling transaction"],
-      "answer": "Approve with private key"
+      "answer": "Approve with private key",
+      "explainer": "Transaction signing uses your private key to cryptographically approve and authorize blockchain transactions securely."
     },
     {
       "question": "Multi-signature wallet?",
       "options": ["One key wallet", "Multiple approval wallet", "Paper wallet"],
-      "answer": "Multiple approval wallet"
+      "answer": "Multiple approval wallet",
+      "explainer": "Multi-signature wallets require multiple private key approvals for transactions, increasing security and shared control."
     },
     {
       "question": "Honeypot contract?",
       "options": ["Secure contract", "Fake vulnerable trap", "Hackers attractor"],
-      "answer": "Fake vulnerable trap"
+      "answer": "Fake vulnerable trap",
+      "explainer": "Honeypot contracts appear vulnerable but trap attackers, often used to detect malicious actors or as scams."
     },
     {
       "question": "Replay attack?",
       "options": ["Replaying on chain", "Attacking contract", "Stealing NFTs"],
-      "answer": "Replaying on chain"
+      "answer": "Replaying on chain",
+      "explainer": "Replay attacks reuse valid transactions on different chains or contexts to unauthorized duplicate operations."
     },
     {
       "question": "51% attack?",
       "options": ["Hashrate majority control", "Stealing 51% funds", "Phishing attack"],
-      "answer": "Hashrate majority control"
+      "answer": "Hashrate majority control",
+      "explainer": "51% attacks occur when someone controls majority mining power, potentially enabling double-spending and chain reorganization."
     },
     {
       "question": "What is a DAO?",
       "options": ["Decentralized Organization", "Decentralized Application", "Digital Art Object"],
-      "answer": "Decentralized Organization"
+      "answer": "Decentralized Organization",
+      "explainer": "DAOs are decentralized autonomous organizations governed by smart contracts and community voting without central authority."
     },
     {
       "question": "What is DeFi?",
       "options": ["Decentralized Finance", "Digital Finance", "Data Finance"],
-      "answer": "Decentralized Finance"
+      "answer": "Decentralized Finance",
+      "explainer": "DeFi provides financial services like lending, borrowing, and trading using smart contracts without traditional banks."
     },
     {
       "question": "What is an NFT?",
       "options": ["Non-Fungible Token", "New Financial Tech", "Network File Transfer"],
-      "answer": "Non-Fungible Token"
+      "answer": "Non-Fungible Token",
+      "explainer": "NFTs are unique digital tokens representing ownership of specific digital or physical assets on blockchain networks."
     },
     {
       "question": "What is blockchain?",
       "options": ["Database type", "Cryptocurrency", "Smart contract"],
-      "answer": "Database type"
+      "answer": "Database type",
+      "explainer": "Blockchain is a distributed database that maintains a secure, immutable ledger of transactions across multiple computers."
     },
     {
       "question": "Private key?",
       "options": ["Public address", "Secret fund code", "Transaction hash"],
-      "answer": "Secret fund code"
+      "answer": "Secret fund code",
+      "explainer": "Private keys are secret codes that prove ownership and enable spending of cryptocurrency funds, must never be shared."
     },
     {
       "question": "Public key?",
       "options": ["Private address", "Receive funds address", "Seed phrase"],
-      "answer": "Receive funds address"
+      "answer": "Receive funds address",
+      "explainer": "Public keys generate wallet addresses where others can send you cryptocurrency, safe to share publicly."
     },
     {
       "question": "Web3 wallet?",
       "options": ["Physical wallet", "Digital crypto manager", "Bank account"],
-      "answer": "Digital crypto manager"
+      "answer": "Digital crypto manager",
+      "explainer": "Web3 wallets manage cryptocurrencies and interact with decentralized applications, storing keys and signing transactions."
     },
     {
       "question": "What is a dApp?",
       "options": ["Decentralized App", "Digital Application", "Data Application"],
-      "answer": "Decentralized App"
+      "answer": "Decentralized App",
+      "explainer": "dApps are decentralized applications running on blockchain networks without central servers or single points of failure."
     },
     {
       "question": "Gas limit?",
       "options": ["Max gas willing spend", "Min gas must spend", "Average gas price"],
-      "answer": "Max gas willing spend"
+      "answer": "Max gas willing spend",
+      "explainer": "Gas limit sets the maximum amount of gas you're willing to spend on a transaction to prevent excessive fees."
     },
     {
       "question": "Transaction hash?",
       "options": ["Unique transaction ID", "Seed phrase", "Private key"],
-      "answer": "Unique transaction ID"
+      "answer": "Unique transaction ID",
+      "explainer": "Transaction hashes are unique identifiers that allow you to track and verify specific transactions on the blockchain."
     },
     {
       "question": "Block explorer?",
       "options": ["View blockchain txns", "Cryptocurrency type", "Web browser"],
-      "answer": "View blockchain txns"
+      "answer": "View blockchain txns",
+      "explainer": "Block explorers are websites that allow you to search and view transactions, addresses, and blocks on blockchains."
     },
     {
       "question": "What is KYC?",
       "options": ["Know Your Customer", "Keep Your Coins", "Key Your Code"],
-      "answer": "Know Your Customer"
+      "answer": "Know Your Customer",
+      "explainer": "KYC requires identity verification to comply with regulations and prevent money laundering in financial services."
     },
     {
       "question": "What is AML?",
       "options": ["Anti-Money Laundering", "Automated Machine Learning", "Advanced Malware Locator"],
-      "answer": "Anti-Money Laundering"
+      "answer": "Anti-Money Laundering",
+      "explainer": "AML policies detect and prevent money laundering activities in financial institutions and cryptocurrency exchanges."
     },
     {
       "question": "Cold wallet?",
       "options": ["Hot wallet", "Hardware wallet", "Paper wallet"],
-      "answer": "Hardware wallet"
+      "answer": "Hardware wallet",
+      "explainer": "Cold wallets store private keys offline in hardware devices, providing maximum security against online threats."
     },
     {
       "question": "Hot wallet?",
       "options": ["Cold wallet", "Online software wallet", "Paper wallet"],
-      "answer": "Online software wallet"
+      "answer": "Online software wallet",
+      "explainer": "Hot wallets are connected to the internet for convenience but have higher security risks than cold storage."
     },
     {
       "question": "What is mempool?",
       "options": ["Pending txns waiting", "Cryptocurrency type", "Smart contract"],
-      "answer": "Pending txns waiting"
+      "answer": "Pending txns waiting",
+      "explainer": "Mempool contains pending transactions waiting to be confirmed and included in the next blockchain block."
     },
     {
       "question": "What is fork?",
       "options": ["Spoon type", "Protocol change", "Cryptocurrency exchange"],
-      "answer": "Protocol change"
+      "answer": "Protocol change",
+      "explainer": "Forks are protocol changes that create new blockchain versions, either compatible (soft) or incompatible (hard) updates."
     },
     {
       "question": "Sidechain?",
       "options": ["Layer 2 solution", "Alternative blockchain", "Cryptocurrency type"],
-      "answer": "Alternative blockchain"
+      "answer": "Alternative blockchain",
+      "explainer": "Sidechains are separate blockchains that connect to main chains, enabling asset transfers and additional features."
     },
     {
       "question": "Testnet?",
       "options": ["Mainnet", "Testing blockchain", "Cryptocurrency exchange"],
-      "answer": "Testing blockchain"
+      "answer": "Testing blockchain",
+      "explainer": "Testnets are separate blockchain networks for testing applications and features without risking real cryptocurrency."
     },
     {
       "question": "Mainnet?",
       "options": ["Testnet", "Main blockchain", "Cryptocurrency exchange"],
-      "answer": "Main blockchain"
+      "answer": "Main blockchain",
+      "explainer": "Mainnet is the primary blockchain network where real transactions occur with actual cryptocurrency value and consequences."
     }
   ]
 }

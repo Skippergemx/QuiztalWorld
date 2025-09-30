@@ -267,7 +267,7 @@ export default class MrRugPull extends WalkingNPC {
         difficulty: currentQuestion.difficulty,
         question: currentQuestion.question,
         options: currentQuestion.options,
-        explainer: currentQuestion.explanation,
+        explainer: currentQuestion.explanation, // Pass the explanation as explainer
         questionNumber: 1,
         totalQuestions: 1,
         onAnswer: (selectedAnswer: string) => this.handleEnhancedAnswer(selectedAnswer, currentQuestion, player),

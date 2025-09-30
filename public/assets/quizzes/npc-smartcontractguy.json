@@ -11,7 +11,8 @@
         "A legal document stored digitally",
         "A type of cryptocurrency wallet"
       ],
-      "answer": "Self-executing code on the blockchain"
+      "answer": "Self-executing code on the blockchain",
+      "explainer": "Smart contracts are self-executing programs on blockchain that automatically enforce agreements without intermediaries."
     },
     {
       "question": "Which programming language is commonly used for Ethereum smart contracts?",
@@ -20,7 +21,8 @@
         "JavaScript",
         "Python"
       ],
-      "answer": "Solidity"
+      "answer": "Solidity",
+      "explainer": "Solidity is the primary programming language for Ethereum smart contracts, designed specifically for blockchain development."
     },
     {
       "question": "What does 'gas' refer to in smart contract execution?",
@@ -29,7 +31,8 @@
         "The speed of the blockchain network",
         "The amount of storage used"
       ],
-      "answer": "The computational fee for executing operations"
+      "answer": "The computational fee for executing operations",
+      "explainer": "Gas measures computational work required for operations, preventing infinite loops and compensating network validators."
     },
     {
       "question": "What happens when a smart contract is deployed to the blockchain?",
@@ -38,7 +41,8 @@
         "It can be easily modified by the owner",
         "It automatically gets deleted after use"
       ],
-      "answer": "It becomes immutable and permanently stored"
+      "answer": "It becomes immutable and permanently stored",
+      "explainer": "Deployed contracts become immutable and permanent, ensuring code cannot be changed and creating trust through transparency."
     },
     {
       "question": "What is the main advantage of smart contracts over traditional contracts?",
@@ -47,7 +51,8 @@
         "They cost less to create",
         "They can be written in any language"
       ],
-      "answer": "Automatic execution without intermediaries"
+      "answer": "Automatic execution without intermediaries",
+      "explainer": "Smart contracts execute automatically when conditions are met, eliminating need for lawyers, banks, or other intermediaries."
     },
     {
       "question": "What is an ERC-20 token?",
@@ -56,7 +61,8 @@
         "A type of NFT",
         "A smart contract programming language"
       ],
-      "answer": "A standard for fungible tokens on Ethereum"
+      "answer": "A standard for fungible tokens on Ethereum",
+      "explainer": "ERC-20 defines standard functions for fungible tokens, ensuring compatibility across wallets, exchanges, and applications."
     },
     {
       "question": "What is a constructor in Solidity?",
@@ -65,7 +71,8 @@
         "A function that destroys the contract",
         "A function that updates contract code"
       ],
-      "answer": "A function that runs once when the contract is deployed"
+      "answer": "A function that runs once when the contract is deployed",
+      "explainer": "Constructor initializes contract state when deployed, setting initial values and configuration parameters."
     },
     {
       "question": "What is a modifier in Solidity?",
@@ -74,7 +81,8 @@
         "A type of variable",
         "A smart contract deployment tool"
       ],
-      "answer": "Code that can be reused to change function behavior"
+      "answer": "Code that can be reused to change function behavior",
+      "explainer": "Modifiers add reusable logic to functions, commonly used for access control, validation, and security checks."
     },
     {
       "question": "What is the purpose of the 'require' statement in Solidity?",
@@ -83,7 +91,8 @@
         "To import external libraries",
         "To declare variables"
       ],
-      "answer": "To validate conditions and revert if false"
+      "answer": "To validate conditions and revert if false",
+      "explainer": "Require statements validate conditions and revert transactions with error messages if conditions fail, ensuring security."
     },
     {
       "question": "What is a fallback function in Solidity?",
@@ -92,7 +101,8 @@
         "A function that handles errors",
         "A function that backs up data"
       ],
-      "answer": "A function called when no other function matches"
+      "answer": "A function called when no other function matches",
+      "explainer": "Fallback functions execute when contract receives calls to non-existent functions or plain Ether transfers."
     },
     {
       "question": "What is reentrancy in smart contracts?",
@@ -101,7 +111,8 @@
         "A method to optimize gas usage",
         "A way to upgrade contracts"
       ],
-      "answer": "A vulnerability where a function calls itself recursively"
+      "answer": "A vulnerability where a function calls itself recursively",
+      "explainer": "Reentrancy attacks exploit external calls to recursively call functions before state updates, draining contract funds."
     },
     {
       "question": "What is the difference between 'view' and 'pure' functions?",
@@ -110,7 +121,8 @@
         "View modifies state, pure reads state",
         "They are exactly the same"
       ],
-      "answer": "View reads state, pure doesn't read or modify state"
+      "answer": "View reads state, pure doesn't read or modify state",
+      "explainer": "View functions read blockchain state without modifying it, pure functions don't read or modify any state variables."
     },
     {
       "question": "What is a struct in Solidity?",
@@ -119,7 +131,8 @@
         "A type of smart contract",
         "A gas optimization technique"
       ],
-      "answer": "A custom data type that groups variables"
+      "answer": "A custom data type that groups variables",
+      "explainer": "Structs define custom data types that group related variables together, organizing complex data efficiently."
     },
     {
       "question": "What is an event in Solidity?",
@@ -128,7 +141,8 @@
         "A function that runs automatically",
         "A type of error handling"
       ],
-      "answer": "A way to log data that external applications can listen to"
+      "answer": "A way to log data that external applications can listen to",
+      "explainer": "Events emit logged data to blockchain that external applications can monitor for contract state changes."
     },
     {
       "question": "What is the 'payable' keyword used for?",
@@ -137,7 +151,8 @@
         "To make a function cost gas",
         "To mark a function as expensive"
       ],
-      "answer": "To allow a function to receive Ether"
+      "answer": "To allow a function to receive Ether",
+      "explainer": "Payable functions can receive Ether transfers, enabling contracts to accept and handle cryptocurrency payments."
     },
     {
       "question": "What is a mapping in Solidity?",
@@ -146,7 +161,8 @@
         "A function that converts data types",
         "A way to deploy contracts"
       ],
-      "answer": "A key-value data structure"
+      "answer": "A key-value data structure",
+      "explainer": "Mappings store key-value pairs efficiently, commonly used for balances, permissions, and data lookups in contracts."
     },
     {
       "question": "What is the difference between 'memory' and 'storage' in Solidity?",
@@ -155,7 +171,8 @@
         "Memory is permanent, storage is temporary",
         "They are the same thing"
       ],
-      "answer": "Memory is temporary, storage is permanent"
+      "answer": "Memory is temporary, storage is permanent",
+      "explainer": "Memory variables exist temporarily during function execution, storage variables persist permanently on blockchain."
     },
     {
       "question": "What is an interface in Solidity?",
@@ -164,7 +181,8 @@
         "A user interface for smart contracts",
         "A type of inheritance"
       ],
-      "answer": "A contract that defines function signatures without implementation"
+      "answer": "A contract that defines function signatures without implementation",
+      "explainer": "Interfaces define function signatures without implementation, enabling contracts to interact with external contracts."
     },
     {
       "question": "What is inheritance in Solidity?",
@@ -173,7 +191,8 @@
         "A method to transfer ownership",
         "A gas optimization technique"
       ],
-      "answer": "A way for contracts to derive properties from other contracts"
+      "answer": "A way for contracts to derive properties from other contracts",
+      "explainer": "Inheritance allows contracts to inherit functions and variables from parent contracts, promoting code reuse."
     },
     {
       "question": "What is a library in Solidity?",
@@ -182,7 +201,8 @@
         "A collection of smart contracts",
         "A type of database"
       ],
-      "answer": "Reusable code that can be deployed once and used by multiple contracts"
+      "answer": "Reusable code that can be deployed once and used by multiple contracts",
+      "explainer": "Libraries contain reusable functions deployed once and linked to multiple contracts, reducing deployment costs."
     },
     {
       "question": "What is the 'selfdestruct' function?",
@@ -191,7 +211,8 @@
         "A function that backs up contract data",
         "A function that pauses contract execution"
       ],
-      "answer": "A function that destroys a contract and sends remaining Ether"
+      "answer": "A function that destroys a contract and sends remaining Ether",
+      "explainer": "Selfdestruct permanently removes contract code from blockchain and sends remaining Ether to designated address."
     },
     {
       "question": "What is a proxy pattern in smart contracts?",
@@ -200,7 +221,8 @@
         "A security feature to hide contract code",
         "A method to reduce gas costs"
       ],
-      "answer": "A way to upgrade smart contracts while keeping the same address"
+      "answer": "A way to upgrade smart contracts while keeping the same address",
+      "explainer": "Proxy patterns enable contract upgrades by separating logic and storage, maintaining same address for users."
     },
     {
       "question": "What is the diamond pattern?",
@@ -209,7 +231,8 @@
         "A type of NFT design",
         "A consensus mechanism"
       ],
-      "answer": "A modular smart contract architecture pattern"
+      "answer": "A modular smart contract architecture pattern",
+      "explainer": "Diamond pattern creates modular contracts with multiple facets, enabling complex upgradeable architectures."
     },
     {
       "question": "What is a factory pattern in smart contracts?",
@@ -218,7 +241,8 @@
         "A manufacturing smart contract",
         "A pattern for optimizing gas"
       ],
-      "answer": "A contract that creates other contracts"
+      "answer": "A contract that creates other contracts",
+      "explainer": "Factory contracts deploy new contract instances programmatically, enabling scalable contract creation patterns."
     },
     {
       "question": "What is OpenZeppelin?",
@@ -227,7 +251,8 @@
         "A blockchain network",
         "A development IDE"
       ],
-      "answer": "A library of secure smart contract templates"
+      "answer": "A library of secure smart contract templates",
+      "explainer": "OpenZeppelin provides battle-tested smart contract libraries and security tools for safe blockchain development."
     },
     {
       "question": "What is Truffle?",
@@ -236,7 +261,8 @@
         "A type of cryptocurrency",
         "A smart contract language"
       ],
-      "answer": "A development framework for Ethereum"
+      "answer": "A development framework for Ethereum",
+      "explainer": "Truffle provides comprehensive development suite with compilation, deployment, and testing tools for Ethereum projects."
     },
     {
       "question": "What is Hardhat?",
@@ -245,7 +271,8 @@
         "A type of wallet",
         "A consensus algorithm"
       ],
-      "answer": "An Ethereum development environment"
+      "answer": "An Ethereum development environment",
+      "explainer": "Hardhat offers advanced Ethereum development environment with debugging, testing, and deployment capabilities."
     },
     {
       "question": "What is Web3.js?",
@@ -254,7 +281,8 @@
         "A web browser for dApps",
         "A smart contract programming language"
       ],
-      "answer": "A JavaScript library for interacting with Ethereum"
+      "answer": "A JavaScript library for interacting with Ethereum",
+      "explainer": "Web3.js enables JavaScript applications to interact with Ethereum blockchain, sending transactions and reading data."
     },
     {
       "question": "What is an oracle in blockchain?",
@@ -263,7 +291,8 @@
         "A type of smart contract",
         "A blockchain validator"
       ],
-      "answer": "A service that provides external data to smart contracts"
+      "answer": "A service that provides external data to smart contracts",
+      "explainer": "Oracles bridge blockchain and real world by providing external data like prices, weather, and events to contracts."
     },
     {
       "question": "What is a decentralized exchange (DEX)?",
@@ -272,7 +301,8 @@
         "A centralized trading platform",
         "A type of cryptocurrency"
       ],
-      "answer": "A trading platform built on smart contracts"
+      "answer": "A trading platform built on smart contracts",
+      "explainer": "DEXs use smart contracts for automated trading without centralized control, enabling peer-to-peer token exchanges."
     },
     {
       "question": "What is yield farming?",
@@ -281,7 +311,8 @@
         "Mining cryptocurrency",
         "Creating NFTs"
       ],
-      "answer": "Earning rewards by providing liquidity to DeFi protocols"
+      "answer": "Earning rewards by providing liquidity to DeFi protocols",
+      "explainer": "Yield farming involves providing tokens to DeFi protocols to earn rewards, fees, and governance tokens as incentives."
     },
     {
       "question": "What is a liquidity pool?",
@@ -290,7 +321,8 @@
         "A storage system for cryptocurrencies",
         "A type of mining pool"
       ],
-      "answer": "A smart contract holding tokens for decentralized trading"
+      "answer": "A smart contract holding tokens for decentralized trading",
+      "explainer": "Liquidity pools are smart contracts containing token pairs that enable automated trading and provide market liquidity."
     }
   ]
 }

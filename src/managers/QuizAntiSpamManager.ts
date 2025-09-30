@@ -86,35 +86,32 @@ export class QuizAntiSpamManager {
   }
 
   private blockInteractions() {
-    console.log("QuizAntiSpamManager: Blocking interactions");
-    
-    // Remove pointer down listeners from NPCs
+    // Only block new NPC interactions, not existing dialog interactions
+    // The quiz dialog should still be interactive while preventing new quiz starts
     this.blockedInteractions = 0;
     this.npcInstances.forEach((npc, index) => {
-      if (npc.input && npc.input.enabled) {
-        npc.input.enabled = false;
+      // Store original pointerdown handler instead of disabling all input
+      if (npc.listeners && npc.listeners('pointerdown').length > 0) {
+        // Mark NPC as blocked but don't disable input entirely
+        npc._quizBlocked = true;
         this.blockedInteractions++;
-        console.log(`QuizAntiSpamManager: Disabled input for NPC ${index}`);
       }
     });
     
-    console.log(`QuizAntiSpamManager: Blocked ${this.blockedInteractions} interactions`);
+    console.log(`QuizAntiSpamManager: Blocked ${this.blockedInteractions} NPC interactions`);
   }
 
   private unblockInteractions() {
     // Only unblock if neither quiz nor dialog is active
     if (!this.isQuizActive && !this.isDialogOpen) {
-      console.log("QuizAntiSpamManager: Unblocking interactions");
-      
-      // Restore pointer down listeners on NPCs
+      // Restore NPC interactions
       this.npcInstances.forEach((npc, index) => {
-        if (npc.input) {
-          npc.input.enabled = true;
-          console.log(`QuizAntiSpamManager: Enabled input for NPC ${index}`);
+        if (npc._quizBlocked) {
+          npc._quizBlocked = false;
         }
       });
       
-      console.log("QuizAntiSpamManager: Unblocked interactions");
+      console.log("QuizAntiSpamManager: Unblocked NPC interactions");
       this.blockedInteractions = 0;
     } else {
       console.log("QuizAntiSpamManager: Not unblocking interactions - quiz or dialog still active");

@@ -7,217 +7,260 @@
     {
       "question": "What is Mint Club?",
       "options": ["A new dance move", "A bonding curve platform", "A candy store"],
-      "answer": "A bonding curve platform"
+      "answer": "A bonding curve platform",
+      "explainer": "Mint Club is a bonding curve platform that enables fair, mathematical token launches without pre-mines or rug pull risks."
     },
     {
       "question": "What can you do with Quiztals?",
       "options": ["Throw them at people", "Eat them for breakfast", "Stake them for rewards"],
-      "answer": "Stake them for rewards"
+      "answer": "Stake them for rewards",
+      "explainer": "Quiztals can be staked to earn rewards through revenue sharing in the Mint Club ecosystem, generating passive income."
     },
     {
       "question": "Quiztals will become...?",
       "options": ["A comic book hero", "On-chain tokens", "NFT Art masterpiece"],
-      "answer": "On-chain tokens"
+      "answer": "On-chain tokens",
+      "explainer": "Quiztals will transition from off-chain rewards to on-chain tokens, enabling true DeFi integration and trading."
     },
     {
       "question": "What does Mint Club use?",
       "options": ["Fixed supply", "Random minting", "Bonding curves magic"],
-      "answer": "Bonding curves magic"
+      "answer": "Bonding curves magic",
+      "explainer": "Bonding curves automatically adjust token prices based on supply and demand using mathematical formulas for fair pricing."
     },
     {
       "question": "What can you create?",
       "options": ["Only boring NFTs", "Token & NFT magic", "Only games"],
-      "answer": "Token & NFT magic"
+      "answer": "Token & NFT magic",
+      "explainer": "Mint Club allows creation of both tokens and NFTs with bonding curve pricing, enabling diverse digital asset launches."
     },
     {
       "question": "What's special about tokens?",
       "options": ["Auto price discovery", "Fixed prices", "Manual pricing"],
-      "answer": "Auto price discovery"
+      "answer": "Auto price discovery",
+      "explainer": "Tokens automatically discover their fair market price through bonding curves, eliminating manipulation and ensuring transparency."
     },
     {
       "question": "How does Mint Club protect?",
       "options": ["Smart contract locks", "Trust system", "Manual verification"],
-      "answer": "Smart contract locks"
+      "answer": "Smart contract locks",
+      "explainer": "Smart contracts automatically lock liquidity and enforce fair trading rules, preventing rug pulls and protecting investors."
     },
     {
       "question": "What's Mint Club's token model?",
       "options": ["Fair launch curves", "ICO", "Airdrop only"],
-      "answer": "Fair launch curves"
+      "answer": "Fair launch curves",
+      "explainer": "Fair launch curves ensure everyone pays the same price based on timing, eliminating pre-sales and insider advantages."
     },
     {
       "question": "How are tokens priced?",
       "options": ["By mathematics", "By voting", "By admins"],
-      "answer": "By mathematics"
+      "answer": "By mathematics",
+      "explainer": "Mathematical bonding curve formulas determine prices automatically, ensuring fair and predictable token valuation."
     },
     {
       "question": "What's unique about launches?",
       "options": ["No pre-mines", "Huge pre-mines", "Manual distribution"],
-      "answer": "No pre-mines"
+      "answer": "No pre-mines",
+      "explainer": "Zero pre-mined tokens ensure all participants start equally, preventing unfair advantages for developers or insiders."
     },
     {
       "question": "How to prevent rug pulls?",
       "options": ["Locked liquidity", "Trust badges", "Community voting"],
-      "answer": "Locked liquidity"
+      "answer": "Locked liquidity",
+      "explainer": "Locked liquidity in smart contracts prevents developers from draining funds, providing guaranteed exit liquidity for investors."
     },
     {
       "question": "What can you stake?",
       "options": ["Only NFTs", "MINT tokens", "Only ETH"],
-      "answer": "MINT tokens"
+      "answer": "MINT tokens",
+      "explainer": "MINT tokens can be staked to earn revenue sharing from platform fees, providing passive income to token holders."
     },
     {
       "question": "What's the core feature?",
       "options": ["Gaming", "Social media", "Token creation"],
-      "answer": "Token creation"
+      "answer": "Token creation",
+      "explainer": "Token creation is the core feature, enabling anyone to launch fair, bonding curve-powered tokens without technical expertise."
     },
     {
       "question": "How does pricing work?",
       "options": ["Manual setting", "Random generation", "Automatic curves"],
-      "answer": "Automatic curves"
+      "answer": "Automatic curves",
+      "explainer": "Automatic bonding curves adjust prices as tokens are bought or sold, ensuring fair price discovery without manipulation."
     },
     {
       "question": "What's the approach to fairness?",
       "options": ["Manual oversight", "Community votes", "Mathematical rules"],
-      "answer": "Mathematical rules"
+      "answer": "Mathematical rules",
+      "explainer": "Mathematical rules encoded in smart contracts ensure fairness automatically, eliminating human bias and manipulation."
     },
     {
       "question": "What can users launch?",
       "options": ["Only games", "Only websites", "Tokens & NFTs"],
-      "answer": "Tokens & NFTs"
+      "answer": "Tokens & NFTs",
+      "explainer": "Users can launch both tokens and NFTs with bonding curve pricing, enabling diverse digital asset creation strategies."
     },
     {
       "question": "How are tokens secured?",
       "options": ["Smart contracts", "Manual locks", "Community trust"],
-      "answer": "Smart contracts"
+      "answer": "Smart contracts",
+      "explainer": "Smart contracts automatically secure tokens and liquidity, providing trustless protection without relying on human intervention."
     },
     {
       "question": "What's the token mechanism?",
       "options": ["Bonding curves", "Fixed supply", "Infinite minting"],
-      "answer": "Bonding curves"
+      "answer": "Bonding curves",
+      "explainer": "Bonding curves create dynamic token supply and pricing, ensuring fair distribution and preventing artificial scarcity."
     },
     {
       "question": "How ensure transparency?",
       "options": ["On-chain verification", "Manual audits", "Community reports"],
-      "answer": "On-chain verification"
+      "answer": "On-chain verification",
+      "explainer": "On-chain verification allows anyone to inspect token mechanics and pricing formulas, ensuring complete transparency."
     },
     {
       "question": "What's the main innovation?",
       "options": ["Fair token launches", "Social media", "Gaming platform"],
-      "answer": "Fair token launches"
+      "answer": "Fair token launches",
+      "explainer": "Fair token launches eliminate pre-sales and insider advantages, ensuring everyone has equal opportunity to participate."
     },
     {
       "question": "How do tokens start?",
       "options": ["Zero pre-mints", "Large pre-mines", "Manual distribution"],
-      "answer": "Zero pre-mints"
+      "answer": "Zero pre-mints",
+      "explainer": "Zero pre-minted tokens ensure fair launches where early supporters and developers have equal access and pricing."
     },
     {
       "question": "What governs prices?",
       "options": ["Smart contracts", "Admins", "Market makers"],
-      "answer": "Smart contracts"
+      "answer": "Smart contracts",
+      "explainer": "Smart contracts automatically govern pricing through bonding curve formulas, eliminating human manipulation and ensuring fairness."
     },
     {
       "question": "What makes it unique?",
       "options": ["Automated fairness", "Manual trading", "Centralized control"],
-      "answer": "Automated fairness"
+      "answer": "Automated fairness",
+      "explainer": "Automated fairness through smart contracts eliminates human bias and ensures equal treatment for all participants."
     },
     {
       "question": "What type of LP tokens?",
       "options": ["Non-transferable", "Transferable", "No LP tokens"],
-      "answer": "Non-transferable"
+      "answer": "Non-transferable",
+      "explainer": "Non-transferable LP tokens prevent liquidity extraction and rug pulls, ensuring permanent liquidity for token holders."
     },
     {
       "question": "How handle token burns?",
       "options": ["Automatic via curve", "Manual burns", "No burns allowed"],
-      "answer": "Automatic via curve"
+      "answer": "Automatic via curve",
+      "explainer": "Bonding curves automatically handle token burns by reducing supply and increasing prices when tokens are sold back."
     },
     {
       "question": "Minimum to create token?",
       "options": ["Just gas fees", "1000 MINT", "5 ETH"],
-      "answer": "Just gas fees"
+      "answer": "Just gas fees",
+      "explainer": "Only gas fees are required to create tokens, making token creation accessible to everyone regardless of financial status."
     },
     {
       "question": "How handle token sales?",
       "options": ["Through curves", "Manual listings", "Fixed price"],
-      "answer": "Through curves"
+      "answer": "Through curves",
+      "explainer": "Token sales occur through bonding curves, ensuring fair pricing and automatic liquidity without manual intervention."
     },
     {
       "question": "What's the distribution approach?",
       "options": ["Fair launch only", "Pre-sale first", "Team allocation"],
-      "answer": "Fair launch only"
+      "answer": "Fair launch only",
+      "explainer": "Fair launch only approach ensures everyone pays the same price based on timing, eliminating preferential treatment."
     },
     {
       "question": "How calculate buy price?",
       "options": ["Bonding formula", "Market makers", "Manual setting"],
-      "answer": "Bonding formula"
+      "answer": "Bonding formula",
+      "explainer": "Bonding formulas mathematically calculate buy prices based on current supply, ensuring predictable and fair pricing."
     },
     {
       "question": "What's locked in contracts?",
       "options": ["Liquidity & Logic", "Nothing", "Only tokens"],
-      "answer": "Liquidity & Logic"
+      "answer": "Liquidity & Logic",
+      "explainer": "Both liquidity and pricing logic are locked in smart contracts, preventing manipulation and ensuring permanent functionality."
     },
     {
       "question": "How sell tokens?",
       "options": ["Through the curve", "P2P only", "Not possible"],
-      "answer": "Through the curve"
+      "answer": "Through the curve",
+      "explainer": "Selling tokens through bonding curves provides instant liquidity and fair pricing without relying on traditional order books."
     },
     {
       "question": "What determines token price?",
       "options": ["Supply & Demand", "Admins", "Fixed rates"],
-      "answer": "Supply & Demand"
+      "answer": "Supply & Demand",
+      "explainer": "Token prices are determined by supply and demand dynamics encoded in bonding curve mathematics, ensuring fair market pricing."
     },
     {
       "question": "How are NFTs priced?",
       "options": ["Bonding curves", "Fixed price", "Auction only"],
-      "answer": "Bonding curves"
+      "answer": "Bonding curves",
+      "explainer": "NFTs use bonding curves for dynamic pricing, creating fair price discovery based on demand rather than arbitrary fixed prices."
     },
     {
       "question": "What's unique about NFTs?",
       "options": ["Curve-based pricing", "Random pricing", "Manual pricing"],
-      "answer": "Curve-based pricing"
+      "answer": "Curve-based pricing",
+      "explainer": "Curve-based NFT pricing ensures fair valuation based on actual demand, eliminating speculation and price manipulation."
     },
     {
       "question": "How protect traders?",
       "options": ["Automatic pricing", "Manual reviews", "Community votes"],
-      "answer": "Automatic pricing"
+      "answer": "Automatic pricing",
+      "explainer": "Automatic pricing through bonding curves protects traders from manipulation and ensures fair, predictable token valuations."
     },
     {
       "question": "What's the trading mechanism?",
       "options": ["Smart contracts", "Order books", "P2P trading"],
-      "answer": "Smart contracts"
+      "answer": "Smart contracts",
+      "explainer": "Smart contract trading mechanisms provide trustless, automated trading without intermediaries or centralized order books."
     },
     {
       "question": "How are fees handled?",
       "options": ["Transparent & fixed", "Variable", "No fees"],
-      "answer": "Transparent & fixed"
+      "answer": "Transparent & fixed",
+      "explainer": "Transparent and fixed fees ensure predictable trading costs and prevent hidden charges or variable fee manipulation."
     },
     {
       "question": "What's the staking model?",
       "options": ["Revenue sharing", "No rewards", "Fixed APY"],
-      "answer": "Revenue sharing"
+      "answer": "Revenue sharing",
+      "explainer": "Revenue sharing model distributes platform fees to MINT token stakers, creating sustainable passive income opportunities."
     },
     {
       "question": "How handle liquidity?",
       "options": ["Auto-locked", "Manual locking", "No locking"],
-      "answer": "Auto-locked"
+      "answer": "Auto-locked",
+      "explainer": "Auto-locked liquidity prevents rug pulls and ensures permanent trading availability without relying on manual commitment."
     },
     {
       "question": "What's special about UI?",
       "options": ["One-click creation", "Complex setup", "No interface"],
-      "answer": "One-click creation"
+      "answer": "One-click creation",
+      "explainer": "One-click token creation simplifies the launch process, making token creation accessible to users without technical expertise."
     },
     {
       "question": "How launch new tokens?",
       "options": ["Fair curve launch", "ICO model", "Airdrop only"],
-      "answer": "Fair curve launch"
+      "answer": "Fair curve launch",
+      "explainer": "Fair curve launches ensure equal pricing for all participants based on timing, eliminating unfair pre-sale advantages."
     },
     {
       "question": "What happens when buying?",
       "options": ["Price increases", "Price stays same", "Price drops"],
-      "answer": "Price increases"
+      "answer": "Price increases",
+      "explainer": "Bonding curves increase prices as more tokens are bought, creating natural price appreciation based on demand."
     },
     {
       "question": "What's the development focus?",
       "options": ["User simplicity", "Complex trading", "Gaming"],
-      "answer": "User simplicity"
+      "answer": "User simplicity",
+      "explainer": "User simplicity prioritizes accessibility and ease of use, making DeFi token creation available to everyone regardless of technical skill."
     }
   ]
 }

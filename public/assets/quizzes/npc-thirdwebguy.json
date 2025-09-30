@@ -13,6 +13,7 @@
         "To host art exhibitions"
       ],
       "answer": "To provide a platform for web3 development with pre-built tools and SDKs",
+      "explainer": "ThirdWeb accelerates web3 development by providing pre-built smart contracts, SDKs, and tools for building dApps.",
       "feedback": {
         "correct": "Correct! ThirdWeb helps developers build web3 applications faster with ready-to-use tools.",
         "incorrect": "Not quite! ThirdWeb is specifically focused on web3 development tools and SDKs."
@@ -27,6 +28,7 @@
         "By teaching them traditional art techniques"
       ],
       "answer": "By offering pre-built smart contracts and development tools",
+      "explainer": "ThirdWeb offers ready-to-deploy smart contracts and comprehensive SDKs that eliminate boilerplate code for developers.",
       "feedback": {
         "correct": "Exactly! ThirdWeb provides ready-to-use smart contracts and development tools to speed up web3 development.",
         "incorrect": "Close, but not quite! ThirdWeb focuses on pre-built smart contracts and development tools."
@@ -41,6 +43,7 @@
         "Desktop software development"
       ],
       "answer": "Web3 and blockchain development",
+      "explainer": "ThirdWeb specializes in blockchain development with tools for smart contracts, NFTs, and decentralized applications.",
       "feedback": {
         "correct": "Right! ThirdWeb specializes in web3 and blockchain development tools.",
         "incorrect": "Not exactly! ThirdWeb focuses specifically on web3 and blockchain development."
@@ -55,6 +58,7 @@
         "Attend in-person art classes"
       ],
       "answer": "Build, deploy, and manage smart contracts and web3 applications",
+      "explainer": "ThirdWeb enables full lifecycle management of web3 projects from building to deployment and ongoing management.",
       "feedback": {
         "correct": "Perfect! Developers can build, deploy, and manage smart contracts and web3 applications with ThirdWeb.",
         "incorrect": "Not quite! ThirdWeb enables building, deploying, and managing smart contracts and web3 applications."
@@ -69,6 +73,7 @@
         "By limiting the number of developers"
       ],
       "answer": "By having a comprehensive documentation and testing process",
+      "explainer": "ThirdWeb maintains high quality through extensive documentation, testing frameworks, and community-driven improvements.",
       "feedback": {
         "correct": "Exactly! ThirdWeb maintains quality through comprehensive documentation and testing processes.",
         "incorrect": "Close, but not quite! ThirdWeb maintains quality through comprehensive documentation and testing."

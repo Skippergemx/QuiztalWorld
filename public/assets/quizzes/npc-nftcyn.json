@@ -11,7 +11,8 @@
         "New Financial Technology",
         "Network File Transfer"
       ],
-      "answer": "Non-Fungible Token"
+      "answer": "Non-Fungible Token",
+      "explainer": "Non-Fungible Tokens are unique digital assets that cannot be replaced or exchanged on a one-to-one basis."
     },
     {
       "question": "Which blockchain is common?",
@@ -20,7 +21,8 @@
         "Bitcoin",
         "Litecoin"
       ],
-      "answer": "Ethereum"
+      "answer": "Ethereum",
+      "explainer": "Ethereum is the most popular blockchain for NFTs due to its smart contract capabilities and established ecosystem."
     },
     {
       "question": "What makes NFTs unique?",
@@ -29,7 +31,8 @@
         "They have higher value",
         "They are faster"
       ],
-      "answer": "They are non-fungible"
+      "answer": "They are non-fungible",
+      "explainer": "Non-fungible means each NFT is unique and cannot be replaced by another identical item, ensuring digital scarcity."
     },
     {
       "question": "What is 'minting' NFTs?",
@@ -38,7 +41,8 @@
         "Buying NFTs",
         "Selling NFTs"
       ],
-      "answer": "Creating new NFTs"
+      "answer": "Creating new NFTs",
+      "explainer": "Minting creates a new NFT on the blockchain, registering ownership and making it available for trading."
     },
     {
       "question": "What digital assets for NFTs?",
@@ -47,7 +51,8 @@
         "Only digital images",
         "Only cryptocurrency tokens"
       ],
-      "answer": "Digital art, music"
+      "answer": "Digital art, music",
+      "explainer": "NFTs can represent various digital assets including art, music, videos, gaming items, and virtual real estate."
     },
     {
       "question": "What is smart contract?",
@@ -56,7 +61,8 @@
         "Legal document",
         "Payment method"
       ],
-      "answer": "Self-executing code"
+      "answer": "Self-executing code",
+      "explainer": "Smart contracts are self-executing programs on blockchain that automatically enforce agreements and NFT rules."
     },
     {
       "question": "What is NFT marketplace?",
@@ -65,7 +71,8 @@
         "Wallet for storing",
         "Blockchain network"
       ],
-      "answer": "Platform to buy, sell"
+      "answer": "Platform to buy, sell",
+      "explainer": "NFT marketplaces are platforms where users can discover, buy, sell, and trade NFTs with other collectors."
     },
     {
       "question": "What are gas fees?",
@@ -74,7 +81,8 @@
         "Marketplace commission fees",
         "Artist royalty payments"
       ],
-      "answer": "Transaction costs paid"
+      "answer": "Transaction costs paid",
+      "explainer": "Gas fees are transaction costs paid to blockchain miners or validators for processing NFT operations."
     },
     {
       "question": "What is metadata in NFTs?",
@@ -83,7 +91,8 @@
         "The NFT's purchase price",
         "The owner's information"
       ],
-      "answer": "Data describing properties"
+      "answer": "Data describing properties",
+      "explainer": "Metadata contains information about the NFT including name, description, image location, and attributes."
     },
     {
       "question": "What is royalty in sales?",
@@ -92,7 +101,8 @@
         "Government tax on NFTs",
         "Marketplace listing fee"
       ],
-      "answer": "Percentage to creator"
+      "answer": "Percentage to creator",
+      "explainer": "Royalties are automatic payments to original creators whenever their NFT is resold on secondary markets."
     },
     {
       "question": "What is the ERC-721?",
@@ -101,7 +111,8 @@
         "Cryptocurrency exchange",
         "Digital wallet spec"
       ],
-      "answer": "Token standard for NFTs"
+      "answer": "Token standard for NFTs",
+      "explainer": "ERC-721 is the Ethereum standard defining how unique, non-fungible tokens should work on the blockchain."
     },
     {
       "question": "ERC-721 vs ERC-1155?",
@@ -110,7 +121,8 @@
         "ERC-721 is faster",
         "ERC-1155 only gaming"
       ],
-      "answer": "ERC-1155 handles both"
+      "answer": "ERC-1155 handles both",
+      "explainer": "ERC-1155 can handle both fungible and non-fungible tokens in a single contract, more efficient than ERC-721."
     },
     {
       "question": "What is IPFS for NFTs?",
@@ -119,7 +131,8 @@
         "Financial services protocol",
         "File sharing platform"
       ],
-      "answer": "Decentralized storage system"
+      "answer": "Decentralized storage system",
+      "explainer": "IPFS stores NFT images and metadata in a decentralized way, preventing loss if centralized servers fail."
     },
     {
       "question": "What is a 'rug pull'?",
@@ -128,7 +141,8 @@
         "Type of NFT artwork",
         "Legitimate exit strategy"
       ],
-      "answer": "Creators abandon project"
+      "answer": "Creators abandon project",
+      "explainer": "Rug pulls occur when project creators disappear with funds, leaving investors with worthless or abandoned NFTs."
     },
     {
       "question": "What are utility NFTs?",
@@ -137,7 +151,8 @@
         "NFTs that consume less",
         "NFTs that are cheaper"
       ],
-      "answer": "NFTs with extra benefits"
+      "answer": "NFTs with extra benefits",
+      "explainer": "Utility NFTs provide additional benefits like access to events, services, or exclusive content beyond ownership."
     },
     {
       "question": "What is whitelist drop?",
@@ -146,7 +161,8 @@
         "List of banned users",
         "White-colored NFTs"
       ],
-      "answer": "Pre-approved buyer list"
+      "answer": "Pre-approved buyer list",
+      "explainer": "Whitelist drops allow pre-approved addresses to mint NFTs early, often at discounted prices before public sale."
     },
     {
       "question": "What is 'floor price'?",
@@ -155,7 +171,8 @@
         "Minimum bid amount",
         "Original mint price"
       ],
-      "answer": "Lowest listed price"
+      "answer": "Lowest listed price",
+      "explainer": "Floor price is the lowest price at which an NFT from a collection is currently listed for sale."
     },
     {
       "question": "What are PFP NFTs?",
@@ -164,7 +181,8 @@
         "Personal photos NFTs",
         "Photographs only NFTs"
       ],
-      "answer": "Social media avatars"
+      "answer": "Social media avatars",
+      "explainer": "PFP (Profile Picture) NFTs are digital avatars designed for use as social media profile pictures and identity."
     },
     {
       "question": "What is 'diamond hands'?",
@@ -173,7 +191,8 @@
         "Quick buying/selling",
         "Type of artwork"
       ],
-      "answer": "Holding for long-term"
+      "answer": "Holding for long-term",
+      "explainer": "Diamond hands refers to holding NFTs or crypto for the long term despite market volatility and pressure to sell."
     },
     {
       "question": "What are generative NFTs?",
@@ -182,7 +201,8 @@
         "NFTs that generate income",
         "NFTs that create others"
       ],
-      "answer": "Algorithmically created"
+      "answer": "Algorithmically created",
+      "explainer": "Generative NFTs are created using algorithms that combine different traits to produce unique variations automatically."
     },
     {
       "question": "What is burning an NFT?",
@@ -191,7 +211,8 @@
         "Selling quickly",
         "Creating copies"
       ],
-      "answer": "Permanently destroying"
+      "answer": "Permanently destroying",
+      "explainer": "Burning an NFT permanently destroys it by sending to an inaccessible address, reducing total supply forever."
     },
     {
       "question": "What are soulbound tokens?",
@@ -200,7 +221,8 @@
         "Supernatural themed",
         "No gas fees"
       ],
-      "answer": "Non-transferable NFTs"
+      "answer": "Non-transferable NFTs",
+      "explainer": "Soulbound tokens are NFTs permanently tied to a wallet, representing achievements, credentials, or identity markers."
     },
     {
       "question": "What is a DAO?",
@@ -209,7 +231,8 @@
         "Digital Art Org",
         "Data Access Object"
       ],
-      "answer": "Community governance org"
+      "answer": "Community governance org",
+      "explainer": "DAOs are decentralized autonomous organizations where NFT holders can vote on project decisions and governance."
     },
     {
       "question": "Cross-chain compatibility?",
@@ -218,7 +241,8 @@
         "Work on devices",
         "Support file formats"
       ],
-      "answer": "Move between chains"
+      "answer": "Move between chains",
+      "explainer": "Cross-chain compatibility allows NFTs to move between different blockchain networks like Ethereum and Polygon."
     },
     {
       "question": "What are fractionalized?",
@@ -227,7 +251,8 @@
         "Broken or damaged",
         "Sold in bundles"
       ],
-      "answer": "Divided into shares"
+      "answer": "Divided into shares",
+      "explainer": "Fractionalized NFTs are divided into smaller tradeable shares, allowing multiple people to own portions of expensive NFTs."
     },
     {
       "question": "Environmental concern?",
@@ -236,7 +261,8 @@
         "Physical waste",
         "Radiation screens"
       ],
-      "answer": "Energy from mining"
+      "answer": "Energy from mining",
+      "explainer": "Environmental concerns center on high energy consumption from blockchain mining, though newer chains use less energy."
     },
     {
       "question": "What is lazy minting?",
@@ -245,7 +271,8 @@
         "Slow minting",
         "Mint without effort"
       ],
-      "answer": "Mint when purchased"
+      "answer": "Mint when purchased",
+      "explainer": "Lazy minting delays actual blockchain creation until purchase, saving gas fees for creators until sale occurs."
     },
     {
       "question": "Rarity ranking system?",
@@ -254,7 +281,8 @@
         "Quality assessment",
         "Price comparison"
       ],
-      "answer": "Rates by scarcity"
+      "answer": "Rates by scarcity",
+      "explainer": "Rarity ranking systems calculate how rare NFT traits are within a collection, influencing perceived value and pricing."
     },
     {
       "question": "What are composable?",
@@ -263,7 +291,8 @@
         "Made of files",
         "Decompose over time"
       ],
-      "answer": "Can be combined"
+      "answer": "Can be combined",
+      "explainer": "Composable NFTs can be combined with other NFTs to create new items, often used in gaming and metaverse applications."
     },
     {
       "question": "OpenSea significance?",
@@ -272,7 +301,8 @@
         "Blockchain for NFTs",
         "NFT creation tool"
       ],
-      "answer": "Largest marketplace"
+      "answer": "Largest marketplace",
+      "explainer": "OpenSea is the largest and most popular NFT marketplace where users buy, sell, and discover digital collectibles."
     },
     {
       "question": "What are dynamic NFTs?",
@@ -281,7 +311,8 @@
         "Moving animations",
         "Variable prices"
       ],
-      "answer": "Change properties"
+      "answer": "Change properties",
+      "explainer": "Dynamic NFTs can change their properties or appearance based on external data, time, or user interactions."
     },
     {
       "question": "Role of oracles?",
@@ -290,7 +321,8 @@
         "Predict prices",
         "Verify authenticity"
       ],
-      "answer": "Provide external data"
+      "answer": "Provide external data",
+      "explainer": "Oracles provide external real-world data to smart contracts, enabling NFTs to respond to off-chain events and information."
     }
   ]
 }

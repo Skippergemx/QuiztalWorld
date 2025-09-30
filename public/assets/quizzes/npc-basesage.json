@@ -7,162 +7,194 @@
     {
       "question": "What is Base, really?",
       "options": ["Layer 1", "Layer 2", "DEX"],
-      "answer": "Layer 2"
+      "answer": "Layer 2",
+      "explainer": "Base is a Layer 2 blockchain that processes transactions off Ethereum mainnet for faster speeds and lower costs."
     },
     {
       "question": "Who built this magic?",
       "options": ["Coinbase", "Binance", "OpenSea"],
-      "answer": "Coinbase"
+      "answer": "Coinbase",
+      "explainer": "Coinbase built Base as their Layer 2 solution to provide users with faster and cheaper Ethereum transactions."
     },
     {
       "question": "Base's mainnet buddy?",
       "options": ["Solana", "Ethereum", "Polygon"],
-      "answer": "Ethereum"
+      "answer": "Ethereum",
+      "explainer": "Base is built on top of Ethereum, inheriting its security while providing enhanced performance and lower fees."
     },
     {
       "question": "Why use Base?",
       "options": ["Cheap transactions", "Free money", "Unicorn tokens"],
-      "answer": "Cheap transactions"
+      "answer": "Cheap transactions",
+      "explainer": "Base offers significantly cheaper transaction fees compared to Ethereum mainnet while maintaining security and compatibility."
     },
     {
       "question": "Base's secret sauce?",
       "options": ["Proof of Work", "Optimistic Rollup", "Proof of Stake"],
-      "answer": "Optimistic Rollup"
+      "answer": "Optimistic Rollup",
+      "explainer": "Optimistic Rollups assume transactions are valid by default, only verifying when challenged, enabling faster processing."
     },
     {
       "question": "Built on what tech?",
       "options": ["Arbitrum", "Optimism", "zkSync"],
-      "answer": "Optimism"
+      "answer": "Optimism",
+      "explainer": "Base is built using Optimism's OP Stack technology, leveraging proven optimistic rollup infrastructure for scalability."
     },
     {
       "question": "What can you do?",
       "options": ["Deploy smart contracts", "Mine Bitcoin", "Create Layer 1"],
-      "answer": "Deploy smart contracts"
+      "answer": "Deploy smart contracts",
+      "explainer": "Deploy smart contracts using familiar Ethereum tools like Solidity, Hardhat, and Remix with full EVM compatibility."
     },
     {
       "question": "Security provided by?",
       "options": ["Solana", "Ethereum", "BNB Chain"],
-      "answer": "Ethereum"
+      "answer": "Ethereum",
+      "explainer": "Base inherits Ethereum's robust security model, ensuring transactions are protected by the world's largest blockchain network."
     },
     {
       "question": "Network type?",
       "options": ["Sidechain", "Layer 2", "Layer 1"],
-      "answer": "Layer 2"
+      "answer": "Layer 2",
+      "explainer": "Layer 2 scaling solution that processes transactions off-chain while settling final states on Ethereum mainnet."
     },
     {
       "question": "Why is Base cool?",
       "options": ["Cheaper than L1", "Magically free", "Faster than grandma"],
-      "answer": "Cheaper than L1"
+      "answer": "Cheaper than L1",
+      "explainer": "Base transactions cost significantly less than Ethereum Layer 1, making DeFi and dApps more accessible to users."
     },
     {
       "question": "Wallet compatibility?",
       "options": ["Just Coinbase", "Any EVM wallet", "Only MetaMask"],
-      "answer": "Any EVM wallet"
+      "answer": "Any EVM wallet",
+      "explainer": "Any Ethereum-compatible wallet works with Base, including MetaMask, Coinbase Wallet, and hardware wallets."
     },
     {
       "question": "Decentralization style?",
       "options": ["Fully centralized", "Progressive", "Instant"],
-      "answer": "Progressive"
+      "answer": "Progressive",
+      "explainer": "Base follows progressive decentralization, gradually transitioning from centralized operations to community governance."
     },
     {
       "question": "Coding language?",
       "options": ["Solidity", "Python", "Java"],
-      "answer": "Solidity"
+      "answer": "Solidity",
+      "explainer": "Solidity smart contracts work seamlessly on Base, enabling developers to use existing Ethereum development skills."
     },
     {
       "question": "Block speed?",
       "options": ["2 seconds", "12 seconds", "1 minute"],
-      "answer": "2 seconds"
+      "answer": "2 seconds",
+      "explainer": "Base produces blocks every 2 seconds, providing much faster transaction confirmation than Ethereum's 12-second blocks."
     },
     {
       "question": "Bridge to use?",
       "options": ["Base Bridge", "Rainbow", "Polygon"],
-      "answer": "Base Bridge"
+      "answer": "Base Bridge",
+      "explainer": "Base Bridge is the official bridge for moving assets between Ethereum mainnet and Base Layer 2 network."
     },
     {
       "question": "Gas token?",
       "options": ["ETH", "BASE", "MATIC"],
-      "answer": "ETH"
+      "answer": "ETH",
+      "explainer": "ETH is used for gas fees on Base, maintaining consistency with Ethereum's economic model and user familiarity."
     },
     {
       "question": "Address style?",
       "options": ["Ethereum-style", "Solana-style", "Bitcoin-style"],
-      "answer": "Ethereum-style"
+      "answer": "Ethereum-style",
+      "explainer": "Base uses Ethereum-style addresses, allowing seamless migration of existing Ethereum accounts and contracts."
     },
     {
       "question": "Dev framework?",
       "options": ["Hardhat", "Unity", "Android SDK"],
-      "answer": "Hardhat"
+      "answer": "Hardhat",
+      "explainer": "Hardhat and other Ethereum development frameworks work natively on Base, requiring no special modifications."
     },
     {
       "question": "Security model?",
       "options": ["From Ethereum", "Independent", "No security"],
-      "answer": "From Ethereum"
+      "answer": "From Ethereum",
+      "explainer": "Base inherits Ethereum's battle-tested security, protected by thousands of validators and proven consensus mechanisms."
     },
     {
       "question": "Deployment method?",
       "options": ["Standard tools", "Special tools", "Cannot deploy"],
-      "answer": "Standard tools"
+      "answer": "Standard tools",
+      "explainer": "Use standard Ethereum deployment tools like Remix, Hardhat, and Foundry without any modifications or special setup."
     },
     {
       "question": "Base's focus?",
       "options": ["Onchain access", "Gaming", "Social media"],
-      "answer": "Onchain access"
+      "answer": "Onchain access",
+      "explainer": "Base focuses on bringing the next billion users onchain with accessible, low-cost blockchain interactions."
     },
     {
       "question": "Transaction finality?",
       "options": ["Optimistic rollups", "Instant", "Proof of Work"],
-      "answer": "Optimistic rollups"
+      "answer": "Optimistic rollups",
+      "explainer": "Optimistic rollups provide fast transaction finality with dispute resolution mechanisms for security guarantees."
     },
     {
       "question": "Challenge period?",
       "options": ["7 days", "1 day", "30 days"],
-      "answer": "7 days"
+      "answer": "7 days",
+      "explainer": "7-day challenge period allows anyone to dispute invalid transactions before they're finalized on Ethereum."
     },
     {
       "question": "Ecosystem member?",
       "options": ["Ethereum", "Solana", "Cardano"],
-      "answer": "Ethereum"
+      "answer": "Ethereum",
+      "explainer": "Base is a core member of the Ethereum ecosystem, extending its capabilities rather than competing with it."
     },
     {
       "question": "Base's superpower?",
       "options": ["Lower costs", "Free tokens", "Better graphics"],
-      "answer": "Lower costs"
+      "answer": "Lower costs",
+      "explainer": "Lower transaction costs make DeFi, NFTs, and dApps accessible to users who couldn't afford Ethereum mainnet fees."
     },
     {
       "question": "Scaling method?",
       "options": ["Batch off-chain", "More validators", "Bigger blocks"],
-      "answer": "Batch off-chain"
+      "answer": "Batch off-chain",
+      "explainer": "Base batches multiple transactions off-chain and submits compressed data to Ethereum for efficient scaling."
     },
     {
       "question": "Ethereum relationship?",
       "options": ["Layer 2", "Competitor", "No relation"],
-      "answer": "Layer 2"
+      "answer": "Layer 2",
+      "explainer": "Base extends Ethereum as a Layer 2 solution, enhancing its capabilities rather than replacing or competing with it."
     },
     {
       "question": "Dev can build?",
       "options": ["DApps", "Only NFTs", "Only DeFi"],
-      "answer": "DApps"
+      "answer": "DApps",
+      "explainer": "Developers can build any type of decentralized application, from DeFi protocols to NFT marketplaces and social apps."
     },
     {
       "question": "Contract deployment?",
       "options": ["Like Ethereum", "Different", "Not supported"],
-      "answer": "Like Ethereum"
+      "answer": "Like Ethereum",
+      "explainer": "Smart contract deployment works exactly like Ethereum, using the same tools, syntax, and deployment processes."
     },
     {
       "question": "Base's purpose?",
       "options": ["Scale Ethereum", "Replace Ethereum", "Mine crypto"],
-      "answer": "Scale Ethereum"
+      "answer": "Scale Ethereum",
+      "explainer": "Base scales Ethereum by processing transactions faster and cheaper while maintaining security and decentralization."
     },
     {
       "question": "Transaction processing?",
       "options": ["Batch to Ethereum", "Independent", "Through mining"],
-      "answer": "Batch to Ethereum"
+      "answer": "Batch to Ethereum",
+      "explainer": "Transactions are processed on Base then batched and submitted to Ethereum mainnet for final settlement."
     },
     {
       "question": "Development style?",
       "options": ["Open-source", "Closed source", "No development"],
-      "answer": "Open-source"
+      "answer": "Open-source",
+      "explainer": "Base development is open-source, allowing community contributions and transparent development processes."
     }
   ]
 }

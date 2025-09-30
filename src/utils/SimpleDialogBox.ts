@@ -1,17 +1,14 @@
 import Phaser from "phaser";
 import modernUITheme, { UIHelpers } from './UITheme';
+import { BaseDialog } from './BaseDialog';
 
 // Singleton instance
 let singletonInstance: SimpleDialogBox | null = null;
 
-export class SimpleDialogBox {
-  private scene: Phaser.Scene;
-  private dialogContainer: Phaser.GameObjects.Container;
-  private dialogText: Phaser.GameObjects.Text;
-  private optionsContainer: Phaser.GameObjects.Container;
-  private avatar: Phaser.GameObjects.Image;
-  private boxWidth: number;
-  private boxHeight: number;
+export class SimpleDialogBox extends BaseDialog {
+  private dialogText!: Phaser.GameObjects.Text;
+  private optionsContainer!: Phaser.GameObjects.Container;
+  private avatar!: Phaser.GameObjects.Image;
   private currentDialogIndex: number = 0;
   private dialogData: {
     text: string;
@@ -21,102 +18,55 @@ export class SimpleDialogBox {
   }[] = [];
 
   constructor(scene: Phaser.Scene) {
-    this.scene = scene;
+    super(scene, { 
+      width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
+      height: scene.scale.width < 768 ? 200 : 200
+    });
     
-    // Enhanced responsive dialog sizing following memory specifications
-    const isMobile = scene.scale.width < 768;
-    this.boxWidth = isMobile ? scene.scale.width * 0.92 : 700; // Slightly larger for better content
-    this.boxHeight = isMobile ? 220 : 200; // Improved minimum height per memory specs
+    this.initializeDialogContent();
+  }
 
-    this.dialogContainer = scene.add.container(0, 0);
-
-    // Camera movement tracking
-    scene.events.once('create', () => {
-      if (scene.cameras && scene.cameras.main) {
-        scene.cameras.main.on('cameramove', this.updatePosition, this);
-        scene.cameras.main.on('scroll', this.updatePosition, this);
-      }
-    });
-
-    this.updatePosition();
-    this.dialogContainer.setDepth(1000);
-
-    scene.events.on('shutdown', () => {
-      this.cleanup();
-    });
-
+  private initializeDialogContent(): void {
     // Create dialog background
-    const dialogBg = scene.add.graphics();
-    dialogBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.background.card), 0.95);
-    dialogBg.fillRoundedRect(0, 0, this.boxWidth, this.boxHeight, 
-      UIHelpers.getResponsiveSpacing(isMobile, modernUITheme.borderRadius.lg, modernUITheme.borderRadius.md));
-    dialogBg.lineStyle(
-      UIHelpers.getResponsiveSpacing(isMobile, 3, 2), 
-      UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
-    dialogBg.strokeRoundedRect(0, 0, this.boxWidth, this.boxHeight,
-      UIHelpers.getResponsiveSpacing(isMobile, modernUITheme.borderRadius.lg, modernUITheme.borderRadius.md));
-    
-    this.dialogContainer.add(dialogBg);
+    this.createStandardBackground();
 
-    // Avatar with fixed dimensions 100x123
-    this.avatar = scene.add.image(
-      UIHelpers.getResponsiveSpacing(isMobile, 60, 45),
-      this.boxHeight / 2,
+    // Avatar positioning
+    this.avatar = this.scene.add.image(
+      UIHelpers.getResponsiveSpacing(this.isMobile, 50, 40),
+      this.dialogHeight / 2,
       "npc_mintgirl_avatar"
     )
-      .setDisplaySize(100, 123)
+      .setDisplaySize(80, 98)
       .setOrigin(0.5)
       .setVisible(false);
     this.dialogContainer.add(this.avatar);
 
     // Text configuration
     const textConfig = {
-      fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.md),
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
       fontFamily: modernUITheme.typography.fontFamily.primary,
-      color: modernUITheme.colors.accent,
+      color: modernUITheme.colors.text.primary,
       wordWrap: { 
-        width: isMobile ? this.boxWidth - 140 : 520,
+        width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140,
         useAdvancedWrap: true 
       },
       align: "left",
-      lineSpacing: UIHelpers.getResponsiveSpacing(isMobile, 8, 6),
-      shadow: { 
-        offsetX: 2, 
-        offsetY: 2, 
-        color: modernUITheme.colors.background.primary, 
-        blur: 6, 
-        fill: true 
-      }
+      lineSpacing: UIHelpers.getResponsiveSpacing(this.isMobile, 6, 4)
     };
 
-    this.dialogText = scene.add.text(
-      UIHelpers.getResponsiveSpacing(isMobile, 120, 100),
-      UIHelpers.getResponsiveSpacing(isMobile, 20, 16),
+    this.dialogText = this.scene.add.text(
+      UIHelpers.getResponsiveSpacing(this.isMobile, 100, 90),
+      UIHelpers.getResponsiveSpacing(this.isMobile, 30, 25),
       "",
       textConfig
     );
     this.dialogContainer.add(this.dialogText);
 
-    this.optionsContainer = scene.add.container(0, 0);
+    this.optionsContainer = this.scene.add.container(0, 0);
     this.dialogContainer.add(this.optionsContainer);
 
     this.dialogContainer.setVisible(false).setAlpha(0);
   }
-
-  private updatePosition = () => {
-    if (!this.scene?.cameras?.main || !this.dialogContainer) {
-      return;
-    }
-
-    const camera = this.scene.cameras.main;
-    const centerX = (camera.scrollX + camera.width / 2) || 0;
-    const centerY = (camera.scrollY + camera.height / 2) || 0;
-
-    this.dialogContainer.setPosition(
-      centerX - this.boxWidth / 2,
-      centerY - this.boxHeight / 2
-    );
-  };
 
   public showDialog(dialogData: {
     text: string;
@@ -145,11 +95,6 @@ export class SimpleDialogBox {
     }
 
     this.displayNext();
-    
-    // Notify QuizAntiSpamManager that a dialog is open
-    if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
-      window.quizAntiSpamManager.openDialog();
-    }
   }
   
   public updateDialogText(newText: string) {
@@ -174,57 +119,71 @@ export class SimpleDialogBox {
 
     // If options are present
     if (currentDialog.options) {
-      const isMobile = this.scene.scale.width < 768;
-      let yOffset = isMobile ? 60 : 70;
+      let yOffset = this.isMobile ? 80 : 90;
       
       currentDialog.options.forEach((option) => {
         // Truncate very long option text
-        const maxOptionLength = isMobile ? 60 : 80;
+        const maxOptionLength = this.isMobile ? 50 : 70;
         const displayText = option.text.length > maxOptionLength ? 
           option.text.substring(0, maxOptionLength) + "..." : 
           option.text;
           
         const optionText = this.scene.add.text(
-          isMobile ? 120 : 160,
+          this.isMobile ? 100 : 120,
           this.dialogText.y + yOffset,
           `➡️ ${displayText}`,
           {
-            fontSize: isMobile ? "13px" : "15px",
-            color: "#ffa500",
-            fontFamily: "monospace",
+            fontSize: this.isMobile ? "12px" : "13px",
+            color: modernUITheme.colors.accent,
+            fontFamily: modernUITheme.typography.fontFamily.primary,
             wordWrap: {
-              width: isMobile ? this.boxWidth - 140 : 460,
+              width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140,
               useAdvancedWrap: true
-            },
-            shadow: { offsetX: 2, offsetY: 2, color: "#003300", blur: 5, fill: true }
+            }
           }
-        )
-        .setInteractive({ useHandCursor: true })
-        .on("pointerdown", () => {
-          option.callback();
-          this.closeDialog();
-        })
-        .on("pointerover", () => optionText.setAlpha(0.7))
-        .on("pointerout", () => optionText.setAlpha(1));
+        ).setInteractive({ useHandCursor: true })
+          .on('pointerdown', () => {
+            option.callback();
+            this.currentDialogIndex++;
+            this.displayNext();
+          })
+          .on('pointerover', () => {
+            optionText.setColor(modernUITheme.colors.primary);
+          })
+          .on('pointerout', () => {
+            optionText.setColor(modernUITheme.colors.accent);
+          });
 
         this.optionsContainer.add(optionText);
-        yOffset += isMobile ? 35 : 40;
+        yOffset += this.isMobile ? 25 : 30;
       });
     } else {
-      this.dialogContainer
-        .setInteractive(new Phaser.Geom.Rectangle(0, 0, this.boxWidth, this.boxHeight), 
-          Phaser.Geom.Rectangle.Contains)
-        .once("pointerdown", () => {
-          this.dialogContainer.disableInteractive();
+      // Continue text for dialogs without options
+      const continueText = this.scene.add.text(
+        this.dialogWidth - 30,
+        this.dialogHeight - 25,
+        "Click to continue...",
+        {
+          fontSize: this.isMobile ? "11px" : "12px",
+          color: modernUITheme.colors.text.secondary,
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          fontStyle: "italic"
+        }
+      ).setOrigin(1, 1)
+        .setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
           this.currentDialogIndex++;
           this.displayNext();
         });
+
+      this.optionsContainer.add(continueText);
     }
   }
 
-  private setAvatar(textureKey: string) {
-    if (this.scene.textures.exists(textureKey)) {
-      this.avatar.setTexture(textureKey).setVisible(true);
+  private setAvatar(avatarKey: string) {
+    if (this.scene.textures.exists(avatarKey)) {
+      this.avatar.setTexture(avatarKey);
+      this.avatar.setVisible(true);
     } else {
       this.avatar.setVisible(false);
     }
@@ -232,68 +191,32 @@ export class SimpleDialogBox {
 
   private closeDialog() {
     this.dialogContainer.setVisible(false);
-    this.dialogContainer.setAlpha(0);
-    this.avatar.setVisible(false);
-    this.dialogText.setText("");
-    this.optionsContainer.removeAll(true);
-    this.dialogData = [];
-    this.currentDialogIndex = 0;
-
-    // Notify QuizAntiSpamManager that a dialog is closed
     if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
       window.quizAntiSpamManager.closeDialog();
     }
   }
 
-  private cleanup() {
-    // Remove camera listeners
-    if (this.scene.cameras && this.scene.cameras.main) {
-      this.scene.cameras.main.off('cameramove', this.updatePosition, this);
-      this.scene.cameras.main.off('scroll', this.updatePosition, this);
-    }
-    
-    // Clean up the singleton reference
-    if (singletonInstance === this) {
-      singletonInstance = null;
-    }
-    
-    // Destroy the container and all its children
-    this.dialogContainer.destroy();
+  public cleanup() {
+    super.cleanup();
+    singletonInstance = null;
   }
 
-  public close() {
-    this.closeDialog();
+  // Singleton accessor
+  public static getInstance(scene: Phaser.Scene): SimpleDialogBox {
+    if (!singletonInstance) {
+      singletonInstance = new SimpleDialogBox(scene);
+    }
+    return singletonInstance;
   }
 }
 
+// Export function for backward compatibility
 export function showDialog(scene: Phaser.Scene, dialogData: {
   text: string;
   avatar?: string;
   isExitDialog?: boolean;
   options?: { text: string; callback: () => void }[];
-}[]) {
-  try {
-    if (!scene || !scene.add) {
-      console.error('Invalid scene provided to showDialog');
-      return null;
-    }
-
-    if (!Array.isArray(dialogData) || dialogData.length === 0) {
-      console.error('Invalid or empty dialog data provided');
-      return null;
-    }
-
-    // Create singleton instance if it doesn't exist
-    if (!singletonInstance) {
-      singletonInstance = new SimpleDialogBox(scene);
-    }
-    
-    // Show the dialog
-    singletonInstance.showDialog(dialogData);
-    return singletonInstance;
-
-  } catch (error) {
-    console.error('Error showing dialog:', error);
-    return null;
-  }
+}[]): void {
+  const dialog = SimpleDialogBox.getInstance(scene);
+  dialog.showDialog(dialogData);
 }

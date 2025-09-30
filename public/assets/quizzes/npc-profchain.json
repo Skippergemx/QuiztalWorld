@@ -11,7 +11,8 @@
         "Type of cryptocurrency",
         "Programming language"
       ],
-      "answer": "Distributed ledger tech"
+      "answer": "Distributed ledger tech",
+      "explainer": "Blockchain is a distributed ledger technology that maintains a secure, immutable record of transactions across multiple computers."
     },
     {
       "question": "What does 'decentralized' mean?",
@@ -20,7 +21,8 @@
         "Faster transactions",
         "Lower energy use"
       ],
-      "answer": "No single point control"
+      "answer": "No single point control",
+      "explainer": "Decentralized systems distribute control across multiple nodes, eliminating single points of failure and central authority."
     },
     {
       "question": "What is consensus mechanism?",
@@ -29,7 +31,8 @@
         "Data encryption way",
         "User interface design"
       ],
-      "answer": "Network agreement method"
+      "answer": "Network agreement method",
+      "explainer": "Consensus mechanisms are protocols that enable distributed networks to agree on the state of the blockchain without central authority."
     },
     {
       "question": "Hash function purpose?",
@@ -38,7 +41,8 @@
         "Store user passwords",
         "Compress image files"
       ],
-      "answer": "Create digital fingerprints"
+      "answer": "Create digital fingerprints",
+      "explainer": "Hash functions create unique digital fingerprints for data, ensuring integrity and enabling efficient blockchain verification."
     },
     {
       "question": "Immutable transactions?",
@@ -47,7 +51,8 @@
         "Government regulations",
         "Internet requirements"
       ],
-      "answer": "Crypto linking & consensus"
+      "answer": "Crypto linking & consensus",
+      "explainer": "Immutability ensures transactions cannot be altered or deleted once confirmed, secured by cryptographic linking and consensus."
     },
     {
       "question": "What is Proof of Work?",
@@ -56,7 +61,8 @@
         "Job certification system",
         "Payment verification"
       ],
-      "answer": "Computational effort consensus"
+      "answer": "Computational effort consensus",
+      "explainer": "Proof of Work requires miners to solve complex mathematical puzzles, securing the network through computational effort and energy expenditure."
     },
     {
       "question": "What is Proof of Stake?",
@@ -65,7 +71,8 @@
         "Gambling system",
         "Stock market mechanism"
       ],
-      "answer": "Token ownership consensus"
+      "answer": "Token ownership consensus",
+      "explainer": "Proof of Stake selects validators based on token ownership and staking, reducing energy consumption compared to Proof of Work."
     },
     {
       "question": "What is Merkle tree?",
@@ -74,7 +81,8 @@
         "Crypto creator family tree",
         "Mining plant type"
       ],
-      "answer": "Binary tree for data"
+      "answer": "Binary tree for data",
+      "explainer": "Merkle trees organize transaction data in a binary tree structure, enabling efficient verification and compact storage of large datasets."
     },
     {
       "question": "What is a nonce?",
@@ -83,7 +91,8 @@
         "Blockchain developer",
         "Transaction fee type"
       ],
-      "answer": "Number used once"
+      "answer": "Number used once",
+      "explainer": "Nonce is a number used once in cryptographic operations, particularly in mining to find valid block hashes in Proof of Work."
     },
     {
       "question": "What is genesis block?",
@@ -92,7 +101,8 @@
         "Highest value block",
         "Error-containing block"
       ],
-      "answer": "First block in chain"
+      "answer": "First block in chain",
+      "explainer": "Genesis block is the first block in a blockchain, establishing the foundation and containing unique hardcoded parameters."
     },
     {
       "question": "What is blockchain forking?",
@@ -101,7 +111,8 @@
         "Eating utensils for mining",
         "Dividing transaction fees"
       ],
-      "answer": "Creating separate versions"
+      "answer": "Creating separate versions",
+      "explainer": "Blockchain forking creates separate versions of the blockchain, either through protocol upgrades or network disagreements."
     },
     {
       "question": "What is a hard fork?",
@@ -110,7 +121,8 @@
         "Difficult mining process",
         "Hardware failure"
       ],
-      "answer": "Permanent rule divergence"
+      "answer": "Permanent rule divergence",
+      "explainer": "Hard forks create permanent divergences in blockchain rules, requiring all nodes to upgrade and creating separate chains."
     },
     {
       "question": "What is a soft fork?",
@@ -119,7 +131,8 @@
         "Easy mining process",
         "Temporary network issue"
       ],
-      "answer": "Backward-compatible upgrade"
+      "answer": "Backward-compatible upgrade",
+      "explainer": "Soft forks are backward-compatible upgrades that don't require all nodes to upgrade, maintaining network continuity."
     },
     {
       "question": "What is a 51% attack?",
@@ -128,7 +141,8 @@
         "51% user departure",
         "Transaction fee discount"
       ],
-      "answer": "Majority hash power control"
+      "answer": "Majority hash power control",
+      "explainer": "51% attacks occur when a single entity controls majority mining power, potentially enabling double-spending and chain reorganization."
     },
     {
       "question": "What is scalability?",
@@ -137,7 +151,8 @@
         "Blockchain file size",
         "Number of cryptocurrencies"
       ],
-      "answer": "Handle more transactions"
+      "answer": "Handle more transactions",
+      "explainer": "Scalability refers to a blockchain's ability to handle increasing transaction volumes without compromising speed or cost efficiency."
     },
     {
       "question": "What is the trilemma?",
@@ -146,7 +161,8 @@
         "Three consensus types",
         "Three-step verification"
       ],
-      "answer": "Security vs scalability"
+      "answer": "Security vs scalability",
+      "explainer": "The blockchain trilemma states that achieving decentralization, security, and scalability simultaneously is fundamentally challenging."
     },
     {
       "question": "Double-spending problem?",
@@ -155,7 +171,8 @@
         "Pay twice for item",
         "Calculation error"
       ],
-      "answer": "Same currency twice use"
+      "answer": "Same currency twice use",
+      "explainer": "Double-spending prevents the same digital currency from being used twice, a core challenge solved by blockchain consensus mechanisms."
     },
     {
       "question": "Byzantine Fault Tolerance?",
@@ -164,7 +181,8 @@
         "Byzantine empire protection",
         "Encryption type"
       ],
-      "answer": "Function despite bad nodes"
+      "answer": "Function despite bad nodes",
+      "explainer": "Byzantine Fault Tolerance enables blockchain networks to function correctly even when some nodes act maliciously or fail."
     },
     {
       "question": "What is a sidechain?",
@@ -173,7 +191,8 @@
         "Backup blockchain copy",
         "Side-worn chain"
       ],
-      "answer": "Separate connected chain"
+      "answer": "Separate connected chain",
+      "explainer": "Sidechains are separate blockchains connected to main chains, enabling asset transfers and specialized functionality."
     },
     {
       "question": "What is sharding?",
@@ -182,7 +201,8 @@
         "Accidental breaking",
         "Mining technique"
       ],
-      "answer": "Split into parallel chains"
+      "answer": "Split into parallel chains",
+      "explainer": "Sharding splits a blockchain into parallel chains to process transactions simultaneously, improving scalability and throughput."
     },
     {
       "question": "What is Lightning Network?",
@@ -191,7 +211,8 @@
         "Very fast internet",
         "Weather monitoring"
       ],
-      "answer": "Bitcoin fast solution"
+      "answer": "Bitcoin fast solution",
+      "explainer": "Lightning Network enables fast, low-cost Bitcoin transactions through off-chain payment channels, settling on-chain periodically."
     },
     {
       "question": "What is interoperability?",
@@ -200,7 +221,8 @@
         "Working together projects",
         "Business hours operation"
       ],
-      "answer": "Different chains communicate"
+      "answer": "Different chains communicate",
+      "explainer": "Interoperability enables different blockchain networks to communicate, share data, and transfer assets seamlessly across platforms."
     },
     {
       "question": "What is a validator?",
@@ -209,7 +231,8 @@
         "Blockchain code checker",
         "Smart contract tool"
       ],
-      "answer": "Transaction verifier node"
+      "answer": "Transaction verifier node",
+      "explainer": "Validators are nodes that verify transactions and add new blocks to the blockchain, maintaining network security and consensus."
     },
     {
       "question": "What is slashing?",
@@ -218,7 +241,8 @@
         "Cutting blockchain size",
         "Reducing fees"
       ],
-      "answer": "Malicious behavior penalty"
+      "answer": "Malicious behavior penalty",
+      "explainer": "Slashing penalizes validators for malicious behavior by confiscating portions of their staked tokens as network security enforcement."
     },
     {
       "question": "Permissionless blockchain?",
@@ -227,7 +251,8 @@
         "Blockchain without rules",
         "Free blockchain service"
       ],
-      "answer": "Anyone can join"
+      "answer": "Anyone can join",
+      "explainer": "Permissionless blockchains allow anyone to participate as a node or user without requiring approval or identity verification."
     },
     {
       "question": "Permissioned blockchain?",
@@ -236,7 +261,8 @@
         "View requires permission",
         "Additional features"
       ],
-      "answer": "Restricted access only"
+      "answer": "Restricted access only",
+      "explainer": "Permissioned blockchains restrict participation to approved entities, often used in enterprise and consortium applications."
     },
     {
       "question": "What is finality?",
@@ -245,7 +271,8 @@
         "End of lifespan",
         "Final block in chain"
       ],
-      "answer": "Transaction cannot reverse"
+      "answer": "Transaction cannot reverse",
+      "explainer": "Finality ensures that once a transaction is confirmed, it cannot be reversed or altered, providing certainty in blockchain operations."
     },
     {
       "question": "What is a blockchain oracle?",
@@ -254,7 +281,8 @@
         "Price prediction system",
         "Ancient prophecy"
       ],
-      "answer": "External data provider"
+      "answer": "External data provider",
+      "explainer": "Blockchain oracles provide external real-world data to smart contracts, enabling them to interact with off-chain information."
     },
     {
       "question": "Cross-chain technology?",
@@ -263,7 +291,8 @@
         "Chains crossing over",
         "Bridge technology"
       ],
-      "answer": "Different chains interact"
+      "answer": "Different chains interact",
+      "explainer": "Cross-chain technology enables different blockchain networks to communicate and transfer assets between separate ecosystems."
     },
     {
       "question": "What is governance?",
@@ -272,7 +301,8 @@
         "Government control",
         "User rules"
       ],
-      "answer": "Protocol change decisions"
+      "answer": "Protocol change decisions",
+      "explainer": "Governance refers to the process by which blockchain communities make decisions about protocol upgrades and network parameters."
     },
     {
       "question": "What is state channel?",
@@ -281,7 +311,8 @@
         "Government system",
         "TV channel"
       ],
-      "answer": "Off-chain communication"
+      "answer": "Off-chain communication",
+      "explainer": "State channels enable off-chain transactions between parties, settling final results on-chain to improve speed and reduce costs."
     },
     {
       "question": "Energy consumption related?",
@@ -290,7 +321,8 @@
         "Data storage",
         "Internet bandwidth"
       ],
-      "answer": "Proof of Work mining"
+      "answer": "Proof of Work mining",
+      "explainer": "Proof of Work mining consumes significant energy due to computational puzzles, leading to environmental concerns and efficiency improvements."
     }
   ]
 }

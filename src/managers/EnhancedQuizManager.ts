@@ -148,6 +148,13 @@ export default class EnhancedQuizManager {
   }
 
   private enhanceQuestions(questions: QuizQuestion[], theme: string): EnhancedQuizQuestion[] {
+    console.log('🔧 EnhancedQuizManager: enhanceQuestions called with:', {
+      questionCount: questions.length,
+      theme: theme,
+      firstQuestionHasExplainer: !!questions[0]?.explainer,
+      firstQuestionPreview: questions[0]?.question.substring(0, 50) + '...'
+    });
+    
     return questions.map((question) => {
       // Auto-assign difficulty based on question complexity
       const difficulty = this.determineDifficulty(question);
@@ -158,7 +165,7 @@ export default class EnhancedQuizManager {
       // Generate tags based on question content
       const tags = this.generateTags(question, theme);
 
-      return {
+      const enhanced = {
         ...question,
         difficulty,
         category,
@@ -167,6 +174,14 @@ export default class EnhancedQuizManager {
         points: this.getPoints(difficulty),
         explanation: this.generateExplanation(question)
       };
+      
+      console.log('🔧 Enhanced question:', {
+        originalHasExplainer: !!question.explainer,
+        enhancedHasExplanation: !!enhanced.explanation,
+        explanationLength: enhanced.explanation?.length || 0
+      });
+      
+      return enhanced;
     });
   }
 
@@ -236,11 +251,19 @@ export default class EnhancedQuizManager {
   }
 
   private generateExplanation(question: QuizQuestion): string {
+    console.log('🔍 EnhancedQuizManager: generateExplanation debug:', {
+      hasExplainer: !!question.explainer,
+      explainerLength: question.explainer?.length || 0,
+      explainerPreview: question.explainer?.substring(0, 100) || 'No explainer found'
+    });
+    
     // Use custom explainer from JSON if available, otherwise provide educational context
-    if (question.explainer) {
+    if (question.explainer && question.explainer.trim().length > 0) {
+      console.log('✅ EnhancedQuizManager: Using explainer from JSON:', question.explainer.substring(0, 150));
       return question.explainer;
     }
     
+    console.log('⚠️ EnhancedQuizManager: No explainer found, using fallback');
     // Generate educational explanation without revealing the answer
     return `This question relates to fundamental concepts in the topic. Consider the key principles and definitions to determine the most accurate answer.`;
   }

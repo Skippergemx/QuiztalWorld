@@ -11,7 +11,8 @@
         "Digital Exchange",
         "Data Exchange"
       ],
-      "answer": "Decentralized Exchange"
+      "answer": "Decentralized Exchange",
+      "explainer": "DEX stands for Decentralized Exchange - a crypto trading platform that operates without central authority using smart contracts on blockchain."
     },
     {
       "question": "DEX vs Centralized?",
@@ -20,7 +21,8 @@
         "Cheaper fees maybe",
         "Faster processing"
       ],
-      "answer": "No need to trust"
+      "answer": "No need to trust",
+      "explainer": "DEXs are trustless - you control your funds directly through smart contracts without relying on a centralized company to hold your assets."
     },
     {
       "question": "What is an AMM?",
@@ -29,7 +31,8 @@
         "Human market maker",
         "Centralized trading bot"
       ],
-      "answer": "Algorithmic trading bot"
+      "answer": "Algorithmic trading bot",
+      "explainer": "AMM (Automated Market Maker) uses algorithms and liquidity pools to enable trading without traditional order books or human market makers."
     },
     {
       "question": "What is liquidity pool?",
@@ -38,7 +41,8 @@
         "Crypto storage unit",
         "Trader hangout spot"
       ],
-      "answer": "Token swimming pool"
+      "answer": "Token swimming pool",
+      "explainer": "A liquidity pool is a smart contract holding reserves of tokens that traders can swap against, like a digital swimming pool of assets."
     },
     {
       "question": "What is slippage?",
@@ -47,7 +51,8 @@
         "DEX fee charge",
         "Trade delay time"
       ],
-      "answer": "Price surprise factor"
+      "answer": "Price surprise factor",
+      "explainer": "Slippage is the difference between expected and actual trade prices due to market movements during transaction execution."
     },
     {
       "question": "Impermanent loss?",
@@ -56,7 +61,8 @@
         "Permanent fund loss",
         "High gas fee loss"
       ],
-      "answer": "Temporary paper hands"
+      "answer": "Temporary paper hands",
+      "explainer": "Impermanent loss occurs when providing liquidity results in less value than simply holding tokens due to price divergence."
     },
     {
       "question": "What is Uniswap?",
@@ -65,7 +71,8 @@
         "Centralized exchange",
         "Blockchain network"
       ],
-      "answer": "Ethereum's swap machine"
+      "answer": "Ethereum's swap machine",
+      "explainer": "Uniswap is the leading decentralized exchange on Ethereum, pioneering automated market makers for permissionless token swaps."
     },
     {
       "question": "What is TVL?",
@@ -74,7 +81,8 @@
         "Total Volume Traded",
         "Total Verified Liquidity"
       ],
-      "answer": "Total Value Locked"
+      "answer": "Total Value Locked",
+      "explainer": "TVL measures the total dollar value of assets deposited in DeFi protocols, indicating platform size and user trust."
     },
     {
       "question": "What is LP?",
@@ -83,7 +91,8 @@
         "Lazy programmer",
         "Low price buyer"
       ],
-      "answer": "Liquidity provider"
+      "answer": "Liquidity provider",
+      "explainer": "LP (Liquidity Provider) deposits tokens into pools to enable trading, earning fees in return for providing market liquidity."
     },
     {
       "question": "What are LP tokens?",
@@ -92,7 +101,8 @@
         "Transaction fee tokens",
         "Governance tokens"
       ],
-      "answer": "Pool share tickets"
+      "answer": "Pool share tickets",
+      "explainer": "LP tokens represent your share of a liquidity pool, like ownership certificates that can be redeemed for your portion plus earned fees."
     },
     {
       "question": "What is arbitrage?",
@@ -101,7 +111,8 @@
         "Borrowed fund trading",
         "Liquidity providing"
       ],
-      "answer": "Buy low, sell high"
+      "answer": "Buy low, sell high",
+      "explainer": "Arbitrage exploits price differences across markets by buying assets where they're cheap and selling where they're expensive."
     },
     {
       "question": "What is DEX aggregator?",
@@ -110,7 +121,8 @@
         "DEX creator tool",
         "Liquidity pool type"
       ],
-      "answer": "Best price finder"
+      "answer": "Best price finder",
+      "explainer": "DEX aggregators search across multiple exchanges to find the best trading prices and routes for your swaps automatically."
     },
     {
       "question": "What is yield farming?",
@@ -119,7 +131,8 @@
         "Blockchain gardening",
         "Crypto mining"
       ],
-      "answer": "Growing crypto crops"
+      "answer": "Growing crypto crops",
+      "explainer": "Yield farming involves providing liquidity or staking tokens in DeFi protocols to earn rewards, like growing crops for harvest."
     },
     {
       "question": "What is flash loan?",
@@ -128,7 +141,8 @@
         "Fast approval process",
         "Flashing rate loan"
       ],
-      "answer": "Instant money flip"
+      "answer": "Instant money flip",
+      "explainer": "Flash loans let you borrow and repay crypto within a single transaction, enabling risk-free arbitrage and complex strategies."
     },
     {
       "question": "What is MEV?",
@@ -137,7 +151,8 @@
         "Market Exchange Value",
         "Minimum Execution Value"
       ],
-      "answer": "Maximal Extractable Value"
+      "answer": "Maximal Extractable Value",
+      "explainer": "MEV is profit that can be extracted by reordering, including, or censoring transactions within blocks during the mining process."
     },
     {
       "question": "Front-running?",
@@ -146,7 +161,8 @@
         "Running DEX protocol",
         "First liquidity provider"
       ],
-      "answer": "Jumping the gun"
+      "answer": "Jumping the gun",
+      "explainer": "Front-running involves placing transactions ahead of others by paying higher gas fees to profit from predicted price movements."
     },
     {
       "question": "Constant product AMM?",
@@ -155,7 +171,8 @@
         "Constant price maker",
         "Constant volume maker"
       ],
-      "answer": "x * y = k formula"
+      "answer": "x * y = k formula",
+      "explainer": "Constant product AMMs use the x*y=k formula where token reserves multiply to a constant, determining exchange rates automatically."
     },
     {
       "question": "What is PancakeSwap?",
@@ -164,7 +181,8 @@
         "Ethereum DEX",
         "Centralized exchange"
       ],
-      "answer": "BSC's pancake house"
+      "answer": "BSC's pancake house",
+      "explainer": "PancakeSwap is the leading decentralized exchange on Binance Smart Chain, offering lower fees than Ethereum-based DEXs."
     },
     {
       "question": "What is SushiSwap?",
@@ -173,7 +191,8 @@
         "Sushi marketplace",
         "Food trading chain"
       ],
-      "answer": "Uniswap's sushi roll"
+      "answer": "Uniswap's sushi roll",
+      "explainer": "SushiSwap is a Uniswap fork that added governance tokens and additional features, creating community-owned DEX with SUSHI rewards."
     },
     {
       "question": "What is trading pair?",
@@ -182,7 +201,8 @@
         "Trader partnership",
         "Matched buy/sell"
       ],
-      "answer": "Token trading duo"
+      "answer": "Token trading duo",
+      "explainer": "A trading pair represents two tokens that can be swapped against each other, like ETH/USDC, defining the exchange rate between them."
     },
     {
       "question": "What is price impact?",
@@ -191,7 +211,8 @@
         "Gas fee impact",
         "News price effect"
       ],
-      "answer": "Whale effect warning"
+      "answer": "Whale effect warning",
+      "explainer": "Price impact shows how much your trade will move the market price, with larger trades causing bigger price changes."
     },
     {
       "question": "What is rug pull?",
@@ -200,7 +221,8 @@
         "Legit exit strategy",
         "Smart contract upgrade"
       ],
-      "answer": "Scam artist trick"
+      "answer": "Scam artist trick",
+      "explainer": "A rug pull is when developers drain liquidity pools and disappear with funds, leaving investors with worthless tokens."
     },
     {
       "question": "What is stableswap?",
@@ -209,7 +231,8 @@
         "Stable DEX version",
         "Stablecoin only trading"
       ],
-      "answer": "Stablecoin highway"
+      "answer": "Stablecoin highway",
+      "explainer": "StableSwap is an AMM optimized for trading similar assets like stablecoins with minimal slippage and better capital efficiency."
     },
     {
       "question": "What is Curve Finance?",
@@ -218,7 +241,8 @@
         "Lending protocol",
         "Derivatives exchange"
       ],
-      "answer": "Stablecoin specialist"
+      "answer": "Stablecoin specialist",
+      "explainer": "Curve Finance specializes in efficient trading of similar assets like stablecoins and wrapped tokens with low slippage."
     },
     {
       "question": "What is Balancer?",
@@ -227,7 +251,8 @@
         "Portfolio balancer",
         "Cross-chain bridge"
       ],
-      "answer": "Multi-token mixer"
+      "answer": "Multi-token mixer",
+      "explainer": "Balancer allows pools with multiple tokens and custom weightings, functioning as both DEX and automated portfolio manager."
     },
     {
       "question": "What is bonding curve?",
@@ -236,7 +261,8 @@
         "Time price curve",
         "Lending rate curve"
       ],
-      "answer": "Price math formula"
+      "answer": "Price math formula",
+      "explainer": "A bonding curve is a mathematical formula that determines token price based on supply, creating predictable price discovery."
     },
     {
       "question": "What is 1inch?",
@@ -245,7 +271,8 @@
         "Token measurement unit",
         "Specific trading pair"
       ],
-      "answer": "Pathfinding wizard"
+      "answer": "Pathfinding wizard",
+      "explainer": "1inch is a DEX aggregator that finds the most efficient trading routes across multiple exchanges to minimize costs and slippage."
     },
     {
       "question": "Concentrated liquidity?",
@@ -254,7 +281,8 @@
         "All pool liquidity",
         "Centralized liquidity"
       ],
-      "answer": "Laser-focused capital"
+      "answer": "Laser-focused capital",
+      "explainer": "Concentrated liquidity allows providers to focus their capital on specific price ranges, increasing capital efficiency and fees earned."
     },
     {
       "question": "Cross-chain DEX?",
@@ -263,7 +291,8 @@
         "Time zone crossing",
         "Crossed pairs"
       ],
-      "answer": "Multi-chain bridge"
+      "answer": "Multi-chain bridge",
+      "explainer": "Cross-chain DEXs enable trading assets across different blockchains, bridging liquidity between separate ecosystems."
     },
     {
       "question": "Uniswap V2 vs V3?",
@@ -272,7 +301,8 @@
         "V3 is faster",
         "More tokens supported"
       ],
-      "answer": "Concentrated liquidity"
+      "answer": "Concentrated liquidity",
+      "explainer": "Uniswap V3 introduced concentrated liquidity, allowing LPs to focus capital on specific price ranges for higher capital efficiency."
     }
   ]
 }
