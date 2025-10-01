@@ -52,7 +52,16 @@ export default class BasePal extends WalkingNPC {
 
     // Create animations
     this.createAnimations(scene);
-    this.play("basepal-idle-down");
+    
+    // Safely play initial animation
+    if (scene.anims.exists("basepal-idle-down")) {
+      this.play("basepal-idle-down");
+    } else {
+      // Fallback to default idle animation
+      if (scene.anims.exists("basepal-idle")) {
+        this.play("basepal-idle");
+      }
+    }
 
     // Register with the scene as an updateable object
     scene.events.on("update", this.update, this);
@@ -133,45 +142,66 @@ export default class BasePal extends WalkingNPC {
       const idleKey = `basepal-idle-${config.name}`;
       
       if (!scene.anims.exists(idleKey)) {
-        const idleFrames = scene.anims.generateFrameNumbers("npc_basepal", {
-          start: config.idleStart,
-          end: config.idleEnd,
-        });
-        
-        scene.anims.create({
-          key: idleKey,
-          frames: idleFrames,
-          frameRate: 3,
-          repeat: -1,
-        });
+        try {
+          const idleFrames = scene.anims.generateFrameNumbers("npc_basepal", {
+            start: config.idleStart,
+            end: config.idleEnd,
+          });
+          
+          // Check if frames were generated successfully
+          if (idleFrames && idleFrames.length > 0) {
+            scene.anims.create({
+              key: idleKey,
+              frames: idleFrames,
+              frameRate: 3,
+              repeat: -1,
+            });
+          }
+        } catch (error) {
+          console.error(`❌ BasePal: Failed to create idle animation ${idleKey}:`, error);
+        }
       }
 
       // Walk animation
       const walkKey = `basepal-walk-${config.name}`;
       
       if (!scene.anims.exists(walkKey)) {
-        const walkFrames = scene.anims.generateFrameNumbers("npc_basepal_walk", {
-          start: config.walkStart,
-          end: config.walkEnd,
-        });
-        
-        scene.anims.create({
-          key: walkKey,
-          frames: walkFrames,
-          frameRate: 8,
-          repeat: -1,
-        });
+        try {
+          const walkFrames = scene.anims.generateFrameNumbers("npc_basepal_walk", {
+            start: config.walkStart,
+            end: config.walkEnd,
+          });
+          
+          // Check if frames were generated successfully
+          if (walkFrames && walkFrames.length > 0) {
+            scene.anims.create({
+              key: walkKey,
+              frames: walkFrames,
+              frameRate: 8,
+              repeat: -1,
+            });
+          }
+        } catch (error) {
+          console.error(`❌ BasePal: Failed to create walk animation ${walkKey}:`, error);
+        }
       }
     });
     
     // Create default idle animation as fallback
     if (!scene.anims.exists("basepal-idle")) {
-      scene.anims.create({
-        key: "basepal-idle",
-        frames: scene.anims.generateFrameNumbers("npc_basepal", { start: 0, end: 23 }),
-        frameRate: 3,
-        repeat: -1,
-      });
+      try {
+        const defaultFrames = scene.anims.generateFrameNumbers("npc_basepal", { start: 0, end: 23 });
+        if (defaultFrames && defaultFrames.length > 0) {
+          scene.anims.create({
+            key: "basepal-idle",
+            frames: defaultFrames,
+            frameRate: 3,
+            repeat: -1,
+          });
+        }
+      } catch (error) {
+        console.error("❌ BasePal: Failed to create default idle animation:", error);
+      }
     }
   }
 
@@ -411,7 +441,13 @@ export default class BasePal extends WalkingNPC {
     
     // Handle BasePal's animations with proper direction support
     if (textureKey === 'npc_basepal' || textureKey === 'npc_basepal_walk') {
-      return `basepal-${type}-${direction}`;
+      const key = `basepal-${type}-${direction}`;
+      // Check if animation exists before returning
+      if (this.scene.anims.exists(key)) {
+        return key;
+      }
+      // Fallback to default idle animation
+      return "basepal-idle";
     }
     
     // Fall back to parent implementation
