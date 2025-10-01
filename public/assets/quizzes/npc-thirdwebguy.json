@@ -7,7 +7,6 @@
     {
       "question": "What is the primary purpose of ThirdWeb?",
       "options": [
-        "To create digital art",
         "To provide a platform for web3 development with pre-built tools and SDKs",
         "To sell art supplies",
         "To host art exhibitions"
@@ -22,7 +21,6 @@
     {
       "question": "How does ThirdWeb help developers?",
       "options": [
-        "By providing free art supplies",
         "By offering pre-built smart contracts and development tools",
         "By buying their artwork",
         "By teaching them traditional art techniques"
@@ -37,7 +35,6 @@
     {
       "question": "What type of technology does ThirdWeb primarily support?",
       "options": [
-        "Traditional web development",
         "Web3 and blockchain development",
         "Mobile app development",
         "Desktop software development"
@@ -52,7 +49,6 @@
     {
       "question": "What can developers do with ThirdWeb?",
       "options": [
-        "Only view artwork",
         "Build, deploy, and manage smart contracts and web3 applications",
         "Create physical art pieces",
         "Attend in-person art classes"
@@ -67,7 +63,6 @@
     {
       "question": "How does ThirdWeb ensure quality in its tools?",
       "options": [
-        "By only featuring famous developers",
         "By having a comprehensive documentation and testing process",
         "By charging high fees",
         "By limiting the number of developers"

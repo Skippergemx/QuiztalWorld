@@ -14,7 +14,6 @@ import PetManager from '../managers/PetManager';
 
 // Import walking NPC system
 import WalkingNPCManager from '../managers/WalkingNPCManager';
-// Removed unused import SamplePatrolNPC
 
 export default class GameScene extends Phaser.Scene {
   // Core game objects
@@ -243,6 +242,15 @@ export default class GameScene extends Phaser.Scene {
       console.log('✅ GameScene: AlchemyMan registered with WalkingNPCManager');
     } else {
       console.warn('⚠️ GameScene: AlchemyMan not found in NPCManager, cannot register with WalkingNPCManager');
+    }
+
+    // Get the BasePal instance from the NPCManager and register it with the WalkingNPCManager
+    const basePal = this.npcManager.getNPC('basepal');
+    if (basePal) {
+      this.walkingNPCManager.registerWalkingNPC(basePal);
+      console.log('✅ GameScene: BasePal registered with WalkingNPCManager');
+    } else {
+      console.warn('⚠️ GameScene: BasePal not found in NPCManager, cannot register with WalkingNPCManager');
     }
 
     console.log('✅ GameScene: Walking NPC system initialized');

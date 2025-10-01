@@ -5,22 +5,27 @@ import { BaseDialog } from './BaseDialog';
 // Singleton instance
 let singletonInstance: SimpleDialogBox | null = null;
 
+// Add this interface
+interface DialogData {
+  text: string;
+  avatar?: string;
+  isExitDialog?: boolean;
+  options?: { text: string; callback: () => void }[];
+  onClose?: () => void; // Add onClose callback
+}
+
 export class SimpleDialogBox extends BaseDialog {
   private dialogText!: Phaser.GameObjects.Text;
   private optionsContainer!: Phaser.GameObjects.Container;
   private avatar!: Phaser.GameObjects.Image;
   private currentDialogIndex: number = 0;
-  private dialogData: {
-    text: string;
-    avatar?: string;
-    isExitDialog?: boolean;
-    options?: { text: string; callback: () => void }[];
-  }[] = [];
+  private dialogData: DialogData[] = []; // Use the new interface
+  private onCloseCallback: (() => void) | null = null; // Store onClose callback
 
   constructor(scene: Phaser.Scene) {
     super(scene, { 
       width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
-      height: scene.scale.width < 768 ? 200 : 200
+      height: scene.scale.width < 768 ? 420 : 480  // Increased height to match OptimizedEnhancedQuizDialog
     });
     
     this.initializeDialogContent();
@@ -68,12 +73,7 @@ export class SimpleDialogBox extends BaseDialog {
     this.dialogContainer.setVisible(false).setAlpha(0);
   }
 
-  public showDialog(dialogData: {
-    text: string;
-    avatar?: string;
-    isExitDialog?: boolean;
-    options?: { text: string; callback: () => void }[];
-  }[]) {
+  public showDialog(dialogData: DialogData[]) { // Use the new interface
     if (!Array.isArray(dialogData) || dialogData.length === 0) {
       console.error("Invalid dialog data provided");
       return;
@@ -81,6 +81,9 @@ export class SimpleDialogBox extends BaseDialog {
 
     this.dialogData = dialogData;
     this.currentDialogIndex = 0;
+
+    // Store onClose callback from first dialog if it exists
+    this.onCloseCallback = dialogData[0].onClose || null;
 
     this.updatePosition();
     this.dialogContainer.setAlpha(1);
@@ -95,10 +98,6 @@ export class SimpleDialogBox extends BaseDialog {
     }
 
     this.displayNext();
-  }
-  
-  public updateDialogText(newText: string) {
-    this.dialogText.setText(newText);
   }
 
   private displayNext() {
@@ -137,8 +136,8 @@ export class SimpleDialogBox extends BaseDialog {
             color: modernUITheme.colors.accent,
             fontFamily: modernUITheme.typography.fontFamily.primary,
             wordWrap: {
-              width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140,
-              useAdvancedWrap: true
+              width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140
+              // Removed useAdvancedWrap: true to prevent console spam and performance issues
             }
           }
         ).setInteractive({ useHandCursor: true })
@@ -190,6 +189,12 @@ export class SimpleDialogBox extends BaseDialog {
   }
 
   private closeDialog() {
+    // Call onClose callback if it exists
+    if (this.onCloseCallback) {
+      this.onCloseCallback();
+      this.onCloseCallback = null; // Reset callback so it's not called again
+    }
+    
     this.dialogContainer.setVisible(false);
     if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
       window.quizAntiSpamManager.closeDialog();
@@ -214,13 +219,8 @@ export class SimpleDialogBox extends BaseDialog {
   }
 }
 
-// Export function for backward compatibility
-export function showDialog(scene: Phaser.Scene, dialogData: {
-  text: string;
-  avatar?: string;
-  isExitDialog?: boolean;
-  options?: { text: string; callback: () => void }[];
-}[]): void {
+// Update the showDialog function to use the new interface
+export function showDialog(scene: Phaser.Scene, dialogData: DialogData[]): void { // Use the new interface
   const dialog = SimpleDialogBox.getInstance(scene);
   dialog.showDialog(dialogData);
 }

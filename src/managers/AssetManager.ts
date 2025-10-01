@@ -181,6 +181,14 @@ export default class AssetManager {
         spritePath: 'assets/npc/npc_alchemyman_idle_1.png',
         frameWidth: 32,
         frameHeight: 53
+      },
+      {
+        avatarKey: 'npc_basepal_avatar',
+        avatarPath: 'assets/npc/npc_basepal_avatar.png',
+        spriteKey: 'npc_basepal',
+        spritePath: 'assets/npc/npc_basepal_idle_1.png',
+        frameWidth: 32,
+        frameHeight: 53
       }
     ];
 
@@ -210,7 +218,7 @@ export default class AssetManager {
         });
       
         // Load walk animation if it exists (for walking NPCs)
-        if (config.spriteKey.includes('mrrugpull') || config.spriteKey.includes('artizengent') || config.spriteKey.includes('thirdwebguy') || config.spriteKey.includes('alchemyman')) {
+        if (config.spriteKey.includes('mrrugpull') || config.spriteKey.includes('artizengent') || config.spriteKey.includes('thirdwebguy') || config.spriteKey.includes('alchemyman') || config.spriteKey.includes('basepal')) {
           const walkKey = config.spriteKey + '_walk';
           const walkPath = config.spritePath.replace('_idle_1', '_walk_1');
           this.scene.load.spritesheet(walkKey, walkPath, {
@@ -350,7 +358,8 @@ export default class AssetManager {
       'dexpertgal': { avatarKey: 'npc_dexpertgal_avatar', spriteKey: 'dexpert_gal' },
       'nftcyn': { avatarKey: 'npc_nftcyn_avatar', spriteKey: 'nft_cyn' },
       'profchain': { avatarKey: 'npc_profchain_avatar', spriteKey: 'prof_chain' },
-      'smartcontractguy': { avatarKey: 'npc_smartcontractguy_avatar', spriteKey: 'smart_contract_guy' }
+      'smartcontractguy': { avatarKey: 'npc_smartcontractguy_avatar', spriteKey: 'smart_contract_guy' },
+      'basepal': { avatarKey: 'npc_basepal_avatar', spriteKey: 'npc_basepal' }
     };
 
     return assetMap[npcType.toLowerCase()] || null;

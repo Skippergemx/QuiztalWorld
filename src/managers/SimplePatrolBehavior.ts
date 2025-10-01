@@ -34,6 +34,14 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       return;
     }
     
+    // Enhanced debug logging for BasePal
+    const npcName = this.getNPCName(npc);
+    if (npcName === 'BasePal') {
+      console.log(`🔍 SimplePatrolBehavior Update - NPC: ${npcName}, Position: (${npc.x.toFixed(2)}, ${npc.y.toFixed(2)})`);
+      console.log(`🔍 SimplePatrolBehavior Update - Target: (${this.currentTarget.x.toFixed(2)}, ${this.currentTarget.y.toFixed(2)})`);
+      console.log(`🔍 SimplePatrolBehavior Update - IsIdle: ${this.isIdle}, IdleStart: ${this.idleStartTime}`);
+    }
+    
     // CRITICAL: Normalize deltaTime to prevent timer issues
     // We now use real timestamps for idle timing, so deltaTime issues are less critical
     if (deltaTime > 1000) { // Only cap if deltaTime is more than 1 second (extreme case)
@@ -44,6 +52,9 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     // CRITICAL: Check if NPC is stuck in interaction mode during patrol
     if (npc.isCurrentlyInteracting && npc.isCurrentlyInteracting()) {
       // NPC is in interaction mode, skip patrol update
+      if (npcName === 'BasePal') {
+        console.log(`🔍 SimplePatrolBehavior Update - ${npcName} is currently interacting, skipping patrol update`);
+      }
       return;
     }
     
@@ -51,6 +62,11 @@ export class SimplePatrolBehavior implements WalkingBehavior {
     if (this.isIdle) {
       const currentTime = Date.now();
       const elapsedIdleTime = currentTime - this.idleStartTime;
+      
+      // Enhanced debug logging for BasePal
+      if (npcName === 'BasePal') {
+        console.log(`🔍 SimplePatrolBehavior Update - ${npcName} is idle, Elapsed: ${elapsedIdleTime}ms, Duration: ${this.currentIdleDuration}ms`);
+      }
       
       // CRITICAL: Keep stopped during idle - force velocity to zero every frame
       if (npc && npc.body && typeof npc.setVelocity === 'function') {
@@ -63,12 +79,18 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       
       // Check if idle period is complete using real-time calculation
       if (elapsedIdleTime >= this.currentIdleDuration) {
+        if (npcName === 'BasePal') {
+          console.log(`🔍 SimplePatrolBehavior Update - ${npcName} idle period complete, switching target`);
+        }
         this.isIdle = false;
         this.idleStartTime = 0;
         // Generate new random idle duration for next time
         this.generateRandomIdleDuration();
         // Switch target after idle period
         this.currentTarget = (this.currentTarget === this.pointA) ? this.pointB : this.pointA;
+        if (npcName === 'BasePal') {
+          console.log(`🔍 SimplePatrolBehavior Update - ${npcName} new target: (${this.currentTarget.x.toFixed(2)}, ${this.currentTarget.y.toFixed(2)})`);
+        }
       }
       
       return; // Skip movement during idle
@@ -80,8 +102,18 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       this.currentTarget.x, this.currentTarget.y
     );
     
+    // Enhanced debug logging for BasePal
+    if (npcName === 'BasePal') {
+      console.log(`🔍 SimplePatrolBehavior Update - ${npcName} distance to target: ${distanceToTarget.toFixed(2)}, Tolerance: ${this.tolerance}`);
+    }
+    
     // Check if we've reached the target patrol point
     if (distanceToTarget <= this.tolerance) {
+      // Enhanced debug logging for BasePal
+      if (npcName === 'BasePal') {
+        console.log(`🔍 SimplePatrolBehavior Update - ${npcName} reached target, entering idle mode`);
+      }
+      
       // CRITICAL: Stop movement immediately and completely
       if (npc && npc.body && typeof npc.setVelocity === 'function') {
         npc.setVelocity(0, 0);
@@ -99,12 +131,22 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       this.currentTarget.x, this.currentTarget.y
     );
 
+    // Enhanced debug logging for BasePal
+    if (npcName === 'BasePal') {
+      console.log(`🔍 SimplePatrolBehavior Update - ${npcName} moving towards target, Angle: ${angle.toFixed(2)}`);
+    }
+
     // Move towards target
     if (npc && typeof npc.setVelocity === 'function') {
-      npc.setVelocity(
-        Math.cos(angle) * this.moveSpeed,
-        Math.sin(angle) * this.moveSpeed
-      );
+      const vx = Math.cos(angle) * this.moveSpeed;
+      const vy = Math.sin(angle) * this.moveSpeed;
+      
+      // Enhanced debug logging for BasePal
+      if (npcName === 'BasePal') {
+        console.log(`🔍 SimplePatrolBehavior Update - ${npcName} setting velocity: (${vx.toFixed(2)}, ${vy.toFixed(2)})`);
+      }
+      
+      npc.setVelocity(vx, vy);
     }
 
     // Determine direction and play animation
@@ -120,6 +162,7 @@ export class SimplePatrolBehavior implements WalkingBehavior {
       if (key.includes('artizengent')) return 'Artizen Gent';
       if (key.includes('thirdwebguy')) return 'ThirdWeb Guy';
       if (key.includes('alchemyman')) return 'Alchemy Man';
+      if (key.includes('basepal')) return 'BasePal';
       return key;
     }
     return 'Unknown NPC';

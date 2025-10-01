@@ -96,6 +96,12 @@ export default class WalkingNPC extends QuizNPC {
       return key;
     }
     
+    // Special case for BasePal's animations
+    if (textureKey === 'npc_basepal' || textureKey === 'npc_basepal_walk') {
+      const key = `basepal-${type}-${direction}`;
+      return key;
+    }
+    
     // Handle different texture naming conventions
     if (textureKey.includes('_idle')) {
       // For textures like 'moblin_idle', use 'moblin'

@@ -13,6 +13,7 @@ import MrRugPull from '../objects/MrRugPull'; // Add MrRugPull import
 import ArtizenGent from '../objects/ArtizenGent'; // Add ArtizenGent import
 import ThirdWebGuy from '../objects/ThirdWebGuy'; // Add ThirdWebGuy import
 import AlchemyMan from '../objects/AlchemyMan'; // Add AlchemyMan import
+import BasePal from '../objects/BasePal'; // Add BasePal import
 import WalkingNPCManager from './WalkingNPCManager'; // Add WalkingNPCManager import
 
 interface NPCConfig {
@@ -132,6 +133,13 @@ export default class NPCManager {
       name: 'Alchemy Man',
       class: AlchemyMan,
       position: { x: 175, y: 760 }, // Position for Alchemy Man
+      interactionRange: 100
+    },
+    {
+      id: 'basepal',
+      name: 'BasePal',
+      class: BasePal,
+      position: { x: 1105, y: 450 }, // Position near Base Sage
       interactionRange: 100
     }
   ];

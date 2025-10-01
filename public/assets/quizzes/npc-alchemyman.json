@@ -7,7 +7,6 @@
     {
       "question": "What is the primary purpose of Alchemy?",
       "options": [
-        "To create digital art",
         "To provide a platform for blockchain infrastructure and development tools",
         "To sell art supplies",
         "To host art exhibitions"
@@ -22,7 +21,6 @@
     {
       "question": "How does Alchemy help blockchain developers?",
       "options": [
-        "By providing free art supplies",
         "By offering reliable node infrastructure and development APIs",
         "By buying their artwork",
         "By teaching them traditional art techniques"
@@ -37,7 +35,6 @@
     {
       "question": "What type of technology does Alchemy primarily support?",
       "options": [
-        "Traditional web development",
         "Blockchain and Web3 development",
         "Mobile app development",
         "Desktop software development"
@@ -52,7 +49,6 @@
     {
       "question": "What can developers do with Alchemy?",
       "options": [
-        "Only view artwork",
         "Access reliable blockchain data and build decentralized applications",
         "Create physical art pieces",
         "Attend in-person art classes"
@@ -67,7 +63,6 @@
     {
       "question": "How does Alchemy ensure reliability in its services?",
       "options": [
-        "By only featuring famous developers",
         "By providing enterprise-grade infrastructure with high uptime",
         "By charging high fees",
         "By limiting the number of developers"
