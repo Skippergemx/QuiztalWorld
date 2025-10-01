@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
@@ -89,15 +89,13 @@ export default class DexpertGal extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("DexpertGal: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-      
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
       
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -171,7 +169,8 @@ export default class DexpertGal extends QuizNPC {
           return;
         }
         
-        const dialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
             {
                 text: isCorrect
                     ? `🔄 Excellent trade! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`
@@ -180,9 +179,6 @@ export default class DexpertGal extends QuizNPC {
                 isExitDialog: true
             }
         ]);
-        
-        // Store reference to the new dialog
-        this.currentDialog = dialog;
         
         // Set up auto-reset for the dialog after 3 seconds
         this.setupDialogAutoReset(3000);
@@ -309,7 +305,8 @@ export default class DexpertGal extends QuizNPC {
       }
       
       // Show reward dialog with result message
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🔄 Excellent trade! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`
@@ -318,9 +315,6 @@ export default class DexpertGal extends QuizNPC {
           isExitDialog: true
         }
       ]);
-      
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
       
       // Save enhanced reward if correct
       if (isCorrect) {
@@ -489,7 +483,8 @@ export default class DexpertGal extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
           avatar: "npc_dexpertgal_avatar",

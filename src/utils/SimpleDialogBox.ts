@@ -196,6 +196,10 @@ export class SimpleDialogBox extends BaseDialog {
     }
   }
 
+  public close() {
+    this.closeDialog();
+  }
+
   public cleanup() {
     super.cleanup();
     singletonInstance = null;

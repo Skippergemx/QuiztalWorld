@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
@@ -87,15 +87,13 @@ export default class NftCyn extends QuizNPC {
     
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-      
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
       
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -220,15 +218,14 @@ export default class NftCyn extends QuizNPC {
         ? `🎨 Amazing! You earned ${baseReward.toFixed(2)} $Quiztals for your NFT knowledge! (${question.difficulty} difficulty)` 
         : `🖼️ Not quite! The correct answer was "${question.answer}". Keep exploring the NFT world!`;
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: rewardText,
           avatar: "npc_nftcyn_avatar",
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       this.setupDialogAutoReset(3000);
     });
 
@@ -300,7 +297,8 @@ export default class NftCyn extends QuizNPC {
           return;
         }
         
-        const dialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
             {
                 text: isCorrect
                     ? `🎨 Correct! You earned ${reward.toFixed(2)} $Quiztals for your NFT knowledge!`
@@ -309,9 +307,6 @@ export default class NftCyn extends QuizNPC {
                 isExitDialog: true
             }
         ]);
-        
-        // Store reference to the new dialog
-        this.currentDialog = dialog;
         
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -433,7 +428,8 @@ export default class NftCyn extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🕒 Hello there! I'm taking a short break to recharge my NFT knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
           avatar: "npc_nftcyn_avatar",

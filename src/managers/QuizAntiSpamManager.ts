@@ -89,7 +89,7 @@ export class QuizAntiSpamManager {
     // Only block new NPC interactions, not existing dialog interactions
     // The quiz dialog should still be interactive while preventing new quiz starts
     this.blockedInteractions = 0;
-    this.npcInstances.forEach((npc, index) => {
+    this.npcInstances.forEach((npc) => {
       // Store original pointerdown handler instead of disabling all input
       if (npc.listeners && npc.listeners('pointerdown').length > 0) {
         // Mark NPC as blocked but don't disable input entirely
@@ -105,7 +105,7 @@ export class QuizAntiSpamManager {
     // Only unblock if neither quiz nor dialog is active
     if (!this.isQuizActive && !this.isDialogOpen) {
       // Restore NPC interactions
-      this.npcInstances.forEach((npc, index) => {
+      this.npcInstances.forEach((npc) => {
         if (npc._quizBlocked) {
           npc._quizBlocked = false;
         }

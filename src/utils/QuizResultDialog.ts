@@ -11,7 +11,7 @@ export interface QuizResultData {
 }
 
 // Singleton instance
-let resultSingletonInstance: QuizResultDialog | null = null;
+// let resultSingletonInstance: QuizResultDialog | null = null;
 
 export class QuizResultDialog extends BaseDialog {
   // Current result data

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC
@@ -311,7 +311,8 @@ export default class MrRugPull extends WalkingNPC {
         return;
       }
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
@@ -320,8 +321,6 @@ export default class MrRugPull extends WalkingNPC {
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       
       // Save reward using enhanced system
       if (isCorrect) {
@@ -408,7 +407,8 @@ export default class MrRugPull extends WalkingNPC {
         return;
       }
 
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
@@ -417,9 +417,6 @@ export default class MrRugPull extends WalkingNPC {
           isExitDialog: true
         }
       ]);
-
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -513,7 +510,8 @@ export default class MrRugPull extends WalkingNPC {
       
       // Only show dialog if we don't already have one open
       if (!this.currentDialog) {
-        this.currentDialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
           {
             text: `😈 Hey there! I'm currently counting my ill-gotten gains. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have legitimate knowledge to share! 🏫`,
             avatar: "npc_mrrugpull_avatar",

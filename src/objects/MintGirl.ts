@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
@@ -89,15 +89,13 @@ export default class MintGirl extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("MintGirl: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-      
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
       
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
@@ -225,15 +223,14 @@ export default class MintGirl extends QuizNPC {
         ? `🍃 Correct! You earned ${baseReward.toFixed(2)} $Quiztals from the Mint Club! (${question.difficulty} difficulty)` 
         : `🌪️ Not quite! The correct answer was "${question.answer}". Try again later!`;
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: rewardText,
           avatar: "npc_mintgirl_avatar",
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       this.setupDialogAutoReset(3000);
     });
 
@@ -306,7 +303,8 @@ export default class MintGirl extends QuizNPC {
           return;
         }
         
-        const dialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
             {
                 text: isCorrect
                     ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Mint Club!`
@@ -315,9 +313,6 @@ export default class MintGirl extends QuizNPC {
                 isExitDialog: true
             }
         ]);
-        
-        // Store reference to the new dialog
-        this.currentDialog = dialog;
         
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -439,7 +434,8 @@ export default class MintGirl extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🍃 Hello there! I'm taking a short break to recharge my Mint Club knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
           avatar: "npc_mintgirl_avatar",

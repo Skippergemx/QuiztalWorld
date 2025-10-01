@@ -56,7 +56,7 @@ export default class WalkingNPCManager {
     // Update all registered walking NPCs
     // Create a copy of the array to avoid issues if NPCs are removed during iteration
     const npcsToUpdate = [...this.walkingNPCs];
-    npcsToUpdate.forEach((npc, index) => {
+    npcsToUpdate.forEach(npc => {
       try {
         // Additional safety check to ensure NPC is still valid
         if (npc && typeof npc.update === 'function') {

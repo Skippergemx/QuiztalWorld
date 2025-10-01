@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
@@ -89,15 +89,13 @@ export default class BaseSage extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("BaseSage: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
@@ -173,7 +171,8 @@ export default class BaseSage extends QuizNPC {
           return;
         }
 
-        const dialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
             {
                 text: isCorrect
                     ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Base Sage!`
@@ -182,9 +181,6 @@ export default class BaseSage extends QuizNPC {
                 isExitDialog: true
             }
         ]);
-
-        // Store reference to the new dialog
-        this.currentDialog = dialog;
 
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -270,7 +266,8 @@ export default class BaseSage extends QuizNPC {
         return;
       }
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Base Sage!`
@@ -279,8 +276,6 @@ export default class BaseSage extends QuizNPC {
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       
       // Save reward using enhanced system
       if (isCorrect) {
@@ -436,7 +431,8 @@ export default class BaseSage extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
 
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🍃 Hello there! I'm taking a short break to recharge my Base knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
           avatar: "npc_basesage_avatar",

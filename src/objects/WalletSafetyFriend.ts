@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
@@ -89,15 +89,13 @@ export default class WalletSafetyFriend extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("WalletSafetyFriend: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-      
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
       
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -217,15 +215,14 @@ export default class WalletSafetyFriend extends QuizNPC {
         ? `🛡️ Excellent wallet security knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
         : `❌ Oops! The correct answer was "${question.answer}". Stay safe and try again!`;
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: rewardText,
           avatar: "npc_walletsafetyfriend_avatar",
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       this.setupDialogAutoReset(3000);
     });
 
@@ -303,7 +300,8 @@ export default class WalletSafetyFriend extends QuizNPC {
           return;
         }
         
-        const dialog = showDialog(this.scene, [
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
             {
                 text: isCorrect
                     ? `🛡️ Excellent! You earned ${reward.toFixed(2)} $Quiztals for keeping your wallet secure!`
@@ -312,9 +310,6 @@ export default class WalletSafetyFriend extends QuizNPC {
                 isExitDialog: true
             }
         ]);
-        
-        // Store reference to the new dialog
-        this.currentDialog = dialog;
         
         // Set up auto-reset for the dialog after 3 seconds
         this.setupDialogAutoReset(3000);
@@ -435,7 +430,8 @@ export default class WalletSafetyFriend extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🛡️ Hello there! I'm currently updating my security protocols. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
           avatar: "npc_walletsafetyfriend_avatar",

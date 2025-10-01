@@ -1,6 +1,6 @@
 // SecurityKai.ts
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
@@ -99,15 +99,13 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     // Check network connectivity before allowing interactions.
     if (!this.networkMonitor.getIsOnline()) {
       console.log("SecurityKai: Network offline - showing offline message");
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
           isExitDialog: true
         }
       ]);
-
-      // Store reference to the new dialog.
-      this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds.
       // This ensures the dialog reference is cleared even if the player doesn't click.
@@ -230,15 +228,14 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         ? `🛡️ Excellent security knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
         : `❌ Not quite! The correct answer was "${question.answer}". Keep learning about Web3 security!`;
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: rewardText,
           avatar: "npc_securitykai_avatar",
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       this.setupDialogAutoReset(3000);
     });
 
@@ -317,7 +314,8 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         return;
       }
 
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`
@@ -326,9 +324,6 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
           isExitDialog: true
         }
       ]);
-
-      // Store reference to the new dialog.
-      this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds.
       // This ensures the dialog reference is cleared even if the player doesn't click.
@@ -456,7 +451,8 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
 
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
           avatar: "npc_securitykai_avatar",

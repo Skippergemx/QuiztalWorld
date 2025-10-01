@@ -1,6 +1,6 @@
 // AlchemyMan.ts
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function
+import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC
@@ -262,7 +262,8 @@ export default class AlchemyMan extends WalkingNPC {
         return;
       }
 
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`
@@ -271,9 +272,6 @@ export default class AlchemyMan extends WalkingNPC {
           isExitDialog: true
         }
       ]);
-
-      // Store reference to the new dialog
-      this.currentDialog = dialog;
 
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -364,7 +362,8 @@ export default class AlchemyMan extends WalkingNPC {
         return;
       }
       
-      const dialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: isCorrect
             ? `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`
@@ -373,8 +372,6 @@ export default class AlchemyMan extends WalkingNPC {
           isExitDialog: true
         }
       ]);
-      
-      this.currentDialog = dialog;
       
       // Save reward using enhanced system
       if (isCorrect) {
@@ -493,7 +490,8 @@ export default class AlchemyMan extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = showDialog(this.scene, [
+      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+      this.currentDialog.showDialog([
         {
           text: `🔮 Hello there! I'm currently brewing up some blockchain magic. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
           avatar: "npc_alchemyman_avatar",
