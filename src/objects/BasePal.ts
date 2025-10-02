@@ -1,6 +1,6 @@
 // BasePal.ts
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
+import { showDialog } from "../utils/SimpleDialogBox";
 import WalkingNPC from "./WalkingNPC";
 import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior";
 import AudioManager from '../managers/AudioManager';
@@ -9,15 +9,12 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import PhysicsManager from '../managers/PhysicsManager';
 
 export default class BasePal extends WalkingNPC {
-  protected currentDialog: any = null;
   private lectures: any[] = [];
   private currentLectureIndex: number = 0;
   private hasLectureData: boolean = false;
   private lastLectureTime: number = 0;
   private readonly lectureCooldown: number = 30000; // 30 seconds between lectures
-  private playerReceivedReward: Map<string, number> = new Map(); // Track lecture count for each player
   private playerForReward: Phaser.Physics.Arcade.Sprite | null = null; // Store player reference for reward
-  private lectureCompleted: boolean = false; // Track if lecture was completed
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "npc_basepal");
@@ -98,28 +95,6 @@ export default class BasePal extends WalkingNPC {
     
     // Set proper depth for rendering
     this.setDepth(10);
-    
-    // Listen for dialog close events
-    scene.events.on("update", () => {
-      this.checkDialogClosed();
-    });
-  }
-
-  private checkDialogClosed() {
-    // Check if dialog was closed and lecture was completed
-    if (this.lectureCompleted && !this.isDialogOpen()) {
-      this.lectureCompleted = false;
-      if (this.playerForReward) {
-        this.giveLectureReward(this.playerForReward);
-        this.playerForReward = null;
-      }
-    }
-  }
-
-  private isDialogOpen(): boolean {
-    // Check if any dialog is currently open
-    const dialog = SimpleDialogBox.getInstance(this.scene);
-    return dialog && dialog['dialogContainer'] && dialog['dialogContainer'].visible;
   }
 
   private createAnimations(scene: Phaser.Scene) {
@@ -221,11 +196,6 @@ export default class BasePal extends WalkingNPC {
     // Call parent's interaction start method to handle walking behavior
     this.onInteractionStart();
 
-    // Check if a dialog is already open
-    if (this.currentDialog) {
-      return;
-    }
-
     const player = this.getClosestPlayer();
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
@@ -269,43 +239,31 @@ export default class BasePal extends WalkingNPC {
     
     // Store player reference for reward
     this.playerForReward = player;
-    this.lectureCompleted = true;
+    
+    // Create a callback to give reward after dialog is closed
+    const onLectureComplete = () => {
+      this.giveLectureReward();
+    };
     
     const dialogContent = [
       {
         text: dialogText,
         avatar: "npc_basepal_avatar",
-        // Add onClose callback to give reward when dialog is closed
-        onClose: () => {
-          this.giveLectureReward(player);
-        }
+        onClose: onLectureComplete
       }
     ];
 
     showDialog(this.scene, dialogContent);
   }
 
-  private giveLectureReward(player: Phaser.Physics.Arcade.Sprite) {
+  private giveLectureReward() {
+    if (!this.playerForReward) return;
+    
+    const player = this.playerForReward;
     const playerId = player.name || `anon_${Date.now()}`;
     
-    // Track lecture completion count for each player
-    let lectureCount = 0;
-    if (this.playerReceivedReward.has(playerId)) {
-      lectureCount = this.playerReceivedReward.get(playerId) || 0;
-    }
-    
-    // Increment lecture count
-    lectureCount++;
-    this.playerReceivedReward.set(playerId, lectureCount);
-    
-    // Calculate progressive reward (increases with each lecture)
-    // Base reward + bonus for consecutive lectures
-    const baseReward = parseFloat(Phaser.Math.FloatBetween(0.01, 0.15).toFixed(2));
-    const bonusReward = parseFloat((0.01 * (lectureCount - 1)).toFixed(2)); // +0.01 for each additional lecture
-    const totalReward = parseFloat((baseReward + bonusReward).toFixed(2));
-    
-    // Cap reward at 0.30 to prevent it from getting too high
-    const reward = Math.min(totalReward, 0.30);
+    // Simple reward without streak system - random amount between 0.01 and 0.15
+    const reward = parseFloat(Phaser.Math.FloatBetween(0.01, 0.15).toFixed(2));
     
     // Play reward sound
     const audioManager = AudioManager.getInstance();
@@ -317,22 +275,77 @@ export default class BasePal extends WalkingNPC {
     // Log reward
     QuiztalRewardLog.logReward("BasePal", reward);
     
-    // Show reward dialog with progress feedback
-    let rewardMessage = `🎉 Great job learning about Base Chain! You've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
+    // Generate Did You Know and Tips content
+    const didYouKnowContent = this.generateDidYouKnow();
+    const tipsContent = this.generateTipsAndTricks();
     
-    if (lectureCount > 1) {
-      rewardMessage += ` 🔥 Streak bonus: ${lectureCount} lectures completed!`;
+    // Show enhanced reward dialog with additional sections
+    const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
+    
+    // Create a more detailed dialog with multiple sections
+    let enhancedDialogText = `${rewardMessage}\n\n`;
+    
+    if (didYouKnowContent) {
+      enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
+    }
+    
+    if (tipsContent) {
+      enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
     }
     
     const rewardDialogContent = [
       {
-        text: rewardMessage,
-        avatar: "npc_basepal_avatar",
-        isExitDialog: true
+        text: enhancedDialogText,
+        avatar: "npc_basepal_avatar"
+        // Removed isExitDialog: true to make it non-auto closing
       }
     ];
 
-    showDialog(this.scene, rewardDialogContent);
+    // Use a small delay to ensure the previous dialog is fully closed before showing the reward dialog
+    this.scene.time.delayedCall(100, () => {
+      showDialog(this.scene, rewardDialogContent);
+    });
+    
+    // Clear player reference
+    this.playerForReward = null;
+  }
+  
+  private generateDidYouKnow(): string {
+    // Generate detailed "Did You Know" content
+    const dykPhrases = [
+      "Base Chain was launched by Coinbase in February 2023 as a Layer 2 scaling solution for Ethereum! It was designed to make Ethereum more accessible and affordable for everyone, with a focus on driving global crypto adoption through simplicity and low transaction costs.",
+      "Base uses the same security model as Ethereum, making it one of the safest Layer 2 solutions available! Unlike some other Layer 2 solutions that introduce new security assumptions, Base inherits Ethereum's battle-tested security while dramatically reducing gas fees.",
+      "Base is completely free to use - no native token required, just pay ETH gas fees! This 'no-native-token' approach means there's no additional token you need to acquire or manage, making it simpler and more accessible for new users to get started.",
+      "Base is built on the OP Stack, the same technology that powers Optimism! This means Base benefits from the extensive development and security auditing that has gone into the OP Stack, while also being part of a growing ecosystem of interoperable Layer 2 solutions.",
+      "Base has processed over $100 billion in transaction volume since its launch! This rapid adoption shows the strong demand for affordable, secure Ethereum transactions, and Base's success in meeting that demand with its user-friendly approach.",
+      "Base supports all Ethereum tools and wallets out of the box with zero modifications! Developers can deploy their existing Solidity smart contracts directly to Base without any changes, and users can connect with their favorite Ethereum wallets like MetaMask, Coinbase Wallet, and Rainbow.",
+      "Base blocks are produced every 2 seconds, making transactions lightning fast! This is significantly faster than Ethereum's 12-15 second block times, providing a much smoother user experience for dApps and transactions.",
+      "Base is open-source and community-driven, with contributions from developers worldwide! The code is publicly available on GitHub, allowing anyone to review, contribute, or even fork the code to create their own Layer 2 solution based on Base's technology.",
+      "Base has attracted major projects like OpenSea, Aave, and Curve to its ecosystem! These leading DeFi and NFT protocols have chosen Base for its combination of security, low fees, and Ethereum compatibility, creating a thriving ecosystem for users.",
+      "Base's bridge supports instant withdrawals for ETH and stablecoins! This unique feature allows users to move their ETH and popular stablecoins (USDC, USDT, DAI) from Base back to Ethereum almost instantly, without the typical 7-day waiting period required by other Layer 2 solutions."
+    ];
+    
+    // Return a random DYK phrase
+    return Phaser.Utils.Array.GetRandom(dykPhrases);
+  }
+  
+  private generateTipsAndTricks(): string {
+    // Generate detailed "Tips & Tricks" content
+    const tipsPhrases = [
+      "Use the official Base Bridge (base.org/bridge) to move assets between Ethereum and Base - it's trustless, secure, and officially supported by Coinbase! The bridge leverages Ethereum's security for asset transfers and offers instant withdrawals for ETH and major stablecoins.",
+      "Try Base with small amounts first to get familiar with the network before moving larger funds! Start by bridging a small amount of ETH or stablecoins, then try interacting with a simple dApp to get comfortable with the faster, cheaper transaction experience.",
+      "Check out Base's ecosystem at base.org to discover new dApps and projects! The ecosystem page showcases the latest and greatest projects building on Base, from DeFi protocols to NFT marketplaces to gaming applications.",
+      "Use Chainlist.org to easily add Base to your wallet with the correct network configuration! Simply search for 'Base' on Chainlist, then click 'Add to Wallet' to automatically configure your wallet with the correct RPC URL, chain ID, and other network parameters.",
+      "Base transactions are much cheaper than Ethereum - perfect for trying new dApps! With gas fees typically 50-100x lower than Ethereum mainnet, Base is ideal for experimenting with new protocols, playing blockchain games, or minting NFTs without worrying about high costs.",
+      "Keep an eye on Base's governance proposals if you want to participate in network decisions! While Base is currently centralized, it's moving toward decentralization through a progressive roadmap. Following the governance process allows you to stay informed about future changes and potentially participate in decision-making.",
+      "Base supports all your favorite Ethereum wallets like MetaMask, Coinbase Wallet, and Rainbow! Since Base is EVM-compatible, any wallet that works with Ethereum will work seamlessly with Base, making the transition effortless for existing Ethereum users.",
+      "Explore Base's developer documentation if you're interested in building on the network! The comprehensive docs at docs.base.org provide everything you need to get started building, from quick start guides to detailed API references and best practices for Base-specific features.",
+      "Use Dune Analytics to track Base network metrics and trends! Dune dashboards provide insights into Base's growth, user activity, transaction volume, and ecosystem development, helping you stay informed about the network's progress and opportunities.",
+      "Join Base's Discord and Twitter communities to stay updated on the latest developments! These communities are great places to get help, share feedback, learn about new projects, and connect with other Base users and developers building the future of Ethereum scaling."
+    ];
+    
+    // Return a random tips phrase
+    return Phaser.Utils.Array.GetRandom(tipsPhrases);
   }
 
   private showNoLectureDialog() {
@@ -433,24 +446,5 @@ export default class BasePal extends WalkingNPC {
       duration: 2000,
       delay: 3000,
     });
-  }
-
-  // Override the getAnimationKey method to handle BasePal's animations
-  public getAnimationKey(type: string, direction: string): string {
-    const textureKey = this.texture.key;
-    
-    // Handle BasePal's animations with proper direction support
-    if (textureKey === 'npc_basepal' || textureKey === 'npc_basepal_walk') {
-      const key = `basepal-${type}-${direction}`;
-      // Check if animation exists before returning
-      if (this.scene.anims.exists(key)) {
-        return key;
-      }
-      // Fallback to default idle animation
-      return "basepal-idle";
-    }
-    
-    // Fall back to parent implementation
-    return super.getAnimationKey(type, direction);
   }
 }

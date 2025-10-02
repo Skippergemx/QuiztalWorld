@@ -1,9 +1,7 @@
 import Phaser from "phaser";
 import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
-import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
-import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
@@ -169,24 +167,58 @@ export default class DexpertGal extends QuizNPC {
           return;
         }
         
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
+        if (isCorrect) {
+          // Get themed reward dialog
+          const themeData = this.getThemedRewardDialog();
+          
+          // Generate themed Did You Know and Tips content for DEX topics
+          const didYouKnowContent = this.generateThemedDexDidYouKnow(themeData.title);
+          const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
+          
+          // Create enhanced reward message with theme
+          const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
+          
+          // Create a more detailed dialog with multiple sections
+          let enhancedDialogText = rewardMessage;
+          enhancedDialogText += `\n\n`;
+          
+          if (didYouKnowContent) {
+            enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
+          }
+          
+          if (tipsContent) {
+            enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
+          }
+          
+          // Show reward dialog with result message
+          this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+          this.currentDialog.showDialog([
             {
-                text: isCorrect
-                    ? `🔄 Excellent trade! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`
-                    : `❌ Trade failed! The correct answer was "${correctAnswer}". Study the market and try again!`,
-                avatar: "npc_dexpertgal_avatar",
-                isExitDialog: true
+              text: enhancedDialogText,
+              avatar: "npc_dexpertgal_avatar",
+              continueText: "Close",
+              onClose: () => {
+                // Reset the dialog state when player closes the dialog
+                this.resetDialogState();
+              }
             }
-        ]);
+          ]);
         
-        // Set up auto-reset for the dialog after 3 seconds
-        this.setupDialogAutoReset(3000);
+        } else {
+          // Incorrect answer - simpler dialog
+          this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+          this.currentDialog.showDialog([
+              {
+                  text: `❌ Trade failed! The correct answer was "${correctAnswer}". Study the market and try again!`,
+                  avatar: "npc_dexpertgal_avatar",
+                  isExitDialog: true
+              }
+          ]);
+          
+          // Set up auto-reset for the dialog after 3 seconds (only for incorrect answers)
+          this.setupDialogAutoReset(3000);
+        }
     });
-
-    if (isCorrect) {
-        this.saveRewardToDatabase(player, reward);
-    }
     
     // Reset last question index so player can get the same question again in future interactions
     this.lastQuestionIndex = -1;
@@ -304,25 +336,59 @@ export default class DexpertGal extends QuizNPC {
         return;
       }
       
-      // Show reward dialog with result message
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🔄 Excellent trade! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`
-            : `❌ Trade failed! The correct answer was: "${enhancedQuestion.answer}". Study the market and try again!`,
-          avatar: "npc_dexpertgal_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Save enhanced reward if correct
       if (isCorrect) {
+        // Get themed reward dialog
+        const themeData = this.getThemedRewardDialog();
+        
+        // Generate themed Did You Know and Tips content for DEX topics
+        const didYouKnowContent = this.generateThemedDexDidYouKnow(themeData.title);
+        const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
+        
+        // Create enhanced reward message with theme
+        const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
+        
+        // Create a more detailed dialog with multiple sections
+        let enhancedDialogText = rewardMessage;
+        enhancedDialogText += `\n\n`;
+        
+        if (didYouKnowContent) {
+          enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
+        }
+        
+        if (tipsContent) {
+          enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
+        }
+        
+        // Show reward dialog with result message
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
+          {
+            text: enhancedDialogText,
+            avatar: "npc_dexpertgal_avatar",
+            continueText: "Close",
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          }
+        ]);
+        
+        // Use enhanced reward saving method for consistency
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "DexpertGal");
+      } else {
+        // Incorrect answer - simpler dialog
+        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
+        this.currentDialog.showDialog([
+            {
+                text: `❌ Trade failed! The correct answer was: "${enhancedQuestion.answer}". Study the market and try again!`,
+                avatar: "npc_dexpertgal_avatar",
+                isExitDialog: true
+            }
+        ]);
+        
+        // Set up auto-reset for the dialog after 3 seconds for incorrect answers
+        this.setupDialogAutoReset(3000);
       }
-      
-      // Set up auto-reset for the dialog after 3 seconds
-      this.setupDialogAutoReset(3000);
       
       // If this was the 3rd attempt, activate cooldown AFTER reward dialog
       if (willTriggerCooldown) {
@@ -379,24 +445,79 @@ export default class DexpertGal extends QuizNPC {
   private calculateReward(isCorrect: boolean): number {
     return isCorrect ? parseFloat(Phaser.Math.FloatBetween(0.01, 0.5).toFixed(2)) : 0;
   }
-
-  private saveRewardToDatabase(player: Phaser.Physics.Arcade.Sprite, reward: number) {
-    const playerId = player.name || `anon_${Date.now()}`;
-    saveQuiztalsToDatabase(playerId, reward, "DexpertGal");
+  
+  private getThemedRewardDialog(): { title: string; emoji: string; color: string } {
+    // 4 themed reward dialog frames
+    const themes = [
+      { title: "Trading Pro", emoji: "📈", color: "#4CAF50" },
+      { title: "Liquidity Master", emoji: "💧", color: "#2196F3" },
+      { title: "Arbitrage Expert", emoji: "🔄", color: "#FF9800" },
+      { title: "DEX Champion", emoji: "🏆", color: "#9C27B0" }
+    ];
     
-    // Also log to local session tracker
-    QuiztalRewardLog.logReward("DexpertGal", reward);
-    
-    // Log reward to reward logger
-    if (typeof window !== 'undefined' && (window as any).game) {
-      const game = (window as any).game;
-      const loggerScene = game.scene.getScene('LoggerScene');
-      if (loggerScene && loggerScene.addReward) {
-        loggerScene.addReward(reward, "DexpertGal", "DexpertGal");
-      }
-    }
+    // Select theme randomly for truly random selection instead of deterministic pattern
+    const themeIndex = Math.floor(Math.random() * themes.length);
+    return themes[themeIndex];
   }
-
+  
+  private generateThemedDexDidYouKnow(theme: string): string {
+    // Theme-specific "Did You Know" content
+    const themedDyk: { [key: string]: string[] } = {
+      "Trading Pro": [
+        "Professional traders use DEXs to avoid KYC requirements and maintain privacy! Unlike centralized exchanges that require extensive identity verification, DEXs allow anonymous trading directly from your wallet.",
+        "Algorithmic trading bots execute thousands of trades per second on DEXs! These bots use complex strategies like arbitrage, market making, and trend following to generate profits automatically.",
+        "Market sentiment analysis tools can help predict price movements on DEXs! By monitoring social media, news, and on-chain data, traders can gain insights into market trends and potential opportunities."
+      ],
+      "Liquidity Master": [
+        "The deepest liquidity pools often offer the best trading experience! Pools with higher liquidity have lower slippage and tighter spreads, making them ideal for large trades.",
+        "Liquidity mining programs can significantly boost your returns! Many protocols offer additional token rewards for providing liquidity to specific pools during promotional periods.",
+        "Impermanent loss insurance is now available on some platforms! Protocols like Nexus Mutual and Opyn offer protection against impermanent loss for liquidity providers."
+      ],
+      "Arbitrage Expert": [
+        "Cross-chain arbitrage opportunities exist between different blockchain networks! Traders can profit from price differences of the same asset across networks like Ethereum, BSC, and Polygon.",
+        "Flash loan arbitrage requires no capital but demands technical expertise! These complex strategies use smart contract programming to execute profitable trades within a single transaction.",
+        "Statistical arbitrage uses mathematical models to identify trading opportunities! This quantitative approach analyzes price relationships between assets to find mispricings."
+      ],
+      "DEX Champion": [
+        "The total value locked (TVL) in DEXs has grown over 100x since 2020! This explosive growth shows increasing trust in decentralized finance and the technology that powers it.",
+        "Governance tokens give users a voice in DEX protocol development! Holders can vote on proposals that affect fee structures, new features, and the overall direction of the platform.",
+        "DAO treasuries now hold billions in assets managed by community votes! These decentralized autonomous organizations represent a new form of organizational structure in finance."
+      ]
+    };
+    
+    const phrases = themedDyk[theme] || themedDyk["Trading Pro"];
+    return Phaser.Utils.Array.GetRandom(phrases);
+  }
+  
+  private generateThemedDexTipsAndTricks(theme: string): string {
+    // Theme-specific "Tips & Tricks" content
+    const themedTips: { [key: string]: string[] } = {
+      "Trading Pro": [
+        "Use advanced charting tools and technical analysis to inform your DEX trades! Many platforms integrate with popular charting services to provide professional-grade analysis directly in the interface.",
+        "Set up price alerts for your favorite trading pairs to never miss an opportunity! Most DEX interfaces allow you to create notifications for specific price levels or market movements.",
+        "Dollar-cost averaging can reduce the impact of volatility on your investments! By investing a fixed amount regularly regardless of price, you can smooth out market fluctuations over time."
+      ],
+      "Liquidity Master": [
+        "Diversify your liquidity provision across multiple pools to spread risk! Instead of putting all your funds in one pool, consider providing liquidity to several different token pairs to reduce the impact of impermanent loss.",
+        "Rebalance your liquidity positions regularly to optimize returns! As token prices change, the composition of your LP position shifts, and periodic adjustments can help maintain your desired risk profile.",
+        "Consider stablecoin pairs for lower impermanent loss risk! Pools with stablecoins like USDC/DAI typically experience less price volatility, making them safer for new liquidity providers."
+      ],
+      "Arbitrage Expert": [
+        "Monitor multiple DEXs simultaneously to spot arbitrage opportunities! Price differences between exchanges can be fleeting, so having tools that track prices across platforms is essential.",
+        "Consider gas costs when evaluating arbitrage opportunities! Ethereum gas fees can erode profits from small price differences, making some opportunities unprofitable despite appearing favorable.",
+        "Use limit orders and range orders to optimize your arbitrage strategies! These advanced order types can help you capture profits while minimizing risk and gas costs."
+      ],
+      "DEX Champion": [
+        "Stay informed about upcoming airdrops and governance proposals for the DEXs you use! Many protocols distribute tokens to active users, and participating in governance can give you a voice in the platform's development.",
+        "Join DeFi communities and follow industry leaders to stay ahead of trends! The DEX space moves quickly, and being connected to the community can provide early insights into new opportunities.",
+        "Keep track of your portfolio performance across multiple protocols! Use dashboard tools like Zerion or DeBank to monitor your investments and returns across the entire DeFi ecosystem."
+      ]
+    };
+    
+    const phrases = themedTips[theme] || themedTips["Trading Pro"];
+    return Phaser.Utils.Array.GetRandom(phrases);
+  }
+  
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {
     let closestPlayer = null;
     let minDistance = Number.MAX_VALUE;

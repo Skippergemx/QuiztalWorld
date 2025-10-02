@@ -12,6 +12,7 @@ interface DialogData {
   isExitDialog?: boolean;
   options?: { text: string; callback: () => void }[];
   onClose?: () => void; // Add onClose callback
+  continueText?: string; // Add custom continue text
 }
 
 export class SimpleDialogBox extends BaseDialog {
@@ -35,14 +36,16 @@ export class SimpleDialogBox extends BaseDialog {
     // Create dialog background
     this.createStandardBackground();
 
-    // Avatar positioning
+    // Avatar positioning - centered at top of dialog with upward nudge
+    const avatarX = this.dialogWidth / 2;
+    const avatarY = 50; // Moved upward from 60 to 50 for more space
     this.avatar = this.scene.add.image(
-      UIHelpers.getResponsiveSpacing(this.isMobile, 50, 40),
-      this.dialogHeight / 2,
-      "npc_mintgirl_avatar"
+      avatarX,
+      avatarY,
+      "npc_mintgirl_avatar" // This will be overridden when setAvatar is called
     )
-      .setDisplaySize(80, 98)
-      .setOrigin(0.5)
+      .setDisplaySize(100, 120) // Larger size for prominence
+      .setOrigin(0.5, 0) // Top center align the avatar
       .setVisible(false);
     this.dialogContainer.add(this.avatar);
 
@@ -52,19 +55,19 @@ export class SimpleDialogBox extends BaseDialog {
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: modernUITheme.colors.text.primary,
       wordWrap: { 
-        width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140,
+        width: this.isMobile ? this.dialogWidth - 40 : this.dialogWidth - 60, // Full width for better readability
         useAdvancedWrap: true 
       },
-      align: "left",
-      lineSpacing: UIHelpers.getResponsiveSpacing(this.isMobile, 6, 4)
+      align: "center", // Center align for better presentation
+      lineSpacing: UIHelpers.getResponsiveSpacing(this.isMobile, 8, 6)
     };
 
     this.dialogText = this.scene.add.text(
-      UIHelpers.getResponsiveSpacing(this.isMobile, 100, 90),
-      UIHelpers.getResponsiveSpacing(this.isMobile, 30, 25),
+      this.dialogWidth / 2, // Center the text
+      190, // Moved downward from 180 to 190 to accommodate the upward avatar shift
       "",
       textConfig
-    );
+    ).setOrigin(0.5, 0); // Top center align the text
     this.dialogContainer.add(this.dialogText);
 
     this.optionsContainer = this.scene.add.container(0, 0);
@@ -102,6 +105,11 @@ export class SimpleDialogBox extends BaseDialog {
 
   private displayNext() {
     if (this.currentDialogIndex >= this.dialogData.length) {
+      // Call onClose callback for the last dialog if it exists before closing
+      if (this.onCloseCallback) {
+        this.onCloseCallback();
+        this.onCloseCallback = null; // Reset callback so it's not called again
+      }
       this.closeDialog();
       return;
     }
@@ -109,6 +117,9 @@ export class SimpleDialogBox extends BaseDialog {
     const currentDialog = this.dialogData[this.currentDialogIndex];
     this.dialogText.setText(currentDialog.text);
     this.optionsContainer.removeAll(true);
+
+    // Store onClose callback for current dialog
+    this.onCloseCallback = currentDialog.onClose || null;
 
     if (currentDialog.avatar) {
       this.setAvatar(currentDialog.avatar);
@@ -137,7 +148,6 @@ export class SimpleDialogBox extends BaseDialog {
             fontFamily: modernUITheme.typography.fontFamily.primary,
             wordWrap: {
               width: this.isMobile ? this.dialogWidth - 120 : this.dialogWidth - 140
-              // Removed useAdvancedWrap: true to prevent console spam and performance issues
             }
           }
         ).setInteractive({ useHandCursor: true })
@@ -157,18 +167,18 @@ export class SimpleDialogBox extends BaseDialog {
         yOffset += this.isMobile ? 25 : 30;
       });
     } else {
-      // Continue text for dialogs without options
+      // Continue text for dialogs without options - position at bottom
       const continueText = this.scene.add.text(
-        this.dialogWidth - 30,
-        this.dialogHeight - 25,
-        "Click to continue...",
+        this.dialogWidth / 2, // Center the continue text
+        this.dialogHeight - 30, // Position at bottom
+        currentDialog.continueText || "Click to continue...", // Use custom continue text if provided
         {
           fontSize: this.isMobile ? "11px" : "12px",
           color: modernUITheme.colors.text.secondary,
           fontFamily: modernUITheme.typography.fontFamily.primary,
           fontStyle: "italic"
         }
-      ).setOrigin(1, 1)
+      ).setOrigin(0.5, 1) // Bottom center align
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
           this.currentDialogIndex++;
@@ -184,7 +194,13 @@ export class SimpleDialogBox extends BaseDialog {
       this.avatar.setTexture(avatarKey);
       this.avatar.setVisible(true);
     } else {
-      this.avatar.setVisible(false);
+      // Fallback to default avatar if specific one doesn't exist
+      if (this.scene.textures.exists("npc_mintgirl_avatar")) {
+        this.avatar.setTexture("npc_mintgirl_avatar");
+        this.avatar.setVisible(true);
+      } else {
+        this.avatar.setVisible(false);
+      }
     }
   }
 
