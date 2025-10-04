@@ -22,11 +22,12 @@ export class SimpleDialogBox extends BaseDialog {
   private currentDialogIndex: number = 0;
   private dialogData: DialogData[] = []; // Use the new interface
   private onCloseCallback: (() => void) | null = null; // Store onClose callback
+  private continueTextElement: Phaser.GameObjects.Text | null = null; // Store continue text reference
 
   constructor(scene: Phaser.Scene) {
     super(scene, { 
       width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
-      height: scene.scale.width < 768 ? 420 : 480  // Increased height to match OptimizedEnhancedQuizDialog
+      height: scene.scale.width < 768 ? 420 : 480  // This will be the minimum height
     });
     
     this.initializeDialogContent();
@@ -55,11 +56,11 @@ export class SimpleDialogBox extends BaseDialog {
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: modernUITheme.colors.text.primary,
       wordWrap: { 
-        width: this.isMobile ? this.dialogWidth - 40 : this.dialogWidth - 60, // Full width for better readability
+        width: this.isMobile ? this.dialogWidth - 30 : this.dialogWidth - 60, // More space for mobile
         useAdvancedWrap: true 
       },
       align: "center", // Center align for better presentation
-      lineSpacing: UIHelpers.getResponsiveSpacing(this.isMobile, 8, 6)
+      lineSpacing: UIHelpers.getResponsiveSpacing(this.isMobile, 6, 6) // Reduce line spacing on mobile
     };
 
     this.dialogText = this.scene.add.text(
@@ -118,6 +119,12 @@ export class SimpleDialogBox extends BaseDialog {
     this.dialogText.setText(currentDialog.text);
     this.optionsContainer.removeAll(true);
 
+    // Remove existing continue text if it exists
+    if (this.continueTextElement) {
+      this.continueTextElement.destroy();
+      this.continueTextElement = null;
+    }
+
     // Store onClose callback for current dialog
     this.onCloseCallback = currentDialog.onClose || null;
 
@@ -168,9 +175,9 @@ export class SimpleDialogBox extends BaseDialog {
       });
     } else {
       // Continue text for dialogs without options - position at bottom
-      const continueText = this.scene.add.text(
+      this.continueTextElement = this.scene.add.text(
         this.dialogWidth / 2, // Center the continue text
-        this.dialogHeight - 30, // Position at bottom
+        0, // Will be positioned after text height calculation
         currentDialog.continueText || "Click to continue...", // Use custom continue text if provided
         {
           fontSize: this.isMobile ? "11px" : "12px",
@@ -178,15 +185,70 @@ export class SimpleDialogBox extends BaseDialog {
           fontFamily: modernUITheme.typography.fontFamily.primary,
           fontStyle: "italic"
         }
-      ).setOrigin(0.5, 1) // Bottom center align
-        .setInteractive({ useHandCursor: true })
+      ).setOrigin(0.5, 1); // Bottom center align
+      
+      // Position the continue button after text rendering
+      this.scene.events.once('postupdate', () => {
+        this.positionContinueButton();
+      });
+      
+      this.continueTextElement.setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
           this.currentDialogIndex++;
           this.displayNext();
         });
 
-      this.optionsContainer.add(continueText);
+      this.optionsContainer.add(this.continueTextElement);
     }
+    
+    // Adjust dialog height based on content for mobile
+    if (this.isMobile) {
+      this.scene.events.once('postupdate', () => {
+        this.adjustDialogHeightForMobile();
+      });
+    }
+  }
+  
+  private positionContinueButton() {
+    if (!this.continueTextElement) return;
+    
+    // Get the bounds of the text to determine its height
+    const textBounds = this.dialogText.getBounds();
+    
+    // Position the continue button below the text with some padding
+    const buttonY = Math.max(
+      this.minHeight - 30, // Minimum position based on minimum height
+      190 + textBounds.height + 30 // Position below text with padding
+    );
+    
+    this.continueTextElement.setY(buttonY);
+  }
+  
+  private adjustDialogHeightForMobile() {
+    if (!this.continueTextElement) return;
+    
+    // Get the bounds of all content to determine the required height
+    const continueButtonBounds = this.continueTextElement.getBounds();
+    
+    // Calculate required height (avatar + text + padding + continue button)
+    const requiredHeight = Math.max(
+      this.minHeight, // Ensure minimum height
+      continueButtonBounds.y + continueButtonBounds.height + 20 // Continue button position + height + padding
+    );
+    
+    // Update dialog height if needed
+    if (requiredHeight > this.dialogHeight) {
+      this.dialogHeight = requiredHeight;
+      // Recreate background with new height
+      this.createStandardBackground();
+      // Re-add all children to the new background
+      this.dialogContainer.add(this.avatar);
+      this.dialogContainer.add(this.dialogText);
+      this.dialogContainer.add(this.optionsContainer);
+    }
+    
+    // Update position after height change
+    this.updatePosition();
   }
 
   private setAvatar(avatarKey: string) {

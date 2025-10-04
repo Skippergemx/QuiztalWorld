@@ -12,14 +12,11 @@ import GuideBookScene from "./scenes/GuideBookScene"; // Added GuideBookScene im
 import WalletWindowScene from "./scenes/WalletWindowScene";
 // NFTWindowScene import removed as it's been integrated into WalletWindowScene
 
-// Mobile detection utility
-const isMobile = () => {
-  const userAgent = navigator.userAgent.toLowerCase();
-  const mobileKeywords = ['android', 'webos', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone'];
-  return mobileKeywords.some(keyword => userAgent.includes(keyword)) || 
-         ('ontouchstart' in window) || 
-         (window.innerWidth < 768);
-};
+// Enhanced mobile detection that differentiates between actual mobile devices and desktop simulators
+function isMobile(): boolean {
+  // Use the more accurate detection for actual mobile devices
+  return isActualMobileDevice();
+}
 
 // Get optimal game dimensions for mobile
 const getGameDimensions = () => {
@@ -138,7 +135,10 @@ const handleResize = () => {
 window.addEventListener("resize", handleResize);
 
 // Handle orientation changes on mobile
-if (isMobile()) {
+if (isActualMobileDevice()) {
+  // Request landscape orientation for mobile devices
+  requestLandscapeOrientation();
+  
   // Enhanced orientation change handling with better timing
   window.addEventListener("orientationchange", () => {
     // Add visual feedback during orientation change
@@ -185,7 +185,8 @@ if (isMobile()) {
       const loadingElement = document.getElementById('loading');
       if (loadingElement) {
         loadingElement.style.display = 'block';
-        }
+        loadingElement.textContent = 'Adjusting layout...';
+      }
       
       setTimeout(() => {
         handleResize();
@@ -202,6 +203,41 @@ if (isMobile()) {
     lastWidth = currentWidth;
     lastHeight = currentHeight;
   });
+}
+
+// Function to request landscape orientation for mobile devices
+async function requestLandscapeOrientation() {
+  try {
+    // Check if screen.orientation is available (modern browsers)
+    const orientation = screen.orientation as any;
+    if (orientation && typeof orientation.lock === 'function') {
+      // Try to lock to landscape mode
+      await orientation.lock('landscape');
+      console.log('Screen orientation locked to landscape');
+    } else if ((window as any).OrientationLock) {
+      // Fallback for older iOS versions that support OrientationLock API
+      await (window as any).OrientationLock.lock('landscape');
+      console.log('Screen orientation locked to landscape (fallback)');
+    } else {
+      console.log('Screen orientation locking not supported');
+    }
+  } catch (error) {
+    console.log('Failed to lock screen orientation:', error);
+  }
+}
+
+// Function to detect if this is an actual mobile device (not a desktop simulator)
+function isActualMobileDevice(): boolean {
+  // Check for touch support and mobile user agent
+  const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Additional checks to differentiate from desktop simulators
+  const isPortrait = window.innerWidth < window.innerHeight;
+  const isSmallScreen = window.innerWidth < 1024;
+  
+  // Return true only if it's a touch device with mobile UA OR a small touch device
+  return (hasTouch && isMobileUA) || (hasTouch && isSmallScreen && isPortrait);
 }
 
 // Initial loading cleanup

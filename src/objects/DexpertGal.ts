@@ -486,7 +486,15 @@ export default class DexpertGal extends QuizNPC {
     };
     
     const phrases = themedDyk[theme] || themedDyk["Trading Pro"];
-    return Phaser.Utils.Array.GetRandom(phrases);
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(phrases);
+    
+    // Limit phrase length for mobile to prevent overflow
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 200) {
+      return selectedPhrase.substring(0, 197) + "...";
+    }
+    
+    return selectedPhrase;
   }
   
   private generateThemedDexTipsAndTricks(theme: string): string {
@@ -515,7 +523,15 @@ export default class DexpertGal extends QuizNPC {
     };
     
     const phrases = themedTips[theme] || themedTips["Trading Pro"];
-    return Phaser.Utils.Array.GetRandom(phrases);
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(phrases);
+    
+    // Limit phrase length for mobile to prevent overflow
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 200) {
+      return selectedPhrase.substring(0, 197) + "...";
+    }
+    
+    return selectedPhrase;
   }
   
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {

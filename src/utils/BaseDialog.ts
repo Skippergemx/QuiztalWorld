@@ -10,11 +10,13 @@ export interface BaseDialogConfig {
 export class BaseDialog {
   protected scene: Phaser.Scene;
   protected dialogContainer: Phaser.GameObjects.Container;
+  protected background: Phaser.GameObjects.Graphics | null = null; // Store background reference
   
   protected dialogWidth: number;
   protected dialogHeight: number;
   protected isMobile: boolean;
   protected depth: number;
+  protected minHeight: number; // Add minimum height property
   
   constructor(scene: Phaser.Scene, config?: BaseDialogConfig) {
     this.scene = scene;
@@ -22,7 +24,8 @@ export class BaseDialog {
     
     // Default sizing based on OptimizedEnhancedQuizDialog
     this.dialogWidth = config?.width || (this.isMobile ? scene.scale.width * 0.95 : 750);
-    this.dialogHeight = config?.height || (this.isMobile ? 420 : 480);
+    this.minHeight = config?.height || (this.isMobile ? 420 : 480); // Store as minimum height
+    this.dialogHeight = this.minHeight; // Will be adjusted dynamically
     this.depth = config?.depth || 2000;
     
     this.dialogContainer = scene.add.container(0, 0);
@@ -61,10 +64,15 @@ export class BaseDialog {
   };
 
   protected createStandardBackground(): void {
-    const background = this.scene.add.graphics();
+    // Remove existing background if it exists
+    if (this.background) {
+      this.background.destroy();
+    }
+    
+    this.background = this.scene.add.graphics();
     
     // Enhanced gradient background matching OptimizedEnhancedQuizDialog
-    background.fillGradientStyle(
+    this.background.fillGradientStyle(
       UIHelpers.hexToNumber(modernUITheme.colors.background.card),
       UIHelpers.hexToNumber(modernUITheme.colors.background.card),
       UIHelpers.hexToNumber(modernUITheme.colors.background.primary),
@@ -72,28 +80,28 @@ export class BaseDialog {
       0.98
     );
     
-    background.fillRoundedRect(0, 0, this.dialogWidth, this.dialogHeight, 
+    this.background.fillRoundedRect(0, 0, this.dialogWidth, this.dialogHeight, 
       UIHelpers.getResponsiveSpacing(this.isMobile, 16, 12));
     
     // Enhanced border with accent color
-    background.lineStyle(
+    this.background.lineStyle(
       UIHelpers.getResponsiveSpacing(this.isMobile, 3, 2),
       UIHelpers.hexToNumber(modernUITheme.colors.accent),
       0.8
     );
-    background.strokeRoundedRect(0, 0, this.dialogWidth, this.dialogHeight,
+    this.background.strokeRoundedRect(0, 0, this.dialogWidth, this.dialogHeight,
       UIHelpers.getResponsiveSpacing(this.isMobile, 16, 12));
     
     // Add subtle inner glow
-    background.lineStyle(
+    this.background.lineStyle(
       UIHelpers.getResponsiveSpacing(this.isMobile, 1, 1),
       UIHelpers.hexToNumber('#ffffff'),
       0.3
     );
-    background.strokeRoundedRect(2, 2, this.dialogWidth - 4, this.dialogHeight - 4,
+    this.background.strokeRoundedRect(2, 2, this.dialogWidth - 4, this.dialogHeight - 4,
       UIHelpers.getResponsiveSpacing(this.isMobile, 14, 10));
     
-    this.dialogContainer.add(background);
+    this.dialogContainer.addAt(this.background, 0); // Add at the bottom (index 0) so it's behind other elements
   }
 
   protected createHeaderBackground(y: number, height: number): void {
