@@ -9,6 +9,8 @@ import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Impo
 import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 
 export default class MrRugPull extends WalkingNPC {
   private lastQuestionIndex: number = -1;
@@ -311,23 +313,50 @@ export default class MrRugPull extends WalkingNPC {
         return;
       }
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
-            : `😈 Haha! You fell for it! The correct answer was: "${enhancedQuestion.answer}". Better luck next time!`,
-          avatar: "npc_mrrugpull_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Save reward using enhanced system
       if (isCorrect) {
+        // Generate educational content for scam prevention
+        const didYouKnowContent = this.generateScamDidYouKnow();
+        const tipsContent = this.generateScamTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "MR Rug Pull",
+          npcAvatar: "npc_mrrugpull_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+        
+        // Save reward using enhanced system
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "MrRugPull");
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "MR Rug Pull",
+          npcAvatar: "npc_mrrugpull_avatar",
+          wrongAnswerMessage: `😈 Haha! You fell for it! "${selectedOption}" is not correct.`,
+          correctAnswer: enhancedQuestion.answer,
+          explanation: enhancedQuestion.explainer || "This question tests your understanding of common scam tactics. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForScams(),
+          quickTips: this.generateQuickTipsForScamPrevention(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
       }
-      
-      this.setupDialogAutoReset(3000);
     });
     
     // Resume walking after interaction
@@ -337,7 +366,94 @@ export default class MrRugPull extends WalkingNPC {
     });
   }
 
+  private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
+    const isCorrect = selectedOption === correctAnswer;
+    const reward = this.calculateReward(isCorrect);
 
+    // Record quiz attempt regardless of whether correct or incorrect
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+
+    // Play sound based on answer
+    const audioManager = AudioManager.getInstance();
+    if (isCorrect) {
+      audioManager.playCorrectSound();
+    } else {
+      audioManager.playWrongSound();
+    }
+
+    // Close the current dialog immediately
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    this.scene.time.delayedCall(500, () => {
+      // Check if interactions are blocked before showing reward dialog
+      if (this.isInteractionBlocked()) {
+        console.log("MR Rug Pull: Cannot show reward dialog - interactions are blocked");
+        return;
+      }
+
+      if (isCorrect) {
+        // Generate educational content for scam prevention
+        const didYouKnowContent = this.generateScamDidYouKnow();
+        const tipsContent = this.generateScamTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "MR Rug Pull",
+          npcAvatar: "npc_mrrugpull_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "MR Rug Pull",
+          npcAvatar: "npc_mrrugpull_avatar",
+          wrongAnswerMessage: `😈 Haha! You fell for it! "${selectedOption}" is not correct.`,
+          correctAnswer: correctAnswer,
+          explanation: "This question tests your understanding of common scam tactics. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForScams(),
+          quickTips: this.generateQuickTipsForScamPrevention(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
+
+      // Set up auto-reset for the dialog after 3 seconds
+      this.setupDialogAutoReset(3000);
+      
+    });
+
+    if (isCorrect) {
+      this.saveRewardToDatabase(player, reward);
+    }
+
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
+    
+    // Resume walking after interaction
+    this.scene.time.delayedCall(3000, () => {
+      this.onInteractionEnd();
+    });
+  }
 
   private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Get random question using the quiz manager
@@ -376,64 +492,6 @@ export default class MrRugPull extends WalkingNPC {
         }
       }))
     }]);
-  }
-
-  private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
-    const isCorrect = selectedOption === correctAnswer;
-    const reward = this.calculateReward(isCorrect);
-
-    // Record quiz attempt regardless of whether correct or incorrect
-    const playerId = player.name || `anon_${Date.now()}`;
-    this.recordQuizAttempt(playerId);
-
-    // Play sound based on answer
-    const audioManager = AudioManager.getInstance();
-    if (isCorrect) {
-      audioManager.playCorrectSound();
-    } else {
-      audioManager.playWrongSound();
-    }
-
-    // Close the current dialog immediately
-    if (this.currentDialog) {
-      this.currentDialog.close();
-      this.currentDialog = null;
-    }
-
-    this.scene.time.delayedCall(500, () => {
-      // Check if interactions are blocked before showing reward dialog
-      if (this.isInteractionBlocked()) {
-        console.log("MR Rug Pull: Cannot show reward dialog - interactions are blocked");
-        return;
-      }
-
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals! You're too smart for my rug pull tricks!`
-            : `😈 Haha! You fell for it! The correct answer was: \"${correctAnswer}\". Better luck next time!`,
-          avatar: "npc_mrrugpull_avatar",
-          isExitDialog: true
-        }
-      ]);
-
-      // Set up auto-reset for the dialog after 3 seconds
-      this.setupDialogAutoReset(3000);
-      
-    });
-
-    if (isCorrect) {
-      this.saveRewardToDatabase(player, reward);
-    }
-
-    // Reset last question index so player can get the same question again in future interactions
-    this.lastQuestionIndex = -1;
-    
-    // Resume walking after interaction
-    this.scene.time.delayedCall(3000, () => {
-      this.onInteractionEnd();
-    });
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -524,4 +582,85 @@ export default class MrRugPull extends WalkingNPC {
       }
     });
   }
+  
+  private generateScamDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Rug pulls are a common scam in the crypto space where developers abandon a project and run away with investors' funds! They often occur after raising significant capital through token sales or liquidity pools.",
+      "Pump and dump schemes artificially inflate the price of a cryptocurrency through false claims and coordinated buying! Once the price peaks, the organizers sell their holdings, causing the price to crash.",
+      "Phishing attacks in crypto often come through fake wallet interfaces or exchange login pages! Always verify URLs and use bookmarks for important sites rather than clicking links.",
+      "Fake airdrops are used to collect personal information or private keys! Legitimate projects never ask for your private keys or seed phrases for airdrops.",
+      "Impersonation scams involve fake social media accounts or websites that mimic legitimate projects! Always verify official channels through multiple sources before trusting any information."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateScamTips(): string {
+    const tipsPhrases = [
+      "Research projects thoroughly before investing - check the team, whitepaper, and community! Legitimate projects have transparent information and active communities.",
+      "Never share your private keys or seed phrases with anyone, even for airdrops! No legitimate project will ever ask for this information.",
+      "Use official websites and verified social media accounts only! Bookmark important sites and verify URLs before entering sensitive information.",
+      "Be skeptical of guaranteed returns or 'too good to be true' investment opportunities! If something sounds unrealistic, it probably is.",
+      "Use hardware wallets for storing significant amounts of cryptocurrency! Hardware wallets provide the highest level of security for your assets."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForScams(): string {
+    const commonMistakes = [
+      "Falling for FOMO (Fear of Missing Out) and investing without proper research! Take time to understand projects before investing.",
+      "Clicking on suspicious links from unknown sources! Always verify URLs and use bookmarks for important sites.",
+      "Sharing personal information or private keys for 'exclusive' opportunities! Legitimate projects never ask for this information.",
+      "Ignoring warning signs like anonymous teams or unrealistic promises! Red flags should be taken seriously.",
+      "Not using secure wallet practices like hardware wallets for significant holdings! Proper security measures are essential."
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForScamPrevention(): string {
+    const quickTips = [
+      "Bookmark official websites and use them directly rather than clicking links!",
+      "Verify social media accounts through official channels before trusting information!",
+      "Never share your private keys or seed phrases with anyone for any reason!",
+      "Research projects thoroughly before investing - check team, whitepaper, and community!",
+      "Be skeptical of guaranteed returns or 'too good to be true' opportunities!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }

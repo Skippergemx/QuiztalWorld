@@ -7,6 +7,9 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+import { baseSagePersonality } from '../config/NPCPersonalityConfig';
 
 export default class BaseSage extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -171,16 +174,49 @@ export default class BaseSage extends QuizNPC {
           return;
         }
 
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: isCorrect
-                    ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Base Sage!`
-                    : `🌪️ Nope! The correct answer was "${correctAnswer}". Try again later!`,
-                avatar: "npc_basesage_avatar",
-                isExitDialog: true
+        if (isCorrect) {
+          // Generate educational content for Base Layer 2
+          const didYouKnowContent = this.generateBaseDidYouKnow();
+          const tipsContent = this.generateBaseTips();
+          
+          // Create enhanced reward message with personality
+          const rewardPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.correctAnswerPrefixes);
+          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Base Sage!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "Base Sage",
+            npcAvatar: "npc_basesage_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
             }
-        ]);
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog with personality
+          const wrongAnswerPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.wrongAnswerPrefixes);
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "Base Sage",
+            npcAvatar: "npc_basesage_avatar",
+            wrongAnswerMessage: `${wrongAnswerPrefix} "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key Base Layer 2 concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForBase(),
+            quickTips: this.generateQuickTipsForBase(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
 
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -266,23 +302,52 @@ export default class BaseSage extends QuizNPC {
         return;
       }
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Base Sage!`
-            : `🌪️ Not quite! The correct answer was: "${enhancedQuestion.answer}". Try again later!`,
-          avatar: "npc_basesage_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Save reward using enhanced system
       if (isCorrect) {
+        // Generate educational content for Base Layer 2
+        const didYouKnowContent = this.generateBaseDidYouKnow();
+        const tipsContent = this.generateBaseTips();
+        
+        // Create enhanced reward message with personality
+        const rewardPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.correctAnswerPrefixes);
+        const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Base Sage!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Base Sage",
+          npcAvatar: "npc_basesage_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+        
+        // Save reward using enhanced system
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "BaseSage");
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog with personality
+        const wrongAnswerPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.wrongAnswerPrefixes);
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Base Sage",
+          npcAvatar: "npc_basesage_avatar",
+          wrongAnswerMessage: `${wrongAnswerPrefix} "${selectedOption}" is not correct.`,
+          correctAnswer: enhancedQuestion.answer,
+          explanation: enhancedQuestion.explainer || "This question tests your understanding of key Base Layer 2 concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForBase(),
+          quickTips: this.generateQuickTipsForBase(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
       }
-      
-      this.setupDialogAutoReset(3000);
     });
     
     // Reset and cleanup
@@ -363,12 +428,7 @@ export default class BaseSage extends QuizNPC {
   }
 
   private startShouting(scene: Phaser.Scene) {
-    const shoutMessages = [
-      "Hey! Learn about Base, the Layer 2 blockchain! 📚",
-      "Want to test your Base knowledge? Ask me! 🤔",
-      "Base is the future of Ethereum scaling! 🚀",
-      "Click me to earn $Quiztals! 🎉"
-    ];
+    const shoutMessages = baseSagePersonality.shoutMessageTemplates;
 
     // Network-specific shout messages
     const networkOfflineMessages = [
@@ -424,17 +484,61 @@ export default class BaseSage extends QuizNPC {
     this.showShout(message);
   }
 
+  private generateBaseDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Base is a Layer 2 scaling solution built on Ethereum that uses Optimism's OP Stack! This technology enables faster and cheaper transactions while maintaining Ethereum's security.",
+      "Base was launched by Coinbase in August 2023 and quickly became one of the most popular Ethereum Layer 2 networks! It's designed to bring billions of people onchain.",
+      "Base has a unique feature called 'superchain' compatibility, which means it can interoperate with other OP Stack chains! This creates a network effect across the ecosystem.",
+      "Unlike some other Layer 2 solutions, Base is completely permissionless and open-source! Anyone can build, deploy, and use applications on Base without restrictions.",
+      "Base uses optimistic rollups for transaction processing, which means transactions are batched and submitted to Ethereum for final settlement! This dramatically reduces gas costs."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateBaseTips(): string {
+    const tipsPhrases = [
+      "Use BaseScan (basescan.org) to verify transactions and smart contract details! This blockchain explorer provides comprehensive information about Base network activity.",
+      "Bridge assets to Base using the official Base Bridge for the most secure and cost-effective transfers! The bridge is designed specifically for Ethereum to Base transfers.",
+      "Check gas fees on Base before executing transactions - while generally much lower than Ethereum, they can still vary based on network congestion!",
+      "Explore the Base ecosystem through BaseHub (base.org/ecosystem) to discover new dApps and projects! This curated directory showcases the best of Base.",
+      "Stay updated with Base development by following the official Base Twitter account and joining the Discord community for announcements and support!"
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
   protected showCooldownDialog() {
     // Add a delay before showing the cooldown dialog
     // This allows players to see their reward from the third quiz
     this.scene.time.delayedCall(3000, () => { // 3 second delay
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      // Use personality-specific cooldown message
+      const cooldownTemplate = Phaser.Utils.Array.GetRandom(baseSagePersonality.cooldownMessageTemplates);
+      const cooldownMessage = cooldownTemplate.replace("{time}", formattedTime);
 
       this.currentDialog = SimpleDialogBox.getInstance(this.scene);
       this.currentDialog.showDialog([
         {
-          text: `🍃 Hello there! I'm taking a short break to recharge my Base knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+          text: cooldownMessage,
           avatar: "npc_basesage_avatar",
           isExitDialog: true
         }
@@ -444,5 +548,33 @@ export default class BaseSage extends QuizNPC {
       // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
     });
+  }
+
+  private generateCommonMistakesForBase(): string {
+    const commonMistakes = baseSagePersonality.mistakeDescriptions;
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForBase(): string {
+    const quickTips = baseSagePersonality.tipDescriptions;
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
   }
 }

@@ -7,6 +7,8 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 
 export default class SmartContractGuy extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -206,26 +208,52 @@ export default class SmartContractGuy extends QuizNPC {
         return;
       }
       
-      const rewardText = isCorrect 
-        ? `📝 Excellent smart contract knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
-        : `❌ Not executed correctly! The right answer was "${question.answer}". Debug and try again!`;
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: rewardText,
-          avatar: "npc_smartcontractguy_avatar",
-          isExitDialog: true
-        }
-      ]);
-      this.setupDialogAutoReset(3000);
+      if (isCorrect) {
+        // Generate educational content for smart contracts
+        const didYouKnowContent = this.generateSmartContractDidYouKnow();
+        const tipsContent = this.generateSmartContractTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `📝 Excellent smart contract knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Smart Contract Guy",
+          npcAvatar: "npc_smartcontractguy_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: baseReward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Smart Contract Guy",
+          npcAvatar: "npc_smartcontractguy_avatar",
+          wrongAnswerMessage: `❌ Not executed correctly! "${selectedAnswer}" is not correct.`,
+          correctAnswer: question.answer,
+          explanation: question.explainer || "This question tests your understanding of key smart contract concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForSmartContracts(),
+          quickTips: this.generateQuickTipsForSmartContracts(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
     });
 
     // Complete the enhanced quiz session
     this.enhancedQuizManager.completeQuizSession();
   }
-
-
 
   private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if quiz manager is ready
@@ -294,16 +322,47 @@ export default class SmartContractGuy extends QuizNPC {
           return;
         }
         
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: isCorrect
-                    ? `📝 Smart! You earned ${reward.toFixed(2)} $Quiztals for your smart contract knowledge!`
-                    : `❌ Not executed correctly! The right answer was "${correctAnswer}". Debug and try again!`,
-                avatar: "npc_smartcontractguy_avatar",
-                isExitDialog: true
+        if (isCorrect) {
+          // Generate educational content for smart contracts
+          const didYouKnowContent = this.generateSmartContractDidYouKnow();
+          const tipsContent = this.generateSmartContractTips();
+          
+          // Create enhanced reward message
+          const rewardMessage = `📝 Smart! You earned ${reward.toFixed(2)} $Quiztals for your smart contract knowledge!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "Smart Contract Guy",
+            npcAvatar: "npc_smartcontractguy_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
             }
-        ]);
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "Smart Contract Guy",
+            npcAvatar: "npc_smartcontractguy_avatar",
+            wrongAnswerMessage: `❌ Not executed correctly! "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key smart contract concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForSmartContracts(),
+            quickTips: this.generateQuickTipsForSmartContracts(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
         
         // Set up auto-reset for the dialog after 3 seconds
         this.setupDialogAutoReset(3000);
@@ -415,6 +474,86 @@ export default class SmartContractGuy extends QuizNPC {
     }
     
     this.showShout(message);
+  }
+
+  private generateSmartContractDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Smart contracts are self-executing contracts with terms directly written into code! They automatically enforce agreements without the need for a middleman, making transactions faster and more secure.",
+      "The first smart contract was proposed by cryptographer Nick Szabo in 1994, years before Bitcoin! He envisioned a digital protocol that would facilitate and enforce contractual terms without a trusted intermediary.",
+      "Ethereum was the first blockchain to implement smart contracts successfully! This innovation allowed developers to create decentralized applications (dApps) that could execute complex logic automatically.",
+      "Smart contracts are immutable once deployed to the blockchain! This means they cannot be changed, which is both a strength (trustless execution) and a weakness (bugs can't be fixed easily).",
+      "Gas fees are required to execute smart contracts on Ethereum! These fees compensate miners for computational resources and prevent infinite loops that could clog the network."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateSmartContractTips(): string {
+    const tipsPhrases = [
+      "Always test your smart contracts thoroughly on testnets before deploying to mainnet! Networks like Goerli and Sepolia allow you to test with fake ETH without risking real funds.",
+      "Use established development frameworks like Hardhat or Foundry for Ethereum development! These tools provide testing environments, debugging capabilities, and deployment scripts.",
+      "Implement proper error handling with require() statements to make your contracts more robust! Clear error messages help users understand what went wrong.",
+      "Consider using upgradeable contracts for long-term projects to fix bugs without losing data! Proxy patterns allow you to update contract logic while preserving state.",
+      "Read the documentation for libraries and frameworks carefully - small details can have big impacts! Pay special attention to security considerations and best practices."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForSmartContracts(): string {
+    const commonMistakes = [
+      "Forgetting to handle gas optimization in smart contracts - inefficient code can be extremely expensive to execute!",
+      "Not validating user inputs in smart contracts - this can lead to security vulnerabilities and unexpected behavior!",
+      "Deploying untested code to mainnet - always use testnets first to avoid losing real funds!",
+      "Confusing wallet addresses with contract addresses - sending tokens to the wrong address can result in permanent loss!",
+      "Ignoring network fees when designing dApps - high gas costs can make your application unusable for users!"
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForSmartContracts(): string {
+    const quickTips = [
+      "Use events (logs) in your smart contracts to track important actions and improve frontend integration!",
+      "Implement proper error handling with require() statements to make your contracts more robust!",
+      "Consider using upgradeable contracts for long-term projects to fix bugs without losing data!",
+      "Read the documentation for libraries and frameworks carefully - small details can have big impacts!",
+      "Join smart contract developer communities for support, code reviews, and learning opportunities!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
   }
 
   protected showCooldownDialog() {

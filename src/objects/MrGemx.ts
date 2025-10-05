@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { showDialog } from "../utils/SimpleDialogBox";
 import { NetworkMonitor } from "../utils/NetworkMonitor";
 
+
 export default class MrGemx extends Phaser.Physics.Arcade.Sprite {
   private nameLabel: Phaser.GameObjects.Text;
   private shoutOutText: Phaser.GameObjects.Text;

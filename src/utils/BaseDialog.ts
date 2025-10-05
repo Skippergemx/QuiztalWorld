@@ -55,7 +55,16 @@ export class BaseDialog {
 
     const camera = this.scene.cameras.main;
     const centerX = (camera.scrollX + camera.width / 2) || 0;
-    const centerY = (camera.scrollY + camera.height / 2) || 0;
+    let centerY = (camera.scrollY + camera.height / 2) || 0;
+
+    // For mobile devices, ensure the dialog doesn't go above the screen
+    if (this.isMobile) {
+      const minY = camera.scrollY + 20; // Minimum Y position with some padding
+      const maxY = camera.scrollY + camera.height - this.dialogHeight - 20; // Maximum Y position with padding
+      
+      // Ensure dialog is within visible bounds
+      centerY = Math.max(minY, Math.min(centerY, maxY));
+    }
 
     this.dialogContainer.setPosition(
       centerX - this.dialogWidth / 2,

@@ -7,6 +7,8 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
 
 export default class ProfChain extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -206,26 +208,52 @@ export default class ProfChain extends QuizNPC {
         return;
       }
       
-      const rewardText = isCorrect 
-        ? `⛓️ Excellent blockchain knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
-        : `❌ Not quite! The correct answer was "${question.answer}". Keep studying blockchain technology!`;
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: rewardText,
-          avatar: "npc_profchain_avatar",
-          isExitDialog: true
-        }
-      ]);
-      this.setupDialogAutoReset(3000);
+      if (isCorrect) {
+        // Generate educational content for blockchain
+        const didYouKnowContent = this.generateBlockchainDidYouKnow();
+        const tipsContent = this.generateBlockchainTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `⛓️ Excellent blockchain knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Prof Chain",
+          npcAvatar: "npc_profchain_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: baseReward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Prof Chain",
+          npcAvatar: "npc_profchain_avatar",
+          wrongAnswerMessage: `❌ Not quite! "${selectedAnswer}" is not correct.`,
+          correctAnswer: question.answer,
+          explanation: question.explainer || "This question tests your understanding of key blockchain concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForBlockchain(),
+          quickTips: this.generateQuickTipsForBlockchain(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
     });
 
     // Complete the enhanced quiz session
     this.enhancedQuizManager.completeQuizSession();
   }
-
-
 
   private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if quiz manager is ready
@@ -291,19 +319,51 @@ export default class ProfChain extends QuizNPC {
     this.scene.time.delayedCall(500, () => {
         // Check if interactions are blocked before showing reward dialog
         if (this.isInteractionBlocked()) {
+          console.log("ProfChain: Cannot show reward dialog - interactions are blocked");
           return;
         }
         
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: isCorrect
-                    ? `⛓️ Excellent! You earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`
-                    : `❌ Not quite! The correct answer was "${correctAnswer}". Keep learning!`,
-                avatar: "npc_profchain_avatar",
-                isExitDialog: true
+        if (isCorrect) {
+          // Generate educational content for blockchain
+          const didYouKnowContent = this.generateBlockchainDidYouKnow();
+          const tipsContent = this.generateBlockchainTips();
+          
+          // Create enhanced reward message
+          const rewardMessage = `⛓️ Excellent! You earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "Prof Chain",
+            npcAvatar: "npc_profchain_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
             }
-        ]);
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "Prof Chain",
+            npcAvatar: "npc_profchain_avatar",
+            wrongAnswerMessage: `❌ Not quite! "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key blockchain concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForBlockchain(),
+            quickTips: this.generateQuickTipsForBlockchain(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
         
         // Set up auto-reset for the dialog after 3 seconds
         this.setupDialogAutoReset(3000);
@@ -437,4 +497,85 @@ export default class ProfChain extends QuizNPC {
       this.setupDialogAutoReset(3000);
     });
   }
+
+  private generateCommonMistakesForBlockchain(): string {
+    const commonMistakes = [
+      "Confusing blockchain with cryptocurrency - blockchain is the technology, cryptocurrency is just one application!",
+      "Thinking all blockchains are the same - each has different consensus mechanisms, speeds, and use cases!",
+      "Overlooking transaction fees - gas fees can vary dramatically between networks!",
+      "Forgetting about scalability limitations - most blockchains can only process a limited number of transactions per second!",
+      "Misunderstanding decentralization levels - some blockchains are more centralized than others!"
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForBlockchain(): string {
+    const quickTips = [
+      "Always verify transaction details before confirming - you can't reverse blockchain transactions!",
+      "Use layer-2 solutions when available to save on gas fees!",
+      "Research consensus mechanisms - Proof of Stake is generally more energy-efficient than Proof of Work!",
+      "Keep your private keys secure - never share them with anyone!",
+      "Diversify across multiple blockchains for different use cases!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
+  private generateBlockchainDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "The Bitcoin blockchain was the first successful implementation of a decentralized digital currency! Created by the mysterious Satoshi Nakamoto in 2009, it solved the double-spending problem without requiring a central authority.",
+      "Ethereum was the first blockchain to introduce smart contracts! This innovation allowed developers to create decentralized applications (dApps) that could execute complex logic automatically.",
+      "Proof of Stake consensus mechanisms are much more energy-efficient than Proof of Work! While Bitcoin mining consumes as much energy as entire countries, Proof of Stake blockchains can operate with a fraction of that energy.",
+      "Blockchain transactions are irreversible by design! Once confirmed, transactions cannot be reversed, which is why it's crucial to verify all details before sending.",
+      "The concept of blockchain was first described in 1991 by Stuart Haber and W. Scott Stornetta! They proposed a cryptographically secured chain of blocks to timestamp digital documents."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateBlockchainTips(): string {
+    const tipsPhrases = [
+      "Start with established blockchains like Ethereum or Solana when learning to develop dApps! These platforms have extensive documentation and developer communities.",
+      "Always research the consensus mechanism of a blockchain before investing! Proof of Stake is generally more energy-efficient than Proof of Work.",
+      "Use blockchain explorers to verify transactions and smart contract details! These tools provide transparency and help you confirm information independently.",
+      "Keep track of gas fees and network congestion when transacting! Performing transactions during low-traffic periods can save you significant costs.",
+      "Understand the difference between custodial and non-custodial wallets! Non-custodial wallets give you full control over your private keys and funds."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+
 }

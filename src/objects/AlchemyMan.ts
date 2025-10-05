@@ -10,6 +10,8 @@ import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Impo
 import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 
 export default class AlchemyMan extends WalkingNPC {
   private lastQuestionIndex: number = -1;
@@ -262,16 +264,47 @@ export default class AlchemyMan extends WalkingNPC {
         return;
       }
 
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`
-            : `🧪 Not quite! The correct answer was "${correctAnswer}". Keep exploring blockchain technology!`,
-          avatar: "npc_alchemyman_avatar",
-          isExitDialog: true
-        }
-      ]);
+      if (isCorrect) {
+        // Generate educational content for blockchain infrastructure
+        const didYouKnowContent = this.generateBlockchainDidYouKnow();
+        const tipsContent = this.generateBlockchainTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Alchemy Man",
+          npcAvatar: "npc_alchemyman_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Alchemy Man",
+          npcAvatar: "npc_alchemyman_avatar",
+          wrongAnswerMessage: `🧪 Not quite! "${selectedOption}" is not correct.`,
+          correctAnswer: correctAnswer,
+          explanation: "This question tests your understanding of key blockchain infrastructure concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForBlockchain(),
+          quickTips: this.generateQuickTipsForBlockchain(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
 
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -362,23 +395,50 @@ export default class AlchemyMan extends WalkingNPC {
         return;
       }
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`
-            : `🧪 Not quite! The correct answer was: "${enhancedQuestion.answer}". Keep exploring blockchain technology!`,
-          avatar: "npc_alchemyman_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Save reward using enhanced system
       if (isCorrect) {
+        // Generate educational content for blockchain infrastructure
+        const didYouKnowContent = this.generateBlockchainDidYouKnow();
+        const tipsContent = this.generateBlockchainTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Alchemy Man",
+          npcAvatar: "npc_alchemyman_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+        
+        // Save reward using enhanced system
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "AlchemyMan");
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Alchemy Man",
+          npcAvatar: "npc_alchemyman_avatar",
+          wrongAnswerMessage: `🧪 Not quite! "${selectedOption}" is not correct.`,
+          correctAnswer: enhancedQuestion.answer,
+          explanation: enhancedQuestion.explainer || "This question tests your understanding of key blockchain infrastructure concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForBlockchain(),
+          quickTips: this.generateQuickTipsForBlockchain(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
       }
-      
-      this.setupDialogAutoReset(3000);
     });
     
     // Resume walking after interaction
@@ -504,4 +564,85 @@ export default class AlchemyMan extends WalkingNPC {
       
     });
   }
+  
+  private generateBlockchainDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Alchemy is a blockchain development platform that provides powerful APIs and tools for building Web3 applications! It simplifies blockchain data access and infrastructure management for developers.",
+      "Blockchain nodes are the backbone of decentralized networks, storing and validating transaction data! Running your own node gives you direct access to blockchain data without relying on third parties.",
+      "Smart contracts are self-executing contracts with terms directly written into code! They automatically enforce agreements without the need for a middleman, making transactions faster and more secure.",
+      "Decentralized applications (dApps) run on blockchain networks rather than traditional servers! This eliminates single points of failure and gives users more control over their data and assets.",
+      "Consensus mechanisms like Proof of Stake ensure network security and agreement on transaction validity! Different blockchains use various consensus algorithms with different trade-offs in security, energy efficiency, and scalability."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateBlockchainTips(): string {
+    const tipsPhrases = [
+      "Start with established development platforms like Alchemy or Infura when building Web3 applications! These services provide reliable infrastructure and powerful APIs to simplify blockchain integration.",
+      "Always test your smart contracts thoroughly on testnets before deploying to mainnet! Networks like Goerli and Sepolia allow you to test with fake ETH without risking real funds.",
+      "Use established development frameworks like Hardhat or Foundry for Ethereum development! These tools provide testing environments, debugging capabilities, and deployment scripts.",
+      "Keep your private keys and mnemonic phrases secure - never share them with anyone! Consider using hardware wallets for storing valuable assets and development keys.",
+      "Stay updated with the latest Web3 trends and security practices! The space evolves rapidly, and staying informed helps you build better and more secure applications."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForBlockchain(): string {
+    const commonMistakes = [
+      "Forgetting to handle gas optimization in smart contracts - inefficient code can be extremely expensive to execute!",
+      "Not validating user inputs in smart contracts - this can lead to security vulnerabilities and unexpected behavior!",
+      "Deploying untested code to mainnet - always use testnets first to avoid losing real funds!",
+      "Confusing wallet addresses with contract addresses - sending tokens to the wrong address can result in permanent loss!",
+      "Ignoring network fees when designing dApps - high gas costs can make your application unusable for users!"
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForBlockchain(): string {
+    const quickTips = [
+      "Use events (logs) in your smart contracts to track important actions and improve frontend integration!",
+      "Implement proper error handling with require() statements to make your contracts more robust!",
+      "Consider using upgradeable contracts for long-term projects to fix bugs without losing data!",
+      "Read the documentation for libraries and frameworks carefully - small details can have big impacts!",
+      "Join Web3 developer communities for support, code reviews, and learning opportunities!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }

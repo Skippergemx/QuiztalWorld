@@ -7,6 +7,9 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { mintGirlPersonality } from '../config/NPCPersonalityConfig';
 
 export default class MintGirl extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -219,19 +222,49 @@ export default class MintGirl extends QuizNPC {
         return;
       }
       
-      const rewardText = isCorrect 
-        ? `🍃 Correct! You earned ${baseReward.toFixed(2)} $Quiztals from the Mint Club! (${question.difficulty} difficulty)` 
-        : `🌪️ Not quite! The correct answer was "${question.answer}". Try again later!`;
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: rewardText,
-          avatar: "npc_mintgirl_avatar",
-          isExitDialog: true
-        }
-      ]);
-      this.setupDialogAutoReset(3000);
+      if (isCorrect) {
+        // Generate educational content for NFT minting
+        const didYouKnowContent = this.generateNFTDidYouKnowContent();
+        const tipsContent = this.generateNFTTipsContent();
+        
+        // Create enhanced reward message with personality
+        const rewardPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.correctAnswerPrefixes);
+        const rewardMessage = `${rewardPrefix} ${baseReward.toFixed(2)} $Quiztals from the Mint Club! (${question.difficulty} difficulty)`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Mint Girl",
+          npcAvatar: "npc_mintgirl_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: baseReward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog with personality
+        const wrongAnswerPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.wrongAnswerPrefixes);
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Mint Girl",
+          npcAvatar: "npc_mintgirl_avatar",
+          wrongAnswerMessage: `${wrongAnswerPrefix} "${selectedAnswer}" is not correct.`,
+          correctAnswer: question.answer,
+          explanation: question.explainer || "This question tests your understanding of key NFT minting concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForNFT(),
+          quickTips: this.generateQuickTipsForNFT(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
     });
 
     // Complete the enhanced quiz session
@@ -303,16 +336,49 @@ export default class MintGirl extends QuizNPC {
           return;
         }
         
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: isCorrect
-                    ? `🍃 Correct! You earned ${reward.toFixed(2)} $Quiztals from the Mint Club!`
-                    : `🌪️ Nope! The correct answer was "${correctAnswer}". Try again later!`,
-                avatar: "npc_mintgirl_avatar",
-                isExitDialog: true
+        if (isCorrect) {
+          // Generate educational content for NFT minting
+          const didYouKnowContent = this.generateNFTDidYouKnowContent();
+          const tipsContent = this.generateNFTTipsContent();
+          
+          // Create enhanced reward message with personality
+          const rewardPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.correctAnswerPrefixes);
+          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Mint Club!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "Mint Girl",
+            npcAvatar: "npc_mintgirl_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
             }
-        ]);
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog with personality
+          const wrongAnswerPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.wrongAnswerPrefixes);
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "Mint Girl",
+            npcAvatar: "npc_mintgirl_avatar",
+            wrongAnswerMessage: `${wrongAnswerPrefix} "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key NFT minting concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForNFT(),
+            quickTips: this.generateQuickTipsForNFT(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
         
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -366,12 +432,7 @@ export default class MintGirl extends QuizNPC {
   }
 
   private startShouting(scene: Phaser.Scene) {
-    const shoutMessages = [
-      "Hey! Ever heard of Mint Club? 🌱",
-      "Want to turn Quiztals into real tokens? Ask me! 💰",
-      "On-chain Quiztals are the future! 🚀",
-      "Click me to earn $Quiztals! 🎉"
-    ];
+    const shoutMessages = mintGirlPersonality.shoutMessageTemplates;
     
     // Network-specific shout messages
     const networkOfflineMessages = [
@@ -434,10 +495,14 @@ export default class MintGirl extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message
+      const cooldownTemplate = Phaser.Utils.Array.GetRandom(mintGirlPersonality.cooldownMessageTemplates);
+      const cooldownMessage = cooldownTemplate.replace("{time}", formattedTime);
+      
       this.currentDialog = SimpleDialogBox.getInstance(this.scene);
       this.currentDialog.showDialog([
         {
-          text: `🍃 Hello there! I'm taking a short break to recharge my Mint Club knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+          text: cooldownMessage,
           avatar: "npc_mintgirl_avatar",
           isExitDialog: true
         }
@@ -447,5 +512,73 @@ export default class MintGirl extends QuizNPC {
       // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
     });
+  }
+
+  private generateCommonMistakesForNFT(): string {
+    const commonMistakes = mintGirlPersonality.mistakeDescriptions;
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForNFT(): string {
+    const quickTips = mintGirlPersonality.tipDescriptions;
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+  
+  private generateNFTDidYouKnowContent(): string {
+    const didYouKnowPhrases = [
+      "The first NFT was created in 2014 on Namecoin blockchain, predating Ethereum! This early NFT was a digital artwork called 'Quantum' by Kevin McCoy.",
+      "NFTs can represent ownership of both digital and physical assets! From artwork to real estate, NFTs are being used to tokenize various types of property.",
+      "Most NFTs are minted on Ethereum, but other blockchains like Solana and Polygon are gaining popularity! These alternatives often have lower fees and faster transactions.",
+      "The term 'minting' comes from the traditional process of creating physical coins! Just like a government mint produces currency, NFT minting creates unique digital assets.",
+      "Smart contracts automatically enforce NFT ownership and transfer rules! These self-executing contracts eliminate the need for intermediaries in digital asset transactions."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateNFTTipsContent(): string {
+    const tipsPhrases = [
+      "Research the project team and community before minting NFTs! Legitimate projects have transparent teams and active communities.",
+      "Set a maximum gas fee (Gwei) to avoid overpaying for Ethereum transactions! Most wallets allow you to set spending limits for protection.",
+      "Use testnets to practice minting before spending real money! Ethereum testnets like Rinkeby let you experiment with NFTs using fake ETH.",
+      "Verify the smart contract address before purchasing NFTs! Scammers often create fake NFTs with similar names to popular collections.",
+      "Consider the environmental impact of NFTs on energy-intensive blockchains! Look for projects on eco-friendly networks like Polygon or Tezos."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
   }
 }

@@ -7,6 +7,8 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 
 export default class NftCyn extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -214,19 +216,47 @@ export default class NftCyn extends QuizNPC {
         return;
       }
       
-      const rewardText = isCorrect 
-        ? `🎨 Amazing! You earned ${baseReward.toFixed(2)} $Quiztals for your NFT knowledge! (${question.difficulty} difficulty)` 
-        : `🖼️ Not quite! The correct answer was "${question.answer}". Keep exploring the NFT world!`;
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: rewardText,
-          avatar: "npc_nftcyn_avatar",
-          isExitDialog: true
-        }
-      ]);
-      this.setupDialogAutoReset(3000);
+      if (isCorrect) {
+        // Generate educational content for NFTs
+        const didYouKnowContent = this.generateNFTDidYouKnow();
+        const tipsContent = this.generateNFTTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎨 Amazing! You earned ${baseReward.toFixed(2)} $Quiztals for your NFT knowledge! (${question.difficulty} difficulty)`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "NFT Cyn",
+          npcAvatar: "npc_nftcyn_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: baseReward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "NFT Cyn",
+          npcAvatar: "npc_nftcyn_avatar",
+          wrongAnswerMessage: `🖼️ Not quite! "${selectedAnswer}" is not correct.`,
+          correctAnswer: question.answer,
+          explanation: question.explainer || "This question tests your understanding of key NFT concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForNFT(),
+          quickTips: this.generateQuickTipsForNFT(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
     });
 
     // Complete the enhanced quiz session
@@ -297,16 +327,47 @@ export default class NftCyn extends QuizNPC {
           return;
         }
         
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: isCorrect
-                    ? `🎨 Correct! You earned ${reward.toFixed(2)} $Quiztals for your NFT knowledge!`
-                    : `❌ Nope! The correct answer was \"${correctAnswer}\". Try again later!`,
-                avatar: "npc_nftcyn_avatar",
-                isExitDialog: true
+        if (isCorrect) {
+          // Generate educational content for NFTs
+          const didYouKnowContent = this.generateNFTDidYouKnow();
+          const tipsContent = this.generateNFTTips();
+          
+          // Create enhanced reward message
+          const rewardMessage = `🎨 Correct! You earned ${reward.toFixed(2)} $Quiztals for your NFT knowledge!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "NFT Cyn",
+            npcAvatar: "npc_nftcyn_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
             }
-        ]);
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "NFT Cyn",
+            npcAvatar: "npc_nftcyn_avatar",
+            wrongAnswerMessage: `❌ Nope! "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key NFT concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForNFT(),
+            quickTips: this.generateQuickTipsForNFT(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
         
         // Set up auto-reset for the dialog after 3 seconds
         // This ensures the dialog reference is cleared even if the player doesn't click
@@ -442,4 +503,85 @@ export default class NftCyn extends QuizNPC {
       this.setupDialogAutoReset(3000);
     });
   }
+
+  private generateNFTDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "The first NFT was created in 2014 on Namecoin blockchain, predating Ethereum! This early NFT was a digital artwork called 'Quantum' by Kevin McCoy.",
+      "NFTs can represent ownership of both digital and physical assets! From artwork to real estate, NFTs are being used to tokenize various types of property.",
+      "Most NFTs are minted on Ethereum, but other blockchains like Solana and Polygon are gaining popularity! These alternatives often have lower fees and faster transactions.",
+      "The term 'minting' comes from the traditional process of creating physical coins! Just like a government mint produces currency, NFT minting creates unique digital assets.",
+      "Smart contracts automatically enforce NFT ownership and transfer rules! These self-executing contracts eliminate the need for intermediaries in digital asset transactions."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateNFTTips(): string {
+    const tipsPhrases = [
+      "Research the project team and community before minting NFTs! Legitimate projects have transparent teams and active communities.",
+      "Set a maximum gas fee (Gwei) to avoid overpaying for Ethereum transactions! Most wallets allow you to set spending limits for protection.",
+      "Use testnets to practice minting before spending real money! Ethereum testnets like Rinkeby let you experiment with NFTs using fake ETH.",
+      "Verify the smart contract address before purchasing NFTs! Scammers often create fake NFTs with similar names to popular collections.",
+      "Consider the environmental impact of NFTs on energy-intensive blockchains! Look for projects on eco-friendly networks like Polygon or Tezos."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForNFT(): string {
+    const commonMistakes = [
+      "Confusing NFTs with cryptocurrencies - remember NFTs are unique digital assets, not currencies!",
+      "Thinking all NFTs are valuable - most NFTs have no real-world value, be selective!",
+      "Overlooking gas fees for minting - Ethereum gas fees can be extremely expensive!",
+      "Forgetting to research the project - always verify the team and roadmap before investing!",
+      "Minting without understanding royalties - creators earn ongoing commissions from secondary sales!"
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForNFT(): string {
+    const quickTips = [
+      "Always verify the smart contract address before purchasing NFTs to avoid scams!",
+      "Check the project's social media activity and community engagement before investing!",
+      "Use testnets to practice minting before spending real money on gas fees!",
+      "Store valuable NFTs in hardware wallets for maximum security!",
+      "Diversify your NFT portfolio across different projects and categories!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }

@@ -8,6 +8,8 @@ import QuiztalRewardLog from '../utils/QuiztalRewardLog'; // Import reward loggi
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 
 // SecurityKai class: Defines the SecurityKai NPC, extending the base QuizNPC class.
 export default class SecurityKai extends QuizNPC {
@@ -224,26 +226,52 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         return;
       }
       
-      const rewardText = isCorrect 
-        ? `🛡️ Excellent security knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)` 
-        : `❌ Not quite! The correct answer was "${question.answer}". Keep learning about Web3 security!`;
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: rewardText,
-          avatar: "npc_securitykai_avatar",
-          isExitDialog: true
-        }
-      ]);
-      this.setupDialogAutoReset(3000);
+      if (isCorrect) {
+        // Generate educational content for Web3 security
+        const didYouKnowContent = this.generateSecurityDidYouKnow();
+        const tipsContent = this.generateSecurityTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🛡️ Excellent security knowledge! You earned ${baseReward.toFixed(2)} $Quiztals! (${question.difficulty} difficulty)`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Security Kai",
+          npcAvatar: "npc_securitykai_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: baseReward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Security Kai",
+          npcAvatar: "npc_securitykai_avatar",
+          wrongAnswerMessage: `❌ Not quite! "${selectedAnswer}" is not correct.`,
+          correctAnswer: question.answer,
+          explanation: question.explainer || "This question tests your understanding of key Web3 security concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForSecurity(),
+          quickTips: this.generateQuickTipsForSecurity(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
     });
 
     // Complete the enhanced quiz session
     this.enhancedQuizManager.completeQuizSession();
   }
-
-
 
   private startSimpleQuiz(player: Phaser.Physics.Arcade.Sprite) {
     // Check if quiz manager is ready.
@@ -314,16 +342,47 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         return;
       }
 
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`
-            : `❌ Oops! The correct answer was "${correctAnswer}". Try again later!`,
-          avatar: "npc_securitykai_avatar",
-          isExitDialog: true
-        }
-      ]);
+      if (isCorrect) {
+        // Generate educational content for Web3 security
+        const didYouKnowContent = this.generateSecurityDidYouKnow();
+        const tipsContent = this.generateSecurityTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Security Kai",
+          npcAvatar: "npc_securitykai_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Security Kai",
+          npcAvatar: "npc_securitykai_avatar",
+          wrongAnswerMessage: `❌ Oops! "${selectedOption}" is not correct.`,
+          correctAnswer: correctAnswer,
+          explanation: "This question tests your understanding of key Web3 security concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForSecurity(),
+          quickTips: this.generateQuickTipsForSecurity(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
 
       // Set up auto-reset for the dialog after 3 seconds.
       // This ensures the dialog reference is cleared even if the player doesn't click.
@@ -465,4 +524,85 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       this.setupDialogAutoReset(3000);
     });
   }
+
+  private generateSecurityDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Phishing attacks are the most common way users lose their crypto! Scammers create fake websites and emails that look legitimate to steal your private keys or login credentials.",
+      "Hardware wallets (Ledger, Trezor) provide the highest level of security for storing cryptocurrencies! These devices keep your private keys offline, making them immune to online hacking attempts.",
+      "Multi-signature wallets require multiple signatures to authorize transactions! This security feature adds an extra layer of protection by requiring approval from multiple devices or parties before funds can be moved.",
+      "Never share your seed phrase with anyone, not even trusted family members! Your seed phrase is the master key to all your funds, and anyone who has it can access and steal your assets.",
+      "Two-factor authentication (2FA) adds an extra layer of security to your accounts! Use authenticator apps like Google Authenticator or Authy instead of SMS-based 2FA for better protection."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateSecurityTips(): string {
+    const tipsPhrases = [
+      "Enable two-factor authentication (2FA) on all your crypto accounts! Use authenticator apps instead of SMS-based 2FA for better security.",
+      "Regularly update your wallet software and device operating systems! Software updates often include critical security patches that protect against newly discovered vulnerabilities.",
+      "Use strong, unique passwords for each wallet and exchange account! Consider using a reputable password manager to generate and store complex passwords securely.",
+      "Backup your wallet and store copies in multiple secure locations! Keep backups in fireproof safes, safety deposit boxes, or other secure physical locations.",
+      "Start with small amounts when using a new wallet or exchange! This minimizes potential losses while you familiarize yourself with the platform's security features."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForSecurity(): string {
+    const commonMistakes = [
+      "Storing large amounts of crypto on exchanges instead of personal wallets! Exchanges are frequent targets for hackers and may not fully compensate users in case of a breach.",
+      "Using the same password across multiple platforms! If one service is compromised, hackers can use the same credentials to access your other accounts.",
+      "Falling for fake wallet apps or phishing websites! Always download wallet software from official sources and verify URLs before entering sensitive information.",
+      "Not backing up wallet recovery phrases properly! Store backups in multiple secure locations and never keep digital copies on internet-connected devices.",
+      "Ignoring security warnings or software update notifications! These alerts often indicate critical vulnerabilities that need immediate attention."
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForSecurity(): string {
+    const quickTips = [
+      "Always verify transaction details before confirming! Check recipient addresses, amounts, and fees carefully to avoid costly mistakes.",
+      "Use different addresses for each transaction when possible! This enhances privacy and makes it harder for others to track your financial activities.",
+      "Keep your private keys absolutely private - never share them with anyone! No legitimate service will ever ask for your private keys.",
+      "Enable all available security features in your wallet! Features like biometric authentication, PIN codes, and spending limits add layers of protection.",
+      "Research any wallet or service before trusting it with your funds! Check reviews, security audits, and the development team's reputation."
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }

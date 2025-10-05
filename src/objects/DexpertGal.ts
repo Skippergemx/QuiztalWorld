@@ -5,6 +5,9 @@ import QuizNPC from "./QuizNPC";
 import NPCQuizManager from '../managers/NPCQuizManager';
 import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+
 
 export default class DexpertGal extends QuizNPC {
   protected nameLabel: Phaser.GameObjects.Text;
@@ -138,92 +141,6 @@ export default class DexpertGal extends QuizNPC {
     }
   }
 
-  private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
-    const isCorrect = selectedOption === correctAnswer;
-    const reward = this.calculateReward(isCorrect);
-    
-    // Record quiz attempt regardless of whether correct or incorrect
-    const playerId = player.name || `anon_${Date.now()}`;
-    this.recordQuizAttempt(playerId);
-    
-    // Play sound based on answer
-    const audioManager = AudioManager.getInstance();
-    if (isCorrect) {
-        audioManager.playCorrectSound();
-    } else {
-        audioManager.playWrongSound();
-    }
-
-    // Close the current dialog immediately
-    if (this.currentDialog) {
-      this.currentDialog.close();
-      this.currentDialog = null;
-    }
-
-    this.scene.time.delayedCall(500, () => {
-        // Check if interactions are blocked before showing reward dialog
-        if (this.isInteractionBlocked()) {
-          console.log("DexpertGal: Cannot show reward dialog - interactions are blocked");
-          return;
-        }
-        
-        if (isCorrect) {
-          // Get themed reward dialog
-          const themeData = this.getThemedRewardDialog();
-          
-          // Generate themed Did You Know and Tips content for DEX topics
-          const didYouKnowContent = this.generateThemedDexDidYouKnow(themeData.title);
-          const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
-          
-          // Create enhanced reward message with theme
-          const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
-          
-          // Create a more detailed dialog with multiple sections
-          let enhancedDialogText = rewardMessage;
-          enhancedDialogText += `\n\n`;
-          
-          if (didYouKnowContent) {
-            enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
-          }
-          
-          if (tipsContent) {
-            enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
-          }
-          
-          // Show reward dialog with result message
-          this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-          this.currentDialog.showDialog([
-            {
-              text: enhancedDialogText,
-              avatar: "npc_dexpertgal_avatar",
-              continueText: "Close",
-              onClose: () => {
-                // Reset the dialog state when player closes the dialog
-                this.resetDialogState();
-              }
-            }
-          ]);
-        
-        } else {
-          // Incorrect answer - simpler dialog
-          this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-          this.currentDialog.showDialog([
-              {
-                  text: `❌ Trade failed! The correct answer was "${correctAnswer}". Study the market and try again!`,
-                  avatar: "npc_dexpertgal_avatar",
-                  isExitDialog: true
-              }
-          ]);
-          
-          // Set up auto-reset for the dialog after 3 seconds (only for incorrect answers)
-          this.setupDialogAutoReset(3000);
-        }
-    });
-    
-    // Reset last question index so player can get the same question again in future interactions
-    this.lastQuestionIndex = -1;
-  }
-
   private async startEnhancedQuiz(player: Phaser.Physics.Arcade.Sprite) {
     try {
       // Get random question using the quiz manager
@@ -347,47 +264,41 @@ export default class DexpertGal extends QuizNPC {
         // Create enhanced reward message with theme
         const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
         
-        // Create a more detailed dialog with multiple sections
-        let enhancedDialogText = rewardMessage;
-        enhancedDialogText += `\n\n`;
-        
-        if (didYouKnowContent) {
-          enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
-        }
-        
-        if (tipsContent) {
-          enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
-        }
-        
-        // Show reward dialog with result message
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-          {
-            text: enhancedDialogText,
-            avatar: "npc_dexpertgal_avatar",
-            continueText: "Close",
-            onClose: () => {
-              // Reset the dialog state when player closes the dialog
-              this.resetDialogState();
-            }
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Dexpert Gal",
+          npcAvatar: "npc_dexpertgal_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
           }
-        ]);
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
         
         // Use enhanced reward saving method for consistency
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "DexpertGal");
       } else {
-        // Incorrect answer - simpler dialog
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-            {
-                text: `❌ Trade failed! The correct answer was: "${enhancedQuestion.answer}". Study the market and try again!`,
-                avatar: "npc_dexpertgal_avatar",
-                isExitDialog: true
-            }
-        ]);
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Dexpert Gal",
+          npcAvatar: "npc_dexpertgal_avatar",
+          wrongAnswerMessage: `❌ Trade failed! "${selectedOption}" is not correct.`,
+          correctAnswer: enhancedQuestion.answer,
+          explanation: enhancedQuestion.explainer || "This question tests your understanding of key DEX concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForDEX(),
+          quickTips: this.generateQuickTipsForDEX(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
         
-        // Set up auto-reset for the dialog after 3 seconds for incorrect answers
-        this.setupDialogAutoReset(3000);
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
       }
       
       // If this was the 3rd attempt, activate cooldown AFTER reward dialog
@@ -442,6 +353,85 @@ export default class DexpertGal extends QuizNPC {
     }]);
   }
 
+  private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
+    const isCorrect = selectedOption === correctAnswer;
+    const reward = this.calculateReward(isCorrect);
+    
+    // Record quiz attempt regardless of whether correct or incorrect
+    const playerId = player.name || `anon_${Date.now()}`;
+    this.recordQuizAttempt(playerId);
+    
+    // Play sound based on answer
+    const audioManager = AudioManager.getInstance();
+    if (isCorrect) {
+        audioManager.playCorrectSound();
+    } else {
+        audioManager.playWrongSound();
+    }
+
+    // Close the current dialog immediately
+    if (this.currentDialog) {
+      this.currentDialog.close();
+      this.currentDialog = null;
+    }
+
+    this.scene.time.delayedCall(500, () => {
+        // Check if interactions are blocked before showing reward dialog
+        if (this.isInteractionBlocked()) {
+          console.log("DexpertGal: Cannot show reward dialog - interactions are blocked");
+          return;
+        }
+        
+        if (isCorrect) {
+          // Get themed reward dialog
+          const themeData = this.getThemedRewardDialog();
+          
+          // Generate themed Did You Know and Tips content for DEX topics
+          const didYouKnowContent = this.generateThemedDexDidYouKnow(themeData.title);
+          const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
+          
+          // Create enhanced reward message with theme
+          const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
+          
+          // Show optimized reward dialog
+          const rewardDialogData: OptimizedRewardDialogData = {
+            npcName: "Dexpert Gal",
+            npcAvatar: "npc_dexpertgal_avatar",
+            rewardMessage: rewardMessage,
+            didYouKnow: didYouKnowContent,
+            tipsAndTricks: tipsContent,
+            rewardAmount: reward,
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedRewardDialog(this.scene, rewardDialogData);
+        } else {
+          // Incorrect answer - show optimized wrong answer dialog
+          const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+            npcName: "Dexpert Gal",
+            npcAvatar: "npc_dexpertgal_avatar",
+            wrongAnswerMessage: `❌ Trade failed! "${selectedOption}" is not correct.`,
+            correctAnswer: correctAnswer,
+            explanation: "This question tests your understanding of key DEX concepts. Review the material and try again!",
+            commonMistakes: this.generateCommonMistakesForDEX(),
+            quickTips: this.generateQuickTipsForDEX(),
+            onClose: () => {
+              // Reset the dialog state when player closes the dialog
+              this.resetDialogState();
+            }
+          };
+          
+          showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+        }
+    });
+    
+    // Reset last question index so player can get the same question again in future interactions
+    this.lastQuestionIndex = -1;
+  }
+
   private calculateReward(isCorrect: boolean): number {
     return isCorrect ? parseFloat(Phaser.Math.FloatBetween(0.01, 0.5).toFixed(2)) : 0;
   }
@@ -488,10 +478,10 @@ export default class DexpertGal extends QuizNPC {
     const phrases = themedDyk[theme] || themedDyk["Trading Pro"];
     const selectedPhrase = Phaser.Utils.Array.GetRandom(phrases);
     
-    // Limit phrase length for mobile to prevent overflow
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
     const isMobile = this.scene.scale.width < 768;
-    if (isMobile && selectedPhrase.length > 200) {
-      return selectedPhrase.substring(0, 197) + "...";
+    if (isMobile && selectedPhrase.length > 150) { // Reduced from 200 to 150 for better mobile display
+      return selectedPhrase.substring(0, 147) + "...";
     }
     
     return selectedPhrase;
@@ -525,10 +515,10 @@ export default class DexpertGal extends QuizNPC {
     const phrases = themedTips[theme] || themedTips["Trading Pro"];
     const selectedPhrase = Phaser.Utils.Array.GetRandom(phrases);
     
-    // Limit phrase length for mobile to prevent overflow
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
     const isMobile = this.scene.scale.width < 768;
-    if (isMobile && selectedPhrase.length > 200) {
-      return selectedPhrase.substring(0, 197) + "...";
+    if (isMobile && selectedPhrase.length > 150) { // Reduced from 200 to 150 for better mobile display
+      return selectedPhrase.substring(0, 147) + "...";
     }
     
     return selectedPhrase;
@@ -633,4 +623,45 @@ export default class DexpertGal extends QuizNPC {
       this.setupDialogAutoReset(3000);
     });
   }
+
+  private generateCommonMistakesForDEX(): string {
+    const commonMistakes = [
+      "Confusing DEXs with centralized exchanges - remember DEXs are trustless and non-custodial!",
+      "Mixing up AMMs (Automated Market Makers) with traditional order books - they work completely differently!",
+      "Forgetting about impermanent loss when providing liquidity - always calculate potential risks!",
+      "Overlooking gas fees impact on small trades - sometimes CEXs are more cost-effective for small amounts!",
+      "Misunderstanding slippage tolerance - setting it too high can result in unfavorable trade execution!"
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForDEX(): string {
+    const quickTips = [
+      "Always check liquidity depth before trading large amounts to avoid high slippage!",
+      "Use limit orders when available to get better execution prices on DEXs!",
+      "Compare gas fees across different chains - sometimes Polygon or BSC are cheaper than Ethereum!",
+      "Read the token contract before investing - some tokens have hidden fees or restrictions!",
+      "Start with small trades to get comfortable with the interface before going big!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }

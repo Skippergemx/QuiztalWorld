@@ -27,7 +27,7 @@ export class SimpleDialogBox extends BaseDialog {
   constructor(scene: Phaser.Scene) {
     super(scene, { 
       width: scene.scale.width < 768 ? scene.scale.width * 0.95 : 750,
-      height: scene.scale.width < 768 ? 420 : 480  // This will be the minimum height
+      height: scene.scale.width < 768 ? 480 : 480  // Increased minimum height for mobile
     });
     
     this.initializeDialogContent();
@@ -230,10 +230,10 @@ export class SimpleDialogBox extends BaseDialog {
     // Get the bounds of all content to determine the required height
     const continueButtonBounds = this.continueTextElement.getBounds();
     
-    // Calculate required height (avatar + text + padding + continue button)
+    // Calculate required height with more padding for mobile
     const requiredHeight = Math.max(
       this.minHeight, // Ensure minimum height
-      continueButtonBounds.y + continueButtonBounds.height + 20 // Continue button position + height + padding
+      continueButtonBounds.y + continueButtonBounds.height + 40 // Increased padding for continue button
     );
     
     // Update dialog height if needed
@@ -247,7 +247,7 @@ export class SimpleDialogBox extends BaseDialog {
       this.dialogContainer.add(this.optionsContainer);
     }
     
-    // Update position after height change
+    // Update position after height change to ensure it's within screen bounds
     this.updatePosition();
   }
 
@@ -295,6 +295,30 @@ export class SimpleDialogBox extends BaseDialog {
     }
     return singletonInstance;
   }
+
+  protected updatePosition = (): void => {
+    if (!this.scene?.cameras?.main || !this.dialogContainer) {
+      return;
+    }
+
+    const camera = this.scene.cameras.main;
+    const centerX = (camera.scrollX + camera.width / 2) || 0;
+    let centerY = (camera.scrollY + camera.height / 2) || 0;
+
+    // For mobile devices, ensure the dialog doesn't go above the screen
+    if (this.isMobile) {
+      const minY = camera.scrollY + 20; // Minimum Y position with some padding
+      const maxY = camera.scrollY + camera.height - this.dialogHeight - 20; // Maximum Y position with padding
+      
+      // Ensure dialog is within visible bounds
+      centerY = Math.max(minY, Math.min(centerY, maxY));
+    }
+
+    this.dialogContainer.setPosition(
+      centerX - this.dialogWidth / 2,
+      centerY - this.dialogHeight / 2
+    );
+  };
 }
 
 // Update the showDialog function to use the new interface

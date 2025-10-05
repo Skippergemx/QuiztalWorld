@@ -10,6 +10,8 @@ import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior"; // Impo
 import PhysicsManager from '../managers/PhysicsManager'; // Import PhysicsManager for collision handling
 import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
+import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
 // Remove incorrect import - quiz data is loaded via HTTP in NPCQuizManager
 
 export default class ArtizenGent extends WalkingNPC {
@@ -287,16 +289,47 @@ export default class ArtizenGent extends WalkingNPC {
         return;
       }
 
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`
-            : `🖌️ Not quite! The correct answer was "${correctAnswer}". Keep exploring the art world!`,
-          avatar: "npc_artizengent_avatar",
-          isExitDialog: true
-        }
-      ]);
+      if (isCorrect) {
+        // Generate educational content for NFT art
+        const didYouKnowContent = this.generateArtDidYouKnow();
+        const tipsContent = this.generateArtTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Artizen Gent",
+          npcAvatar: "npc_artizengent_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Artizen Gent",
+          npcAvatar: "npc_artizengent_avatar",
+          wrongAnswerMessage: `🖌️ Not quite! "${selectedOption}" is not correct.`,
+          correctAnswer: correctAnswer,
+          explanation: "This question tests your understanding of key NFT art concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForArt(),
+          quickTips: this.generateQuickTipsForArt(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
+      }
 
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
@@ -388,23 +421,50 @@ export default class ArtizenGent extends WalkingNPC {
         return;
       }
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: isCorrect
-            ? `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`
-            : `🖌️ Not quite! The correct answer was: "${enhancedQuestion.answer}". Keep exploring the art world!`,
-          avatar: "npc_artizengent_avatar",
-          isExitDialog: true
-        }
-      ]);
-      
-      // Save reward using enhanced system
       if (isCorrect) {
+        // Generate educational content for NFT art
+        const didYouKnowContent = this.generateArtDidYouKnow();
+        const tipsContent = this.generateArtTips();
+        
+        // Create enhanced reward message
+        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`;
+        
+        // Show optimized reward dialog
+        const rewardDialogData: OptimizedRewardDialogData = {
+          npcName: "Artizen Gent",
+          npcAvatar: "npc_artizengent_avatar",
+          rewardMessage: rewardMessage,
+          didYouKnow: didYouKnowContent,
+          tipsAndTricks: tipsContent,
+          rewardAmount: reward,
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedRewardDialog(this.scene, rewardDialogData);
+        
+        // Save reward using enhanced system
         this.enhancedQuizManager.saveEnhancedRewardToDatabase(playerId, reward, "ArtizenGent");
+      } else {
+        // Incorrect answer - show optimized wrong answer dialog
+        const wrongAnswerDialogData: OptimizedWrongAnswerDialogData = {
+          npcName: "Artizen Gent",
+          npcAvatar: "npc_artizengent_avatar",
+          wrongAnswerMessage: `🖌️ Not quite! "${selectedOption}" is not correct.`,
+          correctAnswer: enhancedQuestion.answer,
+          explanation: enhancedQuestion.explainer || "This question tests your understanding of key NFT art concepts. Review the material and try again!",
+          commonMistakes: this.generateCommonMistakesForArt(),
+          quickTips: this.generateQuickTipsForArt(),
+          onClose: () => {
+            // Reset the dialog state when player closes the dialog
+            this.resetDialogState();
+          }
+        };
+        
+        showOptimizedWrongAnswerDialog(this.scene, wrongAnswerDialogData);
       }
-      
-      this.setupDialogAutoReset(3000);
     });
     
     // Resume walking after interaction
@@ -530,4 +590,85 @@ export default class ArtizenGent extends WalkingNPC {
       
     });
   }
+  
+  private generateArtDidYouKnow(): string {
+    const didYouKnowPhrases = [
+      "Digital art has been around since the 1960s, but NFTs have revolutionized how artists can monetize their work! Artists can now sell unique digital pieces directly to collectors without intermediaries.",
+      "The most expensive NFT artwork ever sold is 'The Merge' by Pak, which sold for $91.8 million in 2021! This highlights the growing market for digital art collectibles.",
+      "Generative art NFTs are created using algorithms and code, making each piece unique! Popular projects like Art Blocks have gained significant attention for their algorithmic art collections.",
+      "NFT art isn't limited to static images - it can include animations, interactive elements, and even virtual reality experiences! This opens up new creative possibilities for artists.",
+      "Many traditional art galleries and museums are now showcasing NFT art exhibitions! Institutions like the Museum of Modern Art have begun collecting digital artworks."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(didYouKnowPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateArtTips(): string {
+    const tipsPhrases = [
+      "Research the artist's background and previous work before purchasing NFT art! Look for artists with a consistent creative vision and active community engagement.",
+      "Consider the utility and story behind an NFT artwork, not just its visual appeal! Many successful NFT projects offer additional benefits to holders.",
+      "Join NFT art communities on Discord and Twitter to stay updated on new drops and artist announcements! These communities often provide early access opportunities.",
+      "Start with smaller investments to learn about the NFT art market before committing significant funds! The space is volatile and constantly evolving.",
+      "Verify the authenticity of NFT art by checking the official project website and social media channels! Scammers often create fake versions of popular collections."
+    ];
+    
+    const selectedPhrase = Phaser.Utils.Array.GetRandom(tipsPhrases);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedPhrase.length > 150) {
+      return selectedPhrase.substring(0, 147) + "...";
+    }
+    
+    return selectedPhrase;
+  }
+  
+  private generateCommonMistakesForArt(): string {
+    const commonMistakes = [
+      "Buying NFT art purely based on hype without understanding the artist or project! Always research before making purchases.",
+      "Overlooking the importance of community and utility in NFT art projects! Successful collections often have active communities and additional benefits.",
+      "Not verifying the authenticity of NFT art before purchasing! Always check official sources to avoid scams.",
+      "Ignoring the environmental impact of NFTs on energy-intensive blockchains! Consider eco-friendly alternatives when possible.",
+      "Failing to secure NFT art properly with hardware wallets! Digital assets can be stolen if not stored securely."
+    ];
+    
+    const selectedMistake = Phaser.Utils.Array.GetRandom(commonMistakes);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedMistake.length > 150) {
+      return selectedMistake.substring(0, 147) + "...";
+    }
+    
+    return selectedMistake;
+  }
+  
+  private generateQuickTipsForArt(): string {
+    const quickTips = [
+      "Follow artists on social media to stay updated on their latest works and announcements!",
+      "Join NFT art Discord communities for real-time updates and discussions!",
+      "Check the rarity and traits of NFT art pieces before purchasing!",
+      "Use reputable NFT marketplaces like OpenSea or Foundation for trading!",
+      "Always verify the official website and social media channels before buying!"
+    ];
+    
+    const selectedTip = Phaser.Utils.Array.GetRandom(quickTips);
+    
+    // Limit phrase length for mobile to prevent overflow and ensure dialog fits on screen
+    const isMobile = this.scene.scale.width < 768;
+    if (isMobile && selectedTip.length > 150) {
+      return selectedTip.substring(0, 147) + "...";
+    }
+    
+    return selectedTip;
+  }
+
 }
