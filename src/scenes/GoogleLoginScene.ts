@@ -187,7 +187,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
         this.titleContainer = this.add.container(this.scale.width / 2, isMobile ? 120 : 150);
 
         // Main title with modern typography
-        const mainTitle = this.add.text(0, 0, "Crystle World", {
+        const mainTitle = this.add.text(0, 0, "Quiztal World", {
             fontSize: UIHelpers.getResponsiveFontSize(isMobile, '56px'),
             fontFamily: modernUITheme.typography.fontFamily.primary,
             color: modernUITheme.colors.text.primary,
@@ -459,7 +459,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
             localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
             console.log('✅ GoogleLoginScene: Saved player data to localStorage');
 
-            this.updateModernLoadingProgress(1, "Welcome to Crystle World!");
+            this.updateModernLoadingProgress(1, "Welcome to Quiztal World!");
 
             // Success animation before transition
             this.tweens.add({

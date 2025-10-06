@@ -1,12 +1,13 @@
 // BasePal.ts
 import Phaser from "phaser";
-import { showDialog } from "../utils/SimpleDialogBox";
 import WalkingNPC from "./WalkingNPC";
 import { SimplePatrolBehavior } from "../managers/SimplePatrolBehavior";
 import AudioManager from '../managers/AudioManager';
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import PhysicsManager from '../managers/PhysicsManager';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from "../utils/OptimizedRewardDialog";
+import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from "../utils/OptimizedEnhancedQuizDialog";
 
 export default class BasePal extends WalkingNPC {
   private lectures: any[] = [];
@@ -225,35 +226,33 @@ export default class BasePal extends WalkingNPC {
     // Get current lecture
     const lecture = this.lectures[this.currentLectureIndex];
     
-    // Create lecture dialog with key points
-    let dialogText = `🎓 ${lecture.title}\n\n${lecture.content}`;
-    
-    // Add key points if they exist
-    if (lecture.keyPoints && lecture.keyPoints.length > 0) {
-      const keyPointsText = lecture.keyPoints.map((point: string, index: number) => 
-        `${index + 1}. ${point}`
-      ).join('\n');
-      
-      dialogText += `\n\n🔑 Key Points:\n${keyPointsText}`;
-    }
-    
     // Store player reference for reward
     this.playerForReward = player;
     
-    // Create a callback to give reward after dialog is closed
-    const onLectureComplete = () => {
-      this.giveLectureReward();
-    };
-    
-    const dialogContent = [
-      {
-        text: dialogText,
-        avatar: "npc_basepal_avatar",
-        onClose: onLectureComplete
+    // Create lecture dialog with key points using OptimizedEnhancedQuizDialog
+    const quizData: OptimizedQuizDialogData = {
+      npcName: "BasePal",
+      npcAvatar: "npc_basepal_avatar",
+      question: `🎓 ${lecture.title}\n\n${lecture.content}`,
+      options: [
+        "Continue...",
+        "That's interesting!",
+        "Thanks for the lecture!"
+      ],
+      theme: "Base Chain Lectures",
+      explainer: lecture.keyPoints && lecture.keyPoints.length > 0 
+        ? `🔑 Key Points:\n${lecture.keyPoints.map((point: string, index: number) => 
+            `${index + 1}. ${point}`).join('\n')}`
+        : undefined,
+      onAnswer: (_selectedOption: string) => {
+        this.giveLectureReward();
+      },
+      onClose: () => {
+        this.giveLectureReward();
       }
-    ];
+    };
 
-    showDialog(this.scene, dialogContent);
+    showOptimizedEnhancedQuizDialog(this.scene, quizData);
   }
 
   private giveLectureReward() {
@@ -282,32 +281,22 @@ export default class BasePal extends WalkingNPC {
     // Show enhanced reward dialog with additional sections
     const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
     
-    // Create a more detailed dialog with multiple sections
-    let enhancedDialogText = `${rewardMessage}\n\n`;
-    
-    if (didYouKnowContent) {
-      enhancedDialogText += `🧠 DID YOU KNOW?\n${didYouKnowContent}\n\n`;
-    }
-    
-    if (tipsContent) {
-      enhancedDialogText += `💡 TIPS & TRICKS\n${tipsContent}`;
-    }
-    
-    const rewardDialogContent = [
-      {
-        text: enhancedDialogText,
-        avatar: "npc_basepal_avatar"
-        // Removed isExitDialog: true to make it non-auto closing
+    const rewardDialogData: OptimizedRewardDialogData = {
+      npcName: "BasePal",
+      npcAvatar: "npc_basepal_avatar",
+      rewardMessage: rewardMessage,
+      didYouKnow: didYouKnowContent,
+      tipsAndTricks: tipsContent,
+      rewardAmount: reward,
+      onClose: () => {
+        this.playerForReward = null;
       }
-    ];
+    };
 
     // Use a small delay to ensure the previous dialog is fully closed before showing the reward dialog
     this.scene.time.delayedCall(100, () => {
-      showDialog(this.scene, rewardDialogContent);
+      showOptimizedRewardDialog(this.scene, rewardDialogData);
     });
-    
-    // Clear player reference
-    this.playerForReward = null;
   }
   
   private generateDidYouKnow(): string {
@@ -349,30 +338,28 @@ export default class BasePal extends WalkingNPC {
   }
 
   private showNoLectureDialog() {
-    const dialogContent = [
-      {
-        text: "📚 Oops! I'm still preparing my lecture notes about Base Chain. Please come back later!",
-        avatar: "npc_basepal_avatar",
-        isExitDialog: true
-      }
-    ];
+    const dialogData: OptimizedRewardDialogData = {
+      npcName: "BasePal",
+      npcAvatar: "npc_basepal_avatar",
+      rewardMessage: "📚 Oops! I'm still preparing my lecture notes about Base Chain. Please come back later!",
+      rewardAmount: 0
+    };
 
-    showDialog(this.scene, dialogContent);
+    showOptimizedRewardDialog(this.scene, dialogData);
   }
 
   private showCooldownMessage() {
     const remainingTime = this.lectureCooldown - (Date.now() - this.lastLectureTime);
     const seconds = Math.ceil(remainingTime / 1000);
     
-    const dialogContent = [
-      {
-        text: `⏳ I just gave a lecture! Please wait ${seconds} seconds before the next one.`,
-        avatar: "npc_basepal_avatar",
-        isExitDialog: true
-      }
-    ];
+    const dialogData: OptimizedRewardDialogData = {
+      npcName: "BasePal",
+      npcAvatar: "npc_basepal_avatar",
+      rewardMessage: `⏳ I just gave a lecture! Please wait ${seconds} seconds before the next one.`,
+      rewardAmount: 0
+    };
 
-    showDialog(this.scene, dialogContent);
+    showOptimizedRewardDialog(this.scene, dialogData);
   }
 
   private getClosestPlayer(): Phaser.Physics.Arcade.Sprite | null {

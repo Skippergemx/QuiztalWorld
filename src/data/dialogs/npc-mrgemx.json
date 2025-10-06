@@ -1,39 +1,39 @@
 {
   "npcId": "mrgemx",
   "npcName": "Mr. Gemx",
-  "theme": "Crystle Metaverse Guide",
-  "description": "A friendly guide who introduces players to the Crystle Metaverse and explains how Crystle World works.",
+  "theme": "Quiztal World Guide",
+  "description": "A friendly guide who introduces players to the Quiztal Metaverse and explains how Quiztal World works.",
   "shoutMessages": [
-    "The Crystle Metaverse awaits! 🌍",
-    "Want to unlock hidden knowledge? Talk to me! 📚",
+    "Welcome to Quiztal World! 🌍",
+    "Need help? Talk to me for a guide! 📚",
     "Explorers and thinkers, gather around! 🧠",
-    "Curious about Crystle World? Click me to learn! ✨",
-    "Discover Gemante NFTs - your boost to power! 💎"
+    "Curious about Quiztal World? Click me to learn! ✨",
+    "Press G to open the full guide book! 📖"
   ],
   "networkOfflineMessages": [
     "Network down! No knowledge until connection restored! 🚫📡",
-    "Internet connection lost! Crystle wisdom on hold! 😢🔌",
+    "Internet connection lost! Quiztal wisdom on hold! 😢🔌",
     "Offline mode: Mr. Gemx's wisdom disabled! ⏸️",
-    "No network, no Crystle knowledge! 🔌",
+    "No network, no Quiztal knowledge! 🔌",
     "Connection error: Knowledge unavailable! 📡"
   ],
   "dialogs": {
     "welcome": {
       "id": "welcome",
-      "text": "Welcome, explorer! 🌍 Have you heard about the Crystle Metaverse?",
+      "text": "Welcome, explorer! 🌍 Ready to learn about Quiztal World?",
       "avatar": "npc_mrgemx_avatar",
       "options": [
         {
-          "text": "Tell me more!",
-          "nextDialog": "explainMetaverse"
+          "text": "🎮 Game Controls",
+          "nextDialog": "explainControls"
         },
         {
-          "text": "What's special about Crystle World?",
-          "nextDialog": "explainCrystleWorld"
+          "text": "🤖 NPCs & Quizzes",
+          "nextDialog": "explainNPCs"
         },
         {
-          "text": "What are Gemante NFTs?",
-          "nextDialog": "explainGemanteNFT"
+          "text": "💰 Quiztals & Rewards",
+          "nextDialog": "explainRewards"
         },
         {
           "text": "Not right now.",
@@ -41,63 +41,32 @@
         }
       ]
     },
-    "explainMetaverse": {
-      "id": "explainMetaverse",
+    "explainControls": {
+      "id": "explainControls",
       "sequence": [
         {
-          "text": "The Crystle Metaverse is a vast, solar-punk inspired world where knowledge fuels your journey! 🌱",
+          "text": "Master the controls to navigate Quiztal World effectively:",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Here, you can explore, team up with friends, and earn Quiztals through quests and challenges!",
+          "text": "🖱️ DESKTOP CONTROLS:\n• ⬅️➡️⬆️⬇️ Arrow Keys or WASD - Move your character\n• C Key - Interact with nearby NPCs\n• I Key - Open/Close Inventory\n• R Key - Toggle Session Rewards Tracker\n• G Key - Open/Close this Guide Book",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Want to learn more about Crystle World specifically?",
+          "text": "📱 MOBILE CONTROLS:\n• Virtual Joystick (bottom-left) - Move character\n• Interact Button (bottom-right) - Talk to NPCs\n• Tap UI buttons for Inventory, Rewards, etc.",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Want to learn about NPCs and quizzes?",
           "avatar": "npc_mrgemx_avatar",
           "options": [
             {
               "text": "Yes, tell me!",
-              "nextDialog": "explainCrystleWorld"
+              "nextDialog": "explainNPCs"
             },
             {
-              "text": "What about Gemante NFTs?",
-              "nextDialog": "explainGemanteNFT"
-            },
-            {
-              "text": "No thanks, bye!",
-              "nextDialog": "goodbye"
-            }
-          ]
-        }
-      ]
-    },
-    "explainCrystleWorld": {
-      "id": "explainCrystleWorld",
-      "sequence": [
-        {
-          "text": "Crystle World is built for curious minds. Every NPC has a quiz or quest for you! 🎓",
-          "avatar": "npc_mrgemx_avatar"
-        },
-        {
-          "text": "By answering quizzes correctly, you gain XP, unlock rewards, and level up your character!",
-          "avatar": "npc_mrgemx_avatar"
-        },
-        {
-          "text": "Some NPCs even hold rare knowledge that unlocks new paths and abilities! 🚀",
-          "avatar": "npc_mrgemx_avatar"
-        },
-        {
-          "text": "Want to hear about the bigger Crystle Metaverse?",
-          "avatar": "npc_mrgemx_avatar",
-          "options": [
-            {
-              "text": "Sure!",
-              "nextDialog": "explainMetaverse"
-            },
-            {
-              "text": "Tell me about Gemante NFTs!",
-              "nextDialog": "explainGemanteNFT"
+              "text": "What about rewards?",
+              "nextDialog": "explainRewards"
             },
             {
               "text": "No thanks, bye!",
@@ -107,35 +76,70 @@
         }
       ]
     },
-    "explainGemanteNFT": {
-      "id": "explainGemanteNFT",
+    "explainNPCs": {
+      "id": "explainNPCs",
       "sequence": [
         {
-          "text": "Ah, Gemante NFTs! These are special ERC-1155 gemstone NFTs that act as powerful boosters in the Crystle World! 💎",
+          "text": "Learn about the various NPCs and their specialties:",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Each Gemante NFT contains unique gemstone properties that enhance your abilities, increase your quiz rewards, and unlock special areas! ⚡",
+          "text": "🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide\n• Explains the Quiztal Metaverse and Gemante NFTs\n• Perfect starting point for new players",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "The beauty of ERC-1155 means you can own multiple types of gemstones - each with different boost effects and rarities! 🌟",
+          "text": "👩‍🎨 NFT CYN - NFT & Blockchain Expert\n• Teaches about NFTs, digital art, and blockchain\n• Great for learning about digital ownership",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Want to learn about other aspects of the Crystle Metaverse?",
+          "text": "Want to learn about Quiztal rewards?",
           "avatar": "npc_mrgemx_avatar",
           "options": [
             {
-              "text": "Tell me about Crystle World!",
-              "nextDialog": "explainCrystleWorld"
+              "text": "Yes, tell me!",
+              "nextDialog": "explainRewards"
             },
             {
-              "text": "What's the Crystle Metaverse?",
-              "nextDialog": "explainMetaverse"
+              "text": "What about controls?",
+              "nextDialog": "explainControls"
             },
             {
-              "text": "Thanks, that's all!",
+              "text": "No thanks, bye!",
+              "nextDialog": "goodbye"
+            }
+          ]
+        }
+      ]
+    },
+    "explainRewards": {
+      "id": "explainRewards",
+      "sequence": [
+        {
+          "text": "Earn and manage your Quiztal tokens:",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "💎 EARNING QUIZTALS:\n• Answer quiz questions correctly (0.01-0.5 Quiztals)\n• Complete challenges and explore new areas\n• Participate in special events and activities",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "📊 TRACKING YOUR PROGRESS:\n• Session Rewards Tracker (🎯 button) shows current session\n• Balance display shows total accumulated Quiztals\n• Inventory system tracks your collected items",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Want to learn about game controls?",
+          "avatar": "npc_mrgemx_avatar",
+          "options": [
+            {
+              "text": "Yes, tell me!",
+              "nextDialog": "explainControls"
+            },
+            {
+              "text": "What about NPCs?",
+              "nextDialog": "explainNPCs"
+            },
+            {
+              "text": "No thanks, bye!",
               "nextDialog": "goodbye"
             }
           ]
@@ -144,7 +148,7 @@
     },
     "goodbye": {
       "id": "goodbye",
-      "text": "No worries, adventurer! I'll be here when you're ready to learn more! ✨",
+      "text": "No worries, adventurer! I'll be here when you're ready to learn more! Press G anytime to open the full guide book! ✨",
       "avatar": "npc_mrgemx_avatar",
       "isExitDialog": true
     }

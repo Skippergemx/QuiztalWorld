@@ -5,193 +5,193 @@
   "description": "Quiz questions about Base Layer 2 blockchain and Ethereum scaling, presented with philosophical wisdom",
   "questions": [
     {
-      "question": "🏛️ Seek wisdom, young traveler! What is Base, really? 🤔",
+      "question": "🧙‍♂️ BRUH MOMENT - what even IS Base anyway? 🤔 (Not a dating app)",
       "options": ["Layer 1", "Layer 2", "DEX"],
       "answer": "Layer 2",
       "explainer": "Base is a Layer 2 blockchain that processes transactions off Ethereum mainnet for faster speeds and lower costs. Like building upon a strong foundation, Base extends Ethereum's capabilities while maintaining its security."
     },
     {
-      "question": "🧙‍♂️ Wise one, who built this magic? 🔮",
+      "question": "👑 Big brain time - who built this magic? 🔮 (Hint: Not Vitalik, he's busy being extra)",
       "options": ["Coinbase", "Binance", "OpenSea"],
       "answer": "Coinbase",
       "explainer": "Coinbase built Base as their Layer 2 solution to provide users with faster and cheaper Ethereum transactions. Even the mightiest castles need skilled architects to construct them properly."
     },
     {
-      "question": "🧭 Path finder, what's Base's mainnet buddy? 🤝",
+      "question": "🤝 Yo homie, what's Base's mainnet buddy? 🤝 (The OG chain)",
       "options": ["Solana", "Ethereum", "Polygon"],
       "answer": "Ethereum",
       "explainer": "Base is built on top of Ethereum, inheriting its security while providing enhanced performance and lower fees. A strong tree needs deep roots to grow tall."
     },
     {
-      "question": "💰 Wealth seeker, why use Base? 💎",
+      "question": "💸 Why use Base? (Spoiler: It's CHEAP AS FREE) 💎 (No more selling a kidney)",
       "options": ["Cheap transactions", "Free money", "Unicorn tokens"],
       "answer": "Cheap transactions",
       "explainer": "Base offers significantly cheaper transaction fees compared to Ethereum mainnet while maintaining security and compatibility. True wisdom lies in finding value without sacrificing quality."
     },
     {
-      "question": "🔬 Alchemist, what's Base's secret sauce? ⚗️",
+      "question": "🔬 Alchemist time - what's Base's secret sauce? ⚗️ (Not ketchup, sorry Gordon Ramsay)",
       "options": ["Proof of Work", "Optimistic Rollup", "Proof of Stake"],
       "answer": "Optimistic Rollup",
       "explainer": "Optimistic Rollups assume transactions are valid by default, only verifying when challenged, enabling faster processing. Trust, but verify - the ancient wisdom of secure scaling."
     },
     {
-      "question": "🏗️ Architect, built on what tech? 🏗️",
+      "question": "🏗️ Architect vibes - built on what tech? 🏗️ (Not legos, though that would be cool)",
       "options": ["Arbitrum", "Optimism", "zkSync"],
       "answer": "Optimism",
       "explainer": "Base is built using Optimism's OP Stack technology, leveraging proven optimistic rollup infrastructure for scalability. Even the wisest sages stand on the shoulders of giants."
     },
     {
-      "question": "👨‍💻 Developer, what can you do? 💻",
+      "question": "👨‍💻 Dev moment - what can you do? 💻 (Besides cry about gas fees like in 2021)",
       "options": ["Deploy smart contracts", "Mine Bitcoin", "Create Layer 1"],
       "answer": "Deploy smart contracts",
       "explainer": "Deploy smart contracts using familiar Ethereum tools like Solidity, Hardhat, and Remix with full EVM compatibility. The path of least resistance often leads to the greatest efficiency."
     },
     {
-      "question": "🛡️ Guardian, security provided by? 🛡️",
+      "question": "🛡️ Guardian angel - security provided by? 🛡️ (Not your password: 123456)",
       "options": ["Solana", "Ethereum", "BNB Chain"],
       "answer": "Ethereum",
       "explainer": "Base inherits Ethereum's robust security model, ensuring transactions are protected by the world's largest blockchain network. A strong foundation ensures a secure structure."
     },
     {
-      "question": "🧱 Builder, network type? 🧱",
+      "question": "🧱 Builder mode - network type? 🧱 (Hint: Not a side chick, it's the main squeeze)",
       "options": ["Sidechain", "Layer 2", "Layer 1"],
       "answer": "Layer 2",
       "explainer": "Layer 2 scaling solution that processes transactions off-chain while settling final states on Ethereum mainnet. Like a wise scholar who builds upon existing knowledge."
     },
     {
-      "question": "❄️ Coolness seeker, why is Base cool? ❄️",
+      "question": "❄️ Coolness detector - why is Base cool? ❄️ (Besides the name, which slaps)",
       "options": ["Cheaper than L1", "Magically free", "Faster than grandma"],
       "answer": "Cheaper than L1",
       "explainer": "Base transactions cost significantly less than Ethereum Layer 1, making DeFi and dApps more accessible to users. True value lies not in price, but in accessibility."
     },
     {
-      "question": "👛 Wallet keeper, wallet compatibility? 👛",
+      "question": "👛 Wallet check - wallet compatibility? 👛 (All of them work! No FOMO)",
       "options": ["Just Coinbase", "Any EVM wallet", "Only MetaMask"],
       "answer": "Any EVM wallet",
       "explainer": "Any Ethereum-compatible wallet works with Base, including MetaMask, Coinbase Wallet, and hardware wallets. True compatibility opens doors to infinite possibilities."
     },
     {
-      "question": "⚖️ Balance seeker, decentralization style? ⚖️",
+      "question": "⚖️ Balance check - decentralization style? ⚖️ (It's a process, not a destination)",
       "options": ["Fully centralized", "Progressive", "Instant"],
       "answer": "Progressive",
       "explainer": "Base follows progressive decentralization, gradually transitioning from centralized operations to community governance. Wisdom comes not in leaps, but in measured steps."
     },
     {
-      "question": "👨‍💻 Coder, coding language? 💻",
+      "question": "👨‍💻 Coder life - coding language? 💻 (Not Python, sorry data scientists)",
       "options": ["Solidity", "Python", "Java"],
       "answer": "Solidity",
       "explainer": "Solidity smart contracts work seamlessly on Base, enabling developers to use existing Ethereum development skills. Mastery comes from building upon proven foundations."
     },
     {
-      "question": "⏱️ Speed racer, block speed? ⏱️",
+      "question": "⏱️ Speed check - block speed? ⏱️ (Faster than your ex texting back)",
       "options": ["2 seconds", "12 seconds", "1 minute"],
       "answer": "2 seconds",
       "explainer": "Base produces blocks every 2 seconds, providing much faster transaction confirmation than Ethereum's 12-second blocks. Time is the wisest counselor of all."
     },
     {
-      "question": "🌉 Bridge builder, bridge to use? 🌉",
+      "question": "🌉 Bridge time - bridge to use? 🌉 (The official one, don't get rugged)",
       "options": ["Base Bridge", "Rainbow", "Polygon"],
       "answer": "Base Bridge",
       "explainer": "Base Bridge is the official bridge for moving assets between Ethereum mainnet and Base Layer 2 network. Every journey begins with a single, trusted step."
     },
     {
-      "question": "⛽ Fuel finder, gas token? ⛽",
+      "question": "⛽ Gas check - gas token? ⛽ (Still ETH, sadly, no magic beans)",
       "options": ["ETH", "BASE", "MATIC"],
       "answer": "ETH",
       "explainer": "ETH is used for gas fees on Base, maintaining consistency with Ethereum's economic model and user familiarity. True wisdom lies in maintaining harmony with established principles."
     },
     {
-      "question": "📍 Location finder, address style? 📍",
+      "question": "📍 Address check - address style? 📍 (Ethereum but make it Base, duh)",
       "options": ["Ethereum-style", "Solana-style", "Bitcoin-style"],
       "answer": "Ethereum-style",
       "explainer": "Base uses Ethereum-style addresses, allowing seamless migration of existing Ethereum accounts and contracts. Continuity breeds familiarity, and familiarity breeds adoption."
     },
     {
-      "question": "🔧 Tool wielder, dev framework? 🔧",
+      "question": "🔧 Tool check - dev framework? 🔧 (The usual suspects, no new tools to learn)",
       "options": ["Hardhat", "Unity", "Android SDK"],
       "answer": "Hardhat",
       "explainer": "Hardhat and other Ethereum development frameworks work natively on Base, requiring no special modifications. The best tools are those that require no special learning."
     },
     {
-      "question": "🛡️ Protector, security model? 🛡️",
+      "question": "🛡️ Protector mode - security model? 🛡️ (Battle tested AF)",
       "options": ["From Ethereum", "Independent", "No security"],
       "answer": "From Ethereum",
       "explainer": "Base inherits Ethereum's battle-tested security, protected by thousands of validators and proven consensus mechanisms. True strength comes from proven foundations."
     },
     {
-      "question": "🚀 Launcher, deployment method? 🚀",
+      "question": "🚀 Launch sequence - deployment method? 🚀 (Like Ethereum but cheaper, hooray!)",
       "options": ["Standard tools", "Special tools", "Cannot deploy"],
       "answer": "Standard tools",
       "explainer": "Use standard Ethereum deployment tools like Remix, Hardhat, and Foundry without any modifications or special setup. Wisdom lies in using what works rather than reinventing the wheel."
     },
     {
-      "question": "🎯 Focused one, Base's focus? 🎯",
+      "question": "🎯 Focus check - Base's focus? 🎯 (Not memes, sadly, but we can dream)",
       "options": ["Onchain access", "Gaming", "Social media"],
       "answer": "Onchain access",
       "explainer": "Base focuses on bringing the next billion users onchain with accessible, low-cost blockchain interactions. True vision focuses on the greater good rather than narrow interests."
     },
     {
-      "question": "⏱️ Finality seeker, transaction finality? ⏱️",
+      "question": "⏱️ Finality check - transaction finality? ⏱️ (Need to wait a bit, sorry not sorry)",
       "options": ["Optimistic rollups", "Instant", "Proof of Work"],
       "answer": "Optimistic rollups",
       "explainer": "Optimistic rollups provide fast transaction finality with dispute resolution mechanisms for security guarantees. Patience and verification lead to true certainty."
     },
     {
-      "question": "📅 Time keeper, challenge period? 📅",
+      "question": "📅 Time check - challenge period? 📅 (7 days to change your mind, very considerate)",
       "options": ["7 days", "1 day", "30 days"],
       "answer": "7 days",
       "explainer": "7-day challenge period allows anyone to dispute invalid transactions before they're finalized on Ethereum. True justice requires time for all voices to be heard."
     },
     {
-      "question": "🌍 Ecosystem member, ecosystem member? 🌍",
+      "question": "🌍 Ecosystem check - ecosystem member? 🌍 (Team Ethereum, obviously)",
       "options": ["Ethereum", "Solana", "Cardano"],
       "answer": "Ethereum",
       "explainer": "Base is a core member of the Ethereum ecosystem, extending its capabilities rather than competing with it. True wisdom lies in collaboration rather than competition."
     },
     {
-      "question": "🦸‍♂️ Superpower seeker, Base's superpower? 🦸‍♂️",
+      "question": "🦸‍♂️ Superpower check - Base's superpower? 🦸‍♂️ (It's the price, not the marketing)",
       "options": ["Lower costs", "Free tokens", "Better graphics"],
       "answer": "Lower costs",
       "explainer": "Lower transaction costs make DeFi, NFTs, and dApps accessible to users who couldn't afford Ethereum mainnet fees. True power lies in making the impossible possible for all."
     },
     {
-      "question": "📈 Scaler, scaling method? 📈",
+      "question": "📈 Scale check - scaling method? 📈 (Batching like a boss, not like my laundry)",
       "options": ["Batch off-chain", "More validators", "Bigger blocks"],
       "answer": "Batch off-chain",
       "explainer": "Base batches multiple transactions off-chain and submits compressed data to Ethereum for efficient scaling. True efficiency comes from intelligent batching rather than brute force."
     },
     {
-      "question": "🤝 Relationship builder, Ethereum relationship? 🤝",
+      "question": "🤝 Relationship check - Ethereum relationship? 🤝 (It's complicated, but in a good way)",
       "options": ["Layer 2", "Competitor", "No relation"],
       "answer": "Layer 2",
       "explainer": "Base extends Ethereum as a Layer 2 solution, enhancing its capabilities rather than replacing or competing with it. True growth comes from building upon, not replacing, what came before."
     },
     {
-      "question": "👨‍💻 Creator, dev can build? 👨‍💻",
+      "question": "👨‍💻 Creator mode - dev can build? 👨‍💻 (ANYTHINGGGG, unleash your inner Picasso)",
       "options": ["DApps", "Only NFTs", "Only DeFi"],
       "answer": "DApps",
       "explainer": "Developers can build any type of decentralized application, from DeFi protocols to NFT marketplaces and social apps. True creativity knows no bounds."
     },
     {
-      "question": "📜 Contract writer, contract deployment? 📜",
+      "question": "📜 Contract check - contract deployment? 📜 (Just like ETH, muscle memory activated)",
       "options": ["Like Ethereum", "Different", "Not supported"],
       "answer": "Like Ethereum",
       "explainer": "Smart contract deployment works exactly like Ethereum, using the same tools, syntax, and deployment processes. True compatibility means seamless integration."
     },
     {
-      "question": "🎯 Purpose seeker, Base's purpose? 🎯",
+      "question": "🎯 Purpose check - Base's purpose? 🎯 (Scale, not replace, got it?)",
       "options": ["Scale Ethereum", "Replace Ethereum", "Mine crypto"],
       "answer": "Scale Ethereum",
       "explainer": "Base scales Ethereum by processing transactions faster and cheaper while maintaining security and decentralization. True purpose serves the greater good rather than individual gain."
     },
     {
-      "question": "🔄 Processor, transaction processing? 🔄",
+      "question": "🔄 Process check - transaction processing? 🔄 (Batch and send, like a postcard)",
       "options": ["Batch to Ethereum", "Independent", "Through mining"],
       "answer": "Batch to Ethereum",
       "explainer": "Transactions are processed on Base then batched and submitted to Ethereum mainnet for final settlement. True efficiency comes from intelligent coordination rather than isolation."
     },
     {
-      "question": "👨‍💻 Developer, development style? 👨‍💻",
+      "question": "👨‍💻 Dev check - development style? 👨‍💻 (Open source FTW, transparency > secrets)",
       "options": ["Open-source", "Closed source", "No development"],
       "answer": "Open-source",
       "explainer": "Base development is open-source, allowing community contributions and transparent development processes. True wisdom is shared wisdom that benefits all."

@@ -1,9 +1,8 @@
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
 import NPCQuizManager from '../managers/NPCQuizManager';
-import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from '../utils/OptimizedEnhancedQuizDialog';
+import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData, OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialog';
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
 import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
@@ -90,14 +89,19 @@ export default class DexpertGal extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("DexpertGal: Network offline - showing offline message");
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-          isExitDialog: true
+      // Use optimized reward dialog for network offline message
+      const offlineDialogData: OptimizedRewardDialogData = {
+        npcName: "Dexpert Gal",
+        npcAvatar: "npc_dexpertgal_avatar",
+        rewardMessage: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, offlineDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
       return;
@@ -338,19 +342,28 @@ export default class DexpertGal extends QuizNPC {
     
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
     
-    showDialog(this.scene, [{
-        text: currentQuestion.question,
-        avatar: "npc_dexpertgal_avatar",
-        options: shuffledOptions.map(option => ({
-            text: option,
-            callback: () => {
-              this.checkAnswer(option, currentQuestion.answer, player);
-              // Notify QuizAntiSpamManager that the quiz has ended
-              this.notifyQuizEnded();
-            }
-        }))
-    }]);
+    dialog.showQuizDialog({
+      npcName: "Dexpert Gal",
+      npcAvatar: "npc_dexpertgal_avatar",
+      theme: "Decentralized Exchanges & DeFi Trading",
+      question: currentQuestion.question,
+      options: shuffledOptions,
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -610,15 +623,19 @@ export default class DexpertGal extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
-          avatar: "npc_dexpertgal_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Dexpert Gal",
+        npcAvatar: "npc_dexpertgal_avatar",
+        rewardMessage: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
     });

@@ -1,6 +1,5 @@
 // ArtizenGent.ts
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC
@@ -496,18 +495,27 @@ export default class ArtizenGent extends WalkingNPC {
     // Ensure exactly 3 options by selecting first 3 (since some questions have 4 options)
     const optionsLimited = shuffledOptions.slice(0, 3);
 
-    showDialog(this.scene, [{
-      text: currentQuestion.question,
-      avatar: "npc_artizengent_avatar",
-      options: optionsLimited.map(option => ({
-        text: option,
-        callback: () => {
-          this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
-          this.notifyQuizEnded();
-        }
-      }))
-    }]);
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+    
+    dialog.showQuizDialog({
+      npcName: "Artizen Gent",
+      npcAvatar: "npc_artizengent_avatar",
+      theme: "NFT Art & Digital Creativity",
+      question: currentQuestion.question,
+      options: optionsLimited,
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -576,14 +584,18 @@ export default class ArtizenGent extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🎨 Hello there! I'm currently curating new art pieces. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
-          avatar: "npc_artizengent_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Artizen Gent",
+        npcAvatar: "npc_artizengent_avatar",
+        rewardMessage: `🎨 Hello there! I'm currently curating new art pieces. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
+      
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
       
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);

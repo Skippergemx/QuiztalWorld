@@ -1,6 +1,7 @@
 // HuntBoy.ts
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
+
+ // Import dialog function only
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
@@ -10,6 +11,7 @@ import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialo
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
 import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+import { huntBoyPersonality } from '../config/NPCPersonalityConfig';
 
 export default class HuntBoy extends QuizNPC {
   private directions = ["right", "up", "left", "down"];
@@ -100,13 +102,18 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("HuntBoy: Network offline - showing offline message");
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-          isExitDialog: true
+      // Use optimized reward dialog for network offline message
+      const offlineDialogData: OptimizedRewardDialogData = {
+        npcName: "Hunt Boy",
+        npcAvatar: "npc_huntboy_avatar",
+        rewardMessage: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
+      
+      showOptimizedRewardDialog(this.scene, offlineDialogData);
 
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
@@ -383,18 +390,27 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
 
-    showDialog(this.scene, [{
-      text: currentQuestion.question,
-      avatar: "npc_huntboy_avatar",
-      options: shuffledOptions.map(option => ({
-        text: option,
-        callback: () => {
-          this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
-          this.notifyQuizEnded();
-        }
-      }))
-    }]);
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+    
+    dialog.showQuizDialog({
+      npcName: "Hunt Boy",
+      npcAvatar: "npc_huntboy_avatar",
+      theme: "Web3 Development & Hunt Town",
+      question: currentQuestion.question,
+      options: shuffledOptions,
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -503,15 +519,23 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     this.scene.time.delayedCall(3000, () => { // 3 second delay
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      // Use personality-specific cooldown message
+      const cooldownTemplate = Phaser.Utils.Array.GetRandom(huntBoyPersonality.cooldownMessageTemplates);
+      const cooldownMessage = cooldownTemplate.replace("{time}", formattedTime);
 
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-          avatar: "npc_huntboy_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Hunt Boy",
+        npcAvatar: "npc_huntboy_avatar",
+        rewardMessage: cooldownMessage,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
+      
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
 
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click

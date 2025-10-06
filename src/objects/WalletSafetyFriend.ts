@@ -488,15 +488,19 @@ export default class WalletSafetyFriend extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🛡️ Hello there! I'm currently updating my security protocols. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
-          avatar: "npc_walletsafetyfriend_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Wallet Safety Friend",
+        npcAvatar: "npc_walletsafetyfriend_avatar",
+        rewardMessage: `🛡️ Hello there! I'm currently updating my security protocols. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
     });

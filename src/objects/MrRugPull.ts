@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC
@@ -11,6 +10,7 @@ import { OptimizedEnhancedQuizDialog } from '../utils/OptimizedEnhancedQuizDialo
 import EnhancedQuizManager from '../managers/EnhancedQuizManager';
 import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
 import { showOptimizedWrongAnswerDialog, OptimizedWrongAnswerDialogData } from '../utils/OptimizedWrongAnswerDialog';
+import { mrRugPullPersonality } from '../config/NPCPersonalityConfig';
 
 export default class MrRugPull extends WalkingNPC {
   private lastQuestionIndex: number = -1;
@@ -480,18 +480,27 @@ export default class MrRugPull extends WalkingNPC {
       optionsWithFiller.push(`Extra Option ${optionsWithFiller.length + 1}`);
     }
 
-    showDialog(this.scene, [{
-      text: currentQuestion.question,
-      avatar: "npc_mrrugpull_avatar",
-      options: optionsWithFiller.slice(0, 3).map(option => ({
-        text: option,
-        callback: () => {
-          this.checkAnswer(option, currentQuestion.answer, player);
-          // Notify QuizAntiSpamManager that the quiz has ended
-          this.notifyQuizEnded();
-        }
-      }))
-    }]);
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
+    
+    dialog.showQuizDialog({
+      npcName: "MR Rug Pull",
+      npcAvatar: "npc_mrrugpull_avatar",
+      theme: "Rug Pulls and Scams",
+      question: currentQuestion.question,
+      options: optionsWithFiller.slice(0, 3),
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private calculateReward(isCorrect: boolean): number {
@@ -566,16 +575,24 @@ export default class MrRugPull extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message
+      const cooldownTemplate = Phaser.Utils.Array.GetRandom(mrRugPullPersonality.cooldownMessageTemplates);
+      const cooldownMessage = cooldownTemplate.replace("{time}", formattedTime);
+      
       // Only show dialog if we don't already have one open
       if (!this.currentDialog) {
-        this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-        this.currentDialog.showDialog([
-          {
-            text: `😈 Hey there! I'm currently counting my ill-gotten gains. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have legitimate knowledge to share! 🏫`,
-            avatar: "npc_mrrugpull_avatar",
-            isExitDialog: true
+        // Use optimized reward dialog for cooldown message
+        const cooldownDialogData: OptimizedRewardDialogData = {
+          npcName: "MR Rug Pull",
+          npcAvatar: "npc_mrrugpull_avatar",
+          rewardMessage: cooldownMessage,
+          rewardAmount: 0,
+          onClose: () => {
+            this.resetDialogState();
           }
-        ]);
+        };
+        
+        showOptimizedRewardDialog(this.scene, cooldownDialogData);
         
         // Set up auto-reset for the dialog after 3 seconds
         this.setupDialogAutoReset(3000);

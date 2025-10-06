@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC"; // Import the QuizNPC base class
@@ -92,14 +91,19 @@ export default class MintGirl extends QuizNPC {
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("MintGirl: Network offline - showing offline message");
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-          isExitDialog: true
+      // Use optimized reward dialog for network offline message
+      const offlineDialogData: OptimizedRewardDialogData = {
+        npcName: "Mint Girl",
+        npcAvatar: "npc_mintgirl_avatar",
+        rewardMessage: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, offlineDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
@@ -292,19 +296,28 @@ export default class MintGirl extends QuizNPC {
     
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
     
-    showDialog(this.scene, [{
-        text: currentQuestion.question,
-        avatar: "npc_mintgirl_avatar",
-        options: shuffledOptions.map(option => ({
-            text: option,
-            callback: () => {
-              this.checkAnswer(option, currentQuestion.answer, player);
-              // Notify QuizAntiSpamManager that the quiz has ended
-              this.notifyQuizEnded();
-            }
-        }))
-    }]);
+    dialog.showQuizDialog({
+      npcName: "Mint Girl",
+      npcAvatar: "npc_mintgirl_avatar",
+      theme: "NFT Minting & Mint Club",
+      question: currentQuestion.question,
+      options: shuffledOptions,
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -498,16 +511,20 @@ export default class MintGirl extends QuizNPC {
       // Use personality-specific cooldown message
       const cooldownTemplate = Phaser.Utils.Array.GetRandom(mintGirlPersonality.cooldownMessageTemplates);
       const cooldownMessage = cooldownTemplate.replace("{time}", formattedTime);
-      
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: cooldownMessage,
-          avatar: "npc_mintgirl_avatar",
-          isExitDialog: true
+
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Mint Girl",
+        npcAvatar: "npc_mintgirl_avatar",
+        rewardMessage: cooldownMessage,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);

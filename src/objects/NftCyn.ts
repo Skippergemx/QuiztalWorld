@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox";
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import AudioManager from '../managers/AudioManager';
 import QuizNPC from "./QuizNPC";
@@ -89,14 +88,19 @@ export default class NftCyn extends QuizNPC {
     
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-          isExitDialog: true
+      // Use optimized reward dialog for network offline message
+      const offlineDialogData: OptimizedRewardDialogData = {
+        npcName: "NFT Cyn",
+        npcAvatar: "npc_nftcyn_avatar",
+        rewardMessage: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, offlineDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
       return;
@@ -284,19 +288,28 @@ export default class NftCyn extends QuizNPC {
     
     // Create a copy of options and shuffle them
     const shuffledOptions = Phaser.Utils.Array.Shuffle([...currentQuestion.options]);
+
+    // Use optimized enhanced quiz dialog instead of simple dialog
+    const dialog = new OptimizedEnhancedQuizDialog(this.scene);
     
-    showDialog(this.scene, [{
-        text: currentQuestion.question,
-        avatar: "nfc_nftcyn_avatar",
-        options: shuffledOptions.map(option => ({
-            text: option,
-            callback: () => {
-              this.checkAnswer(option, currentQuestion.answer, player);
-              // Notify QuizAntiSpamManager that the quiz has ended
-              this.notifyQuizEnded();
-            }
-        }))
-    }]);
+    dialog.showQuizDialog({
+      npcName: "NFT Cyn",
+      npcAvatar: "npc_nftcyn_avatar",
+      theme: "NFTs & Digital Art",
+      question: currentQuestion.question,
+      options: shuffledOptions,
+      explainer: currentQuestion.explainer,
+      onAnswer: (selectedOption: string) => {
+        this.checkAnswer(selectedOption, currentQuestion.answer, player);
+        // Notify QuizAntiSpamManager that the quiz has ended
+        this.notifyQuizEnded();
+      },
+      onClose: () => {
+        this.resetDialogState();
+      }
+    });
+    
+    this.currentDialog = dialog as any;
   }
 
   private checkAnswer(selectedOption: string, correctAnswer: string, player: Phaser.Physics.Arcade.Sprite) {
@@ -489,15 +502,19 @@ export default class NftCyn extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🕒 Hello there! I'm taking a short break to recharge my NFT knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-          avatar: "npc_nftcyn_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "NFT Cyn",
+        npcAvatar: "npc_nftcyn_avatar",
+        rewardMessage: `🕒 Hello there! I'm taking a short break to recharge my NFT knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
       
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);

@@ -262,10 +262,11 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         this.selectNext.bind(this)
     ) as Phaser.GameObjects.Container;
 
-    // Create confirm button at bottom
+    // Create confirm button at bottom, accounting for UIScene footer
+    const footerHeight = isMobile ? 30 : 45;
     this.confirmButton = this.createConfirmButton(
         this.scale.width / 2,
-        this.scale.height - (isMobile ? 80 : 100)
+        this.scale.height - footerHeight - (isMobile ? 50 : 70)
     ) as Phaser.GameObjects.Container;
   }
 
@@ -274,6 +275,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
     if (this.leftArrow && this.rightArrow && this.confirmButton) {
       const isMobile = this.scale.width < 768;
       const arrowOffset = isMobile ? 100 : 150;
+      const footerHeight = isMobile ? 30 : 45;
       
       // Reposition arrow buttons
       this.leftArrow.setPosition(
@@ -286,10 +288,10 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         this.scale.height / 2
       );
       
-      // Reposition confirm button
+      // Reposition confirm button, accounting for UIScene footer
       this.confirmButton.setPosition(
         this.scale.width / 2,
-        this.scale.height - (isMobile ? 80 : 100)
+        this.scale.height - footerHeight - (isMobile ? 50 : 70)
       );
       
       // Add visual feedback
