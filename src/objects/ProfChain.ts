@@ -484,15 +484,29 @@ export default class ProfChain extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🕒 Greetings, student! I'm currently preparing my next blockchain lecture. Please return in ${formattedTime}. In the meantime, why not visit other professors around the campus? They might have knowledge to share! 🏫`,
-          avatar: "npc_profchain_avatar",
-          isExitDialog: true
-        }
-      ]);
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🕒 Greetings, student! I'm currently preparing my next blockchain lecture. Please return in ${formattedTime}. In the meantime, why not visit other professors around the campus? They might have knowledge to share! 🏫`,
+        `🔄 I'm researching the latest blockchain innovations and consensus mechanisms. Come back in ${formattedTime} to test your knowledge again! 🔗`,
+        `🛡️ Security check in progress! I'm auditing smart contracts and checking for potential vulnerabilities. Return in ${formattedTime} for more blockchain education! 🔍`,
+        `💡 Research time! I'm studying the latest developments in decentralized technology. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
       
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Prof Chain",
+        npcAvatar: "npc_profchain_avatar",
+        rewardMessage: cooldownMessage,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
+        }
+      };
+      
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
+
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);
     });

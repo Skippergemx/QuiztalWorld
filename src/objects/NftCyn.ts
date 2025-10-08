@@ -502,11 +502,21 @@ export default class NftCyn extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🕒 Hello there! I'm taking a short break to recharge my NFT knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        `🔄 I'm researching the latest NFT trends and marketplace innovations. Come back in ${formattedTime} to test your knowledge again! 🎨`,
+        `🛡️ Security check in progress! I'm auditing smart contracts and checking for potential vulnerabilities. Return in ${formattedTime} for more NFT education! 🔍`,
+        `💡 Research time! I'm studying the latest developments in digital art and collectibles. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
       // Use optimized reward dialog for cooldown message
       const cooldownDialogData: OptimizedRewardDialogData = {
         npcName: "NFT Cyn",
         npcAvatar: "npc_nftcyn_avatar",
-        rewardMessage: `🕒 Hello there! I'm taking a short break to recharge my NFT knowledge! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        rewardMessage: cooldownMessage,
         rewardAmount: 0,
         onClose: () => {
           this.resetDialogState();
@@ -516,7 +526,6 @@ export default class NftCyn extends QuizNPC {
       showOptimizedRewardDialog(this.scene, cooldownDialogData);
 
       // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
     });
   }

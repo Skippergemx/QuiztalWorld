@@ -558,11 +558,21 @@ export default class AlchemyMan extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🔮 Hello there! I'm currently brewing up some blockchain magic. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        `🔄 I'm compiling the latest blockchain infrastructure developments and API improvements. Come back in ${formattedTime} to test your knowledge again! ⚡`,
+        `🛡️ Security check in progress! I'm auditing smart contracts and checking for potential vulnerabilities. Return in ${formattedTime} for more blockchain education! 🔍`,
+        `💡 Research time! I'm studying the latest developments in blockchain scaling and infrastructure. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
       // Use optimized reward dialog for cooldown message
       const cooldownDialogData: OptimizedRewardDialogData = {
         npcName: "Alchemy Man",
         npcAvatar: "npc_alchemyman_avatar",
-        rewardMessage: `🔮 Hello there! I'm currently brewing up some blockchain magic. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        rewardMessage: cooldownMessage,
         rewardAmount: 0,
         onClose: () => {
           this.resetDialogState();

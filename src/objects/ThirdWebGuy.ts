@@ -586,14 +586,28 @@ export default class ThirdWebGuy extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🌐 Hello there! I'm currently updating my web3 knowledge. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
-          avatar: "npc_thirdwebguy_avatar",
-          isExitDialog: true
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🌐 Hello there! I'm currently updating my web3 knowledge. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        `🔄 I'm integrating the latest ThirdWeb SDK updates and API improvements. Come back in ${formattedTime} to test your development knowledge again! 🔧`,
+        `🛡️ Security check in progress! I'm auditing smart contracts and checking for potential vulnerabilities. Return in ${formattedTime} for more web3 education! 🔍`,
+        `💡 Research time! I'm studying the latest developments in web3 frameworks and development tools. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "3RDWeb Guy",
+        npcAvatar: "npc_thirdwebguy_avatar",
+        rewardMessage: cooldownMessage,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
+      
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
       
       // Set up auto-reset for the dialog after 3 seconds
       this.setupDialogAutoReset(3000);

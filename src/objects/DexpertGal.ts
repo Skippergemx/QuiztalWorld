@@ -623,11 +623,21 @@ export default class DexpertGal extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message template like MintGirl
+      const cooldownMessages = [
+        `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
+        `🔄 I'm rebalancing my liquidity pools and checking for arbitrage opportunities. Come back in ${formattedTime} to test your DEX knowledge again! 📈`,
+        `🛡️ Security check in progress! I'm auditing smart contracts and checking for potential vulnerabilities. Return in ${formattedTime} for more DeFi education! 🔍`,
+        `💡 Research time! I'm studying the latest DeFi innovations and yield farming strategies. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
       // Use optimized reward dialog for cooldown message
       const cooldownDialogData: OptimizedRewardDialogData = {
         npcName: "Dexpert Gal",
         npcAvatar: "npc_dexpertgal_avatar",
-        rewardMessage: `🕒 Hey trader! I'm currently analyzing the latest market trends and DEX protocols. Please return in ${formattedTime}. In the meantime, why not check out other experts in the DeFi space? They might have trading insights to share! 📊`,
+        rewardMessage: cooldownMessage,
         rewardAmount: 0,
         onClose: () => {
           this.resetDialogState();

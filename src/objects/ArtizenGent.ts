@@ -584,11 +584,21 @@ export default class ArtizenGent extends WalkingNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🎨 Hello there! I'm currently curating new art pieces. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        `🔄 I'm exploring the latest trends in digital art and NFT collectibles. Come back in ${formattedTime} to test your art knowledge again! 🖼️`,
+        `🛡️ Security check in progress! I'm verifying authentic artworks and checking for potential scams. Return in ${formattedTime} for more art education! 🔍`,
+        `💡 Research time! I'm studying the latest developments in generative art and digital creativity. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
       // Use optimized reward dialog for cooldown message
       const cooldownDialogData: OptimizedRewardDialogData = {
         npcName: "Artizen Gent",
         npcAvatar: "npc_artizengent_avatar",
-        rewardMessage: `🎨 Hello there! I'm currently curating new art pieces. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        rewardMessage: cooldownMessage,
         rewardAmount: 0,
         onClose: () => {
           this.resetDialogState();

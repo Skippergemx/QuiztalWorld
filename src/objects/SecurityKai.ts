@@ -509,18 +509,31 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     this.scene.time.delayedCall(3000, () => { // 3 second delay
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
+      
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
+        `🔄 I'm updating my security protocols and threat databases. Return in ${formattedTime} to test your cybersecurity knowledge again! 🔐`,
+        `🛡️ Security audit in progress! I'm checking for potential vulnerabilities in web3 platforms. Come back in ${formattedTime} for more safety education! 🔍`,
+        `💡 Research time! I'm studying the latest security exploits and protection methods. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
 
-      this.currentDialog = SimpleDialogBox.getInstance(this.scene);
-      this.currentDialog.showDialog([
-        {
-          text: `🕒 Hey there! I'm taking a short break to recharge my quiz powers! Please come back in ${formattedTime}. In the meantime, why not visit other NPCs around the map? They might have quizzes for you too! 🌍`,
-          avatar: "npc_securitykai_avatar",
-          isExitDialog: true
+      // Use optimized reward dialog for cooldown message
+      const cooldownDialogData: OptimizedRewardDialogData = {
+        npcName: "Security Kai",
+        npcAvatar: "npc_securitykai_avatar",
+        rewardMessage: cooldownMessage,
+        rewardAmount: 0,
+        onClose: () => {
+          this.resetDialogState();
         }
-      ]);
+      };
+      
+      showOptimizedRewardDialog(this.scene, cooldownDialogData);
 
       // Set up auto-reset for the dialog after 3 seconds
-      // This ensures the dialog reference is cleared even if the player doesn't click
       this.setupDialogAutoReset(3000);
     });
   }

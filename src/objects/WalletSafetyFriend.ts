@@ -488,11 +488,21 @@ export default class WalletSafetyFriend extends QuizNPC {
       const remainingTime = this.getRemainingCooldownTime();
       const formattedTime = this.formatTimeWithFractional(remainingTime);
       
+      // Use personality-specific cooldown message template like other standardized NPCs
+      const cooldownMessages = [
+        `🛡️ Hello there! I'm currently updating my security protocols. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        `🔄 I'm refreshing my knowledge on the latest wallet security threats. Come back in ${formattedTime} to test your security awareness again! 🔐`,
+        `🔒 Security check in progress! I'm auditing common attack vectors and protection strategies. Return in ${formattedTime} for more safety education! 🔍`,
+        `💡 Research time! I'm studying new security exploits and defense mechanisms. Check back in ${formattedTime} for fresh quiz content! 🧠`
+      ];
+      
+      const cooldownMessage = Phaser.Utils.Array.GetRandom(cooldownMessages);
+
       // Use optimized reward dialog for cooldown message
       const cooldownDialogData: OptimizedRewardDialogData = {
         npcName: "Wallet Safety Friend",
         npcAvatar: "npc_walletsafetyfriend_avatar",
-        rewardMessage: `🛡️ Hello there! I'm currently updating my security protocols. Please return in ${formattedTime}. In the meantime, why not visit other experts around the campus? They might have knowledge to share! 🏫`,
+        rewardMessage: cooldownMessage,
         rewardAmount: 0,
         onClose: () => {
           this.resetDialogState();
