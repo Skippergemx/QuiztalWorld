@@ -10,6 +10,7 @@ import InventoryScene from "./scenes/InventoryScene";
 import TokenClaimScene from "./scenes/TokenClaimScene";
 import GuideBookScene from "./scenes/GuideBookScene"; // Added GuideBookScene import
 import WalletWindowScene from "./scenes/WalletWindowScene";
+import SkillWindowScene from "./scenes/SkillWindowScene"; // Added SkillWindowScene import
 // NFTWindowScene import removed as it's been integrated into WalletWindowScene
 
 // Enhanced mobile detection that differentiates between actual mobile devices and desktop simulators
@@ -67,7 +68,9 @@ const config: Phaser.Types.Core.GameConfig = {
     TokenClaimScene,
     GuideBookScene, // Added GuideBookScene to scene list
     WalletWindowScene,
+    SkillWindowScene, // Added SkillWindowScene to scene list
     // NFTWindowScene removed as it's been integrated into WalletWindowScene
+    // Pet system test scene removed
   ],
   scale: {
     mode: Phaser.Scale.RESIZE,

@@ -1,6 +1,6 @@
 // ThirdWebGuy.ts
 import Phaser from "phaser";
-import { showDialog, SimpleDialogBox } from "../utils/SimpleDialogBox"; // Import dialog function and class
+import { showDialog } from "../utils/SimpleDialogBox"; // Import dialog function and class
 import { saveQuiztalsToDatabase } from "../utils/Database"; // Firestore save utility
 import AudioManager from '../managers/AudioManager'; // Import the AudioManager
 import WalkingNPC from "./WalkingNPC"; // Import the WalkingNPC base class instead of QuizNPC

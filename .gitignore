@@ -24,3 +24,17 @@ dist-ssr
 *.sw?
 .env
 !.env.local
+
+# Documentation files
+*.md
+*.markdown
+
+# Configuration files
+*.yaml
+*.yml
+
+# Test files
+*test*
+*Test*
+__tests__
+*.test.*

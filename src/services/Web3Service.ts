@@ -3,6 +3,10 @@ import Web3Modal from 'web3modal';
 import { getFunctions, httpsCallable, HttpsCallableResult } from 'firebase/functions';
 import { app } from '../utils/firebase';
 import { NFTData } from '../types/nft';
+import { OptimizedNFTService } from './OptimizedNFTService';
+// For debugging purposes, you can switch to the debug version:
+// import { OptimizedNFTServiceDebug as OptimizedNFTService } from './OptimizedNFTService.debug';
+import { NFT_COLLECTIONS } from '../config/nftCollections';
 
 interface TokenClaimResponse {
     success: boolean;
@@ -14,6 +18,7 @@ export class Web3Service {
   private provider: BrowserProvider | null = null;
   private signer: ethers.Signer | null = null;
   private web3Modal: Web3Modal;
+  private optimizedNFTService: OptimizedNFTService;
   
   private readonly BASE_MAINNET_ID = '0x2105';
   // Replace with your actual NFT contract address
@@ -25,12 +30,12 @@ export class Web3Service {
     "function ownerOf(uint256 tokenId) view returns (address)"
   ];
   // Add ERC1155 contract info
-  private readonly GEMANTE_NFT_ADDRESS = '0xcb12994BCFeCdfa014e26C0b001FC4C2c29E2178';
-  private readonly GEMANTE_NFT_ABI = [
-      "function balanceOf(address account, uint256 id) view returns (uint256)",
-      "function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])",
-      "function uri(uint256 tokenId) view returns (string)"
-  ];
+  // private readonly GEMANTE_NFT_ADDRESS = '0xcb12994BCFeCdfa014e26C0b001FC4C2c29E2178';
+  // private readonly GEMANTE_NFT_ABI = [
+  //     "function balanceOf(address account, uint256 id) view returns (uint256)",
+  //     "function balanceOfBatch(address[] accounts, uint256[] ids) view returns (uint256[])",
+  //     "function uri(uint256 tokenId) view returns (string)"
+  // ];
   private isConnected: boolean = false;
   private readonly BASE_NETWORK_CONFIG = {
     chainId: this.BASE_MAINNET_ID,
@@ -66,12 +71,15 @@ export class Web3Service {
         }
       }
     });
+    this.optimizedNFTService = new OptimizedNFTService(this.provider);
   }
 
   async connectWallet(): Promise<{ success: boolean; message: string }> {
     try {
       const web3Provider = await this.web3Modal.connect();
       this.provider = new BrowserProvider(web3Provider);
+      // Update the optimized NFT service with the new provider
+      this.optimizedNFTService.setProvider(this.provider);
       
       // Check network
       const network = await this.provider.getNetwork();
@@ -241,144 +249,17 @@ export class Web3Service {
         return [];
       }
 
-      // Get NFTs from both collections
-      const [erc721NFTs, erc1155NFTs] = await Promise.all([
-        this.getERC721NFTs(address),
-        this.getERC1155NFTs(address)
-      ]);
-
-      return [...erc721NFTs, ...erc1155NFTs];
+      // Use the optimized NFT service to fetch NFTs
+      return await this.optimizedNFTService.fetchNFTs(address, NFT_COLLECTIONS);
     } catch (error) {
       console.error("Error fetching NFTs:", error);
       return [];
     }
   }
 
-  private async getERC1155NFTs(address: string): Promise<NFTData[]> {
-    try {
-        if (!this.provider) {
-            throw new Error('Provider not initialized');
-        }
-        
-        // Use provider instead of signer for read operations
-        const contract = new Contract(
-            this.GEMANTE_NFT_ADDRESS,
-            this.GEMANTE_NFT_ABI,
-            this.provider
-        );
-
-        // For Gemante collection, we need to check specific token IDs
-        // These are the actual token IDs that exist in the collection
-        const tokenIds = [1, 2, 3, 4, 5, 6, 7, 8]; // Update with actual Gemante token IDs
-        const accounts = Array(tokenIds.length).fill(address);
-        
-        const balances = await contract.balanceOfBatch(accounts, tokenIds);
-        const nfts: NFTData[] = [];
-
-        for (let i = 0; i < tokenIds.length; i++) {
-            if (balances[i] > 0n) {
-                try {
-                    const tokenId = tokenIds[i];
-                    const baseUri = await contract.uri(tokenId);
-                    
-                    // Use direct gateway URL for better GIF support
-                    const tokenUri = baseUri.replace('{id}', tokenId.toString());
-                    const formattedUri = tokenUri.startsWith('ipfs://')
-                        ? `https://nftstorage.link/ipfs/${tokenUri.slice(7)}`  // Changed gateway
-                        : tokenUri; // Use a reliable gateway
-
-                    console.log('Fetching Gemante metadata from:', formattedUri);
-
-                    const response = await fetch(formattedUri);
-                    const metadata = await response.json();
-
-                    // Use better IPFS gateway for GIFs
-                    const imageUrl = metadata.image?.startsWith('ipfs://')
-                        ? `https://nftstorage.link/ipfs/${metadata.image.slice(7)}`
-                        : metadata.image;
-
-                    console.log('Gemante image URL:', imageUrl); // Debug log
-
-                    nfts.push({
-                        tokenId: tokenId.toString(),
-                        image: imageUrl || '',
-                        name: metadata.name || `Gemante #${tokenId}`,
-                        description: metadata.description || 'Gemante NFT Collection',
-                        collectionType: 'erc1155'
-                    });
-                } catch (error) {
-                    console.warn(`Error fetching Gemante NFT metadata for token ${tokenIds[i]}:`, error);
-                    continue;
-                }
-            }
-        }
-
-        return nfts;
-    } catch (error) {
-        console.error("Error fetching Gemante NFTs:", error);
-        return [];
-    }
-  }
-
-  private async getERC721NFTs(address: string): Promise<NFTData[]> {
-    try {
-      if (!this.provider) {
-        throw new Error('Provider not initialized');
-      }
-      const contract = new Contract(
-        this.NFT_CONTRACT_ADDRESS,
-        this.NFT_ABI,
-        this.provider // Use provider for read-only calls
-      );
-
-      // Get the balance of NFTs owned by the address
-      const balance: bigint = await contract.balanceOf(address);
-      const nfts: NFTData[] = [];
-
-      // Safety check for large balances to prevent errors with .toNumber()
-      // A more robust solution for huge collections might involve an indexer.
-      let balanceNum = Number(balance);
-      if (balance > BigInt(Number.MAX_SAFE_INTEGER)) {
-        console.warn(`User has more NFTs than can be safely displayed. Capping at ${Number.MAX_SAFE_INTEGER}.`);
-        balanceNum = Number.MAX_SAFE_INTEGER;
-      }
-
-      for (let i = 0; i < balanceNum; i++) {
-        try {
-          const tokenId: bigint = await contract.tokenOfOwnerByIndex(address, i);
-          const tokenUri: string = await contract.tokenURI(tokenId);
-          // Handle IPFS URLs
-          const formattedUri = tokenUri.startsWith('ipfs://')
-            ? `https://nftstorage.link/ipfs/${tokenUri.slice(7)}` // Use consistent, reliable gateway
-            : tokenUri;
-
-          const response = await fetch(formattedUri);
-          const metadata = await response.json();
-
-          // Handle IPFS images
-          const imageUrl = metadata.image?.startsWith('ipfs://')
-            ? `https://nftstorage.link/ipfs/${metadata.image.slice(7)}` // Use consistent, reliable gateway
-            : metadata.image;
-
-          nfts.push({
-            tokenId: tokenId.toString(),
-            image: imageUrl || '',
-            name: metadata.name || `NFT #${tokenId}`,
-            description: metadata.description || 'An ERC721 NFT',
-            collectionType: 'erc721'
-          });
-        } catch (error) {
-          console.warn(`Error fetching ERC721 NFT at index ${i}:`, error);
-          continue;
-        }
-      }
-
-      return nfts;
-    } catch (error) {
-      console.error("Error fetching ERC721 NFTs:", error);
-      return [];
-    }
-  }
+  // These methods are now handled by the OptimizedNFTService
+  // private async getERC1155NFTs(address: string): Promise<NFTData[]> { ... }
+  // private async getERC721NFTs(address: string): Promise<NFTData[]> { ... }
 
   async getTokenBalance(address: string): Promise<string> {
     try {

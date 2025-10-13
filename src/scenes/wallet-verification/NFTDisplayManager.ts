@@ -47,7 +47,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
     private readonly GRID_DEFAULTS = {
         minCardWidth: 150,
         maxCardWidth: 240,
-        aspectRatio: 1.4,
+        aspectRatio: 1.27, // Changed from 1.4 to match 200x254 NFT aspect ratio (254/200 = 1.27)
         spacing: 30,
         topMargin: 20,
         bottomMargin: 40
@@ -222,40 +222,68 @@ export class NFTDisplayManager implements INFTDisplayManager {
     public createNFTCard(nft: NFTData, dimensions: NFTCardDimensions): Phaser.GameObjects.Container {
         const card = this.scene.add.container(dimensions.x, dimensions.y);
 
-        // Card shadow
+        // Enhanced card design to match dialog aesthetic
+        
+        // Card shadow with enhanced effect
         const shadow = this.scene.add.graphics()
-            .fillStyle(0x000000, 0.2)
+            .fillStyle(0x000000, 0.3)
             .fillRoundedRect(
-                -dimensions.width/2 + 2, 
-                -dimensions.height/2 + 2, 
+                -dimensions.width/2 + 3, 
+                -dimensions.height/2 + 3, 
                 dimensions.width, 
                 dimensions.height, 
-                12
+                14
             );
 
-        // Card background
-        const bg = this.scene.add.graphics()
-            .fillStyle(0x2c3e50, 1)
-            .fillRoundedRect(
-                -dimensions.width/2, 
-                -dimensions.height/2, 
-                dimensions.width, 
-                dimensions.height, 
-                12
-            );
+        // Enhanced gradient background
+        const bg = this.scene.add.graphics();
+        bg.fillGradientStyle(0x2c3e50, 0x2c3e50, 0x1a2530, 0x1a2530, 1);
+        bg.fillRoundedRect(
+            -dimensions.width/2, 
+            -dimensions.height/2, 
+            dimensions.width, 
+            dimensions.height, 
+            12
+        );
+        
+        // Card border to match dialog style
+        const border = this.scene.add.graphics();
+        border.lineStyle(2, 0x3498db, 0.7);
+        border.strokeRoundedRect(
+            -dimensions.width/2, 
+            -dimensions.height/2, 
+            dimensions.width, 
+            dimensions.height, 
+            12
+        );
+        
+        // Inner highlight
+        const highlight = this.scene.add.graphics();
+        highlight.lineStyle(1, 0xffffff, 0.2);
+        highlight.strokeRoundedRect(
+            -dimensions.width/2 + 2, 
+            -dimensions.height/2 + 2, 
+            dimensions.width - 4, 
+            dimensions.height - 4, 
+            10
+        );
         
         // Image container
         const imageSize = dimensions.width - 40;
         const imageContainer = this.scene.add.container(0, -dimensions.height/6);
         
+        // Calculate image dimensions to maintain 200x254 aspect ratio (1.27)
+        const imageWidth = imageSize;
+        const imageHeight = Math.round(imageSize * 1.27); // 254/200 = 1.27
+        
         // Image placeholder with loading spinner
         const imagePlaceholder = this.scene.add.graphics()
             .fillStyle(0x34495e, 1)
             .fillRoundedRect(
-                -imageSize/2,
-                -imageSize/2,
-                imageSize,
-                imageSize,
+                -imageWidth/2,
+                -imageHeight/2,
+                imageWidth,
+                imageHeight,
                 8
             );
 
@@ -311,10 +339,10 @@ export class NFTDisplayManager implements INFTDisplayManager {
             maxLines: 1 // Limit to 1 line
         }).setOrigin(0.5);
 
-        // Add hover effects
-        this.addCardInteractions(card, bg, dimensions);
+        // Add enhanced hover effects to match dialog aesthetic
+        this.addCardInteractions(card, bg, border, dimensions);
 
-        card.add([shadow, bg, imageContainer, name, id]);
+        card.add([shadow, bg, border, highlight, imageContainer, name, id]);
         
         // Store references for image loading
         (card as any).imageContainer = imageContainer;
@@ -506,23 +534,42 @@ export class NFTDisplayManager implements INFTDisplayManager {
         // Following project depth hierarchy: UI=999-1000, Special UI=1000-2000, so use 1800
         this.nftContainer.setDepth(1800);
 
-        // Add semi-transparent background
-        const bg = this.scene.add.rectangle(
-            0, 0,
-            this.scene.scale.width,
-            this.scene.scale.height,
-            0x000000, 0.9
-        ).setOrigin(0);
+        // Enhanced gradient background to match dialog aesthetic
+        const bg = this.scene.add.graphics();
+        bg.fillGradientStyle(0x1a1a2e, 0x1a1a2e, 0x16213e, 0x16213e, 0.95);
+        bg.fillRect(0, 0, this.scene.scale.width, this.scene.scale.height);
 
-        // Add window frame with proper containment
+        // Enhanced window frame with rounded corners and glow effect
         const framePadding = 20;
         const frame = this.scene.add.graphics();
+        
+        // Outer glow
+        frame.lineStyle(3, 0x4cc9f0, 0.8);
+        frame.strokeRoundedRect(
+            framePadding - 2, 
+            framePadding - 2, 
+            this.scene.scale.width - (framePadding * 2) + 4, 
+            this.scene.scale.height - (framePadding * 2) + 4, 
+            12
+        );
+        
+        // Main frame
         frame.lineStyle(2, 0x3498db, 1);
         frame.strokeRoundedRect(
             framePadding, 
             framePadding, 
             this.scene.scale.width - (framePadding * 2), 
             this.scene.scale.height - (framePadding * 2), 
+            12
+        );
+        
+        // Inner highlight
+        frame.lineStyle(1, 0xffffff, 0.3);
+        frame.strokeRoundedRect(
+            framePadding + 2, 
+            framePadding + 2, 
+            this.scene.scale.width - (framePadding * 2) - 4, 
+            this.scene.scale.height - (framePadding * 2) - 4, 
             10
         );
 
@@ -545,6 +592,17 @@ export class NFTDisplayManager implements INFTDisplayManager {
         const headerWidth = this.scene.scale.width - (windowPadding * 2) - 40; // Account for window frame
         const headerX = this.scene.scale.width / 2;
         
+        // Enhanced header background to match dialog aesthetic
+        const headerBg = this.scene.add.graphics();
+        headerBg.fillStyle(0x4cc9f0, 0.15);
+        headerBg.fillRoundedRect(
+            windowPadding + 10, 
+            40, 
+            this.scene.scale.width - (windowPadding * 2) - 20, 
+            80, 
+            8
+        );
+        
         // Add title with icon and proper containment
         const title = this.scene.add.text(
             headerX,
@@ -552,7 +610,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
             '✨ NFT Collection Verified',
             {
                 fontSize: '32px',
-                color: '#ffffff',
+                color: '#4cc9f0',
                 fontStyle: 'bold',
                 shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 4, fill: true },
                 align: 'center',
@@ -582,7 +640,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
             }
         ).setOrigin(0.5);
 
-        headerContainer.add([title, subtitle]);
+        headerContainer.add([headerBg, title, subtitle]);
         this.nftContainer.add(headerContainer);
     }
 
@@ -656,71 +714,79 @@ export class NFTDisplayManager implements INFTDisplayManager {
             const loadingSpinner = (card as any).loadingSpinner;
             const imageSize = (card as any).imageSize;
 
-            // Check if image is already loaded
-            if (this.scene.textures.exists(imageKey)) {
-                this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
-                this.state.nftsLoaded++;
-                resolve();
-                return;
-            }
+            // Simplified approach: Load directly from public folder
+            this.loadLocalNFTImage(imageKey, nft, imageContainer, imagePlaceholder, loadingSpinner, imageSize)
+                .then(() => {
+                    console.log(`Successfully loaded local image for NFT ${imageKey}`);
+                    this.state.nftsLoaded++;
+                    resolve();
+                })
+                .catch((error) => {
+                    console.error('NFTDisplayManager: Error loading local image', {
+                        tokenId: nft.tokenId,
+                        collectionType: nft.collectionType,
+                        error: error.message || error
+                    });
+                    this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
+                    this.state.nftsLoaded++;
+                    resolve();
+                });
+        });
+    }
 
+    private loadLocalNFTImage(
+        imageKey: string,
+        nft: NFTData,
+        imageContainer: Phaser.GameObjects.Container,
+        imagePlaceholder: Phaser.GameObjects.Graphics,
+        loadingSpinner: Phaser.GameObjects.Text,
+        imageSize: number
+    ): Promise<void> {
+        // Load image directly from public folder
+        const localImagePath = `/nft-images/${nft.collectionType}-${nft.tokenId}.png`;
+        
+        // Check if image is already loaded
+        if (this.scene.textures.exists(imageKey)) {
+            this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
+            return Promise.resolve();
+        }
+        
+        // Simple direct loading approach
+        return new Promise((resolve, reject) => {
             // Load image based on collection type
             if (nft.collectionType === 'erc1155') {
                 // For Gemante GIFs, use type assertion with the correct Phaser loader type
                 this.scene.load.image({
                     key: imageKey,
-                    url: nft.image
+                    url: localImagePath
                 });
             } else {
-                this.scene.load.image(imageKey, nft.image);
+                this.scene.load.image(imageKey, localImagePath);
             }
 
-            let loadCompleteListener: Function | null = null;
-            let loadErrorListener: Function | null = null;
+            // Start loading immediately
+            this.scene.load.start();
 
-            // Handle successful load
-            loadCompleteListener = () => {
-                // Remove the event listeners to prevent memory leaks
-                if (loadCompleteListener) {
-                    this.scene.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
-                }
-                if (loadErrorListener) {
-                    this.scene.load.off('loaderror', loadErrorListener);
-                }
-                
-                this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
-                this.state.nftsLoaded++;
-                resolve();
-            };
-
-            // Handle load error
-            loadErrorListener = (fileObj: any) => {
-                // Only handle errors for this specific image
-                if (fileObj && fileObj.key === imageKey) {
-                    // Remove the event listeners to prevent memory leaks
-                    if (loadCompleteListener) {
-                        this.scene.load.off(`filecomplete-image-${imageKey}`, loadCompleteListener);
-                    }
-                    if (loadErrorListener) {
-                        this.scene.load.off('loaderror', loadErrorListener);
-                    }
-                    
-                    console.error('NFTDisplayManager: Error loading image', nft.image);
-                    this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
-                    this.state.nftsLoaded++;
+            // Use a simple timeout approach instead of complex event listeners
+            const checkLoaded = () => {
+                if (this.scene.textures.exists(imageKey)) {
+                    this.displayLoadedImage(imageKey, imageContainer, imagePlaceholder, loadingSpinner, imageSize, nft);
                     resolve();
+                } else {
+                    // Check again in a short while
+                    setTimeout(checkLoaded, 50);
                 }
             };
-
-            // Attach event listeners
-            this.scene.load.once(`filecomplete-image-${imageKey}`, loadCompleteListener);
-            this.scene.load.on('loaderror', loadErrorListener);
-
-            // Start loading immediately for this image
-            // Check if loader is already active, if not start it
-            if (!this.scene.load.isLoading()) {
-                this.scene.load.start();
-            }
+            
+            // Start checking
+            setTimeout(checkLoaded, 50);
+            
+            // Timeout after 5 seconds
+            setTimeout(() => {
+                if (!this.scene.textures.exists(imageKey)) {
+                    reject(new Error(`Timeout loading local image: ${localImagePath}`));
+                }
+            }, 5000);
         });
     }
 
@@ -743,15 +809,22 @@ export class NFTDisplayManager implements INFTDisplayManager {
         
         // Check if image was created successfully
         if (!image || !image.width || !image.height) {
-            console.error('NFTDisplayManager: Failed to create image object for key', imageKey);
+            console.error('NFTDisplayManager: Failed to create image object for key', imageKey, {
+                imageExists: !!image,
+                width: image?.width,
+                height: image?.height
+            });
             this.displayImageError(imageContainer, imagePlaceholder, loadingSpinner);
             return;
         }
         
         // Scale the image to fit within the container while maintaining aspect ratio
+        const targetWidth = imageSize;
+        const targetHeight = Math.round(imageSize * 1.27); // 254/200 = 1.27
+        
         const scale = Math.min(
-            imageSize / image.width,
-            imageSize / image.height
+            targetWidth / image.width,
+            targetHeight / image.height
         );
         
         image.setScale(scale);
@@ -770,7 +843,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
 
             // Add collection badge for Gemante
             if (nft.collectionType === 'erc1155') {
-                const badge = this.scene.add.text(-imageSize/2 + 10, -imageSize/2 + 10, '✨', {
+                const badge = this.scene.add.text(-targetWidth/2 + 10, -targetHeight/2 + 10, '✨', {
                     fontSize: '16px'
                 });
                 imageContainer.add(badge);
@@ -809,6 +882,7 @@ export class NFTDisplayManager implements INFTDisplayManager {
     private addCardInteractions(
         card: Phaser.GameObjects.Container, 
         bg: Phaser.GameObjects.Graphics, 
+        border: Phaser.GameObjects.Graphics, 
         dimensions: NFTCardDimensions
     ): void {
         card.setInteractive(
@@ -822,13 +896,19 @@ export class NFTDisplayManager implements INFTDisplayManager {
         )
         .on('pointerover', () => {
             bg.clear()
-              .fillStyle(0x34495e, 1)
+              .fillGradientStyle(0x34495e, 0x34495e, 0x253040, 0x253040, 1)
               .fillRoundedRect(-dimensions.width/2, -dimensions.height/2, dimensions.width, dimensions.height, 12);
+            border.clear()
+              .lineStyle(2, 0x4cc9f0, 1)
+              .strokeRoundedRect(-dimensions.width/2, -dimensions.height/2, dimensions.width, dimensions.height, 12);
         })
         .on('pointerout', () => {
             bg.clear()
-              .fillStyle(0x2c3e50, 1)
+              .fillGradientStyle(0x2c3e50, 0x2c3e50, 0x1a2530, 0x1a2530, 1)
               .fillRoundedRect(-dimensions.width/2, -dimensions.height/2, dimensions.width, dimensions.height, 12);
+            border.clear()
+              .lineStyle(2, 0x3498db, 0.7)
+              .strokeRoundedRect(-dimensions.width/2, -dimensions.height/2, dimensions.width, dimensions.height, 12);
         });
     }
 

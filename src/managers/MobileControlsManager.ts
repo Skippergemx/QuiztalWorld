@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { showDialog } from '../utils/SimpleDialogBox';
+// import { showDialog } from '../utils/SimpleDialogBox';
+import { showOptimizedRewardDialog, OptimizedRewardDialogData } from '../utils/OptimizedRewardDialog';
 
 interface MobileControlsConfig {
   joystickScale: number;
@@ -17,6 +18,7 @@ export default class MobileControlsManager {
   private joyStick?: Phaser.GameObjects.Image;
   private joyStickBase?: Phaser.GameObjects.Image;
   private interactButton?: Phaser.GameObjects.Image;
+  private speedBoostButton?: Phaser.GameObjects.Image; // New speed boost button
   
   // State
   private isMobile: boolean = false;
@@ -202,6 +204,7 @@ export default class MobileControlsManager {
 
     this.createJoystick(screenWidth, screenHeight);
     this.createInteractButton(screenWidth, screenHeight);
+    this.createSpeedBoostButton(screenWidth, screenHeight); // Add speed boost button
   }
 
   private createJoystick(screenWidth: number, screenHeight: number): void {
@@ -259,6 +262,75 @@ export default class MobileControlsManager {
       });
   }
 
+  // Add new method for speed boost button
+  private createSpeedBoostButton(screenWidth: number, screenHeight: number): void {
+    // Position speed boost button above the interact button, closer to center
+    const buttonX = screenWidth - Math.max(screenWidth * 0.15, 80);
+    const buttonY = screenHeight - Math.max(screenHeight * 0.30, 120); // Moved higher and closer to center
+
+    // Create a container for the speed boost button
+    const buttonContainer = this.scene.add.container(buttonX, buttonY);
+    
+    // Create button background with gradient effect
+    const buttonBg = this.scene.add.graphics();
+    buttonBg.fillGradientStyle(0xFFD700, 0xFFD700, 0xFFA500, 0xFFA500, 1); // Gold gradient
+    buttonBg.fillCircle(0, 0, 20 * this.config.buttonScale * 0.7); // Reduced size by 30%
+    buttonBg.lineStyle(2, 0xFF8C00, 1); // Darker gold border
+    buttonBg.strokeCircle(0, 0, 20 * this.config.buttonScale * 0.7);
+    
+    // Create button text with shadow effect
+    const buttonText = this.scene.add.text(0, 0, '⚡', {
+      fontSize: `${18 * this.config.buttonScale * 0.7}px`, // Reduced size by 30%
+      color: '#000000',
+      align: 'center',
+      stroke: '#FFFFFF',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+    
+    // Add elements to container
+    buttonContainer.add([buttonBg, buttonText]);
+    
+    // Make container interactive
+    buttonContainer.setInteractive(new Phaser.Geom.Circle(0, 0, 20 * this.config.buttonScale * 0.7), Phaser.Geom.Circle.Contains);
+    
+    // Set properties
+    buttonContainer.setScrollFactor(0);
+    buttonContainer.setDepth(100);
+    buttonContainer.setAlpha(this.config.buttonAlpha);
+    buttonContainer.setScale(this.config.buttonScale * 0.7); // Reduced size by 30%
+    
+    // Add event listeners
+    buttonContainer.on('pointerdown', () => {
+      // Visual feedback on press
+      buttonContainer.setScale(this.config.buttonScale * 0.7 * 0.9);
+      // Trigger speed boost
+      this.handleSpeedBoostButtonPress();
+    });
+    
+    buttonContainer.on('pointerup', () => {
+      // Restore scale on release
+      buttonContainer.setScale(this.config.buttonScale * 0.7);
+    });
+    
+    buttonContainer.on('pointerout', () => {
+      // Restore scale if pointer leaves
+      buttonContainer.setScale(this.config.buttonScale * 0.7);
+    });
+    
+    // Add a subtle pulsing animation
+    this.scene.tweens.add({
+      targets: buttonContainer,
+      scale: this.config.buttonScale * 0.7 * 1.1,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    
+    // Store reference
+    this.speedBoostButton = buttonContainer as any; // Type assertion to match expected type
+  }
+
   private setupEventListeners(): void {
     if (!this.joyStickBase || !this.interactButton) {
       console.error('❌ MobileControlsManager: UI elements not created');
@@ -273,6 +345,11 @@ export default class MobileControlsManager {
 
     // Interact button events
     this.interactButton.on('pointerdown', this.handleInteractButtonPress, this);
+    
+    // Speed boost button events (if created)
+    if (this.speedBoostButton) {
+      this.speedBoostButton.on('pointerdown', this.handleSpeedBoostButtonPress, this);
+    }
   }
 
   private handleJoystickStart(pointer: Phaser.Input.Pointer): void {
@@ -301,8 +378,16 @@ export default class MobileControlsManager {
 
     // Convert joystick movement to player velocity
     const speedMultiplier = 200 / 50; // Convert joystick distance to match keyboard speed
+    
+    // Apply base target velocity
     this.targetVelocityX = moveX * speedMultiplier;
     this.targetVelocityY = moveY * speedMultiplier;
+    
+    // Check if speed boost is active and apply multiplier
+    if (this.playerManager && this.playerManager.isSpeedBoostActiveCheck && this.playerManager.isSpeedBoostActiveCheck()) {
+      this.targetVelocityX *= 2; // 2x speed boost
+      this.targetVelocityY *= 2; // 2x speed boost
+    }
     
     // Update player animation direction
     this.updatePlayerAnimation(moveX, moveY);
@@ -339,12 +424,18 @@ export default class MobileControlsManager {
     if (this.networkMonitor && typeof this.networkMonitor.getIsOnline === 'function') {
       if (!this.networkMonitor.getIsOnline()) {
         console.log('📱 MobileControlsManager: Network offline - preventing interaction');
-        showDialog(this.scene, [
-          {
-            text: "🚫 Network connection lost! Please check your internet connection to continue playing.",
-            isExitDialog: true
+        // Use optimized reward dialog for network offline message (better mobile optimization)
+        const offlineDialogData: OptimizedRewardDialogData = {
+          npcName: "Game System",
+          npcAvatar: "npc_mintgirl_avatar", // Using a default avatar
+          rewardMessage: "🚫 Network connection lost! Please check your internet connection to continue playing.",
+          rewardAmount: 0,
+          onClose: () => {
+            // No specific action needed for system dialog
           }
-        ]);
+        };
+        
+        showOptimizedRewardDialog(this.scene, offlineDialogData);
         return;
       }
     }
@@ -353,6 +444,17 @@ export default class MobileControlsManager {
     const keyEvent = new KeyboardEvent('keydown', { key: 'c' });
     if (this.scene.input.keyboard) {
       this.scene.input.keyboard.emit('keydown-C', keyEvent);
+    }
+  }
+
+  // Add new method for speed boost button press
+  private handleSpeedBoostButtonPress(): void {
+    console.log('📱 MobileControlsManager: Speed boost button pressed');
+    
+    // Simulate keyboard 'N' key press for speed boost activation
+    const keyEvent = new KeyboardEvent('keydown', { key: 'n' });
+    if (this.scene.input.keyboard) {
+      this.scene.input.keyboard.emit('keydown-N', keyEvent);
     }
   }
 
@@ -406,6 +508,12 @@ export default class MobileControlsManager {
       this.interactButton = undefined;
     }
     
+    // Destroy speed boost button if it exists
+    if (this.speedBoostButton) {
+      this.speedBoostButton.destroy();
+      this.speedBoostButton = undefined;
+    }
+    
     this.isJoystickActive = false;
   }
 
@@ -433,7 +541,16 @@ export default class MobileControlsManager {
       
       // Apply smoothed velocity to player
       if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
-        this.playerManager.setPlayerVelocity(this.currentVelocityX, this.currentVelocityY);
+        // Check if speed boost is active and apply multiplier
+        let finalVelocityX = this.currentVelocityX;
+        let finalVelocityY = this.currentVelocityY;
+        
+        if (this.playerManager.isSpeedBoostActiveCheck && this.playerManager.isSpeedBoostActiveCheck()) {
+          finalVelocityX *= 2; // 2x speed boost
+          finalVelocityY *= 2; // 2x speed boost
+        }
+        
+        this.playerManager.setPlayerVelocity(finalVelocityX, finalVelocityY);
       }
     }
   }
@@ -458,18 +575,29 @@ export default class MobileControlsManager {
     const buttonY = screenHeight - Math.max(screenHeight * 0.2, 80); // Ensure it's above UI elements
     this.interactButton.setPosition(buttonX, buttonY);
     
+    // Reposition speed boost button if it exists (smaller and higher)
+    if (this.speedBoostButton) {
+      const speedButtonX = screenWidth - Math.max(screenWidth * 0.15, 80);
+      const speedButtonY = screenHeight - Math.max(screenHeight * 0.30, 120); // Smaller and higher position
+      this.speedBoostButton.setPosition(speedButtonX, speedButtonY);
+    }
+    
     // Add visual feedback during orientation change
     if (this.joyStickBase && this.joyStick && this.interactButton) {
       // Briefly highlight controls to show they've been repositioned
       this.joyStickBase.setAlpha(this.config.joystickAlpha * 1.5);
       this.joyStick.setAlpha(this.config.joystickAlpha * 1.5);
       this.interactButton.setAlpha(this.config.buttonAlpha * 1.5);
+      if (this.speedBoostButton) {
+        this.speedBoostButton.setAlpha(this.config.buttonAlpha * 1.5);
+      }
       
       // Reset alpha after a short delay
       this.scene.time.delayedCall(300, () => {
         if (this.joyStickBase) this.joyStickBase.setAlpha(this.config.joystickAlpha);
         if (this.joyStick) this.joyStick.setAlpha(this.config.joystickAlpha);
         if (this.interactButton) this.interactButton.setAlpha(this.config.buttonAlpha);
+        if (this.speedBoostButton) this.speedBoostButton.setAlpha(this.config.buttonAlpha);
       });
     }
   }

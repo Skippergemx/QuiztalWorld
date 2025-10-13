@@ -32,6 +32,14 @@ export default class GameScene extends Phaser.Scene {
   // System managers
   private quizAntiSpamManager!: QuizAntiSpamManager;
   private networkMonitor!: NetworkMonitor;
+  
+  // Speed boost system
+  // private nKey!: Phaser.Input.Keyboard.Key;
+  private isSpeedBoostActive: boolean = false;
+  private speedBoostEndTime: number = 0;
+  // private baseSpeed: number = 160;
+  private speedBoostText!: Phaser.GameObjects.Text;
+  private speedBoostTimerText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -115,6 +123,9 @@ export default class GameScene extends Phaser.Scene {
     
     // Update mobile controls for smooth movement
     this.mobileControlsManager?.update();
+    
+    // Check if speed boost has expired
+    this.checkSpeedBoostExpiration();
   }
 
   // === INITIALIZATION METHODS ===
@@ -266,6 +277,12 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-o', () => this.handleInteraction('O'));
     this.input.keyboard?.on('keydown-G', () => this.toggleGuideBook());
     this.input.keyboard?.on('keydown-g', () => this.toggleGuideBook());
+    this.input.keyboard?.on('keydown-Q', () => this.toggleSkillWindow()); // Changed from S to Q key for skill window
+    this.input.keyboard?.on('keydown-q', () => this.toggleSkillWindow()); // Changed from s to q key for skill window
+    
+    // Add N key binding for speed boost
+    this.input.keyboard?.on('keydown-N', () => this.activateSpeedBoost());
+    this.input.keyboard?.on('keydown-n', () => this.activateSpeedBoost());
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
@@ -544,6 +561,26 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
+  /**
+   * Open or close the skill window
+   */
+  private toggleSkillWindow(): void {
+    // Check if SkillWindowScene is active
+    const isSkillWindowOpen = this.scene.isActive('SkillWindowScene');
+
+    if (isSkillWindowOpen) {
+      // Close skill window if it's open
+      this.scene.stop('SkillWindowScene');
+      this.scene.resume('GameScene');
+    } else {
+      // Open skill window if it's closed
+      this.scene.launch('SkillWindowScene', {
+        onClose: () => this.scene.resume('GameScene')
+      });
+      this.scene.pause('GameScene');
+    }
+  }
+
   // === PUBLIC API METHODS ===
 
   /**
@@ -701,5 +738,179 @@ export default class GameScene extends Phaser.Scene {
     // but we could add them in the future if needed
     
     console.log(`📱 GameScene: Resized to ${this.scale.width}x${this.scale.height}`);
+  }
+
+  // Add speed boost activation method
+  private activateSpeedBoost(): void {
+    console.log('N key pressed - activating speed boost');
+    
+    // If speed boost is already active, do nothing
+    if (this.isSpeedBoostActive) {
+      console.log('Speed boost already active');
+      return;
+    }
+    
+    // Activate speed boost for 30 seconds
+    this.isSpeedBoostActive = true;
+    this.speedBoostEndTime = this.time.now + 30000; // 30 seconds
+    
+    // Activate speed boost in PlayerManager
+    if (this.playerManager) {
+      this.playerManager.activateSpeedBoost();
+      // Double the player's speed
+      this.playerManager.setPlayerSpeed(this.playerManager.getBaseSpeed() * 2);
+    }
+    
+    // Show visual feedback
+    this.showSpeedBoostFeedback();
+    
+    console.log('Speed boost activated for 30 seconds');
+  }
+
+  // Check if speed boost has expired
+  private checkSpeedBoostExpiration(): void {
+    if (this.isSpeedBoostActive && this.time.now > this.speedBoostEndTime) {
+      this.deactivateSpeedBoost();
+    }
+  }
+
+  // Deactivate speed boost
+  private deactivateSpeedBoost(): void {
+    this.isSpeedBoostActive = false;
+    this.speedBoostEndTime = 0;
+    
+    // Deactivate speed boost in PlayerManager
+    if (this.playerManager) {
+      this.playerManager.deactivateSpeedBoost();
+      // Reset player speed to base speed
+      this.playerManager.setPlayerSpeed(this.playerManager.getBaseSpeed());
+    }
+    
+    // Hide visual feedback
+    if (this.speedBoostText) {
+      this.speedBoostText.setVisible(false);
+    }
+    if (this.speedBoostTimerText) {
+      this.speedBoostTimerText.setVisible(false);
+    }
+    
+    console.log('Speed boost deactivated');
+  }
+
+  // Show visual feedback for speed boost
+  private showSpeedBoostFeedback(): void {
+    // Create or update speed boost text
+    if (!this.speedBoostText) {
+      this.speedBoostText = this.add.text(
+        this.scale.width / 2,
+        50,
+        '⚡ SPEED BOOST ACTIVATED! 2x Speed ⚡',
+        {
+          fontSize: '24px',
+          color: '#FFD700',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          padding: { x: 15, y: 10 },
+          align: 'center',
+          stroke: '#000000',
+          strokeThickness: 3
+        }
+      ).setOrigin(0.5)
+       .setDepth(1000);
+    } else {
+      this.speedBoostText.setVisible(true);
+    }
+    
+    // Create or update timer text
+    if (!this.speedBoostTimerText) {
+      this.speedBoostTimerText = this.add.text(
+        this.scale.width / 2,
+        90,
+        '30s remaining',
+        {
+          fontSize: '20px',
+          color: '#00FF00',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          padding: { x: 10, y: 5 },
+          align: 'center'
+        }
+      ).setOrigin(0.5)
+       .setDepth(1000);
+    } else {
+      this.speedBoostTimerText.setVisible(true);
+    }
+    
+    // Update timer every second
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        if (this.isSpeedBoostActive) {
+          const remainingTime = Math.ceil((this.speedBoostEndTime - this.time.now) / 1000);
+          if (this.speedBoostTimerText) {
+            this.speedBoostTimerText.setText(`${remainingTime}s remaining`);
+            
+            // Change color as time runs out
+            if (remainingTime <= 10) {
+              this.speedBoostTimerText.setColor('#FF0000');
+            } else if (remainingTime <= 20) {
+              this.speedBoostTimerText.setColor('#FFFF00');
+            }
+          }
+        }
+      },
+      callbackScope: this,
+      loop: true
+    });
+    
+    // Add animation to main text
+    this.tweens.add({
+      targets: this.speedBoostText,
+      alpha: 0.7,
+      duration: 300,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    
+    // Add a visual effect to the player
+    if (this.playerManager) {
+      const player = this.playerManager.getPlayer();
+      if (player) {
+        // Create a glowing effect
+        const glow = this.add.graphics();
+        glow.fillStyle(0xFFD700, 0.3);
+        glow.fillCircle(0, 0, 30);
+        glow.setPosition(player.x, player.y);
+        glow.setDepth(player.depth - 1);
+        
+        // Animate the glow
+        this.tweens.add({
+          targets: glow,
+          alpha: 0,
+          scale: 2,
+          duration: 1000,
+          repeat: -1,
+          yoyo: true
+        });
+        
+        // Update glow position with player
+        this.events.on('postupdate', () => {
+          if (player.active && this.isSpeedBoostActive) {
+            glow.setPosition(player.x, player.y);
+          } else {
+            glow.destroy();
+          }
+        });
+      }
+    }
+    
+    // Auto-hide after 30 seconds
+    this.time.delayedCall(30000, () => {
+      if (this.speedBoostText) {
+        this.speedBoostText.setVisible(false);
+      }
+      if (this.speedBoostTimerText) {
+        this.speedBoostTimerText.setVisible(false);
+      }
+    });
   }
 }

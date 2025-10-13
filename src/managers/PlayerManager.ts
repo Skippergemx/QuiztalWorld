@@ -21,6 +21,10 @@ export default class PlayerManager {
   private controls!: MovementControls;
   private lastDirection: string = 'down';
   
+  // Speed boost system
+  private isSpeedBoostActive: boolean = false;
+  private baseSpeed: number = 160;
+  
   // UI Elements
   private playerTitle?: Phaser.GameObjects.Text;
   private titleAura?: Phaser.GameObjects.Group;
@@ -32,6 +36,7 @@ export default class PlayerManager {
   private constructor(scene: Phaser.Scene, config: PlayerConfig) {
     this.scene = scene;
     this.config = config;
+    this.baseSpeed = config.speed; // Initialize base speed from config
   }
 
   public static getInstance(scene: Phaser.Scene, config: PlayerConfig): PlayerManager {
@@ -176,22 +181,24 @@ export default class PlayerManager {
 
       let velocityX = 0;
       let velocityY = 0;
-      const speed = this.config.speed;
+      
+      // Determine current speed (normal or boosted)
+      const currentSpeed = this.isSpeedBoostActive ? this.config.speed * 2 : this.config.speed;
 
       // Handle arrow keys
       if (cursors) {
-        if (cursors.left?.isDown) velocityX = -speed;
-        if (cursors.right?.isDown) velocityX = speed;
-        if (cursors.up?.isDown) velocityY = -speed;
-        if (cursors.down?.isDown) velocityY = speed;
+        if (cursors.left?.isDown) velocityX = -currentSpeed;
+        if (cursors.right?.isDown) velocityX = currentSpeed;
+        if (cursors.up?.isDown) velocityY = -currentSpeed;
+        if (cursors.down?.isDown) velocityY = currentSpeed;
       }
 
       // Handle WASD keys (override arrow keys if both are pressed)
       if (wasd) {
-        if (wasd.left?.isDown) velocityX = -speed;
-        if (wasd.right?.isDown) velocityX = speed;
-        if (wasd.up?.isDown) velocityY = -speed;
-        if (wasd.down?.isDown) velocityY = speed;
+        if (wasd.left?.isDown) velocityX = -currentSpeed;
+        if (wasd.right?.isDown) velocityX = currentSpeed;
+        if (wasd.up?.isDown) velocityY = -currentSpeed;
+        if (wasd.down?.isDown) velocityY = currentSpeed;
       }
 
       // Apply velocity
@@ -213,10 +220,46 @@ export default class PlayerManager {
         this.player.play(`idle-${this.lastDirection}`, true);
       }
 
-
     } catch (error) {
       console.warn('PlayerManager: Error handling movement, likely due to scene shutdown', error);
     }
+  }
+
+  // Add method to activate speed boost
+  public activateSpeedBoost(): void {
+    this.isSpeedBoostActive = true;
+    console.log('PlayerManager: Speed boost activated');
+  }
+
+  // Add method to deactivate speed boost
+  public deactivateSpeedBoost(): void {
+    this.isSpeedBoostActive = false;
+    console.log('PlayerManager: Speed boost deactivated');
+  }
+
+  // Add method to check if speed boost is active
+  public isSpeedBoostActiveCheck(): boolean {
+    return this.isSpeedBoostActive;
+  }
+  
+  // Add method to set player speed (for external control)
+  public setPlayerSpeed(speed: number): void {
+    this.config.speed = speed;
+  }
+
+  // Add method to get current player speed
+  public getPlayerSpeed(): number {
+    return this.config.speed;
+  }
+
+  // Add method to get base speed
+  public getBaseSpeed(): number {
+    return this.baseSpeed;
+  }
+
+  // Add method to set base speed
+  public setBaseSpeed(speed: number): void {
+    this.baseSpeed = speed;
   }
 
   /**
@@ -224,6 +267,12 @@ export default class PlayerManager {
    */
   public async createPlayerTitle(): Promise<void> {
     console.log('👑 PlayerManager: Creating player title...');
+    
+    // Check if player title already exists
+    if (this.playerTitle) {
+      console.log('ℹ️ PlayerManager: Player title already exists, skipping creation');
+      return;
+    }
     
     // Check for player-glow texture
     if (!this.scene.textures.exists('player-glow')) {
@@ -534,6 +583,12 @@ export default class PlayerManager {
   }
 
   private createPlayerGlow(titleConfig: any): void {
+    // Check if player glow already exists
+    if (this.playerGlow) {
+      console.log('ℹ️ PlayerManager: Player glow already exists, skipping creation');
+      return;
+    }
+    
     this.playerGlow = this.scene.add.sprite(this.player.x, this.player.y, 'player-glow')
       .setScale(2)           
       .setAlpha(0.5)        
@@ -558,6 +613,12 @@ export default class PlayerManager {
   }
 
   private createPlayerAura(titleConfig: any): void {
+    // Check if player aura already exists
+    if (this.titleAura) {
+      console.log('ℹ️ PlayerManager: Player aura already exists, skipping creation');
+      return;
+    }
+    
     const auraGroup = this.scene.add.group();
     const AURA_DEPTH = 12; // Above NPCs (10) to ensure title visibility
     
@@ -595,6 +656,12 @@ export default class PlayerManager {
   }
 
   private createTitleText(titleConfig: any): void {
+    // Check if player title text already exists
+    if (this.playerTitle) {
+      console.log('ℹ️ PlayerManager: Player title text already exists, skipping creation');
+      return;
+    }
+    
     const TITLE_DEPTH = 15; // Above aura (12) and NPCs (10) for maximum visibility
     
     this.playerTitle = this.scene.add.text(

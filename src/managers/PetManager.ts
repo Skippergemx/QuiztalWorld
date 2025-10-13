@@ -67,6 +67,12 @@ export default class PetManager {
   public createPetIfEligible(): void {
     console.log('🐾 PetManager: Checking pet eligibility...');
     
+    // Check if a moblin already exists
+    if (this.moblin) {
+      console.log('ℹ️ PetManager: Moblin already exists, skipping eligibility check');
+      return;
+    }
+    
     const nftsStr = localStorage.getItem('quiztal-nfts');
     if (!nftsStr) {
       console.log('ℹ️ PetManager: No NFTs found in localStorage');
@@ -93,6 +99,12 @@ export default class PetManager {
    * Create Moblin pet for eligible players
    */
   private createMoblinPet(): void {
+    // Check if a moblin already exists
+    if (this.moblin) {
+      console.log('ℹ️ PetManager: Moblin already exists, skipping creation');
+      return;
+    }
+    
     // Double-check textures are loaded
     if (!this.scene.textures.exists('moblin_idle') || !this.scene.textures.exists('moblin_walk')) {
       console.warn('⚠️ PetManager: Moblin textures not loaded, retrying...');
