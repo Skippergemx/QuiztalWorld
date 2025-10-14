@@ -106,9 +106,9 @@ export class OptimizedRewardDialog {
     this.scene = scene;
     this.isMobile = scene.scale.width < 768;
     
-    // Optimized sizing for web view - reduced height to avoid UI Scene blocking
+    // Optimized sizing for web view - increased height to better accommodate educational content
     this.dialogWidth = this.isMobile ? scene.scale.width * 0.95 : 750;
-    this.dialogHeight = this.isMobile ? 420 : 480; // Reduced from 500/600 to fit between UIScene panels
+    this.dialogHeight = this.isMobile ? 500 : 550; // Increased from 420/480 to 500/550
     
     this.initializeDialog();
     this.setupEventListeners();
@@ -143,10 +143,10 @@ export class OptimizedRewardDialog {
     const centerX = (camera.scrollX + camera.width / 2) || 0;
     const centerY = (camera.scrollY + camera.height / 2) || 0;
 
-    this.dialogContainer.setPosition(
-      centerX - this.dialogWidth / 2,
-      centerY - this.dialogHeight / 2
-    );
+    const xPos = centerX - this.dialogWidth / 2;
+    const yPos = centerY - this.dialogHeight / 2;
+    
+    this.dialogContainer.setPosition(xPos, yPos);
   }
 
   public showRewardDialog(data: OptimizedRewardDialogData): void {
@@ -161,7 +161,10 @@ export class OptimizedRewardDialog {
       targets: this.dialogContainer,
       alpha: 1,
       duration: 200, // Fast like original
-      ease: 'Power2'
+      ease: 'Power2',
+      onComplete: () => {
+        // Fade-in completed
+      }
     });
     
     this.updatePosition();
@@ -248,24 +251,55 @@ export class OptimizedRewardDialog {
     );
     this.dialogContainer.add(npcText);
     
-    // Reward amount (right side)
-    const rewardText = this.scene.add.text(
-      this.dialogWidth - 20,
-      this.isMobile ? 25 : 30,
-      `💰 ${this.currentData!.rewardAmount.toFixed(2)} $Quiztals`,
-      {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
-        fontFamily: modernUITheme.typography.fontFamily.primary,
-        color: modernUITheme.colors.accent,
-        fontStyle: 'bold'
-      }
-    ).setOrigin(1, 0);
-    this.dialogContainer.add(rewardText);
+    // Reward amount (right side) - only show if there's a reward amount
+    if (this.currentData!.rewardAmount > 0) {
+      const rewardText = this.scene.add.text(
+        this.dialogWidth - 20,
+        this.isMobile ? 25 : 30,
+        `💰 ${this.currentData!.rewardAmount.toFixed(2)} $Quiztals`,
+        {
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: modernUITheme.colors.accent,
+          fontStyle: 'bold'
+        }
+      ).setOrigin(1, 0);
+      this.dialogContainer.add(rewardText);
+    } else {
+      // For lectures, show a learning message instead
+      const learningText = this.scene.add.text(
+        this.dialogWidth - 20,
+        this.isMobile ? 25 : 30,
+        "🎓 Knowledge Session",
+        {
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+          fontFamily: modernUITheme.typography.fontFamily.primary,
+          color: modernUITheme.colors.accent,
+          fontStyle: 'bold'
+        }
+      ).setOrigin(1, 0);
+      this.dialogContainer.add(learningText);
+    }
   }
 
   private createRewardMessageSection(): void {
     const messageY = this.isMobile ? 75 : 85;
-    const messageHeight = this.isMobile ? 60 : 70;
+    
+    // Dynamically calculate height based on content
+    const contentWidth = this.dialogWidth - 60;
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '15px');
+    
+    // Calculate required height for the message content
+    const contentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
+      text: this.currentData!.rewardMessage,
+      width: contentWidth,
+      fontSize: fontSize,
+      fontFamily: modernUITheme.typography.fontFamily.primary,
+      lineSpacing: 2  // Single line spacing
+    });
+    
+    // Ensure minimum height
+    const messageHeight = Math.max(this.isMobile ? 80 : 100, contentHeight + 24);
     
     // Message background
     const messageBg = this.scene.add.graphics();
@@ -279,13 +313,13 @@ export class OptimizedRewardDialog {
       messageY + 12,
       this.currentData!.rewardMessage,
       {
-        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '15px'),
+        fontSize: fontSize,
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: modernUITheme.colors.text.primary,
         wordWrap: { 
-          width: this.dialogWidth - 60
+          width: contentWidth
         },
-        lineSpacing: 4,
+        lineSpacing: 2,  // Single line spacing
         fontStyle: 'bold'
       }
     );
@@ -293,27 +327,87 @@ export class OptimizedRewardDialog {
   }
 
   private createEducationalSections(): void {
-    const startY = this.isMobile ? 150 : 170;
+    // Calculate the starting Y position after the main content section
+    // Get the height of the main content section to position educational sections correctly
+    const messageY = this.isMobile ? 75 : 85;
+    const contentWidth = this.dialogWidth - 60;
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '15px');
+    
+    // Calculate required height for the message content
+    const contentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
+      text: this.currentData!.rewardMessage,
+      width: contentWidth,
+      fontSize: fontSize,
+      fontFamily: modernUITheme.typography.fontFamily.primary,
+      lineSpacing: 6
+    });
+    
+    // Ensure minimum height
+    const messageHeight = Math.max(this.isMobile ? 80 : 100, contentHeight + 24);
+    
+    // Calculate startY based on the actual height of the main content section
+    const startY = messageY + messageHeight + 20; // 20px spacing between sections
+    
+    // Safety check: ensure we have enough space for educational sections
+    const closeButtonY = this.dialogHeight - 40;
+    const availableHeight = closeButtonY - startY;
+    
+    if (availableHeight < 100) {
+      // Not enough space, log a warning and adjust positioning
+      console.warn("Not enough space for educational sections, available height:", availableHeight);
+      // In this case, we might want to consider making the dialog scrollable or reducing content
+    }
+    
     let currentY = startY;
     
     // Create "Did You Know?" section if content exists
     if (this.currentData!.didYouKnow) {
-      currentY = this.createEducationalSection(
-        "🧠 DID YOU KNOW?",
-        this.currentData!.didYouKnow,
-        currentY,
-        modernUITheme.colors.primary
-      );
+      // Check if we have enough space for this section
+      const dykContentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
+        text: this.formatEducationalContent(this.currentData!.didYouKnow),
+        width: contentWidth,
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+        fontFamily: modernUITheme.typography.fontFamily.primary,
+        lineSpacing: 4
+      });
+      
+      // Ensure we have enough space for this section including padding and margin
+      const dykSectionHeight = dykContentHeight + 60;
+      if (currentY + dykSectionHeight < closeButtonY - 20) { // Extra 20px buffer
+        currentY = this.createEducationalSection(
+          "🧠 DID YOU KNOW?",
+          this.currentData!.didYouKnow,
+          currentY,
+          modernUITheme.colors.primary
+        );
+      } else {
+        console.warn("Not enough space for 'Did You Know?' section");
+      }
     }
     
     // Create "Tips & Tricks" section if content exists
     if (this.currentData!.tipsAndTricks) {
-      currentY = this.createEducationalSection(
-        "💡 TIPS & TRICKS",
-        this.currentData!.tipsAndTricks,
-        currentY,
-        modernUITheme.colors.accent
-      );
+      // Check if we have enough space for this section
+      const tipsContentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
+        text: this.formatEducationalContent(this.currentData!.tipsAndTricks),
+        width: contentWidth,
+        fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+        fontFamily: modernUITheme.typography.fontFamily.primary,
+        lineSpacing: 4
+      });
+      
+      // Ensure we have enough space for this section including padding and margin
+      const tipsSectionHeight = tipsContentHeight + 60;
+      if (currentY + tipsSectionHeight < closeButtonY - 20) { // Extra 20px buffer
+        currentY = this.createEducationalSection(
+          "💡 TIPS & TRICKS",
+          this.currentData!.tipsAndTricks,
+          currentY,
+          modernUITheme.colors.accent
+        );
+      } else {
+        console.warn("Not enough space for 'Tips & Tricks' section");
+      }
     }
   }
 
@@ -321,15 +415,30 @@ export class OptimizedRewardDialog {
     const sectionWidth = this.dialogWidth - 24;
     const contentWidth = this.dialogWidth - 60;
     
+    // Format content for better readability
+    const formattedContent = this.formatEducationalContent(content);
+    
     // Calculate content height using our utility
     const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '12px');
     const contentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
-      text: content,
+      text: formattedContent,
       width: contentWidth,
       fontSize: fontSize,
       fontFamily: modernUITheme.typography.fontFamily.primary,
-      lineSpacing: 3
+      lineSpacing: 1 // Single line spacing
     });
+    
+    // Calculate section height with proper padding
+    const sectionHeight = Math.max(60, contentHeight + 40); // Minimum 60px height
+    
+    // Safety check: ensure the section doesn't overlap with the close button
+    const closeButtonY = this.dialogHeight - 40;
+    const sectionBottom = startY + sectionHeight + 20; // Include spacing for next section
+    
+    if (sectionBottom >= closeButtonY) {
+      // Adjust the section height to fit within the available space
+      console.warn("Educational section is too tall, it may overlap with close button");
+    }
     
     // Section container
     const sectionContainer = this.scene.add.container(0, startY);
@@ -337,9 +446,9 @@ export class OptimizedRewardDialog {
     // Section background
     const sectionBg = this.scene.add.graphics();
     sectionBg.fillStyle(UIHelpers.hexToNumber('#ffffff'), 0.04);
-    sectionBg.fillRoundedRect(12, 0, sectionWidth, contentHeight + 40, 6);
+    sectionBg.fillRoundedRect(12, 0, sectionWidth, sectionHeight, 6);
     sectionBg.lineStyle(1, UIHelpers.hexToNumber(color), 0.4);
-    sectionBg.strokeRoundedRect(12, 0, sectionWidth, contentHeight + 40, 6);
+    sectionBg.strokeRoundedRect(12, 0, sectionWidth, sectionHeight, 6);
     
     // Section title
     const titleText = this.scene.add.text(
@@ -358,7 +467,7 @@ export class OptimizedRewardDialog {
     const contentText = this.scene.add.text(
       24,
       28,
-      content,
+      formattedContent,
       {
         fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
         fontFamily: modernUITheme.typography.fontFamily.primary,
@@ -366,7 +475,7 @@ export class OptimizedRewardDialog {
         wordWrap: { 
           width: contentWidth
         },
-        lineSpacing: 3,
+        lineSpacing: 1, // Single line spacing
         align: 'left'
       }
     );
@@ -375,45 +484,55 @@ export class OptimizedRewardDialog {
     this.dialogContainer.add(sectionContainer);
     
     // Return the Y position for the next section
-    return startY + contentHeight + 50;
+    return startY + sectionHeight + 20; // 20px spacing between sections
+  }
+  
+  private formatEducationalContent(content: string): string {
+    // Split content into sentences for better readability
+    const sentences = content.split('. ').filter(s => s.trim().length > 0);
+    
+    // Add periods back and create better formatted content with single line spacing
+    return sentences.map(s => 
+      s.trim() + (s.endsWith('.') ? '' : '.')
+    ).join(' ').trim();
   }
 
   private createCloseButton(): void {
-    // Close button at the bottom center
+    // Close button at the bottom center with enhanced styling
     const closeButtonY = this.dialogHeight - 40;
     
     const closeButton = this.scene.add.container(this.dialogWidth / 2, closeButtonY);
     
     const closeBg = this.scene.add.graphics();
-    closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 0.7);
-    closeBg.fillRoundedRect(-40, -15, 80, 30, 8);
-    closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.5);
-    closeBg.strokeRoundedRect(-40, -15, 80, 30, 8);
+    closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+    closeBg.fillRoundedRect(-50, -18, 100, 36, 8);
+    closeBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.6);
+    closeBg.strokeRoundedRect(-50, -18, 100, 36, 8);
     
-    const closeText = this.scene.add.text(0, 0, 'Close', {
-      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '14px'),
+    const closeText = this.scene.add.text(0, 0, 'Continue', {
+      fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '16px'),
       fontFamily: modernUITheme.typography.fontFamily.primary,
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
     
     closeButton.add([closeBg, closeText]);
-    closeButton.setSize(80, 30);
+    closeButton.setSize(100, 36);
     closeButton.setInteractive({ useHandCursor: true })
       .on('pointerdown', () => this.handleClose())
       .on('pointerover', () => {
         closeBg.clear();
-        closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 1);
-        closeBg.fillRoundedRect(-40, -15, 80, 30, 8);
-        closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.8);
-        closeBg.strokeRoundedRect(-40, -15, 80, 30, 8);
+        closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 1);
+        closeBg.fillRoundedRect(-50, -18, 100, 36, 8);
+        closeBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.9);
+        closeBg.strokeRoundedRect(-50, -18, 100, 36, 8);
       })
       .on('pointerout', () => {
         closeBg.clear();
-        closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.secondary), 0.7);
-        closeBg.fillRoundedRect(-40, -15, 80, 30, 8);
-        closeBg.lineStyle(1, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.5);
-        closeBg.strokeRoundedRect(-40, -15, 80, 30, 8);
+        closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.accent), 0.8);
+        closeBg.fillRoundedRect(-50, -18, 100, 36, 8);
+        closeBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.text.secondary), 0.6);
+        closeBg.strokeRoundedRect(-50, -18, 100, 36, 8);
       });
     
     this.dialogContainer.add(closeButton);
@@ -423,7 +542,8 @@ export class OptimizedRewardDialog {
     if (this.currentData?.onClose) {
       this.currentData.onClose();
     }
-    this.close();
+    // Use immediate close for transitions to prevent conflicts with new dialog showing
+    this.closeImmediate();
   }
 
   public close(): void {
@@ -436,6 +556,16 @@ export class OptimizedRewardDialog {
         this.currentData = null;
       }
     });
+  }
+
+  public closeImmediate(): void {
+    // Stop any running tweens on the dialogContainer
+    this.scene.tweens.killTweensOf(this.dialogContainer);
+    
+    // Immediately hide the dialog
+    this.dialogContainer.setVisible(false);
+    this.dialogContainer.setAlpha(0);
+    this.currentData = null;
   }
 
   private cleanup(): void {
@@ -483,5 +613,12 @@ export function showOptimizedRewardDialog(scene: Phaser.Scene, data: OptimizedRe
   } catch (error) {
     console.error('Error showing optimized reward dialog:', error);
     return null;
+  }
+}
+
+// Function to close the current reward dialog immediately
+export function closeOptimizedRewardDialog(): void {
+  if (optimizedRewardSingletonInstance) {
+    optimizedRewardSingletonInstance.closeImmediate();
   }
 }

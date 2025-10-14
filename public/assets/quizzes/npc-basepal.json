@@ -6,7 +6,7 @@
   "lectures": [
     {
       "title": "Introduction to Base Chain",
-      "content": "Base is a Layer 2 scaling solution built on Ethereum by Coinbase. It uses Optimistic Rollups to provide faster, cheaper transactions while maintaining Ethereum's security. As a Layer 2 solution, Base operates on top of Ethereum, inheriting its security while reducing transaction costs. Base leverages the OP Stack, ensuring compatibility with existing Ethereum tools and applications.",
+      "content": "Base is a Layer 2 scaling solution built on Ethereum by Coinbase. It uses Optimistic Rollups for faster, cheaper transactions while maintaining Ethereum's security. As a Layer 2, Base operates on top of Ethereum, inheriting its security while reducing transaction costs. Base leverages the OP Stack, ensuring compatibility with existing Ethereum tools.",
       "keyPoints": [
         "Layer 2 scaling solution for Ethereum",
         "Built by Coinbase using Optimism's OP Stack",

@@ -6,8 +6,7 @@ import AudioManager from '../managers/AudioManager';
 import { saveQuiztalsToDatabase } from "../utils/Database";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import PhysicsManager from '../managers/PhysicsManager';
-import { showOptimizedRewardDialog, OptimizedRewardDialogData } from "../utils/OptimizedRewardDialog";
-import { showOptimizedEnhancedQuizDialog, OptimizedQuizDialogData } from "../utils/OptimizedEnhancedQuizDialog";
+import { showOptimizedRewardDialog, closeOptimizedRewardDialog, OptimizedRewardDialogData } from "../utils/OptimizedRewardDialog";
 
 export default class BasePal extends WalkingNPC {
   private lectures: any[] = [];
@@ -229,30 +228,65 @@ export default class BasePal extends WalkingNPC {
     // Store player reference for reward
     this.playerForReward = player;
     
-    // Create lecture dialog with key points using OptimizedEnhancedQuizDialog
-    const quizData: OptimizedQuizDialogData = {
+    // Format lecture content for better readability
+    const formattedContent = this.formatLectureContent(lecture.content);
+    
+    // Format key points as a bulleted list
+    const formattedKeyPoints = lecture.keyPoints && lecture.keyPoints.length > 0 
+      ? `🔑 Key Points:\n${lecture.keyPoints.map((point: string) => 
+          `  • ${point}`).join('\n')}`
+      : undefined;
+    
+    // Create lecture dialog using reward dialog structure
+    const lectureDialogData: OptimizedRewardDialogData = {
       npcName: "BasePal",
       npcAvatar: "npc_basepal_avatar",
-      question: `🎓 ${lecture.title}\n\n${lecture.content}`,
-      options: [
-        "Continue...",
-        "That's interesting!",
-        "Thanks for the lecture!"
-      ],
-      theme: "Base Chain Lectures",
-      explainer: lecture.keyPoints && lecture.keyPoints.length > 0 
-        ? `🔑 Key Points:\n${lecture.keyPoints.map((point: string, index: number) => 
-            `${index + 1}. ${point}`).join('\n')}`
-        : undefined,
-      onAnswer: (_selectedOption: string) => {
-        this.giveLectureReward();
-      },
+      rewardMessage: `🎓 ${lecture.title}\n\n${formattedContent}`,
+      didYouKnow: formattedKeyPoints,
+      tipsAndTricks: this.generateLectureTips(),
+      rewardAmount: 0, // No reward amount for lectures
       onClose: () => {
+        // Close the dialog immediately before showing reward
+        closeOptimizedRewardDialog();
         this.giveLectureReward();
       }
     };
 
-    showOptimizedEnhancedQuizDialog(this.scene, quizData);
+    showOptimizedRewardDialog(this.scene, lectureDialogData);
+  }
+
+  private formatLectureContent(content: string): string {
+    // Split content into paragraphs for better readability
+    // Handle different sentence delimiters
+    const sentences = content.split(/(?<=[.!?])\s+/).filter(p => p.trim().length > 0);
+    
+    // Add periods back and create paragraphs with single line spacing
+    return sentences.map(p => {
+      // Ensure proper punctuation
+      let formatted = p.trim();
+      if (!/[.!?]$/.test(formatted)) {
+        formatted += '.';
+      }
+      return formatted;
+    }).join('\n').trim();
+  }
+
+  private generateLectureTips(): string {
+    // Generate tips related to learning and education
+    const tips = [
+      "📚 Learning new blockchain concepts daily helps build your crypto expertise!",
+      "💡 Take notes on key points to reinforce your learning!",
+      "🎯 Focus on one concept at a time for better retention!",
+      "🤔 Ask questions if something isn't clear - understanding is key!",
+      "🌟 Practice what you learn by trying out Base Chain features!",
+      "🧠 Repetition helps solidify new knowledge in your memory!",
+      "📖 Review previous lessons to strengthen your foundation!",
+      "💬 Discuss concepts with other learners to gain new perspectives!",
+      "🔍 Research topics that interest you beyond the basics!",
+      "🏆 Celebrate small wins as you progress in your learning journey!"
+    ];
+    
+    return Phaser.Utils.Array.GetRandom(tips);
   }
 
   private giveLectureReward() {
@@ -274,27 +308,27 @@ export default class BasePal extends WalkingNPC {
     // Log reward
     QuiztalRewardLog.logReward("BasePal", reward);
     
-    // Generate Did You Know and Tips content
-    const didYouKnowContent = this.generateDidYouKnow();
-    const tipsContent = this.generateTipsAndTricks();
-    
-    // Show enhanced reward dialog with additional sections
-    const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
-    
-    const rewardDialogData: OptimizedRewardDialogData = {
-      npcName: "BasePal",
-      npcAvatar: "npc_basepal_avatar",
-      rewardMessage: rewardMessage,
-      didYouKnow: didYouKnowContent,
-      tipsAndTricks: tipsContent,
-      rewardAmount: reward,
-      onClose: () => {
-        this.playerForReward = null;
-      }
-    };
-
     // Use a small delay to ensure the previous dialog is fully closed before showing the reward dialog
-    this.scene.time.delayedCall(100, () => {
+    this.scene.time.delayedCall(500, () => {
+      // Generate Did You Know and Tips content
+      const didYouKnowContent = this.generateDidYouKnow();
+      const tipsContent = this.generateTipsAndTricks();
+      
+      // Show enhanced reward dialog with additional sections
+      const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
+      
+      const rewardDialogData: OptimizedRewardDialogData = {
+        npcName: "BasePal",
+        npcAvatar: "npc_basepal_avatar",
+        rewardMessage: rewardMessage,
+        didYouKnow: didYouKnowContent,
+        tipsAndTricks: tipsContent,
+        rewardAmount: reward,
+        onClose: () => {
+          this.playerForReward = null;
+        }
+      };
+
       showOptimizedRewardDialog(this.scene, rewardDialogData);
     });
   }

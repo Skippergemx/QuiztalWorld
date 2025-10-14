@@ -109,9 +109,9 @@ export class OptimizedEnhancedQuizDialog {
     this.scene = scene;
     this.isMobile = scene.scale.width < 768;
     
-    // Optimized sizing for web view - reduced height to avoid UI Scene blocking
+    // Optimized sizing for web view - increased height to better accommodate lecture content
     this.dialogWidth = this.isMobile ? scene.scale.width * 0.95 : 750;
-    this.dialogHeight = this.isMobile ? 420 : 480; // Reduced from 500/600 to fit between UIScene panels
+    this.dialogHeight = this.isMobile ? 500 : 550; // Increased from 420/480 to 500/550
     
     this.initializeDialog();
     this.setupEventListeners();
@@ -349,9 +349,15 @@ export class OptimizedEnhancedQuizDialog {
       this.createEnhancedOptionButton(option, index, y, optionHeight);
     });
     
-    // Add explainer section at the bottom
+    // Add explainer section at the bottom, with proper spacing to avoid overlap
     if (this.currentData!.explainer) {
-      this.createExplainerSection();
+      // Calculate the Y position after the last option button
+      const lastOptionY = optionsY + (this.currentData!.options.length * optionSpacing);
+      // Add extra spacing to prevent overlap
+      const explainerStartY = lastOptionY + (this.isMobile ? 20 : 30);
+      
+      // Pass the calculated start Y position to the explainer section
+      this.createExplainerSection(explainerStartY);
     }
   }
 
@@ -428,14 +434,15 @@ export class OptimizedEnhancedQuizDialog {
     this.dialogContainer.add(buttonContainer);
   }
 
-  private createExplainerSection(): void {
+  private createExplainerSection(startY?: number): void {
     if (!this.currentData?.explainer) return;
     
-    // Calculate position after options
-    const optionsEndY = this.isMobile ? 150 + (this.currentData.options.length * 38) + 10 : 170 + (this.currentData.options.length * 44) + 10;
+    // Use the provided start Y position or calculate as before
+    const optionsEndY = startY !== undefined ? startY : 
+      (this.isMobile ? 150 + (this.currentData.options.length * 38) + 10 : 170 + (this.currentData.options.length * 44) + 10);
     
-    // Container dimensions - reduced to fit in smaller dialog
-    const containerHeight = this.isMobile ? 100 : 120;
+    // Container dimensions - increased to fit in larger dialog
+    const containerHeight = this.isMobile ? 120 : 150;
     
     // Safety check: ensure explainer fits within dialog bounds
     const maxAllowedY = this.dialogHeight - containerHeight - 20; // 20px margin
@@ -448,14 +455,17 @@ export class OptimizedEnhancedQuizDialog {
     const containerWidth = this.dialogWidth - 24;
     const contentWidth = this.dialogWidth - 60;
     
+    // Format explainer content for better readability
+    const formattedExplainer = this.formatExplainerContent(this.currentData.explainer);
+    
     // Calculate content height using our utility
-    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '10px');
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '11px');
     const contentHeight = TextHeightCalculator.calculateTextHeight(this.scene, {
-      text: this.currentData.explainer,
+      text: formattedExplainer,
       width: contentWidth,
       fontSize: fontSize,
       fontFamily: modernUITheme.typography.fontFamily.primary,
-      lineSpacing: 3
+      lineSpacing: 4 // Increased line spacing for better readability
     });
     
     // Check if scrolling is needed - add small buffer to prevent unnecessary scrolling
@@ -493,21 +503,21 @@ export class OptimizedEnhancedQuizDialog {
     
     if (isScrollable) {
       // Create scrollable content
-      this.createScrollableContent(explainerContainer, contentHeight, availableHeight, containerWidth);
+      this.createScrollableContent(explainerContainer, contentHeight, availableHeight, containerWidth, formattedExplainer);
     } else {
       // Simple non-scrollable content
       const explainerText = this.scene.add.text(
         24,
         28,
-        this.currentData.explainer,
+        formattedExplainer,
         {
-          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '12px'),
+          fontSize: UIHelpers.getResponsiveFontSize(this.isMobile, '11px'),
           fontFamily: modernUITheme.typography.fontFamily.primary,
           color: modernUITheme.colors.text.secondary,
           wordWrap: { 
             width: contentWidth
           },
-          lineSpacing: 3,
+          lineSpacing: 4, // Increased line spacing for better readability
           align: 'left',
           fontStyle: 'bold'
         }
@@ -520,17 +530,32 @@ export class OptimizedEnhancedQuizDialog {
     this.dialogContainer.add(explainerContainer);
   }
   
-  private createScrollableContent(container: Phaser.GameObjects.Container, _contentHeight: number, availableHeight: number, containerWidth: number): void {
+  private formatExplainerContent(content: string): string {
+    // Split content into bullet points if it contains numbered points
+    if (content.includes('\n')) {
+      // Already formatted with line breaks
+      return content;
+    } else if (content.includes('. ')) {
+      // Split into sentences and format as bullet points
+      const points = content.split('. ').filter(p => p.trim().length > 0);
+      return points.map((point, index) => 
+        `${index + 1}. ${point.trim()}${point.trim().endsWith('.') ? '' : '.'}`
+      ).join('\n');
+    }
+    return content;
+  }
+  
+  private createScrollableContent(container: Phaser.GameObjects.Container, _contentHeight: number, availableHeight: number, containerWidth: number, content: string): void {
     // Create scroll container for the content
     const scrollContainer = this.scene.add.container(0, 28);
     this.scrollState.scrollContainer = scrollContainer;
     
     // Create the text content
-    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '12px');
+    const fontSize = UIHelpers.getResponsiveFontSize(this.isMobile, '11px');
     const explainerText = this.scene.add.text(
       24,
       0,
-      this.currentData?.explainer || '',
+      content,
       {
         fontSize: fontSize,
         fontFamily: modernUITheme.typography.fontFamily.primary,
@@ -538,7 +563,7 @@ export class OptimizedEnhancedQuizDialog {
         wordWrap: { 
           width: this.dialogWidth - 60
         },
-        lineSpacing: 3,
+        lineSpacing: 4, // Increased line spacing for better readability
         align: 'left',
         fontStyle: 'bold'
       }

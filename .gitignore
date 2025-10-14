@@ -38,3 +38,8 @@ dist-ssr
 *Test*
 __tests__
 *.test.*
+
+# Debug files
+*.debug.*
+*.demo.*
+*.js
