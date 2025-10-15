@@ -89,6 +89,12 @@ export default class BaseSage extends QuizNPC {
       return;
     }
 
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("BaseSage: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("BaseSage: Network offline - showing offline message");

@@ -88,6 +88,12 @@ export default class WalletSafetyFriend extends QuizNPC {
       return;
     }
     
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("WalletSafetyFriend: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("WalletSafetyFriend: Network offline - showing offline message");

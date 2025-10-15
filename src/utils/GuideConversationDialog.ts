@@ -155,19 +155,19 @@ export class GuideConversationDialog {
     this.dialogContainer.removeAll(true);
     this.optionButtons = [];
     
-    // Create background first
+    // Create background
     this.createBackground();
     
-    // Create header section
+    // Create header
     this.createHeader();
     
     // Create content area
     this.createContentArea();
     
-    // Create navigation options section
+    // Create navigation options
     this.createNavigationOptions();
     
-    // Create close button last (so it's on top)
+    // Create close button
     this.createCloseButton();
   }
 
@@ -199,13 +199,10 @@ export class GuideConversationDialog {
   private createHeader(): void {
     const headerHeight = this.isMobile ? 70 : 80;
     
-    // Header background with clear boundaries
+    // Header background
     const headerBg = this.scene.add.graphics();
     headerBg.fillStyle(UIHelpers.hexToNumber('#34495e'), 0.4);
     headerBg.fillRoundedRect(10, 10, this.dialogWidth - 20, headerHeight - 10, 10);
-    // Add a subtle bottom border to separate from content
-    headerBg.lineStyle(1, UIHelpers.hexToNumber('#3498db'), 0.3);
-    headerBg.strokeRoundedRect(10, 10, this.dialogWidth - 20, headerHeight - 10, 10);
     this.dialogContainer.add(headerBg);
     
     // NPC Avatar
@@ -251,27 +248,25 @@ export class GuideConversationDialog {
 
   private createContentArea(): void {
     const headerHeight = this.isMobile ? 70 : 80;
+    const contentY = headerHeight + 20;
     
-    // Define the layout sections - split dialog into upper (header+content) and lower (navigation) halves
-    const upperSectionHeight = Math.floor(this.dialogHeight * 0.55); // 55% for header+content (slightly less to give more to navigation)
-    
-    // Content area positioning within upper section
-    const contentY = headerHeight + 15;
-    const contentHeight = upperSectionHeight - headerHeight - 30; // Leave margin at bottom
+    // Calculate actual navigation options height instead of estimating
+    const navigationOptionsHeight = this.calculateNavigationOptionsHeight();
+    const closeButtonHeight = 50;
+    const contentHeight = this.dialogHeight - headerHeight - navigationOptionsHeight - closeButtonHeight - 30;
     
     // Ensure minimum content height
     const finalContentHeight = Math.max(contentHeight, 100);
     
-    // Content background with clear boundaries
+    // Content background
     const contentBg = this.scene.add.graphics();
     contentBg.fillStyle(UIHelpers.hexToNumber('#34495e'), 0.2);
     contentBg.fillRoundedRect(15, contentY, this.dialogWidth - 30, finalContentHeight, 8);
-    // Add border to clearly define content area
     contentBg.lineStyle(1, UIHelpers.hexToNumber('#3498db'), 0.3);
     contentBg.strokeRoundedRect(15, contentY, this.dialogWidth - 30, finalContentHeight, 8);
     this.dialogContainer.add(contentBg);
     
-    // Content text with proper word wrapping and boundaries
+    // Content text with proper word wrapping
     const contentText = this.scene.add.text(
       25,
       contentY + 15,
@@ -281,7 +276,7 @@ export class GuideConversationDialog {
         fontFamily: modernUITheme.typography.fontFamily.primary,
         color: '#ecf0f1',
         wordWrap: { 
-          width: this.dialogWidth - 80 // Ensure proper wrapping with margins
+          width: this.dialogWidth - 80 // Ensure proper wrapping
         },
         lineSpacing: 6,
         align: 'left'
@@ -291,53 +286,51 @@ export class GuideConversationDialog {
     this.dialogContainer.add(contentText);
   }
 
+  private calculateNavigationOptionsHeight(): number {
+    if (!this.currentData || !this.currentData.navigationOptions) {
+      return this.isMobile ? 100 : 80;
+    }
+    
+    const optionCount = this.currentData.navigationOptions.length;
+    const optionHeight = this.isMobile ? 45 : 50;
+    const optionSpacing = this.isMobile ? 15 : 20;
+    const maxOptionsPerRow = this.isMobile ? 1 : (optionCount <= 4 ? 2 : 1);
+    
+    // Calculate rows needed
+    const rows = Math.ceil(optionCount / maxOptionsPerRow);
+    
+    // Calculate total height needed
+    const totalHeight = (rows * optionHeight) + ((rows - 1) * optionSpacing) + 30; // +30 for top margin
+    
+    return Math.max(totalHeight, this.isMobile ? 100 : 80);
+  }
+
   private createNavigationOptions(): void {
-    // Define the layout sections - split dialog into upper (header+content) and lower (navigation) halves
-    const upperSectionHeight = Math.floor(this.dialogHeight * 0.55); // 55% for header+content
-    const lowerSectionY = upperSectionHeight + 5; // Start of lower section
-    const lowerSectionHeight = this.dialogHeight - upperSectionHeight - 5; // Give more space to navigation
+    const headerHeight = this.isMobile ? 70 : 80;
+    const optionHeight = this.isMobile ? 45 : 50;
+    const optionSpacing = this.isMobile ? 15 : 20;
+    const maxOptionsPerRow = this.isMobile ? 1 : (this.currentData!.navigationOptions.length <= 4 ? 2 : 1);
     
-    // Create a background container for navigation options to enforce boundaries
-    const navSectionBg = this.scene.add.graphics();
-    navSectionBg.fillStyle(UIHelpers.hexToNumber('#2c3e50'), 0.3);
-    navSectionBg.fillRoundedRect(10, lowerSectionY, this.dialogWidth - 20, lowerSectionHeight, 8);
-    // Add border to clearly define navigation section
-    navSectionBg.lineStyle(1, UIHelpers.hexToNumber('#3498db'), 0.2);
-    navSectionBg.strokeRoundedRect(10, lowerSectionY, this.dialogWidth - 20, lowerSectionHeight, 8);
-    this.dialogContainer.add(navSectionBg);
-    
-    // Navigation options positioning within lower section
-    const optionHeight = this.isMobile ? 42 : 45; // Slightly smaller to fit more
-    const optionSpacing = this.isMobile ? 12 : 15; // Slightly smaller spacing
-    const optionsStartY = lowerSectionY + 15; // Start 15px from top of lower section
-    
-    // Calculate how many buttons can fit in the available space
-    const availableHeight = lowerSectionHeight - 30; // Account for top and bottom margins
-    const maxButtons = Math.floor((availableHeight + optionSpacing) / (optionHeight + optionSpacing));
+    // Calculate actual position based on content area height
+    const actualContentHeight = this.dialogHeight - headerHeight - this.calculateNavigationOptionsHeight() - 80; // 80 for close button and margins
+    const actualOptionsY = headerHeight + actualContentHeight + 30;
     
     this.currentData!.navigationOptions.forEach((option, index) => {
-      // Limit the number of buttons to what can fit, but show as many as possible
-      if (index < maxButtons) {
-        // Always use single column layout for better control
-        const y = optionsStartY + (index * (optionHeight + optionSpacing));
-        const x = 20;
-        const width = this.dialogWidth - 40;
-        
-        this.createNavigationButton(option, index, x, y, width, optionHeight);
-      }
+      const row = Math.floor(index / maxOptionsPerRow);
+      const col = index % maxOptionsPerRow;
+      
+      const y = actualOptionsY + (row * (optionHeight + optionSpacing));
+      const x = this.isMobile ? 20 : (col === 0 ? 20 : this.dialogWidth / 2 + 10);
+      const width = this.isMobile ? this.dialogWidth - 40 : (this.dialogWidth / 2 - 30);
+      
+      this.createNavigationButton(option, index, x, y, width, optionHeight);
     });
-    
-    // If there are more options than can fit, we might want to add a scrollbar or pagination
-    // For now, let's at least log this situation for debugging
-    if (this.currentData!.navigationOptions.length > maxButtons) {
-      console.warn(`Only ${maxButtons} of ${this.currentData!.navigationOptions.length} navigation options can be displayed`);
-    }
   }
 
   private createNavigationButton(option: { text: string; icon?: string }, index: number, x: number, y: number, width: number, height: number): void {
     const buttonContainer = this.scene.add.container(x, y);
     
-    // Button background with clear boundaries
+    // Button background
     const buttonBg = this.scene.add.graphics();
     buttonBg.fillStyle(UIHelpers.hexToNumber('#2980b9'), 0.7);
     buttonBg.fillRoundedRect(0, 0, width, height, 8);
@@ -366,7 +359,7 @@ export class GuideConversationDialog {
       fontSize = option.text.length > 30 ? '12px' : '13px';
     }
     
-    // Button text with proper wrapping and boundaries
+    // Button text with proper wrapping
     const buttonText = this.scene.add.text(
       textX,
       height / 2,
@@ -377,7 +370,7 @@ export class GuideConversationDialog {
         color: '#ffffff',
         fontStyle: 'bold',
         wordWrap: { 
-          width: width - textX - 15 // Ensure text stays within button boundaries
+          width: width - textX - 15
         }
       }
     ).setOrigin(0, 0.5);
@@ -408,17 +401,8 @@ export class GuideConversationDialog {
   }
 
   private createCloseButton(): void {
-    // Close button in top-right corner with proper boundaries
-    const buttonX = this.dialogWidth - 35;
-    const buttonY = 25;
-    
-    // Ensure close button stays within dialog boundaries
-    if (buttonX < 0 || buttonY < 0) {
-      console.warn('Close button exceeds dialog boundaries');
-      return;
-    }
-    
-    const closeButton = this.scene.add.container(buttonX, buttonY);
+    // Close button in top-right corner
+    const closeButton = this.scene.add.container(this.dialogWidth - 35, 25);
     
     const closeBg = this.scene.add.graphics();
     closeBg.fillStyle(UIHelpers.hexToNumber('#e74c3c'), 0.8);

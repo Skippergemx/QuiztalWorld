@@ -1,6 +1,5 @@
 //main.ts
 import Phaser from "phaser";
-import SplashScene from "./scenes/SplashScene";
 import BootScene from "./scenes/BootScene";
 import CharacterSelectionScene from "./scenes/CharacterSelectionScene";
 // WalletVerificationScene removed from game flow
@@ -59,8 +58,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   scene: [
-    SplashScene,
-    BootScene,
+    BootScene, // Start with BootScene to show loading progress and then splash screen
     GoogleLoginScene,
     // WalletVerificationScene removed from game flow
     CharacterSelectionScene,
@@ -130,7 +128,7 @@ const handleResize = () => {
     game.scale.resize(width, height);
     
     // Hide loading indicator when game is ready
-    const loadingElement = document.getElementById('loading');
+    const loadingElement = document.getElementById('loading-container');
     if (loadingElement) {
       loadingElement.style.display = 'none';
     }
@@ -147,7 +145,7 @@ if (isActualMobileDevice()) {
   // Enhanced orientation change handling with better timing
   window.addEventListener("orientationchange", () => {
     // Add visual feedback during orientation change
-    const loadingElement = document.getElementById('loading');
+    const loadingElement = document.getElementById('loading-container');
     if (loadingElement) {
       loadingElement.style.display = 'block';
       loadingElement.textContent = 'Adjusting layout...';
@@ -187,7 +185,7 @@ if (isActualMobileDevice()) {
     // Check if this is likely an orientation change
     if (Math.abs(currentWidth - lastWidth) > 100 || Math.abs(currentHeight - lastHeight) > 100) {
       // Add visual feedback
-      const loadingElement = document.getElementById('loading');
+      const loadingElement = document.getElementById('loading-container');
       if (loadingElement) {
         loadingElement.style.display = 'block';
         loadingElement.textContent = 'Adjusting layout...';
@@ -247,12 +245,8 @@ function isActualMobileDevice(): boolean {
 
 // Initial loading cleanup
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    const loadingElement = document.getElementById('loading');
-    if (loadingElement) {
-      loadingElement.style.display = 'none';
-    }
-  }, 2000);
+  // Don't automatically hide the loading screen - let the game control it
+  // The loading screen will be hidden by the BootScene when loading is complete
 });
 
 export default game;

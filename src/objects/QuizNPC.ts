@@ -322,6 +322,50 @@ export default class QuizNPC extends Phaser.Physics.Arcade.Sprite {
     antiSpamManager.endQuiz();
   }
   
+  /**
+   * Check if player has enough stamina to interact with this NPC
+   * @returns true if player has enough stamina, false otherwise
+   */
+  protected checkPlayerStamina(): boolean {
+    // Try to get PlayerManager from the scene
+    let playerManager = null;
+    
+    // First try to get it directly from the scene
+    if (this.scene && (this.scene as any).playerManager) {
+      playerManager = (this.scene as any).playerManager;
+    } else {
+      // Try to get it from the GameScene
+      try {
+        const gameScene = this.scene.game.scene.getScene('GameScene');
+        if (gameScene && (gameScene as any).playerManager) {
+          playerManager = (gameScene as any).playerManager;
+        }
+      } catch (e) {
+        console.warn('QuizNPC: Could not access GameScene to get playerManager', e);
+      }
+    }
+    
+    // If we have access to PlayerManager, check stamina
+    if (playerManager && typeof playerManager.getCurrentStamina === 'function') {
+      const currentStamina = playerManager.getCurrentStamina();
+      console.log(`📱 QuizNPC: Current stamina is ${currentStamina}`);
+      
+      if (currentStamina < 10) {
+        console.log('❌ QuizNPC: Not enough stamina to interact with NPC (minimum 10 required)');
+        // Show UI feedback to player about insufficient stamina
+        if (typeof playerManager.showStaminaLowFeedback === 'function') {
+          playerManager.showStaminaLowFeedback();
+        }
+        return false;
+      }
+      return true;
+    } else {
+      console.warn('❌ QuizNPC: Could not access PlayerManager for stamina check');
+      // If we can't check stamina, allow interaction (fail open)
+      return true;
+    }
+  }
+  
   public isPlayerInRange(player: Phaser.Physics.Arcade.Sprite): boolean {
     const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
     return distance <= 100;

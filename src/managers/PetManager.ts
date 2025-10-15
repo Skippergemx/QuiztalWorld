@@ -190,21 +190,28 @@ export default class PetManager {
       if (this.moblin && this.moblin.getGiftBoxCount() <= 0) {
         console.log('❌ PetManager: No gift boxes to collect');
         // Show UI feedback to player about no gift boxes
-        const gameScene = this.scene.scene.get('GameScene') as any;
-        if (gameScene && gameScene.playerManager) {
-          const playerManager = gameScene.playerManager;
-          if (typeof playerManager.showNoGiftBoxFeedback === 'function') {
-            playerManager.showNoGiftBoxFeedback();
-          }
+        // Fix: Safely access the playerManager from the scene
+        let playerManager = null;
+        if (this.scene && (this.scene as any).playerManager) {
+          playerManager = (this.scene as any).playerManager;
+        }
+        
+        if (playerManager && typeof playerManager.showNoGiftBoxFeedback === 'function') {
+          playerManager.showNoGiftBoxFeedback();
         }
         return false;
       }
       
       // Check if player has enough stamina to interact (minimum 10 points)
-      const gameScene = this.scene.scene.get('GameScene') as any;
-      if (gameScene && gameScene.playerManager) {
-        const playerManager = gameScene.playerManager;
+      // Fix: Safely access the playerManager from the scene
+      let playerManager = null;
+      if (this.scene && (this.scene as any).playerManager) {
+        playerManager = (this.scene as any).playerManager;
+      }
+      
+      if (playerManager) {
         const currentStamina = playerManager.getCurrentStamina();
+        console.log(`📱 PetManager: Current stamina is ${currentStamina}`);
         if (currentStamina < 10) {
           console.log('❌ PetManager: Not enough stamina to collect gift boxes (minimum 10 required)');
           // Show UI feedback to player about insufficient stamina
@@ -215,7 +222,11 @@ export default class PetManager {
         }
         
         // Deduct stamina for interaction
-        playerManager.deductStaminaForInteraction();
+        if (typeof playerManager.deductStaminaForInteraction === 'function') {
+          playerManager.deductStaminaForInteraction();
+        }
+      } else {
+        console.warn('❌ PetManager: Could not access PlayerManager for stamina check');
       }
 
       console.log('🎁 PetManager: Triggering Moblin gift box collection');

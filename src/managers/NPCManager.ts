@@ -316,9 +316,25 @@ export default class NPCManager {
 
     if (closestNPC) {
       // Check if player has enough stamina to interact (minimum 10 points)
-      const playerManager = (this.scene as any).playerManager;
+      // Fix: Safely access the playerManager from the scene
+      let playerManager = null;
+      if (this.scene && (this.scene as any).playerManager) {
+        playerManager = (this.scene as any).playerManager;
+      } else {
+        // Try to get it from the game scene registry
+        try {
+          const gameScene = this.scene.game.scene.getScene('GameScene');
+          if (gameScene && (gameScene as any).playerManager) {
+            playerManager = (gameScene as any).playerManager;
+          }
+        } catch (e) {
+          console.warn('Could not access GameScene to get playerManager', e);
+        }
+      }
+      
       if (playerManager && typeof playerManager.getCurrentStamina === 'function') {
         const currentStamina = playerManager.getCurrentStamina();
+        console.log(`📱 NPCManager: Current stamina is ${currentStamina}`);
         if (currentStamina < 10) {
           console.log('❌ NPCManager: Not enough stamina to interact with NPC (minimum 10 required)');
           // Show UI feedback to player about insufficient stamina
@@ -332,6 +348,8 @@ export default class NPCManager {
         if (typeof playerManager.deductStaminaForInteraction === 'function') {
           playerManager.deductStaminaForInteraction();
         }
+      } else {
+        console.warn('❌ NPCManager: Could not access PlayerManager for stamina check');
       }
 
       console.log(`🎯 NPCManager: Triggering interaction with ${closestNPC.config.name}`);

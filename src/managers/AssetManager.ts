@@ -24,7 +24,7 @@ interface UIAssetConfig {
 
 interface AudioAssetConfig {
   key: string;
-  path: string;
+  path: string | string[];
 }
 
 export default class AssetManager {
@@ -297,7 +297,10 @@ export default class AssetManager {
   private loadAudioAssets(_isMobile: boolean = false): void {
     // For mobile, we might want to load lower quality audio or fewer audio files
     const audioAssets: AudioAssetConfig[] = [
-      { key: 'moblin-giftbox', path: 'assets/audio/Moblin_giftbox.wav' }
+      { key: 'moblin-giftbox', path: 'assets/audio/Moblin_giftbox.wav' },
+      { key: 'bgm', path: ['assets/audio/background_music.mp3', 'assets/audio/background_music.ogg'] },
+      { key: 'Correct_Answer', path: 'assets/audio/Correct_Answer.wav' },
+      { key: 'Wrong_Answer', path: 'assets/audio/Wrong_Answer.wav' }
     ];
 
     // On mobile, we might skip loading some non-essential audio to save bandwidth
@@ -385,7 +388,10 @@ export default class AssetManager {
       'button-interact',
       'moblin_walk',
       'moblin_idle',
-      'moblin-giftbox'
+      'moblin-giftbox',
+      'bgm',
+      'Correct_Answer',
+      'Wrong_Answer'
     ];
 
     return requiredAssets.every(key => this.scene.textures.exists(key) || this.scene.cache.audio.exists(key));
@@ -400,7 +406,7 @@ export default class AssetManager {
       'joystick', 'joystick-base', 'button-interact',
       'moblin_walk', 'moblin_idle'
     ];
-    const requiredAudio = ['moblin-giftbox'];
+    const requiredAudio = ['moblin-giftbox', 'bgm', 'Correct_Answer', 'Wrong_Answer'];
 
     // Check textures
     requiredTextures.forEach(key => {

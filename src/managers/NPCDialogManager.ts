@@ -1,8 +1,7 @@
-export interface DialogOption {
+  export interface DialogOption {
   text: string;
   nextDialog?: string;
 }
-
 export interface DialogStep {
   text: string;
   avatar?: string;

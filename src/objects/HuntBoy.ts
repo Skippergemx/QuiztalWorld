@@ -99,6 +99,12 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
       return;
     }
 
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("HuntBoy: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("HuntBoy: Network offline - showing offline message");

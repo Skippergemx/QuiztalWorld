@@ -34,6 +34,7 @@ export default class AudioManager {
 
     setMusic(music: Phaser.Sound.BaseSound) {
         this.music = music;
+        console.log('🎵 AudioManager: Setting music', music);
         // Start with current volume setting
         if (this.isMuted) {
             this.playSound(0);
@@ -42,32 +43,14 @@ export default class AudioManager {
         }
     }
 
-    toggleMute() {
-        if (this.music) {
-            this.isMuted = !this.isMuted;
-            if (this.isMuted) {
-                this.playSound(0);
-            } else {
-                this.playSound(this.lastVolume);
-            }
-        }
-    }
-
-    setVolume(volume: number) {
-        const newVolume = Math.max(0, Math.min(1, volume));
-        this.lastVolume = newVolume;
-        if (!this.isMuted) {
-            this.playSound(newVolume);
-        }
-    }
-
     private playSound(volume: number) {
         if (this.music) {
-            const wasPlaying = this.music.isPlaying;
-            this.music.stop();
-            this.music.play({ volume });
-            if (!wasPlaying) {
-                this.music.stop();
+            console.log('🎵 AudioManager: Playing sound with volume', volume);
+            try {
+                this.music.play({ volume });
+                console.log('🎵 AudioManager: Started playing music');
+            } catch (error) {
+                console.warn('⚠️ AudioManager: Failed to play music', error);
             }
         }
     }

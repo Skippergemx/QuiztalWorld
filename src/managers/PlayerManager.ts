@@ -893,6 +893,87 @@ export default class PlayerManager {
   }
 
   /**
+   * Set player velocity with stamina checks for mobile controls
+   */
+  public setPlayerVelocityWithStamina(velocityX: number, velocityY: number): void {
+    if (!this.player) return;
+    
+    // Check if player can move based on stamina
+    const canMove = this.canMove();
+    
+    // Calculate base speed with stamina reduction
+    let currentSpeed = this.baseSpeed;
+    
+    // Apply stamina-based speed reduction based on exact specifications:
+    // 50-100% stamina: Normal speed
+    // 25-50% stamina: 50% speed (half speed)
+    // 0-25% stamina: 25% speed (quarter speed)
+    // 0% stamina: Player unable to move
+    const staminaPercent = this.currentStamina / this.maxStamina;
+    if (staminaPercent <= 0) {
+      // Player cannot move when stamina is depleted
+      currentSpeed = 0;
+    } else if (staminaPercent <= 0.25) {
+      // 25% speed when stamina is 0-25%
+      currentSpeed *= 0.25;
+    } else if (staminaPercent <= 0.5) {
+      // 50% speed when stamina is 25-50%
+      currentSpeed *= 0.5;
+    }
+    // Full speed when stamina is above 50%
+    
+    // Apply speed boost if active (doubles the current speed)
+    if (this.isSpeedBoostActive) {
+      currentSpeed *= 2;
+    }
+    
+    // Normalize the velocity vector
+    const velocityMagnitude = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+    if (velocityMagnitude > 0) {
+      velocityX = (velocityX / velocityMagnitude) * currentSpeed;
+      velocityY = (velocityY / velocityMagnitude) * currentSpeed;
+    }
+    
+    // Handle stamina - drain if player is trying to move, regen if idle
+    // Even if player can't move, we still need to handle the regeneration logic
+    if (velocityX !== 0 || velocityY !== 0) {
+      // Player is trying to move - drain stamina if they can move
+      if (canMove) {
+        this.player.setVelocity(velocityX, velocityY);
+        this.drainStamina();
+      }
+      
+      // Cancel regen timer if it exists
+      if (this.staminaRegenTimer) {
+        this.staminaRegenTimer.remove();
+        this.staminaRegenTimer = null;
+      }
+      
+      // Determine direction and play appropriate animation
+      if (Math.abs(velocityX) > Math.abs(velocityY)) {
+        // Horizontal movement
+        this.lastDirection = velocityX > 0 ? 'right' : 'left';
+      } else if (Math.abs(velocityY) > Math.abs(velocityX)) {
+        // Vertical movement
+        this.lastDirection = velocityY > 0 ? 'down' : 'up';
+      }
+      this.player.play(`walk-${this.lastDirection}`, true);
+    } else {
+      // Player is idle - set velocity to zero
+      this.player.setVelocity(0, 0);
+      this.player.play(`idle-${this.lastDirection}`, true);
+      
+      // Player is idle - start regen timer if not already running
+      if (!this.staminaRegenTimer) {
+        this.staminaRegenTimer = this.scene.time.delayedCall(this.staminaRegenDelay, () => {
+          this.startStaminaRegen();
+          this.staminaRegenTimer = null;
+        });
+      }
+    }
+  }
+
+  /**
    * Set player velocity (for mobile controls)
    */
   public setPlayerVelocity(x: number, y: number): void {

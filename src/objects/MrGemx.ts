@@ -55,6 +55,18 @@ export default class MrGemx extends GuideNPC {
 
   public interact() {
     // Override the base interact method to show shortcut keys directly
+    // Check if a dialog is already open
+    if (this.currentDialog) {
+      console.log("MrGemx: Dialog already open, ignoring interaction");
+      return;
+    }
+
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("MrGemx: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log(`${this.npcName}: Network offline - showing offline message`);

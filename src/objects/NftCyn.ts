@@ -86,6 +86,12 @@ export default class NftCyn extends QuizNPC {
       return;
     }
     
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("NftCyn: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       // Use optimized reward dialog for network offline message

@@ -15,6 +15,9 @@ import PetManager from '../managers/PetManager';
 // Import walking NPC system
 import WalkingNPCManager from '../managers/WalkingNPCManager';
 
+// Import AudioManager
+import AudioManager from '../managers/AudioManager';
+
 export default class GameScene extends Phaser.Scene {
   // Core game objects
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -107,7 +110,10 @@ export default class GameScene extends Phaser.Scene {
     // 10. Create player UI (title, name, etc.)
     await this.initializePlayerUI();
 
-    // 11. Final setup
+    // 11. Initialize audio system
+    this.initializeAudio();
+
+    // 12. Final setup
     this.finalizeSetup();
 
     console.log('✅ GameScene: Game world created successfully!');
@@ -306,6 +312,53 @@ export default class GameScene extends Phaser.Scene {
     await this.playerManager.createPlayerName();
   }
 
+  private initializeAudio(): void {
+    console.log('🔊 GameScene: Initializing audio system...');
+
+    // Debug: Check what audio files are available
+    console.log('🎵 GameScene: Available audio files in cache:', this.cache.audio.getKeys());
+
+    // Get the AudioManager instance
+    const audioManager = AudioManager.getInstance();
+
+    // Initialize sound effects
+    audioManager.initSounds(this);
+
+    // Set up background music - check if it exists in cache first
+    console.log('🎵 GameScene: Checking for bgm in cache...');
+    if (this.cache.audio.exists('bgm')) {
+        console.log('🎵 GameScene: BGM found in cache, adding to sound manager');
+        const bgm = this.sound.add('bgm', {
+            volume: 0.5,
+            loop: true
+        });
+        console.log('🎵 GameScene: BGM loaded successfully');
+        audioManager.setMusic(bgm);
+        console.log('🎵 GameScene: BGM set in AudioManager');
+    } else {
+        console.warn('⚠️ GameScene: Background music not found in cache');
+        // Set up to play on first interaction
+        this.setupFirstInteractionAudio();
+    }
+
+    console.log('✅ GameScene: Audio system initialized');
+  }
+
+  private setupFirstInteractionAudio(): void {
+    console.log('🎵 GameScene: Setting up first interaction audio');
+    
+    const playAudioOnFirstInteraction = () => {
+        console.log('🎵 GameScene: First interaction detected, playing audio');
+        // Remove event listeners to prevent multiple triggers
+        this.input.keyboard?.off('keydown');
+        this.input.off('pointerdown');
+    };
+    
+    // Set up listeners for first interaction
+    this.input.keyboard?.once('keydown', playAudioOnFirstInteraction);
+    this.input.once('pointerdown', playAudioOnFirstInteraction);
+  }
+
   private finalizeSetup(): void {
     console.log('🎯 GameScene: Finalizing setup...');
 
@@ -325,6 +378,8 @@ export default class GameScene extends Phaser.Scene {
   // === INTERACTION HANDLING ===
 
   private handleInteraction(key: string): void {
+    console.log(`🎮 GameScene: Handling interaction for key: ${key}`);
+    
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
       console.log(`GameScene: ${key} key press blocked - interactions are currently blocked`);
@@ -339,9 +394,11 @@ export default class GameScene extends Phaser.Scene {
     // Handle different interaction types
     switch (key) {
       case 'C':
+        console.log('🎮 GameScene: Handling NPC interaction (C key)');
         this.handleNPCInteraction();
         break;
       case 'O':
+        console.log('🎮 GameScene: Handling Pet interaction (O key)');
         this.handlePetInteraction();
         break;
       default:

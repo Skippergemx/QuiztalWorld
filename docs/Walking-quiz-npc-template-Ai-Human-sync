@@ -1,0 +1,30 @@
+NPC_DETAILS:
+  basic:
+    name: "DeFi Master"
+    id: "defimaster"
+    theme: "Decentralized Finance Expert"
+  
+  assets:
+    prefix: "npc_defimaster"
+    dimensions: "32x53"
+    frames: "Standard 4-direction layout (0-5, 6-11, 12-17, 18-23)"
+  
+  positioning:
+    spawn: "x: 1200, y: 300"
+    patrol: "Horizontal"
+    distance: "150 pixels each direction"
+  
+  personality:
+    color: "#ff6600"
+    idle_range: "8-15 seconds"
+    shouts:
+      - "Yield farming opportunities await! 🌾"
+      - "Learn about liquidity pools and AMMs! 💧"
+      - "DeFi protocols hold the future of finance! 🚀"
+  
+  quiz:
+    questions: 8
+    difficulty: "Medium"
+    rewards: "0.1-0.8 $Quiztals"
+    success_msg: "Outstanding! You've mastered DeFi concepts!"
+    failure_msg: "Keep learning about decentralized finance!"

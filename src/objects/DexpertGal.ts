@@ -86,6 +86,12 @@ export default class DexpertGal extends QuizNPC {
       return;
     }
     
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("DexpertGal: Not enough stamina for interaction");
+      return;
+    }
+
     // Check network connectivity before allowing interactions
     if (!this.networkMonitor.getIsOnline()) {
       console.log("DexpertGal: Network offline - showing offline message");

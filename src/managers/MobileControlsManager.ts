@@ -440,6 +440,12 @@ export default class MobileControlsManager {
       }
     }
     
+    // Debug: Check current stamina before simulating key press
+    if (this.playerManager && typeof this.playerManager.getCurrentStamina === 'function') {
+      const currentStamina = this.playerManager.getCurrentStamina();
+      console.log(`📱 MobileControlsManager: Current stamina before interaction: ${currentStamina}`);
+    }
+    
     // Simulate keyboard 'C' key press for NPC interaction
     const keyEvent = new KeyboardEvent('keydown', { key: 'c' });
     if (this.scene.input.keyboard) {
@@ -531,16 +537,16 @@ export default class MobileControlsManager {
       // Stop immediately when close to zero and target is zero
       this.currentVelocityX = 0;
       this.currentVelocityY = 0;
-      if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
-        this.playerManager.setPlayerVelocity(0, 0);
+      if (this.playerManager && typeof this.playerManager.setPlayerVelocityWithStamina === 'function') {
+        this.playerManager.setPlayerVelocityWithStamina(0, 0);
       }
     } else {
       // Smoothly interpolate velocity towards target
       this.currentVelocityX += (this.targetVelocityX - this.currentVelocityX) * this.velocitySmoothing;
       this.currentVelocityY += (this.targetVelocityY - this.currentVelocityY) * this.velocitySmoothing;
       
-      // Apply smoothed velocity to player
-      if (this.playerManager && typeof this.playerManager.setPlayerVelocity === 'function') {
+      // Apply smoothed velocity to player with stamina checks
+      if (this.playerManager && typeof this.playerManager.setPlayerVelocityWithStamina === 'function') {
         // Check if speed boost is active and apply multiplier
         let finalVelocityX = this.currentVelocityX;
         let finalVelocityY = this.currentVelocityY;
@@ -550,7 +556,7 @@ export default class MobileControlsManager {
           finalVelocityY *= 2; // 2x speed boost
         }
         
-        this.playerManager.setPlayerVelocity(finalVelocityX, finalVelocityY);
+        this.playerManager.setPlayerVelocityWithStamina(finalVelocityX, finalVelocityY);
       }
     }
   }

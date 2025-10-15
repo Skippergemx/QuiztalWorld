@@ -193,6 +193,12 @@ export default class MrRugPull extends WalkingNPC {
       return;
     }
 
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("MR Rug Pull: Not enough stamina for interaction");
+      return;
+    }
+
     const player = this.getClosestPlayer();
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);

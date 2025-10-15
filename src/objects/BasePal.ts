@@ -196,6 +196,12 @@ export default class BasePal extends WalkingNPC {
     // Call parent's interaction start method to handle walking behavior
     this.onInteractionStart();
 
+    // Check player stamina before allowing interaction
+    if (!this.checkPlayerStamina()) {
+      console.log("BasePal: Not enough stamina for interaction");
+      return;
+    }
+
     const player = this.getClosestPlayer();
     if (player) {
       const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
