@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { getPlayerTitle } from '../utils/TitleUtils';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
+import { savePlayerStaminaData, loadPlayerStaminaData } from '../utils/Database';
 
 interface PlayerConfig {
   selectedCharacter: string;
@@ -25,12 +26,24 @@ export default class PlayerManager {
   private isSpeedBoostActive: boolean = false;
   private baseSpeed: number = 160;
   
+  // Stamina system
+  private maxStamina: number = 100;
+  private currentStamina: number = 100;
+  private staminaRegenRate: number = 1; // 1 point per 5-second interval
+  private staminaDrainRate: number = 2; // Points per second while walking
+  private staminaRegenDelay: number = 5000; // Delay before regen starts (5 seconds)
+  private staminaRegenTimer: Phaser.Time.TimerEvent | null = null;
+  private staminaSaveTimer: Phaser.Time.TimerEvent | null = null; // Timer to save stamina to Firestore
+  
   // UI Elements
   private playerTitle?: Phaser.GameObjects.Text;
   private titleAura?: Phaser.GameObjects.Group;
   private playerNameText?: Phaser.GameObjects.Text;
   private playerGlow?: Phaser.GameObjects.Sprite;
-  
+  private staminaBar?: Phaser.GameObjects.Graphics;
+  private staminaText?: Phaser.GameObjects.Text;
+  private staminaLowText?: Phaser.GameObjects.Text;
+
   private static instance: PlayerManager;
 
   private constructor(scene: Phaser.Scene, config: PlayerConfig) {
@@ -51,7 +64,7 @@ export default class PlayerManager {
   /**
    * Initialize the player sprite and set up basic properties
    */
-  public initializePlayer(): Phaser.Physics.Arcade.Sprite {
+  public async initializePlayer(): Promise<Phaser.Physics.Arcade.Sprite> {
     console.log('👤 PlayerManager: Initializing player...');
     
     const playerTexture = `player_${this.config.selectedCharacter}_walk_1`;
@@ -73,6 +86,15 @@ export default class PlayerManager {
     
     // Set up camera to follow player
     this.scene.cameras.main.startFollow(this.player);
+    
+    // Load stamina data from Firestore
+    await this.loadStaminaData();
+    
+    // Create stamina bar UI
+    this.createStaminaBar();
+    
+    // Start the stamina save timer
+    this.startStaminaSaveTimer();
     
     console.log('✅ PlayerManager: Player initialized successfully');
     return this.player;
@@ -182,8 +204,34 @@ export default class PlayerManager {
       let velocityX = 0;
       let velocityY = 0;
       
-      // Determine current speed (normal or boosted)
-      const currentSpeed = this.isSpeedBoostActive ? this.config.speed * 2 : this.config.speed;
+      // Check if player can move based on stamina before calculating speed
+      const canMove = this.canMove();
+      
+      // Calculate base speed with stamina reduction
+      let currentSpeed = this.baseSpeed;
+      
+      // Apply stamina-based speed reduction based on exact specifications:
+      // 50-100% stamina: Normal speed
+      // 25-50% stamina: 50% speed (half speed)
+      // 0-25% stamina: 25% speed (quarter speed)
+      // 0% stamina: Player unable to move
+      const staminaPercent = this.currentStamina / this.maxStamina;
+      if (staminaPercent <= 0) {
+        // Player cannot move when stamina is depleted
+        currentSpeed = 0;
+      } else if (staminaPercent <= 0.25) {
+        // 25% speed when stamina is 0-25%
+        currentSpeed *= 0.25;
+      } else if (staminaPercent <= 0.5) {
+        // 50% speed when stamina is 25-50%
+        currentSpeed *= 0.5;
+      }
+      // Full speed when stamina is above 50%
+      
+      // Apply speed boost if active (doubles the current speed)
+      if (this.isSpeedBoostActive) {
+        currentSpeed *= 2;
+      }
 
       // Handle arrow keys
       if (cursors) {
@@ -201,11 +249,36 @@ export default class PlayerManager {
         if (wasd.down?.isDown) velocityY = currentSpeed;
       }
 
-      // Apply velocity
-      this.player.setVelocity(velocityX, velocityY);
+      // Apply velocity only if player can move
+      if (canMove) {
+        this.player.setVelocity(velocityX, velocityY);
+      }
+
+      // Handle stamina - drain if player is trying to move, regen if idle
+      // Even if player can't move, we still need to handle the regeneration logic
+      if (velocityX !== 0 || velocityY !== 0) {
+        // Player is trying to move - drain stamina if they can move
+        if (canMove) {
+          this.drainStamina();
+        }
+        
+        // Cancel regen timer if it exists
+        if (this.staminaRegenTimer) {
+          this.staminaRegenTimer.remove();
+          this.staminaRegenTimer = null;
+        }
+      } else {
+        // Player is idle - start regen timer if not already running
+        if (!this.staminaRegenTimer) {
+          this.staminaRegenTimer = this.scene.time.delayedCall(this.staminaRegenDelay, () => {
+            this.startStaminaRegen();
+            this.staminaRegenTimer = null;
+          });
+        }
+      }
 
       // Determine direction and play appropriate animation
-      if (velocityX !== 0 || velocityY !== 0) {
+      if (canMove && (velocityX !== 0 || velocityY !== 0)) {
         // Moving - determine direction
         if (Math.abs(velocityX) > Math.abs(velocityY)) {
           // Horizontal movement
@@ -227,8 +300,12 @@ export default class PlayerManager {
 
   // Add method to activate speed boost
   public activateSpeedBoost(): void {
-    this.isSpeedBoostActive = true;
-    console.log('PlayerManager: Speed boost activated');
+    if (this.currentStamina > 10) { // Need minimum stamina to activate
+      this.isSpeedBoostActive = true;
+      console.log('PlayerManager: Speed boost activated');
+    } else {
+      console.log('PlayerManager: Not enough stamina for speed boost');
+    }
   }
 
   // Add method to deactivate speed boost
@@ -242,9 +319,17 @@ export default class PlayerManager {
     return this.isSpeedBoostActive;
   }
   
+  // Add method to check if speed boost should be active based on speed
+  public shouldSpeedBoostBeActive(): boolean {
+    // Speed boost is active when current speed is double the base speed
+    return this.config.speed > this.baseSpeed * 1.5; // Using 1.5 as a threshold to account for floating point precision
+  }
+  
   // Add method to set player speed (for external control)
   public setPlayerSpeed(speed: number): void {
     this.config.speed = speed;
+    // Update the speed boost active flag based on the new speed
+    this.isSpeedBoostActive = this.shouldSpeedBoostBeActive();
   }
 
   // Add method to get current player speed
@@ -260,6 +345,175 @@ export default class PlayerManager {
   // Add method to set base speed
   public setBaseSpeed(speed: number): void {
     this.baseSpeed = speed;
+  }
+
+  // === STAMINA SYSTEM METHODS ===
+
+  /**
+   * Update the visual stamina bar display
+   */
+  private updateStaminaBar(): void {
+    if (!this.staminaBar || !this.staminaText) return;
+    
+    const width = 50;
+    const height = 8;
+    const x = -width / 2; // Center the bar horizontally
+    const y = -height / 2; // Center the bar vertically
+    
+    // Clear previous fill
+    this.staminaBar.clear();
+    
+    // Background
+    this.staminaBar.fillStyle(0x333333, 0.8);
+    this.staminaBar.fillRoundedRect(x, y, width, height, 3);
+    
+    // Stamina fill - change color based on stamina level
+    let fillColor: number;
+    const staminaPercent = this.currentStamina / this.maxStamina;
+    
+    if (staminaPercent > 0.5) {
+      fillColor = 0x00ff00; // Green
+    } else if (staminaPercent > 0.25) {
+      fillColor = 0xffff00; // Yellow
+    } else {
+      fillColor = 0xff0000; // Red
+    }
+    
+    const fillWidth = Math.max(0, (this.currentStamina / this.maxStamina) * (width - 2));
+    this.staminaBar.fillStyle(fillColor, 0.8);
+    this.staminaBar.fillRoundedRect(x + 1, y + 1, fillWidth, height - 2, 2);
+    
+    // Border
+    this.staminaBar.lineStyle(1, 0xffffff, 1);
+    this.staminaBar.strokeRoundedRect(x, y, width, height, 3);
+    
+    // Update text
+    this.staminaText.setText(`${Math.floor(this.currentStamina)}/${this.maxStamina}`);
+  }
+
+  /**
+   * Drain stamina while player is moving
+   */
+  private drainStamina(): void {
+    // Higher drain rate when speed boost is active
+    const drainRate = this.isSpeedBoostActive ? this.staminaDrainRate * 2 : this.staminaDrainRate;
+    const drainAmount = drainRate * (1/60); // Assuming 60 FPS
+    
+    this.currentStamina = Math.max(0, this.currentStamina - drainAmount);
+    this.updateStaminaBar();
+    
+    // Save stamina data when it changes significantly
+    if (this.currentStamina % 10 === 0) { // Save every 10 points
+      this.saveStaminaData();
+    }
+  }
+
+  /**
+   * Start regenerating stamina when player is idle
+   */
+  private startStaminaRegen(): void {
+    if (this.currentStamina >= this.maxStamina) return;
+    
+    // Add 1 point every 5 seconds
+    this.currentStamina = Math.min(this.maxStamina, this.currentStamina + this.staminaRegenRate);
+    this.updateStaminaBar();
+    
+    // Save stamina data when it changes significantly
+    if (this.currentStamina % 10 === 0) { // Save every 10 points
+      this.saveStaminaData();
+    }
+  }
+
+  /**
+   * Deduct stamina for NPC interaction
+   */
+  public deductStaminaForInteraction(): void {
+    this.currentStamina = Math.max(0, this.currentStamina - 10);
+    this.updateStaminaBar();
+    
+    // Save stamina data after interaction
+    this.saveStaminaData();
+    
+    // Cancel regen timer and restart
+    if (this.staminaRegenTimer) {
+      this.staminaRegenTimer.remove();
+      this.staminaRegenTimer = null;
+    }
+    
+    this.staminaRegenTimer = this.scene.time.delayedCall(this.staminaRegenDelay, () => {
+      this.startStaminaRegen();
+      this.staminaRegenTimer = null;
+    });
+  }
+
+  /**
+   * Get current stamina value
+   */
+  public getCurrentStamina(): number {
+    return this.currentStamina;
+  }
+
+  /**
+   * Get maximum stamina value
+   */
+  public getMaxStamina(): number {
+    return this.maxStamina;
+  }
+
+  /**
+   * Check if stamina is depleted
+   */
+  public isStaminaDepleted(): boolean {
+    return this.currentStamina <= 0;
+  }
+
+  /**
+   * Check if player can move (has enough stamina)
+   */
+  public canMove(): boolean {
+    // Player cannot move when stamina is completely depleted (0%)
+    // Player can only move again when stamina recovers to at least 25% (25 points)
+    if (this.currentStamina <= 0) {
+      return this.currentStamina >= 25;
+    }
+    return true;
+  }
+
+  /**
+   * Create the stamina bar UI display
+   */
+  public createStaminaBar(): void {
+    // Create stamina bar as a graphics object positioned under the player
+    this.staminaBar = this.scene.add.graphics();
+    this.staminaBar.setPosition(this.player.x, this.player.y + 45); // Position under the player
+    this.staminaBar.setDepth(100); // Same depth as other player UI elements
+    
+    // Create stamina text with black outline like player name
+    this.staminaText = this.scene.add.text(this.player.x, this.player.y + 49, 
+      `${Math.floor(this.currentStamina)}/${this.maxStamina}`, {
+        fontSize: '8px',
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2
+      })
+      .setOrigin(0.5)
+      .setDepth(101);
+      
+    // Create stamina low text (initially hidden)
+    this.staminaLowText = this.scene.add.text(this.player.x, this.player.y + 57,
+      'Stamina Low to Interact', {
+        fontSize: '10px', // Increased from 8px to 10px
+        color: '#ff0000', // Red color
+        fontStyle: 'bold',
+        stroke: '#ffffff', // Changed from dark red to white
+        strokeThickness: 2
+      })
+      .setOrigin(0.5)
+      .setDepth(102)
+      .setVisible(false); // Initially hidden
+      
+    this.updateStaminaBar();
   }
 
   /**
@@ -473,6 +727,18 @@ export default class PlayerManager {
         console.warn('⚠️ PlayerManager: Error positioning player glow', e);
       }
     }
+
+    // Update stamina bar position (positioned directly under the player, like the glow)
+    if (this.staminaBar && this.player) {
+      this.staminaBar.setPosition(this.player.x, this.player.y + 45);
+    }
+    if (this.staminaText && this.player) {
+      this.staminaText.setPosition(this.player.x, this.player.y + 49);
+    }
+    // Update stamina low text position
+    if (this.staminaLowText && this.player) {
+      this.staminaLowText.setPosition(this.player.x, this.player.y + 57);
+    }
   }
 
   /**
@@ -481,6 +747,98 @@ export default class PlayerManager {
   public refreshPlayerDepth(): void {
     console.log('🔄 PlayerManager: Manually refreshing player depth...');
     this.setPlayerDepth();
+  }
+
+  /**
+   * Load player stamina data from Firestore
+   */
+  public async loadStaminaData(): Promise<void> {
+    const userStr = localStorage.getItem('quiztal-player');
+    if (!userStr) {
+      console.log('ℹ️ PlayerManager: No user data found for stamina loading');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      if (!user?.uid) {
+        console.warn('⚠️ PlayerManager: No user UID found for stamina loading');
+        return;
+      }
+
+      // Load stamina data from Firestore
+      const staminaData = await loadPlayerStaminaData(user.uid);
+      
+      if (staminaData) {
+        // Check if the saved stamina data is recent (within 1 hour)
+        const oneHourAgo = Date.now() - (60 * 60 * 1000);
+        if (staminaData.lastUpdated > oneHourAgo) {
+          this.currentStamina = Math.max(0, Math.min(this.maxStamina, staminaData.currentStamina));
+          console.log(`✅ PlayerManager: Loaded stamina data: ${this.currentStamina}`);
+        } else {
+          console.log('ℹ️ PlayerManager: Stamina data is too old, using default values');
+        }
+      } else {
+        console.log('ℹ️ PlayerManager: No stamina data found, using default values');
+      }
+      
+      // Update the stamina bar display
+      this.updateStaminaBar();
+    } catch (error) {
+      console.error('❌ PlayerManager: Error loading stamina data:', error);
+    }
+  }
+
+  /**
+   * Save player stamina data to Firestore
+   */
+  public async saveStaminaData(): Promise<void> {
+    // Don't save if stamina is at maximum (to reduce unnecessary writes)
+    if (this.currentStamina >= this.maxStamina) {
+      return;
+    }
+
+    const userStr = localStorage.getItem('quiztal-player');
+    if (!userStr) {
+      console.log('ℹ️ PlayerManager: No user data found for stamina saving');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      if (!user?.uid) {
+        console.warn('⚠️ PlayerManager: No user UID found for stamina saving');
+        return;
+      }
+
+      // Save stamina data to Firestore
+      await savePlayerStaminaData(user.uid, {
+        currentStamina: this.currentStamina,
+        lastUpdated: Date.now()
+      });
+      
+      console.log(`✅ PlayerManager: Saved stamina data: ${this.currentStamina}`);
+    } catch (error) {
+      console.error('❌ PlayerManager: Error saving stamina data:', error);
+    }
+  }
+
+  /**
+   * Start the stamina save timer
+   */
+  private startStaminaSaveTimer(): void {
+    // Clear existing timer if it exists
+    if (this.staminaSaveTimer) {
+      this.staminaSaveTimer.remove();
+      this.staminaSaveTimer = null;
+    }
+    
+    // Save stamina every 30 seconds
+    this.staminaSaveTimer = this.scene.time.delayedCall(30000, () => {
+      this.saveStaminaData();
+      // Restart the timer
+      this.startStaminaSaveTimer();
+    });
   }
 
   /**
@@ -686,6 +1044,79 @@ export default class PlayerManager {
     ).setOrigin(0.5).setDepth(TITLE_DEPTH);
     
     console.log(`✅ PlayerManager: Player title created with depth ${TITLE_DEPTH}`);
+  }
+
+  /**
+   * Show "Stamina Low" visual feedback
+   */
+  public showStaminaLowFeedback(): void {
+    if (!this.staminaLowText) return;
+    
+    // Show the text
+    this.staminaLowText.setVisible(true);
+    
+    // Flash animation
+    this.scene.tweens.add({
+      targets: this.staminaLowText,
+      alpha: 0.3,
+      duration: 300,
+      yoyo: true,
+      repeat: 3,
+      onComplete: () => {
+        // Hide after animation completes
+        this.staminaLowText?.setVisible(false);
+        // Reset alpha
+        if (this.staminaLowText) {
+          this.staminaLowText.alpha = 1;
+        }
+      }
+    });
+  }
+
+  /**
+   * Show "No Gift Box to Collect" visual feedback
+   */
+  public showNoGiftBoxFeedback(): void {
+    if (!this.staminaLowText) return;
+    
+    // Temporarily change text properties for "No Gift Box to Collect" message
+    this.staminaLowText.setText('No Gift Box to Collect');
+    this.staminaLowText.setStyle({
+      fontSize: '10px',
+      color: '#0000ff', // Blue color
+      fontStyle: 'bold',
+      stroke: '#ffffff', // White border
+      strokeThickness: 2
+    });
+    
+    // Show the text
+    this.staminaLowText.setVisible(true);
+    
+    // Flash animation
+    this.scene.tweens.add({
+      targets: this.staminaLowText,
+      alpha: 0.3,
+      duration: 300,
+      yoyo: true,
+      repeat: 3,
+      onComplete: () => {
+        // Hide after animation completes
+        this.staminaLowText?.setVisible(false);
+        // Reset text and style for next "Stamina Low" message
+        if (this.staminaLowText) {
+          this.staminaLowText.setText('Stamina Low to Interact');
+          this.staminaLowText.setStyle({
+            fontSize: '10px',
+            color: '#ff0000', // Red color
+            fontStyle: 'bold',
+            stroke: '#ffffff', // White border
+            strokeThickness: 2
+          });
+          // Reset alpha
+          this.staminaLowText.alpha = 1;
+        }
+      }
+    });
   }
 
   /**

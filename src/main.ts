@@ -1,5 +1,6 @@
 //main.ts
 import Phaser from "phaser";
+import SplashScene from "./scenes/SplashScene";
 import BootScene from "./scenes/BootScene";
 import CharacterSelectionScene from "./scenes/CharacterSelectionScene";
 // WalletVerificationScene removed from game flow
@@ -58,6 +59,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   scene: [
+    SplashScene,
     BootScene,
     GoogleLoginScene,
     // WalletVerificationScene removed from game flow

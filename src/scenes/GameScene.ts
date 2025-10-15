@@ -87,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
     this.setupWorldAndPhysics();
 
     // 4. Initialize player
-    this.initializePlayer();
+    await this.initializePlayer();
 
     // 5. Initialize NPCs
     this.initializeNPCs();
@@ -168,7 +168,7 @@ export default class GameScene extends Phaser.Scene {
     this.physicsManager.initializePhysicsWorld(map, tileset);
   }
 
-  private initializePlayer(): void {
+  private async initializePlayer(): Promise<void> {
     console.log('👤 GameScene: Initializing player...');
 
     const playerConfig = {
@@ -178,7 +178,7 @@ export default class GameScene extends Phaser.Scene {
     };
 
     this.playerManager = PlayerManager.getInstance(this, playerConfig);
-    this.player = this.playerManager.initializePlayer();
+    this.player = await this.playerManager.initializePlayer();
 
     // Set up player controls and animations
     this.playerManager.setupMovementControls();
@@ -744,6 +744,12 @@ export default class GameScene extends Phaser.Scene {
   private activateSpeedBoost(): void {
     console.log('N key pressed - activating speed boost');
     
+    // Check if player has enough stamina for speed boost (minimum 10 stamina)
+    if (this.playerManager && this.playerManager.getCurrentStamina() < 10) {
+      console.log('Not enough stamina for speed boost');
+      return;
+    }
+    
     // If speed boost is already active, do nothing
     if (this.isSpeedBoostActive) {
       console.log('Speed boost already active');
@@ -757,8 +763,6 @@ export default class GameScene extends Phaser.Scene {
     // Activate speed boost in PlayerManager
     if (this.playerManager) {
       this.playerManager.activateSpeedBoost();
-      // Double the player's speed
-      this.playerManager.setPlayerSpeed(this.playerManager.getBaseSpeed() * 2);
     }
     
     // Show visual feedback
@@ -782,8 +786,6 @@ export default class GameScene extends Phaser.Scene {
     // Deactivate speed boost in PlayerManager
     if (this.playerManager) {
       this.playerManager.deactivateSpeedBoost();
-      // Reset player speed to base speed
-      this.playerManager.setPlayerSpeed(this.playerManager.getBaseSpeed());
     }
     
     // Hide visual feedback

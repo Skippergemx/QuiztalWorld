@@ -107,6 +107,24 @@ export async function saveMoblinGiftBoxData(playerId: string, giftBoxData: { cou
 }
 
 /**
+ * Save player stamina data to Firestore
+ * @param playerId The player's unique ID
+ * @param staminaData The stamina data to save
+ */
+export async function savePlayerStaminaData(playerId: string, staminaData: { currentStamina: number; lastUpdated: number }) {
+  try {
+    const playerRef = doc(db, "players", playerId);
+    await setDoc(playerRef, {
+      stamina: staminaData
+    }, { merge: true });
+
+  } catch (error) {
+    console.error("❌ Error saving player stamina data:", error);
+    throw error;
+  }
+}
+
+/**
  * Load moblin gift box data from Firestore
  * @param playerId The player's unique ID
  * @returns The gift box data or null if not found
@@ -123,6 +141,27 @@ export async function loadMoblinGiftBoxData(playerId: string) {
     return null;
   } catch (error) {
     console.error("❌ Error loading moblin gift box data:", error);
+    return null;
+  }
+}
+
+/**
+ * Load player stamina data from Firestore
+ * @param playerId The player's unique ID
+ * @returns The stamina data or null if not found
+ */
+export async function loadPlayerStaminaData(playerId: string) {
+  try {
+    const playerRef = doc(db, "players", playerId);
+    const playerDoc = await getDoc(playerRef);
+
+    if (playerDoc.exists()) {
+      const playerData = playerDoc.data();
+      return playerData.stamina || null;
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Error loading player stamina data:", error);
     return null;
   }
 }

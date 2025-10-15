@@ -186,6 +186,38 @@ export default class PetManager {
     );
 
     if (distanceToMoblin <= this.config.interactionRange) {
+      // Check if there are gift boxes to collect first
+      if (this.moblin && this.moblin.getGiftBoxCount() <= 0) {
+        console.log('❌ PetManager: No gift boxes to collect');
+        // Show UI feedback to player about no gift boxes
+        const gameScene = this.scene.scene.get('GameScene') as any;
+        if (gameScene && gameScene.playerManager) {
+          const playerManager = gameScene.playerManager;
+          if (typeof playerManager.showNoGiftBoxFeedback === 'function') {
+            playerManager.showNoGiftBoxFeedback();
+          }
+        }
+        return false;
+      }
+      
+      // Check if player has enough stamina to interact (minimum 10 points)
+      const gameScene = this.scene.scene.get('GameScene') as any;
+      if (gameScene && gameScene.playerManager) {
+        const playerManager = gameScene.playerManager;
+        const currentStamina = playerManager.getCurrentStamina();
+        if (currentStamina < 10) {
+          console.log('❌ PetManager: Not enough stamina to collect gift boxes (minimum 10 required)');
+          // Show UI feedback to player about insufficient stamina
+          if (typeof playerManager.showStaminaLowFeedback === 'function') {
+            playerManager.showStaminaLowFeedback();
+          }
+          return false;
+        }
+        
+        // Deduct stamina for interaction
+        playerManager.deductStaminaForInteraction();
+      }
+
       console.log('🎁 PetManager: Triggering Moblin gift box collection');
       await this.interactWithMoblin();
       return true;

@@ -315,6 +315,25 @@ export default class NPCManager {
     });
 
     if (closestNPC) {
+      // Check if player has enough stamina to interact (minimum 10 points)
+      const playerManager = (this.scene as any).playerManager;
+      if (playerManager && typeof playerManager.getCurrentStamina === 'function') {
+        const currentStamina = playerManager.getCurrentStamina();
+        if (currentStamina < 10) {
+          console.log('❌ NPCManager: Not enough stamina to interact with NPC (minimum 10 required)');
+          // Show UI feedback to player about insufficient stamina
+          if (typeof playerManager.showStaminaLowFeedback === 'function') {
+            playerManager.showStaminaLowFeedback();
+          }
+          return false;
+        }
+        
+        // Deduct stamina for interaction
+        if (typeof playerManager.deductStaminaForInteraction === 'function') {
+          playerManager.deductStaminaForInteraction();
+        }
+      }
+
       console.log(`🎯 NPCManager: Triggering interaction with ${closestNPC.config.name}`);
       
       // Call the NPC's interact method

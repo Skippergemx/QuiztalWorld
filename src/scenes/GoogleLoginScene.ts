@@ -17,11 +17,12 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     preload() {
-        // Remove Google icon loading
+        // Load the background image
+        this.load.image('login-background', 'assets/ui/splash02.png');
     }
 
     create() {
-        // Create modern animated background with particles
+        // Create background image
         this.createModernBackground();
         
         // Create floating particles for ambiance
@@ -39,18 +40,17 @@ export default class GoogleLoginScene extends Phaser.Scene {
     }
 
     private createModernBackground() {
-        // Create dynamic gradient background
-        this.backgroundGraphics = this.add.graphics();
-        this.updateBackgroundGradient();
+        // Create the background image
+        const background = this.add.image(this.scale.width / 2, this.scale.height / 2, 'login-background');
         
-        // Animate gradient colors
-        this.tweens.add({
-            targets: { hue: 0 },
-            hue: 360,
-            duration: 20000,
-            repeat: -1,
-            onUpdate: () => this.updateBackgroundGradient()
-        });
+        // Scale the background to fit the screen while maintaining aspect ratio
+        const scaleX = this.scale.width / background.width;
+        const scaleY = this.scale.height / background.height;
+        const scale = Math.max(scaleX, scaleY); // Use max to ensure full coverage
+        background.setScale(scale);
+        
+        // Set depth to ensure it's behind other elements
+        background.setDepth(-2);
     }
 
     private updateBackgroundGradient() {
