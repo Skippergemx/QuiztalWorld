@@ -262,11 +262,12 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         this.selectNext.bind(this)
     ) as Phaser.GameObjects.Container;
 
-    // Create confirm button at bottom, accounting for UIScene footer
+    // Position confirm button just below the character display area
+    const characterBottomY = (this.scale.height / 2) + (isMobile ? 120 : 160); // Bottom of character area
     const footerHeight = isMobile ? 30 : 45;
     this.confirmButton = this.createConfirmButton(
         this.scale.width / 2,
-        this.scale.height - footerHeight - (isMobile ? 50 : 70)
+        Math.min(characterBottomY + 50, this.scale.height - footerHeight - 20)
     ) as Phaser.GameObjects.Container;
   }
 
@@ -288,10 +289,11 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         this.scale.height / 2
       );
       
-      // Reposition confirm button, accounting for UIScene footer
+      // Reposition confirm button just below the character display area
+      const characterBottomY = (this.scale.height / 2) + (isMobile ? 120 : 160); // Bottom of character area
       this.confirmButton.setPosition(
         this.scale.width / 2,
-        this.scale.height - footerHeight - (isMobile ? 50 : 70)
+        Math.min(characterBottomY + 50, this.scale.height - footerHeight - 20)
       );
       
       // Add visual feedback

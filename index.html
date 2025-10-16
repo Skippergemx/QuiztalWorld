@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
   <meta name="description" content="QuiztalWorld - An interactive Web3 quiz game in the metaverse">
   <meta name="theme-color" content="#2c3e50">
   
@@ -34,10 +34,12 @@
       padding: 0;
       overflow: hidden;
       background-color: #2c3e50;
-      font-family: Arial, sans-serif;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-overflow-scrolling: touch;
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
+      /* Handle safe areas on iOS */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
     
     /* Prevent zoom on input focus */
@@ -52,20 +54,54 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: #2c3e50;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 9999;
+      /* Handle safe areas */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      box-sizing: border-box;
     }
     
-    /* Loading text */
-    #loading-text {
-      color: #f1c40f;
-      font-size: 24px;
+    /* Loading background image */
+    #loading-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    
+    /* Loading text container - similar to Google login screen */
+    #loading-text-container {
+      background-color: #000000; /* Black background */
+      border: 2px solid #3498db; /* Blue border */
+      border-radius: 16px; /* Large border radius */
+      padding: 30px 40px;
       margin-bottom: 30px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Shadow effect */
       text-align: center;
+      max-width: 90%;
+    }
+    
+    /* Loading text - white large text */
+    #loading-text {
+      color: #ffffff; /* White text */
+      font-size: 28px;
+      font-weight: 600; /* Bold */
+      margin: 0;
+      line-height: 1.4;
+    }
+    
+    /* Loading subtitle */
+    #loading-subtitle {
+      color: #bdc3c7; /* Light gray text */
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 10px;
     }
     
     /* Progress bar container */
@@ -77,33 +113,54 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      border: 3px solid #000000; /* Big black outline */
     }
     
     /* Progress bar */
     #progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #f1c40f, #e67e22);
+      background-color: #f39c12; /* Solid orange */
       border-radius: 10px;
-      transition: width 0.3s ease;
     }
     
     /* Progress percentage */
     #progress-percent {
-      color: #ecf0f1;
+      color: #f39c12; /* Orange text */
       font-size: 16px;
+      font-weight: bold; /* Bold text */
       margin-top: 15px;
+      background-color: #000000; /* Black background */
+      padding: 5px 10px;
+      border-radius: 5px;
+      text-shadow: 
+        -1px -1px 0 #ffffff,  
+         1px -1px 0 #ffffff,
+        -1px  1px 0 #ffffff,
+         1px  1px 0 #ffffff; /* White outline */
     }
     
     /* Hidden class for clean removal for animation */
     .hidden {
       display: none !important;
     }
+    
+    /* iOS specific styles for devices with notches */
+    @supports (padding: max(0px)) {
+      body {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+    }
   </style>
 </head>
 <body>
   <div id="loading-container">
-    <div id="loading-text">Loading Metaverse Quiztal World<br/>Get ready Quiztal Masters</div>
+    <img id="loading-background" src="/assets/ui/splash02.png" alt="Loading background">
+    <div id="loading-text-container">
+      <div id="loading-text">Loading Metaverse Quiztal World</div>
+      <div id="loading-subtitle">Get ready Quiztal Masters</div>
+    </div>
     <div id="progress-container">
       <div id="progress-bar"></div>
     </div>

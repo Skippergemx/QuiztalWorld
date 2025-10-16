@@ -19,13 +19,40 @@ function isMobile(): boolean {
   return isActualMobileDevice();
 }
 
+// Function to get safe area insets for mobile devices (especially iOS)
+function getSafeAreaInsets(): { top: number; bottom: number; left: number; right: number } {
+  // Default values for most devices
+  let insets = { top: 0, bottom: 0, left: 0, right: 0 };
+  
+  // For iOS devices with safe areas (iPhone X and newer)
+  if (isIOS() && window.innerWidth > window.innerHeight) {
+    // Landscape mode on iPhone with notch
+    insets = { top: 0, bottom: 0, left: 44, right: 44 };
+  } else if (isIOS()) {
+    // Portrait mode on iPhone with notch
+    insets = { top: 44, bottom: 34, left: 0, right: 0 };
+  }
+  
+  return insets;
+}
+
+// Function to detect iOS devices
+function isIOS(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
 // Get optimal game dimensions for mobile
 const getGameDimensions = () => {
   const mobile = isMobile();
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
   
   if (mobile) {
+    // Account for safe areas on iOS devices
+    const insets = getSafeAreaInsets();
+    width = width - insets.left - insets.right;
+    height = height - insets.top - insets.bottom;
+    
     // For mobile, ensure minimum playable area
     return {
       width: Math.max(width, 320), // Minimum width for mobile

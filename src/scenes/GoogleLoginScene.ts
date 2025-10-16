@@ -231,7 +231,11 @@ export default class GoogleLoginScene extends Phaser.Scene {
 
     private createLoginCard() {
         const isMobile = this.scale.width < 768;
-        this.loginCard = this.add.container(this.scale.width / 2, this.scale.height * 0.65);
+        // Use a more responsive positioning approach for mobile devices
+        const verticalPosition = isMobile ? 
+            Math.min(this.scale.height * 0.65, this.scale.height - 250) : 
+            this.scale.height * 0.65;
+        this.loginCard = this.add.container(this.scale.width / 2, verticalPosition);
 
         // Modern card background
         const cardWidth = isMobile ? 320 : 400;
@@ -287,11 +291,11 @@ export default class GoogleLoginScene extends Phaser.Scene {
             fontSize: UIHelpers.getResponsiveFontSize(isMobile, '14px')
         }).setOrigin(0.5);
 
-        const buttonText = this.add.text(0, 0, "Continue with Google", {
+        const buttonText = this.add.text(0, 0, "GOOGLE LOGIN", {
             fontSize: UIHelpers.getResponsiveFontSize(isMobile, '16px'),
             fontFamily: modernUITheme.typography.fontFamily.primary,
-            color: modernUITheme.colors.text.inverse,
-            fontStyle: modernUITheme.typography.fontWeight.medium
+            color: '#000000', /* Black text */
+            fontStyle: modernUITheme.typography.fontWeight.bold
         }).setOrigin(0.5);
 
         buttonContainer.add([buttonBg, googleIcon, buttonText]);
@@ -368,9 +372,12 @@ export default class GoogleLoginScene extends Phaser.Scene {
             this.titleContainer.setPosition(this.scale.width / 2, isMobile ? 120 : 150);
         }
         
-        // Reposition login card
+        // Reposition login card with better mobile handling
         if (this.loginCard) {
-            this.loginCard.setPosition(this.scale.width / 2, this.scale.height * 0.65);
+            const verticalPosition = isMobile ? 
+                Math.min(this.scale.height * 0.65, this.scale.height - 250) : 
+                this.scale.height * 0.65;
+            this.loginCard.setPosition(this.scale.width / 2, verticalPosition);
         }
     }
 

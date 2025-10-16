@@ -149,8 +149,7 @@ export default class BootScene extends Phaser.Scene {
         this.load.on('filecomplete-image-button-confirm', updateProgress);
 
         // Load splash image for display after loading
-        this.load.image("splash", "assets/ui/splash.png");
-        this.load.on('filecomplete-image-splash', updateProgress);
+
     }
 
     create() {
@@ -161,65 +160,13 @@ export default class BootScene extends Phaser.Scene {
             (window as any).updateProgress(100);
         }
 
-        // Show splash screen after loading is complete
-        this.showSplashScreen();
-    }
-
-    private showSplashScreen() {
-        console.log("🎨 Displaying Splash Screen...");
-        
-        // Get the game dimensions
-        const { width, height } = this.scale;
-        
-        // Create a black background
-        this.add.rectangle(0, 0, width, height, 0x000000).setOrigin(0);
-        
-        // Check if splash image was loaded successfully
-        if (this.textures.exists("splash")) {
-            // Add the splash image
-            const splash = this.add.image(width / 2, height / 2, "splash");
-            
-            // Scale the splash image to fill the screen while maintaining aspect ratio
-            const scaleX = width / splash.width;
-            const scaleY = height / splash.height;
-            const scale = Math.max(scaleX, scaleY); // Use max to fill the screen
-            splash.setScale(scale);
-            
-            // Fade in the splash screen
-            splash.setAlpha(0);
-            this.tweens.add({
-                targets: splash,
-                alpha: 1,
-                duration: 1000,
-                ease: 'Power2'
-            });
-            
-            // After 3 seconds, fade out and transition to the next scene
-            this.time.delayedCall(3000, () => {
-                this.tweens.add({
-                    targets: splash,
-                    alpha: 0,
-                    duration: 1000,
-                    ease: 'Power2',
-                    onComplete: () => {
-                        console.log("➡️ Transitioning to Character Selection Scene...");
-                        // Hide loading screen
-                        if (typeof window !== 'undefined' && (window as any).hideLoadingScreen) {
-                            (window as any).hideLoadingScreen();
-                        }
-                        // Start the next scene
-                        this.scene.start("CharacterSelectionScene");
-                    }
-                });
-            });
-        } else {
-            console.warn("⚠️ Splash image not found, proceeding to next scene");
-            // Hide loading screen
-            if (typeof window !== 'undefined' && (window as any).hideLoadingScreen) {
-                (window as any).hideLoadingScreen();
-            }
-            // Start the next scene directly
-            this.scene.start("CharacterSelectionScene");
+        // Hide loading screen and go directly to Character Selection Scene
+        console.log("➡️ Transitioning to Character Selection Scene...");
+        // Hide loading screen
+        if (typeof window !== 'undefined' && (window as any).hideLoadingScreen) {
+            (window as any).hideLoadingScreen();
         }
+        // Start the next scene
+        this.scene.start("CharacterSelectionScene");
     }
 }
