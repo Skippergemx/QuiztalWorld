@@ -1,308 +1,398 @@
 {
   "npcId": "walletsafetyfriend",
   "npcName": "Wallet Safety Friend",
-  "theme": "Wallet Safety",
+  "theme": "🛡️ Wallet Safety",
   "description": "A friendly security expert specializing in cryptocurrency wallet safety, best practices, and protection against scams and threats.",
   "questions": [
     {
-      "question": "What is the safest type of wallet for storing large amounts of cryptocurrency?",
+      "question": "Greetings, security seeker.\nWhat is the safest type of wallet for storing large amounts of cryptocurrency?\n🔐",
       "options": [
-        "Hardware wallet (cold storage)",
-        "Mobile wallet app",
-        "Exchange wallet"
+        "Hardware wallet (cold storage) - It's like keeping cash in a bank vault rather than under your mattress! 💰🏦",
+        "Mobile wallet app - That's convenient but risky for large amounts! 📱",
+        "Exchange wallet - That's like leaving your money at a casino - risky! 🎰"
       ],
-      "answer": "Hardware wallet (cold storage)",
-      "explainer": "Hardware wallets store private keys offline on secure chips, protecting large amounts from online threats like hacking and malware."
+      "answer": "Hardware wallet (cold storage) - It's like keeping cash in a bank vault rather than under your mattress! 💰🏦",
+      "explainer": "Hardware wallets store private keys offline on secure chips, protecting large amounts from online threats like hacking and malware. It's like keeping your cash in a bank vault rather than under your mattress - much more secure! 💰🏦"
     },
     {
-      "question": "What should you NEVER do with your seed phrase?",
+      "question": "Welcome, privacy protector.\nWhat should you NEVER do with your seed phrase?\n🚨",
       "options": [
-        "Share it with anyone or store it digitally",
-        "Write it down on paper",
-        "Keep it in a safe place"
+        "Share it with anyone or store it digitally - It's like giving someone all your house keys at once! 🏠🏦",
+        "Write it down on paper - That's actually a good practice! ✍️",
+        "Keep it in a safe place - That's also a good practice! 🗄️"
       ],
-      "answer": "Share it with anyone or store it digitally",
-      "explainer": "Seed phrases are master keys to your wallet. Sharing or storing them digitally exposes your funds to theft and permanent loss."
+      "answer": "Share it with anyone or store it digitally - It's like giving someone all your house keys at once! 🏠🏦",
+      "explainer": "Seed phrases are master keys to your wallet. Sharing or storing them digitally exposes your funds to theft and permanent loss. It's like giving someone the keys to your house, bank account, and safe all at once! 🏠🏦"
     },
     {
-      "question": "What is a seed phrase?",
+      "question": "Hey there, backup expert.\nWhat is a seed phrase?\n🗝️",
       "options": [
-        "A 12-24 word backup phrase that can restore your wallet",
-        "Your wallet password",
-        "Your wallet address"
+        "A 12-24 word backup phrase that can restore your wallet - It's like the master key to your digital kingdom! 👑🗝️",
+        "Your wallet password - That's typically shorter and different! 🔑",
+        "Your wallet address - That's for receiving funds, not backup! 📬"
       ],
-      "answer": "A 12-24 word backup phrase that can restore your wallet",
-      "explainer": "A seed phrase is a human-readable backup that can regenerate all your wallet's private keys and restore complete access to your funds."
+      "answer": "A 12-24 word backup phrase that can restore your wallet - It's like the master key to your digital kingdom! 👑🗝️",
+      "explainer": "A seed phrase is a human-readable backup that can regenerate all your wallet's private keys and restore complete access to your funds. It's like the master key to your entire digital kingdom - keep it safe! 👑🗝️"
     },
     {
-      "question": "How can you identify a phishing website?",
+      "question": "Greetings, phishing preventer.\nHow can you identify a phishing website?\n🎣",
       "options": [
-        "Check the URL carefully for misspellings or wrong domains",
-        "Look at the website design",
-        "Check if it loads quickly"
+        "Check the URL carefully for misspellings or wrong domains - It's like a wolf in sheep's clothing! 🐺🐑",
+        "Look at the website design - Design can be copied too! 🎨",
+        "Check if it loads quickly - Speed doesn't indicate legitimacy! ⚡"
       ],
-      "answer": "Check the URL carefully for misspellings or wrong domains",
-      "explainer": "Phishing sites use similar-looking URLs with subtle misspellings or wrong domains to trick users into entering sensitive information."
+      "answer": "Check the URL carefully for misspellings or wrong domains - It's like a wolf in sheep's clothing! 🐺🐑",
+      "explainer": "Phishing sites use similar-looking URLs with subtle misspellings or wrong domains to trick users into entering sensitive information. It's like a wolf in sheep's clothing - looks real but is actually dangerous! 🐺🐑"
     },
     {
-      "question": "What is two-factor authentication (2FA)?",
+      "question": "Welcome, authentication expert.\nWhat is two-factor authentication (2FA)?\n📲",
       "options": [
-        "An extra security layer requiring a second verification method",
-        "Using two different passwords",
-        "Having two separate wallets"
+        "An extra security layer requiring a second verification method - It's like having both a key and alarm code! 🔐📱",
+        "Using two different passwords - That's not 2FA, it's just multiple passwords! 🔑",
+        "Having two separate wallets - That's redundancy, not authentication! 💼"
       ],
-      "answer": "An extra security layer requiring a second verification method",
-      "explainer": "2FA adds security by requiring something you know (password) plus something you have (phone/token) to access accounts."
+      "answer": "An extra security layer requiring a second verification method - It's like having both a key and alarm code! 🔐📱",
+      "explainer": "2FA adds security by requiring something you know (password) plus something you have (phone/token) to access accounts. It's like having both a key and an alarm code for your house - double protection! 🔐📱"
     },
     {
-      "question": "What should you do before connecting your wallet to a new DApp?",
+      "question": "Hey there, research ranger.\nWhat should you do before connecting your wallet to a new DApp?\n🔍",
       "options": [
-        "Research the DApp and verify its legitimacy",
-        "Connect immediately if it looks good",
-        "Ask friends on social media"
+        "Research the DApp and verify its legitimacy - Don't just trust one source! 📖🔍",
+        "Connect immediately if it looks good - That's risky without verification! 🚨",
+        "Ask friends on social media - That's not reliable verification! 🤷‍♂️"
       ],
-      "answer": "Research the DApp and verify its legitimacy",
-      "explainer": "Research DApps thoroughly - check audits, community feedback, and official sources before connecting to avoid malicious applications."
+      "answer": "Research the DApp and verify its legitimacy - Don't just trust one source! 📖🔍",
+      "explainer": "Research DApps thoroughly - check audits, community feedback, and official sources before connecting to avoid malicious applications. It's like checking reviews on multiple sites before buying a product - don't just trust one source! 📖🔍"
     },
     {
-      "question": "What is a dusting attack?",
+      "question": "Greetings, tracking spotter.\nWhat is a dusting attack?\n💸",
       "options": [
-        "Sending tiny amounts of crypto to track wallet activity",
-        "Stealing large amounts of cryptocurrency",
-        "A type of mining attack"
+        "Sending tiny amounts of crypto to track wallet activity - It's like leaving breadcrumbs to track movements! 🥯👣",
+        "Stealing large amounts of cryptocurrency - That's just theft, not tracking! 🤑",
+        "A type of mining attack - That's a different kind of attack! ⛏️"
       ],
-      "answer": "Sending tiny amounts of crypto to track wallet activity",
-      "explainer": "Dusting attacks send tiny amounts to many wallets to track spending patterns and potentially identify wallet owners for targeted attacks."
+      "answer": "Sending tiny amounts of crypto to track wallet activity - It's like leaving breadcrumbs to track movements! 🥯👣",
+      "explainer": "Dusting attacks send tiny amounts to many wallets to track spending patterns and potentially identify wallet owners for targeted attacks. It's like leaving breadcrumbs to track someone's movements - sneaky! 🥯👣"
     },
     {
-      "question": "Where is the safest place to store your seed phrase?",
+      "question": "Welcome, storage specialist.\nWhere is the safest place to store your seed phrase?\n📜",
       "options": [
-        "Written on paper in a secure physical location",
-        "In your phone's notes app",
-        "In your email drafts"
+        "Written on paper in a secure physical location - It's like keeping documents in a safety deposit box! 🗂️🏦",
+        "In your phone's notes app - That's digital and risky! 📱",
+        "In your email drafts - That's extremely risky! 📧"
       ],
-      "answer": "Written on paper in a secure physical location",
-      "explainer": "Physical paper storage in secure locations prevents digital theft while ensuring you can access your funds when needed."
+      "answer": "Written on paper in a secure physical location - It's like keeping documents in a safety deposit box! 🗂️🏦",
+      "explainer": "Physical paper storage in secure locations prevents digital theft while ensuring you can access your funds when needed. It's like keeping important documents in a safety deposit box - secure and accessible when needed! 🗂️🏦"
     },
     {
-      "question": "What is a hot wallet?",
+      "question": "Hey there, temperature checker.\nWhat is a hot wallet?\n🔥",
       "options": [
-        "A wallet connected to the internet",
-        "A wallet that's physically warm",
-        "A wallet with high transaction fees"
+        "A wallet connected to the internet - It's like keeping cash in your pocket - convenient but risky! 💸⚠️",
+        "A wallet that's physically warm - That's not what makes it 'hot'! 🌡️",
+        "A wallet with high transaction fees - Fees aren't what define it! 💰"
       ],
-      "answer": "A wallet connected to the internet",
-      "explainer": "Hot wallets are internet-connected for easy transactions but are vulnerable to online attacks. Good for small amounts and daily use."
+      "answer": "A wallet connected to the internet - It's like keeping cash in your pocket - convenient but risky! 💸⚠️",
+      "explainer": "Hot wallets are internet-connected for easy transactions but are vulnerable to online attacks. Good for small amounts and daily use. It's like keeping cash in your pocket rather than in a bank - convenient but risky! 💸⚠️"
     },
     {
-      "question": "What is a cold wallet?",
+      "question": "Greetings, cold storage expert.\nWhat is a cold wallet?\n❄️",
       "options": [
-        "A wallet not connected to the internet",
-        "A wallet stored in a refrigerator",
-        "A wallet with frozen funds"
+        "A wallet not connected to the internet - It's like keeping cash in a safe rather than under your mattress! 💰🛡️",
+        "A wallet stored in a refrigerator - That's not what makes it 'cold'! ❄️",
+        "A wallet with frozen funds - Funds aren't actually frozen! 🧊"
       ],
-      "answer": "A wallet not connected to the internet",
-      "explainer": "Cold wallets stay offline to prevent remote attacks, making them ideal for long-term storage of large cryptocurrency amounts."
+      "answer": "A wallet not connected to the internet - It's like keeping cash in a safe rather than under your mattress! 💰🛡️",
+      "explainer": "Cold wallets stay offline to prevent remote attacks, making them ideal for long-term storage of large cryptocurrency amounts. It's like keeping your cash in a safe rather than under your mattress - much more secure! 💰🛡️"
     },
     {
-      "question": "What should you do if someone asks for your private keys?",
+      "question": "Welcome, key keeper.\nWhat should you do if someone asks for your private keys?\n🔐",
       "options": [
-        "Never share them - it's likely a scam",
-        "Share them if they seem trustworthy",
-        "Share them only with official support"
+        "Never share them - it's likely a scam - It's like giving someone your PIN - never share it! 🙅‍♂️💳",
+        "Share them if they seem trustworthy - Trust isn't enough protection! 🤝",
+        "Share them only with official support - Legitimate support never needs your keys! 🚫"
       ],
-      "answer": "Never share them - it's likely a scam",
-      "explainer": "Private keys control your funds completely. No legitimate service ever needs them - sharing means giving away total control of your wallet."
+      "answer": "Never share them - it's likely a scam - It's like giving someone your PIN - never share it! 🙅‍♂️💳",
+      "explainer": "Private keys control your funds completely. No legitimate service ever needs them - sharing means giving away total control of your wallet. It's like giving someone your PIN - never share it with anyone! 🙅‍♂️💳"
     },
     {
-      "question": "What is wallet address poisoning?",
+      "question": "Hey there, address spotter.\nWhat is wallet address poisoning?\nポイズニング",
       "options": [
-        "Creating similar addresses to trick users into sending funds to the wrong place",
-        "Putting malware in wallet software",
-        "Corrupting wallet data files"
+        "Creating similar addresses to trick users into sending funds to the wrong place - It's like a lookalike impostor stealing your mail! 📬🕵️",
+        "Putting malware in wallet software - That's malware, not poisoning! 🦠",
+        "Corrupting wallet data files - That's corruption, not poisoning! 🗑️"
       ],
-      "answer": "Creating similar addresses to trick users into sending funds to the wrong place",
-      "explainer": "Address poisoning uses similar-looking addresses in transaction history to trick users into copying the wrong destination address."
+      "answer": "Creating similar addresses to trick users into sending funds to the wrong place - It's like a lookalike impostor stealing your mail! 📬🕵️",
+      "explainer": "Address poisoning uses similar-looking addresses in transaction history to trick users into copying the wrong destination address. It's like a lookalike impostor trying to steal your mail - be careful! 📬🕵️"
     },
     {
-      "question": "What is the best practice for wallet software updates?",
+      "question": "Greetings, update expert.\nWhat is the best practice for wallet software updates?\n🔄",
       "options": [
-        "Only download updates from official sources",
-        "Update from any website that offers it",
-        "Never update wallet software"
+        "Only download updates from official sources - It's like only getting medicine from a licensed pharmacy! 💊🏥",
+        "Update from any website that offers it - That's risky without verification! 🚨",
+        "Never update wallet software - That's not safe either! 🚫"
       ],
-      "answer": "Only download updates from official sources",
-      "explainer": "Official sources ensure updates are genuine and secure. Fake updates can contain malware designed to steal your cryptocurrency."
+      "answer": "Only download updates from official sources - It's like only getting medicine from a licensed pharmacy! 💊🏥",
+      "explainer": "Official sources ensure updates are genuine and secure. Fake updates can contain malware designed to steal your cryptocurrency. It's like only getting medicine from a licensed pharmacy - don't trust random sources! 💊🏥"
     },
     {
-      "question": "What is a multi-signature (multisig) wallet?",
+      "question": "Welcome, signature specialist.\nWhat is a multi-signature (multisig) wallet?\n🔐",
       "options": [
-        "A wallet requiring multiple signatures to approve transactions",
-        "A wallet that supports multiple cryptocurrencies",
-        "A wallet with multiple addresses"
+        "A wallet requiring multiple signatures to approve transactions - It's like needing multiple keys to open a safe! 🗝️🗝️",
+        "A wallet that supports multiple cryptocurrencies - That's multi-currency, not multisig! 💎",
+        "A wallet with multiple addresses - That's just having multiple addresses! 📬"
       ],
-      "answer": "A wallet requiring multiple signatures to approve transactions",
-      "explainer": "Multisig wallets require approval from multiple parties or devices, adding security layers and preventing single points of failure."
+      "answer": "A wallet requiring multiple signatures to approve transactions - It's like needing multiple keys to open a safe! 🗝️🗝️",
+      "explainer": "Multisig wallets require approval from multiple parties or devices, adding security layers and preventing single points of failure. It's like needing multiple keys to open a safe - extra security! 🗝️🗝️"
     },
     {
-      "question": "What should you check before entering your seed phrase anywhere?",
+      "question": "Hey there, verification expert.\nWhat should you check before entering your seed phrase anywhere?\n🔍",
       "options": [
-        "Verify you're on the official website and it's legitimate",
-        "Make sure your internet is fast",
-        "Check that your device is charged"
+        "Verify you're on the official website and it's legitimate - It's like checking ingredients on food packaging! 📋👀",
+        "Make sure your internet is fast - Speed doesn't indicate legitimacy! ⚡",
+        "Check that your device is charged - That's not related to security! 🔋"
       ],
-      "answer": "Verify you're on the official website and it's legitimate",
-      "explainer": "Always verify website authenticity before entering seed phrases. Fake sites steal this information to access your funds permanently."
+      "answer": "Verify you're on the official website and it's legitimate - It's like checking ingredients on food packaging! 📋👀",
+      "explainer": "Always verify website authenticity before entering seed phrases. Fake sites steal this information to access your funds permanently. It's like checking the ingredients on food packaging - you want to know what you're putting in your body! 📋👀"
     },
     {
-      "question": "What is social engineering in crypto scams?",
+      "question": "Greetings, psychology expert.\nWhat is social engineering in crypto scams?\n🎭",
       "options": [
-        "Manipulating people to reveal sensitive information",
-        "Using social media for legitimate crypto education",
-        "Building social networks for traders"
+        "Manipulating people to reveal sensitive information - It's like a con artist befriending you to gain trust! 💔🕵️",
+        "Using social media for legitimate crypto education - That's education, not manipulation! 📚",
+        "Building social networks for traders - That's networking, not social engineering! 🤝"
       ],
-      "answer": "Manipulating people to reveal sensitive information",
-      "explainer": "Social engineering exploits human psychology to trick people into revealing passwords, keys, or performing actions that compromise security."
+      "answer": "Manipulating people to reveal sensitive information - It's like a con artist befriending you to gain trust! 💔🕵️",
+      "explainer": "Social engineering exploits human psychology to trick people into revealing passwords, keys, or performing actions that compromise security. It's like a con artist who befriends you to gain your trust before stealing from you! 💔🕵️"
     },
     {
-      "question": "What should you do if you suspect your wallet is compromised?",
+      "question": "Welcome, emergency responder.\nWhat should you do if you suspect your wallet is compromised?\n🚨",
       "options": [
-        "Immediately transfer funds to a new secure wallet",
-        "Wait and see what happens",
-        "Change your password only"
+        "Immediately transfer funds to a new secure wallet - It's like evacuating when you smell gas - act quickly! 🏃‍♂️💨",
+        "Wait and see what happens - That's how you lose everything! 🚫",
+        "Change your password only - That's not enough if keys are compromised! 🔐"
       ],
-      "answer": "Immediately transfer funds to a new secure wallet",
-      "explainer": "Act fast when compromised - transfer funds to a new, secure wallet immediately before attackers can drain your original wallet."
+      "answer": "Immediately transfer funds to a new secure wallet - It's like evacuating when you smell gas - act quickly! 🏃‍♂️💨",
+      "explainer": "Act fast when compromised - transfer funds to a new, secure wallet immediately before attackers can drain your original wallet. It's like evacuating a building when you smell gas - act quickly! 🏃‍♂️💨"
     },
     {
-      "question": "What is clipboard malware?",
+      "question": "Hey there, malware spotter.\nWhat is clipboard malware?\n📋",
       "options": [
-        "Malware that replaces copied wallet addresses with attacker's address",
-        "Malware that corrupts clipboard functionality",
-        "Malware that steals clipboard history"
+        "Malware that replaces copied wallet addresses with attacker's address - It's like a sneaky switcheroo artist! 🎩🐰",
+        "Malware that corrupts clipboard functionality - That's just corruption, not theft! 🗑️",
+        "Malware that steals clipboard history - That's invasion of privacy, not theft! 🕵️"
       ],
-      "answer": "Malware that replaces copied wallet addresses with attacker's address",
-      "explainer": "Clipboard malware silently replaces copied addresses with attacker addresses, redirecting your transactions to thieves' wallets."
+      "answer": "Malware that replaces copied wallet addresses with attacker's address - It's like a sneaky switcheroo artist! 🎩🐰",
+      "explainer": "Clipboard malware silently replaces copied addresses with attacker addresses, redirecting your transactions to thieves' wallets. It's like a sneaky switcheroo artist who changes your destination while you're not looking! 🎩🐰"
     },
     {
-      "question": "How often should you backup your wallet?",
+      "question": "Greetings, backup expert.\nHow often should you backup your wallet?\n💾",
       "options": [
-        "Regularly, especially after creating new addresses",
-        "Only once when you first create it",
-        "Never, it's not necessary"
+        "Regularly, especially after creating new addresses - It's like backing up your phone photos! 📸📲",
+        "Only once when you first create it - That's not enough for ongoing security! 🚫",
+        "Never, it's not necessary - That's extremely risky! 🚨"
       ],
-      "answer": "Regularly, especially after creating new addresses",
-      "explainer": "Regular backups ensure you can recover funds if devices fail. New addresses need backing up to prevent permanent fund loss."
+      "answer": "Regularly, especially after creating new addresses - It's like backing up your phone photos! 📸📲",
+      "explainer": "Regular backups ensure you can recover funds if devices fail. New addresses need backing up to prevent permanent fund loss. It's like backing up your phone photos - you don't want to lose precious memories! 📸📲"
     },
     {
-      "question": "What is the difference between a private key and a public key?",
+      "question": "Welcome, key differentiator.\nWhat is the difference between a private key and a public key?\n🗝️",
       "options": [
-        "Private key controls funds, public key receives funds",
-        "They are the same thing",
-        "Public key controls funds, private key receives funds"
+        "Private key controls funds, public key receives funds - It's like the difference between a house key and your address! 🏠📬",
+        "Private key receives funds, public key controls funds - That's backwards! 🔁",
+        "They are exactly the same thing - They're different types of keys! ❌"
       ],
-      "answer": "Private key controls funds, public key receives funds",
-      "explainer": "Private keys sign transactions to spend funds (keep secret), while public keys generate addresses for receiving funds (shareable)."
+      "answer": "Private key controls funds, public key receives funds - It's like the difference between a house key and your address! 🏠📬",
+      "explainer": "Private keys control your funds and must be kept secret, while public keys generate wallet addresses where others can send you cryptocurrency. It's like the difference between your house key (private) and your mailing address (public)! 🏠📬"
     },
     {
-      "question": "What is a paper wallet?",
+      "question": "Hey there, browser safety expert.\nWhat should you do when using public computers or networks?\n公共场所",
       "options": [
-        "A wallet where keys are printed on paper",
-        "A wallet made from recycled materials",
-        "A wallet documentation method"
+        "Never access wallets or enter sensitive information - It's like not sharing your PIN at a public ATM! 🚫🔢",
+        "Use them but be extra careful - That's still risky! ⚠️",
+        "Only check your balance - Even that can be risky! 📊"
       ],
-      "answer": "A wallet where keys are printed on paper",
-      "explainer": "Paper wallets store private keys offline on physical paper, providing cold storage security but requiring careful physical protection."
+      "answer": "Never access wallets or enter sensitive information - It's like not sharing your PIN at a public ATM! 🚫🔢",
+      "explainer": "Public computers and networks are inherently insecure and can be monitored or compromised. Never access wallets or enter sensitive information on them. It's like not sharing your PIN at a public ATM - protect your privacy! 🚫🔢"
     },
     {
-      "question": "What should you verify before making a large transaction?",
+      "question": "Greetings, password protector.\nWhat makes a strong wallet password?\n🔑",
       "options": [
-        "Double-check the recipient address character by character",
-        "Just check the first few characters",
-        "Only check that it looks similar"
+        "Long, complex, and unique with numbers and symbols - It's like a fortress wall that's hard to breach! 🏰",
+        "Easy to remember like '123456' - That's extremely weak! 🚨",
+        "Your birthday or pet's name - That's easily guessable! 🎂"
       ],
-      "answer": "Double-check the recipient address character by character",
-      "explainer": "Verify addresses completely to prevent sending funds to wrong destinations. Crypto transactions are irreversible once confirmed."
+      "answer": "Long, complex, and unique with numbers and symbols - It's like a fortress wall that's hard to breach! 🏰",
+      "explainer": "Strong passwords are long (12+ characters), complex (mix of upper/lowercase, numbers, symbols), and unique to each account. It's like a fortress wall that's hard to breach - the stronger, the better! 🏰"
     },
     {
-      "question": "What is a honeypot in crypto security?",
+      "question": "Welcome, app auditor.\nHow can you verify a wallet app's legitimacy?\n📱",
       "options": [
-        "A fake opportunity designed to trap and identify attackers",
-        "A sweet reward for good security practices",
-        "A type of hardware wallet"
+        "Check official app stores, developer reputation, and community reviews - It's like checking multiple sources before buying! 📖🔍",
+        "Download from any website that looks good - That's risky without verification! 🚨",
+        "Ask friends who haven't used it - That's not reliable verification! 🤷‍♂️"
       ],
-      "answer": "A fake opportunity designed to trap and identify attackers",
-      "explainer": "Security honeypots are intentional traps designed to detect and study attack methods, helping improve overall security measures."
+      "answer": "Check official app stores, developer reputation, and community reviews - It's like checking multiple sources before buying! 📖🔍",
+      "explainer": "Verify wallet apps through official app stores, research developer backgrounds, and read community reviews to ensure legitimacy and security. It's like checking multiple sources before buying a product - don't just trust one source! 📖🔍"
     },
     {
-      "question": "What should you do with old wallet software?",
+      "question": "Hey there, recovery expert.\nWhat should you do if you lose your hardware wallet?\n잃어버린",
       "options": [
-        "Securely delete it after transferring funds to updated wallet",
-        "Keep it as backup forever",
-        "Share it with friends"
+        "Use your seed phrase to restore funds on a new device - It's like having a master key that works anywhere! 🔑",
+        "Panic and buy a new wallet immediately - That's not the solution! 🤯",
+        "Forget about your funds forever - They're recoverable with the seed phrase! 🚫"
       ],
-      "answer": "Securely delete it after transferring funds to updated wallet",
-      "explainer": "Remove old wallet software after safely migrating to prevent security vulnerabilities from outdated, unpatched versions."
+      "answer": "Use your seed phrase to restore funds on a new device - It's like having a master key that works anywhere! 🔑",
+      "explainer": "Seed phrases can restore your entire wallet on any compatible device, making hardware wallet loss recoverable. It's like having a master key that can open all your locks - keep it safe and secret! 🔑"
     },
     {
-      "question": "What is the safest way to generate a new wallet?",
+      "question": "Greetings, transaction tracker.\nWhat should you do with suspicious transaction requests?\n🕵️",
       "options": [
-        "Use official wallet software on a secure, offline device",
-        "Use any online wallet generator",
-        "Ask someone else to create it for you"
+        "Verify independently and never approve blindly - It's like double-checking before signing an important document! ✅",
+        "Approve them quickly if they offer rewards - That's how scams trick you! 🚨",
+        "Ignore them but keep your wallet connected - That's still risky! ⚠️"
       ],
-      "answer": "Use official wallet software on a secure, offline device",
-      "explainer": "Generate wallets offline using official software to ensure randomness isn't compromised and keys aren't exposed to online threats."
+      "answer": "Verify independently and never approve blindly - It's like double-checking before signing an important document! ✅",
+      "explainer": "Always verify transaction details independently before approving, especially unexpected or reward-based requests. It's like double-checking before signing an important document - never sign blindly! ✅"
     },
     {
-      "question": "What is key stretching in wallet security?",
+      "question": "Welcome, security layer expert.\nWhat is the benefit of using multiple wallet types?\n🛡️",
       "options": [
-        "A method to make passwords harder to crack through repeated hashing",
-        "Physically stretching storage devices",
-        "Extending private key length"
+        "Separate funds for different purposes and risk levels - It's like having different bank accounts for different needs! 🏦",
+        "Just to have more wallets - That's not strategic! 🚫",
+        "To confuse potential attackers - That's not the main benefit! 🤔"
       ],
-      "answer": "A method to make passwords harder to crack through repeated hashing",
-      "explainer": "Key stretching uses repeated hashing to slow down brute force attacks, making weak passwords computationally expensive to crack."
+      "answer": "Separate funds for different purposes and risk levels - It's like having different bank accounts for different needs! 🏦",
+      "explainer": "Using multiple wallets separates funds for different purposes (daily use, savings, investments) and risk levels, limiting potential losses. It's like having different bank accounts for different needs - organization reduces risk! 🏦"
     },
     {
-      "question": "What should you do if you receive unexpected crypto in your wallet?",
+      "question": "Hey there, encryption expert.\nWhat is wallet encryption?\n🔒",
       "options": [
-        "Don't interact with it - it might be a scam token",
-        "Immediately try to sell it",
-        "Transfer it to another wallet"
+        "Protecting wallet data with cryptographic keys - It's like putting your valuables in a locked safe! 💎",
+        "Making wallet look fancy - That's just appearance! 🎨",
+        "Speeding up transactions - That's not what encryption does! ⚡"
       ],
-      "answer": "Don't interact with it - it might be a scam token",
-      "explainer": "Unexpected tokens can be scams designed to drain your wallet when you try to interact or trade them. Avoid touching unknown tokens."
+      "answer": "Protecting wallet data with cryptographic keys - It's like putting your valuables in a locked safe! 💎",
+      "explainer": "Wallet encryption protects private keys and data with cryptographic techniques, adding security layers against unauthorized access. It's like putting your valuables in a locked safe - an extra layer of protection! 💎"
     },
     {
-      "question": "What is the most secure way to connect to DeFi protocols?",
+      "question": "Greetings, backup material expert.\nWhat materials are best for storing seed phrases?\n📄",
       "options": [
-        "Use a dedicated wallet with limited funds",
-        "Use your main wallet with all funds",
-        "Use exchange wallets only"
+        "Acid-free paper and permanent ink - It's like preserving important documents for generations! 📜",
+        "Regular paper and pencil - That's not durable enough! 📝",
+        "Digital notes on your phone - That's risky and not offline! 📱"
       ],
-      "answer": "Use a dedicated wallet with limited funds",
-      "explainer": "Dedicated DeFi wallets limit exposure if protocols are compromised, protecting your main holdings from smart contract risks."
+      "answer": "Acid-free paper and permanent ink - It's like preserving important documents for generations! 📜",
+      "explainer": "Acid-free paper and permanent ink ensure seed phrases remain readable for decades without degradation from environmental factors. It's like preserving important documents for generations - quality materials last longer! 📜"
     },
     {
-      "question": "What is deterministic wallet generation?",
+      "question": "Welcome, device security expert.\nWhat should you do with old wallet devices?\n📱",
       "options": [
-        "Creating multiple addresses from a single seed phrase",
-        "Randomly generating wallet addresses",
-        "Using predetermined wallet addresses"
+        "Securely wipe all data before disposal - It's like shredding sensitive documents before throwing them away! 📃",
+        "Sell them with all data intact - That's extremely risky! 🚨",
+        "Just throw them in the trash - That's not secure disposal! 🗑️"
       ],
-      "answer": "Creating multiple addresses from a single seed phrase",
-      "explainer": "Deterministic generation creates unlimited addresses from one seed phrase, enabling easy backup and recovery of multiple addresses."
+      "answer": "Securely wipe all data before disposal - It's like shredding sensitive documents before throwing them away! 📃",
+      "explainer": "Old wallet devices should be securely wiped to remove all sensitive data before disposal or sale to prevent data recovery by malicious actors. It's like shredding sensitive documents before throwing them away - protect your privacy! 📃"
     },
     {
-      "question": "What should you never do when troubleshooting wallet issues?",
+      "question": "Hey there, network navigator.\nWhat is a VPN and why use it with wallets?\n🌐",
       "options": [
-        "Share your seed phrase or private keys with support",
-        "Check official documentation",
-        "Update to the latest software version"
+        "Virtual Private Network for privacy - It's like wearing a disguise in public! 🎭",
+        "Very Powerful Network for faster transactions - That's not what VPN stands for! ⚡",
+        "Vault Protection Network for security - That's not what VPN is! 🛡️"
       ],
-      "answer": "Share your seed phrase or private keys with support",
-      "explainer": "Never share private keys or seed phrases with anyone claiming to be support. This is always a scam attempting to steal your funds."
+      "answer": "Virtual Private Network for privacy - It's like wearing a disguise in public! 🎭",
+      "explainer": "VPNs encrypt internet connections and hide IP addresses, adding privacy when accessing wallets, especially on public networks. It's like wearing a disguise in public - your activities remain private! 🎭"
+    },
+    {
+      "question": "Greetings, biometric expert.\nWhat are biometric wallet security features?\n指纹",
+      "options": [
+        "Fingerprint or face recognition for access - It's like having a bouncer who only lets you in! 🚷",
+        "Using your DNA to generate keys - That's not practical or necessary! 🧬",
+        "Voice recognition for transactions - That's possible but not common! 🎤"
+      ],
+      "answer": "Fingerprint or face recognition for access - It's like having a bouncer who only lets you in! 🚷",
+      "explainer": "Biometric features like fingerprint or face recognition add convenient yet secure authentication methods to wallets, combining something you are with something you know. It's like having a bouncer who only lets you in - personalized security! 🚷"
+    },
+    {
+      "question": "Welcome, emergency planner.\nWhat should be in your wallet security emergency plan?\n应急预案",
+      "options": [
+        "Backup locations, emergency contacts, and recovery procedures - It's like having a fire escape plan! 🚨",
+        "Just hope for the best - That's not a plan! 🚫",
+        "Panic and react when something happens - That's not preparedness! 😱"
+      ],
+      "answer": "Backup locations, emergency contacts, and recovery procedures - It's like having a fire escape plan! 🚨",
+      "explainer": "A security emergency plan includes backup locations for seed phrases, trusted emergency contacts, and step-by-step recovery procedures for different scenarios. It's like having a fire escape plan - preparation saves the day! 🚨"
+    },
+    {
+      "question": "Hey there, update scheduler.\nHow often should you update wallet software?\n📅",
+      "options": [
+        "As soon as official security updates are released - It's like getting vaccines to prevent diseases! 💉",
+        "Only when it's convenient - That might leave you vulnerable! ⚠️",
+        "Never, to avoid breaking things - That's how you get hacked! 🚫"
+      ],
+      "answer": "As soon as official security updates are released - It's like getting vaccines to prevent diseases! 💉",
+      "explainer": "Apply official security updates promptly to protect against newly discovered vulnerabilities and ensure continued security. It's like getting vaccines to prevent diseases - prevention is better than cure! 💉"
+    },
+    {
+      "question": "Greetings, authentication method expert.\nWhat is the most secure 2FA method?\n🔐",
+      "options": [
+        "Hardware security keys like YubiKey - It's like having a physical key that can't be copied! 🔑",
+        "SMS codes - That's vulnerable to SIM swapping! 📱",
+        "Email verification - That's just one factor, not two! 📧"
+      ],
+      "answer": "Hardware security keys like YubiKey - It's like having a physical key that can't be copied! 🔑",
+      "explainer": "Hardware security keys provide the strongest 2FA protection by generating cryptographic signatures that can't be intercepted or replayed. It's like having a physical key that can't be copied - the highest level of security! 🔑"
+    },
+    {
+      "question": "Welcome, password manager expert.\nWhy use a password manager for wallets?\n🔑",
+      "options": [
+        "Generate and store complex unique passwords securely - It's like having a digital vault for all your keys! 🏦",
+        "Remember all your passwords for you - That's just convenience, not security! 🤯",
+        "Share passwords with family members - That's risky for sensitive data! ⚠️"
+      ],
+      "answer": "Generate and store complex unique passwords securely - It's like having a digital vault for all your keys! 🏦",
+      "explainer": "Password managers generate and store complex, unique passwords for each wallet and service, preventing password reuse vulnerabilities while ensuring strong security. It's like having a digital vault for all your keys - organized and secure! 🏦"
+    },
+    {
+      "question": "Hey there, browser extension expert.\nWhat should you know about wallet browser extensions?\n🌐",
+      "options": [
+        "They have access to all your browsing data and should be used carefully - It's like having a roommate who sees everything! 👀",
+        "They're completely safe and can be trusted with everything - That's not true for any extension! 🚫",
+        "They don't need permissions to work properly - That's not how extensions work! ❌"
+      ],
+      "answer": "They have access to all your browsing data and should be used carefully - It's like having a roommate who sees everything! 👀",
+      "explainer": "Wallet browser extensions have broad permissions to interact with websites and can access sensitive browsing data, requiring careful installation and usage practices. It's like having a roommate who sees everything - be selective about who you let in! 👀"
+    },
+    {
+      "question": "Greetings, security audit expert.\nHow often should you review wallet security settings?\n🔍",
+      "options": [
+        "Regularly, at least quarterly - It's like getting regular health checkups! 🏥",
+        "Only when setting up the wallet - That's not enough for ongoing security! 🚫",
+        "Never, if it's working - That's how vulnerabilities are missed! ⚠️"
+      ],
+      "answer": "Regularly, at least quarterly - It's like getting regular health checkups! 🏥",
+      "explainer": "Regular security reviews ensure settings remain optimal, permissions are appropriate, and new security features are enabled. It's like getting regular health checkups - prevention is better than cure! 🏥"
+    },
+    {
+      "question": "Welcome, incident responder.\nWhat should you do if you fall for a crypto scam?\n🚨",
+      "options": [
+        "Document everything, change all passwords, and monitor accounts - It's like calling the police after a break-in! 🚓",
+        "Accept the loss and do nothing - That's not the right approach! 🚫",
+        "Blame everyone except yourself - That's not productive! 😠"
+      ],
+      "answer": "Document everything, change all passwords, and monitor accounts - It's like calling the police after a break-in! 🚓",
+      "explainer": "If scammed, immediately document all details, change passwords on related accounts, enable additional security, and monitor for further suspicious activity. It's like calling the police after a break-in - report it and secure your property! 🚓"
+    },
+    {
+      "question": "Hey there, future planner.\nWhat emerging wallet security trends should you know?\n🔮",
+      "options": [
+        "Multi-party computation and quantum-resistant cryptography - It's like preparing for the next generation of threats! 🚀",
+        "Just keep using the same old methods - That's not forward-thinking! 🚫",
+        "Trust new technologies without research - That's how you get early adopter problems! ⚠️"
+      ],
+      "answer": "Multi-party computation and quantum-resistant cryptography - It's like preparing for the next generation of threats! 🚀",
+      "explainer": "Emerging security technologies like multi-party computation (MPC) and quantum-resistant cryptography offer advanced protection against future threats and computing advances. It's like preparing for the next generation of threats - stay ahead of the curve! 🚀"
     }
   ]
 }

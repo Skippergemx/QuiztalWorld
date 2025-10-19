@@ -5,13 +5,13 @@
   "description": "Learn about the Artizen.fund platform and NFT art ecosystem",
   "questions": [
     {
-      "question": "What is the primary purpose of Artizen.fund?",
+      "question": "Greetings, digital art enthusiast.\nWhat is the primary purpose of Artizen.fund?\n🎨",
       "options": [
-        "To provide a platform for discovering and supporting NFT art projects",
-        "To sell art supplies",
-        "To host art exhibitions"
+        "To provide a platform for discovering and supporting NFT art projects - The art lover's paradise 🖼️",
+        "To sell art supplies - Wrong store, buddy 🎨",
+        "To host art exhibitions - This isn't a physical gallery 🏛️"
       ],
-      "answer": "To provide a platform for discovering and supporting NFT art projects",
+      "answer": "To provide a platform for discovering and supporting NFT art projects - The art lover's paradise 🖼️",
       "explainer": "Artizen.fund connects art enthusiasts with talented NFT artists through discovery, funding, and community support.",
       "feedback": {
         "correct": "Correct! Artizen.fund helps connect art enthusiasts with talented NFT artists.",
@@ -19,13 +19,13 @@
       }
     },
     {
-      "question": "How does Artizen.fund support artists?",
+      "question": "Well met, art supporter.\nHow does Artizen.fund support artists?\n🦸‍♂️",
       "options": [
-        "By offering grants and exposure to a wider audience",
-        "By buying their artwork",
-        "By teaching them traditional art techniques"
+        "By offering grants and exposure to a wider audience - Financial superhero! 💰",
+        "By buying their artwork - Nice try, but not the focus 🎨",
+        "By teaching them traditional art techniques - This is digital art! 💻"
       ],
-      "answer": "By offering grants and exposure to a wider audience",
+      "answer": "By offering grants and exposure to a wider audience - Financial superhero! 💰",
       "explainer": "Artizen.fund provides financial grants and platform visibility to help emerging NFT artists grow their careers.",
       "feedback": {
         "correct": "Exactly! Artizen.fund provides financial support and visibility to talented artists.",
@@ -33,13 +33,13 @@
       }
     },
     {
-      "question": "What type of artwork is primarily featured on Artizen.fund?",
+      "question": "Hello, NFT collector.\nWhat type of artwork is primarily featured on Artizen.fund?\n🖼️",
       "options": [
-        "Sculptures",
-        "NFT art and digital collectibles",
-        "Photography"
+        "NFT art and digital collectibles - The digital renaissance 🖥️",
+        "Sculptures - Wrong dimension, friend 🗿",
+        "Photography - Not quite! 📸"
       ],
-      "answer": "NFT art and digital collectibles",
+      "answer": "NFT art and digital collectibles - The digital renaissance 🖥️",
       "explainer": "Artizen.fund specializes in blockchain-based digital art, NFTs, and collectibles from innovative creators.",
       "feedback": {
         "correct": "Right! The platform specializes in NFT art and digital collectibles.",
@@ -47,13 +47,13 @@
       }
     },
     {
-      "question": "What can users do on Artizen.fund?",
+      "question": "Greetings, digital curator.\nWhat can users do on Artizen.fund?\n🔍",
       "options": [
-        "Discover, support, and collect NFT art",
-        "Create physical art pieces",
-        "Attend in-person art classes"
+        "Discover, support, and collect NFT art - The full art experience! 🎨",
+        "Create physical art pieces - Wrong medium, artist 🎨",
+        "Attend in-person art classes - Not a school, sorry! 📚"
       ],
-      "answer": "Discover, support, and collect NFT art",
+      "answer": "Discover, support, and collect NFT art - The full art experience! 🎨",
       "explainer": "Users can explore curated NFT collections, fund artist projects, and build their own digital art portfolios.",
       "feedback": {
         "correct": "Perfect! Users can discover, support, and collect NFT art on the platform.",
@@ -61,13 +61,13 @@
       }
     },
     {
-      "question": "How does Artizen.fund ensure quality in its featured projects?",
+      "question": "Well met, quality seeker.\nHow does Artizen.fund ensure quality in its featured projects?\n💎",
       "options": [
-        "By having a curation process",
-        "By charging high fees",
-        "By limiting the number of artists"
+        "By having a curation process - Hand-picked excellence! ✨",
+        "By charging high fees - Expensive doesn't mean quality! 💰",
+        "By limiting the number of artists - Exclusivity isn't quality! 🚫"
       ],
-      "answer": "By having a curation process",
+      "answer": "By having a curation process - Hand-picked excellence! ✨",
       "explainer": "Artizen.fund uses careful curation to select high-quality projects and maintain platform standards for excellence.",
       "feedback": {
         "correct": "Exactly! Artizen.fund uses a careful curation process to maintain quality.",

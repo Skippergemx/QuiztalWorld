@@ -4,6 +4,7 @@ import BootScene from "./scenes/BootScene";
 import CharacterSelectionScene from "./scenes/CharacterSelectionScene";
 // WalletVerificationScene removed from game flow
 import GameScene from "./scenes/GameScene";
+import ExplorationScene from "./scenes/ExplorationScene"; // Added ExplorationScene import
 import UIScene from "./scenes/UIScene";
 import GoogleLoginScene from "./scenes/GoogleLoginScene";
 import InventoryScene from "./scenes/InventoryScene";
@@ -90,6 +91,7 @@ const config: Phaser.Types.Core.GameConfig = {
     // WalletVerificationScene removed from game flow
     CharacterSelectionScene,
     GameScene,
+    ExplorationScene, // Added ExplorationScene to scene list
     UIScene,
     InventoryScene,
     TokenClaimScene,

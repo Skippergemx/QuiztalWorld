@@ -27,6 +27,15 @@ interface AudioAssetConfig {
   path: string | string[];
 }
 
+interface MonsterAssetConfig {
+  idleKey: string;
+  idlePath: string;
+  walkKey: string;
+  walkPath: string;
+  frameWidth: number;
+  frameHeight: number;
+}
+
 export default class AssetManager {
   private scene: Phaser.Scene;
   private static instance: AssetManager;
@@ -63,6 +72,9 @@ export default class AssetManager {
     
     // Load NPC assets progressively
     this.loadNPCAssets(isMobile);
+    
+    // Load monster assets
+    this.loadMonsterAssets(isMobile);
   }
 
   /**
@@ -348,6 +360,35 @@ export default class AssetManager {
   }
 
   /**
+   * Load monster-related assets
+   */
+  private loadMonsterAssets(_isMobile: boolean = false): void {
+    const monsterAssets: MonsterAssetConfig[] = [
+      {
+        idleKey: 'mobster_idle',
+        idlePath: 'assets/monsters/mobster_idle.png',
+        walkKey: 'mobster_walk',
+        walkPath: 'assets/monsters/mobster_walk.png',
+        frameWidth: 32,
+        frameHeight: 53
+      }
+    ];
+
+    // Load monster assets
+    monsterAssets.forEach(asset => {
+      this.scene.load.spritesheet(asset.idleKey, asset.idlePath, {
+        frameWidth: asset.frameWidth,
+        frameHeight: asset.frameHeight
+      });
+
+      this.scene.load.spritesheet(asset.walkKey, asset.walkPath, {
+        frameWidth: asset.frameWidth,
+        frameHeight: asset.frameHeight
+      });
+    });
+  }
+
+  /**
    * Get NPC asset configuration by NPC type
    */
   public getNPCAssetKeys(npcType: string): { avatarKey: string; spriteKey: string } | null {
@@ -391,7 +432,9 @@ export default class AssetManager {
       'moblin-giftbox',
       'bgm',
       'Correct_Answer',
-      'Wrong_Answer'
+      'Wrong_Answer',
+      'mobster_idle',
+      'mobster_walk'
     ];
 
     return requiredAssets.every(key => this.scene.textures.exists(key) || this.scene.cache.audio.exists(key));
@@ -404,7 +447,8 @@ export default class AssetManager {
     const missingAssets: string[] = [];
     const requiredTextures = [
       'joystick', 'joystick-base', 'button-interact',
-      'moblin_walk', 'moblin_idle'
+      'moblin_walk', 'moblin_idle',
+      'mobster_idle', 'mobster_walk'
     ];
     const requiredAudio = ['moblin-giftbox', 'bgm', 'Correct_Answer', 'Wrong_Answer'];
 

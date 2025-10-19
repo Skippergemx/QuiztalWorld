@@ -18,8 +18,9 @@ export default class MobileControlsManager {
   private joyStick?: Phaser.GameObjects.Image;
   private joyStickBase?: Phaser.GameObjects.Image;
   private interactButton?: Phaser.GameObjects.Image;
-  private speedBoostButton?: Phaser.GameObjects.Image; // New speed boost button
-  
+  private speedBoostButton?: Phaser.GameObjects.Container; // New speed boost button
+  private teleportButton?: Phaser.GameObjects.Container; // New teleport button
+
   // State
   private isMobile: boolean = false;
   private isJoystickActive: boolean = false;
@@ -205,6 +206,7 @@ export default class MobileControlsManager {
     this.createJoystick(screenWidth, screenHeight);
     this.createInteractButton(screenWidth, screenHeight);
     this.createSpeedBoostButton(screenWidth, screenHeight); // Add speed boost button
+    this.createTeleportButton(screenWidth, screenHeight); // Add teleport button
   }
 
   private createJoystick(screenWidth: number, screenHeight: number): void {
@@ -331,6 +333,75 @@ export default class MobileControlsManager {
     this.speedBoostButton = buttonContainer as any; // Type assertion to match expected type
   }
 
+  // Add new method for teleport button
+  private createTeleportButton(screenWidth: number, screenHeight: number): void {
+    // Position teleport button above the speed boost button
+    const buttonX = screenWidth - Math.max(screenWidth * 0.15, 80);
+    const buttonY = screenHeight - Math.max(screenHeight * 0.40, 160); // Moved even higher
+
+    // Create a container for the teleport button
+    const buttonContainer = this.scene.add.container(buttonX, buttonY);
+    
+    // Create button background with gradient effect
+    const buttonBg = this.scene.add.graphics();
+    buttonBg.fillGradientStyle(0x9370DB, 0x9370DB, 0x8A2BE2, 0x8A2BE2, 1); // Purple gradient
+    buttonBg.fillCircle(0, 0, 20 * this.config.buttonScale * 0.7); // Same size as speed boost
+    buttonBg.lineStyle(2, 0x4B0082, 1); // Darker purple border
+    buttonBg.strokeCircle(0, 0, 20 * this.config.buttonScale * 0.7);
+    
+    // Create button text with shadow effect
+    const buttonText = this.scene.add.text(0, 0, 'T', {
+      fontSize: `${18 * this.config.buttonScale * 0.7}px`, // Same size as speed boost
+      color: '#FFFFFF',
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+    
+    // Add elements to container
+    buttonContainer.add([buttonBg, buttonText]);
+    
+    // Make container interactive
+    buttonContainer.setInteractive(new Phaser.Geom.Circle(0, 0, 20 * this.config.buttonScale * 0.7), Phaser.Geom.Circle.Contains);
+    
+    // Set properties
+    buttonContainer.setScrollFactor(0);
+    buttonContainer.setDepth(100);
+    buttonContainer.setAlpha(this.config.buttonAlpha);
+    buttonContainer.setScale(this.config.buttonScale * 0.7); // Same size as speed boost
+    
+    // Add event listeners
+    buttonContainer.on('pointerdown', () => {
+      // Visual feedback on press
+      buttonContainer.setScale(this.config.buttonScale * 0.7 * 0.9);
+      // Trigger teleport
+      this.handleTeleportButtonPress();
+    });
+    
+    buttonContainer.on('pointerup', () => {
+      // Restore scale on release
+      buttonContainer.setScale(this.config.buttonScale * 0.7);
+    });
+    
+    buttonContainer.on('pointerout', () => {
+      // Restore scale if pointer leaves
+      buttonContainer.setScale(this.config.buttonScale * 0.7);
+    });
+    
+    // Add a subtle pulsing animation
+    this.scene.tweens.add({
+      targets: buttonContainer,
+      scale: this.config.buttonScale * 0.7 * 1.1,
+      duration: 1200,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    
+    // Store reference
+    this.teleportButton = buttonContainer as any; // Type assertion to match expected type
+  }
+
   private setupEventListeners(): void {
     if (!this.joyStickBase || !this.interactButton) {
       console.error('❌ MobileControlsManager: UI elements not created');
@@ -349,6 +420,11 @@ export default class MobileControlsManager {
     // Speed boost button events (if created)
     if (this.speedBoostButton) {
       this.speedBoostButton.on('pointerdown', this.handleSpeedBoostButtonPress, this);
+    }
+    
+    // Teleport button events (if created)
+    if (this.teleportButton) {
+      this.teleportButton.on('pointerdown', this.handleTeleportButtonPress, this);
     }
   }
 
@@ -453,14 +529,47 @@ export default class MobileControlsManager {
     }
   }
 
-  // Add new method for speed boost button press
   private handleSpeedBoostButtonPress(): void {
     console.log('📱 MobileControlsManager: Speed boost button pressed');
     
     // Simulate keyboard 'N' key press for speed boost activation
-    const keyEvent = new KeyboardEvent('keydown', { key: 'n' });
+    const keyEvent = new KeyboardEvent('keydown', { key: 'N' });
+    
+    // Trigger the speed boost in the player manager
+    if (this.playerManager && typeof this.playerManager.activateSpeedBoost === 'function') {
+      this.playerManager.activateSpeedBoost();
+    }
+    
+    // Also emit the keyboard event for any listeners
     if (this.scene.input.keyboard) {
       this.scene.input.keyboard.emit('keydown-N', keyEvent);
+    }
+  }
+
+  private handleTeleportButtonPress(): void {
+    console.log('📱 MobileControlsManager: Teleport button pressed');
+    
+    // Get current stamina value to pass to the new scene
+    let currentStamina = 100; // Default value
+    if (this.playerManager) {
+      currentStamina = this.playerManager.getCurrentStamina();
+      // Save current stamina before teleporting
+      this.playerManager.saveStaminaData();
+    }
+    
+    // Determine which scene we're in and teleport accordingly
+    if (this.scene.scene.key === 'GameScene') {
+      // We're in the main game, teleport to field map
+      this.scene.scene.start('ExplorationScene', {
+        selectedCharacter: (this.scene as any).selectedCharacter,
+        currentStamina: currentStamina
+      });
+    } else if (this.scene.scene.key === 'ExplorationScene') {
+      // We're in the exploration scene, teleport back to main game
+      this.scene.scene.start('GameScene', {
+        selectedCharacter: (this.scene as any).selectedCharacter,
+        currentStamina: currentStamina
+      });
     }
   }
 
@@ -520,7 +629,16 @@ export default class MobileControlsManager {
       this.speedBoostButton = undefined;
     }
     
-    this.isJoystickActive = false;
+    // Destroy teleport button if it exists
+    if (this.teleportButton) {
+      this.teleportButton.destroy();
+      this.teleportButton = undefined;
+    }
+    
+    // Remove event listeners
+    this.scene.input.off('pointerdown');
+    this.scene.input.off('pointermove');
+    this.scene.input.off('pointerup');
   }
 
   /**
@@ -586,6 +704,13 @@ export default class MobileControlsManager {
       const speedButtonX = screenWidth - Math.max(screenWidth * 0.15, 80);
       const speedButtonY = screenHeight - Math.max(screenHeight * 0.30, 120); // Smaller and higher position
       this.speedBoostButton.setPosition(speedButtonX, speedButtonY);
+    }
+    
+    // Reposition teleport button if it exists (smaller and higher)
+    if (this.teleportButton) {
+      const teleportButtonX = screenWidth - Math.max(screenWidth * 0.15, 80);
+      const teleportButtonY = screenHeight - Math.max(screenHeight * 0.40, 160); // Smaller and higher position
+      this.teleportButton.setPosition(teleportButtonX, teleportButtonY);
     }
     
     // Add visual feedback during orientation change

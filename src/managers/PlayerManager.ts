@@ -8,6 +8,8 @@ interface PlayerConfig {
   selectedCharacter: string;
   startPosition: { x: number; y: number };
   speed: number;
+  initialStamina?: number; // Add initial stamina parameter
+  isSpeedBoostActive?: boolean; // Add speed boost state parameter
 }
 
 interface MovementControls {
@@ -22,6 +24,9 @@ export default class PlayerManager {
   private controls!: MovementControls;
   private lastDirection: string = 'down';
   
+  // Reference to GameScene for checking system readiness
+  private gameScene: any;
+  
   // Speed boost system
   private isSpeedBoostActive: boolean = false;
   private baseSpeed: number = 160;
@@ -29,9 +34,9 @@ export default class PlayerManager {
   // Stamina system
   private maxStamina: number = 100;
   private currentStamina: number = 100;
-  private staminaRegenRate: number = 1; // 1 point per 5-second interval
+  private staminaRegenRate: number = 1; // 1 point per 3-second interval
   private staminaDrainRate: number = 2; // Points per second while walking
-  private staminaRegenDelay: number = 5000; // Delay before regen starts (5 seconds)
+  private staminaRegenDelay: number = 3000; // Delay before regen starts (3 seconds)
   private staminaRegenTimer: Phaser.Time.TimerEvent | null = null;
   private staminaSaveTimer: Phaser.Time.TimerEvent | null = null; // Timer to save stamina to Firestore
   
@@ -50,6 +55,18 @@ export default class PlayerManager {
     this.scene = scene;
     this.config = config;
     this.baseSpeed = config.speed; // Initialize base speed from config
+    // Store reference to GameScene
+    this.gameScene = scene;
+    
+    // Set initial stamina if provided
+    if (config.initialStamina !== undefined) {
+      this.currentStamina = config.initialStamina;
+    }
+    
+    // Set speed boost state if provided
+    if (config.isSpeedBoostActive !== undefined) {
+      this.isSpeedBoostActive = config.isSpeedBoostActive;
+    }
   }
 
   public static getInstance(scene: Phaser.Scene, config: PlayerConfig): PlayerManager {
@@ -87,8 +104,21 @@ export default class PlayerManager {
     // Set up camera to follow player
     this.scene.cameras.main.startFollow(this.player);
     
-    // Load stamina data from Firestore
-    await this.loadStaminaData();
+    // Load stamina data from Firestore only if no initial stamina is provided
+    if (this.config.initialStamina === undefined) {
+      await this.loadStaminaData();
+    } else {
+      // Use the initial stamina value and update the display
+      this.currentStamina = this.config.initialStamina;
+      this.updateStaminaBar();
+      console.log(`✅ PlayerManager: Using initial stamina value: ${this.currentStamina}`);
+    }
+    
+    // Set speed boost state if provided
+    if (this.config.isSpeedBoostActive !== undefined) {
+      this.isSpeedBoostActive = this.config.isSpeedBoostActive;
+      console.log(`✅ PlayerManager: Using initial speed boost state: ${this.isSpeedBoostActive}`);
+    }
     
     // Create stamina bar UI
     this.createStaminaBar();
@@ -178,6 +208,14 @@ export default class PlayerManager {
     
     // Add safety check for scene and game state
     if (!this.scene || !this.scene.game || !this.scene.game.loop) {
+      return;
+    }
+    
+    // Check if all systems are ready before allowing movement
+    if (this.gameScene && !this.gameScene.systemsReady) {
+      // Systems not ready - prevent movement but keep player idle animation
+      this.player.setVelocity(0, 0);
+      this.player.play(`idle-${this.lastDirection}`, true);
       return;
     }
 
@@ -414,7 +452,7 @@ export default class PlayerManager {
   private startStaminaRegen(): void {
     if (this.currentStamina >= this.maxStamina) return;
     
-    // Add 1 point every 5 seconds
+    // Add 1 point every 3 seconds
     this.currentStamina = Math.min(this.maxStamina, this.currentStamina + this.staminaRegenRate);
     this.updateStaminaBar();
     
@@ -519,7 +557,7 @@ export default class PlayerManager {
   /**
    * Create player title display for NFT holders
    */
-  public async createPlayerTitle(): Promise<void> {
+  public async createPlayerTitle(retryCount: number = 0): Promise<void> {
     console.log('👑 PlayerManager: Creating player title...');
     
     // Check if player title already exists
@@ -530,14 +568,28 @@ export default class PlayerManager {
     
     // Check for player-glow texture
     if (!this.scene.textures.exists('player-glow')) {
-      console.error('❌ PlayerManager: player-glow texture not found!');
-      return;
+      // If texture doesn't exist, retry after a short delay (up to 3 times)
+      if (retryCount < 3) {
+        console.warn(`⚠️ PlayerManager: player-glow texture not found, retrying (${retryCount + 1}/3)...`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return this.createPlayerTitle(retryCount + 1);
+      } else {
+        console.error('❌ PlayerManager: player-glow texture not found after 3 retries!');
+        return;
+      }
     }
 
     const nftsStr = localStorage.getItem('quiztal-nfts');
     if (!nftsStr) {
-      console.log('ℹ️ PlayerManager: No NFTs found, skipping title creation');
-      return;
+      // If NFT data is not available, retry after a short delay (up to 3 times)
+      if (retryCount < 3) {
+        console.warn(`⚠️ PlayerManager: No NFTs found, retrying (${retryCount + 1}/3)...`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return this.createPlayerTitle(retryCount + 1);
+      } else {
+        console.log('ℹ️ PlayerManager: No NFTs found after 3 retries, skipping title creation');
+        return;
+      }
     }
 
     try {
@@ -560,7 +612,14 @@ export default class PlayerManager {
 
       console.log('✅ PlayerManager: Player title created successfully');
     } catch (error) {
-      console.error('❌ PlayerManager: Error creating player title:', error);
+      // If parsing fails, retry after a short delay (up to 3 times)
+      if (retryCount < 3) {
+        console.warn(`⚠️ PlayerManager: Error parsing NFT data, retrying (${retryCount + 1}/3)...`, error);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return this.createPlayerTitle(retryCount + 1);
+      } else {
+        console.error('❌ PlayerManager: Error creating player title after 3 retries:', error);
+      }
     }
   }
 
@@ -679,6 +738,11 @@ export default class PlayerManager {
    * Update player UI elements positions
    */
   public updatePlayerUI(): void {
+    // Check if all systems are ready before updating UI
+    if (this.gameScene && !this.gameScene.systemsReady) {
+      return;
+    }
+    
     if (!this.player || !this.scene) return;
 
     // Update title and aura positions
@@ -688,14 +752,18 @@ export default class PlayerManager {
       
       // Add comprehensive safety check to ensure titleAura is still valid
       try {
+        // Check if titleAura exists and is still active in the scene
         if (this.titleAura && typeof this.titleAura.getChildren === 'function') {
-          const children = this.titleAura.getChildren();
-          if (Array.isArray(children)) {
-            children.forEach(aura => {
-              if (aura && (aura as Phaser.GameObjects.Text).setPosition) {
-                (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
-              }
-            });
+          // Additional check to ensure the group is still valid
+          if (this.titleAura.scene && this.titleAura.scene.children) {
+            const children = this.titleAura.getChildren();
+            if (Array.isArray(children)) {
+              children.forEach(aura => {
+                if (aura && (aura as Phaser.GameObjects.Text).setPosition) {
+                  (aura as Phaser.GameObjects.Text).setPosition(this.player.x, baseY);
+                }
+              });
+            }
           }
         }
       } catch (e) {
@@ -859,7 +927,8 @@ export default class PlayerManager {
     // Refresh aura depths
     if (this.titleAura) {
       try {
-        if (typeof this.titleAura.getChildren === 'function') {
+        // Additional check to ensure the group is still valid
+        if (typeof this.titleAura.getChildren === 'function' && this.titleAura.scene && this.titleAura.scene.children) {
           const children = this.titleAura.getChildren();
           if (Array.isArray(children)) {
             children.forEach((child) => {
@@ -876,6 +945,46 @@ export default class PlayerManager {
     }
     
     console.log('✅ PlayerManager: All title depths refreshed');
+  }
+
+  /**
+   * Manually refresh player title - useful for fixing title rendering issues during teleportation
+   */
+  public async refreshPlayerTitle(): Promise<void> {
+    console.log('🔄 PlayerManager: Manually refreshing player title...');
+    
+    // Clean up existing title elements if they exist
+    if (this.playerTitle) {
+      try {
+        this.playerTitle.destroy();
+        this.playerTitle = undefined;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying existing player title', e);
+      }
+    }
+    
+    if (this.playerGlow) {
+      try {
+        this.playerGlow.destroy();
+        this.playerGlow = undefined;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying existing player glow', e);
+      }
+    }
+    
+    if (this.titleAura) {
+      try {
+        this.titleAura.destroy();
+        this.titleAura = undefined;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying existing title aura', e);
+      }
+    }
+    
+    // Recreate player title
+    await this.createPlayerTitle();
+    
+    console.log('✅ PlayerManager: Player title refreshed');
   }
 
   /**
@@ -897,6 +1006,14 @@ export default class PlayerManager {
    */
   public setPlayerVelocityWithStamina(velocityX: number, velocityY: number): void {
     if (!this.player) return;
+    
+    // Check if all systems are ready before allowing movement
+    if (this.gameScene && !this.gameScene.systemsReady) {
+      // Systems not ready - prevent movement but keep player idle
+      this.player.setVelocity(0, 0);
+      this.player.play(`idle-${this.lastDirection}`, true);
+      return;
+    }
     
     // Check if player can move based on stamina
     const canMove = this.canMove();
@@ -1207,7 +1324,8 @@ export default class PlayerManager {
     const auraDepths = this.titleAura ? 
       (() => {
         try {
-          if (typeof this.titleAura.getChildren === 'function') {
+          // Additional check to ensure the group is still valid
+          if (typeof this.titleAura.getChildren === 'function' && this.titleAura.scene && this.titleAura.scene.children) {
             const children = this.titleAura.getChildren();
             if (Array.isArray(children)) {
               return children.map((child, index) => {
@@ -1279,6 +1397,7 @@ export default class PlayerManager {
     if (this.titleAura) {
       try {
         this.titleAura.destroy();
+        this.titleAura = undefined; // Clear the reference after destruction
       } catch (e) {
         console.warn('⚠️ PlayerManager: Error destroying title aura', e);
       }

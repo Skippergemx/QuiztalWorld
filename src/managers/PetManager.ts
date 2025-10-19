@@ -56,9 +56,35 @@ export default class PetManager {
     this.initializeAudio();
     
     // Delay pet creation to ensure all textures are loaded
-    this.scene.time.delayedCall(100, () => {
+    // Use a more robust approach with retries
+    this.waitForTexturesAndCreatePet();
+  }
+
+  /**
+   * Wait for textures to be loaded and then create pet
+   */
+  private async waitForTexturesAndCreatePet(retryCount: number = 0): Promise<void> {
+    // Check if textures are loaded
+    const texturesLoaded = this.scene.textures.exists('moblin_idle') && this.scene.textures.exists('moblin_walk');
+    
+    if (texturesLoaded) {
+      console.log('🐾 PetManager: Textures loaded, creating pet...');
       this.createPetIfEligible();
-    });
+    } else {
+      // If textures are not loaded, retry after a delay
+      if (retryCount < 5) { // Max 5 retries
+        console.warn(`⚠️ PetManager: Textures not loaded, retrying (${retryCount + 1}/5)...`);
+        this.scene.time.delayedCall(200, () => {
+          this.waitForTexturesAndCreatePet(retryCount + 1);
+        });
+      } else {
+        console.error('❌ PetManager: Textures not loaded after 5 retries, skipping pet creation');
+        // Try one more time with a longer delay
+        this.scene.time.delayedCall(1000, () => {
+          this.createPetIfEligible();
+        });
+      }
+    }
   }
 
   /**
@@ -98,7 +124,7 @@ export default class PetManager {
   /**
    * Create Moblin pet for eligible players
    */
-  private createMoblinPet(): void {
+  private createMoblinPet(retryCount: number = 0): void {
     // Check if a moblin already exists
     if (this.moblin) {
       console.log('ℹ️ PetManager: Moblin already exists, skipping creation');
@@ -107,12 +133,17 @@ export default class PetManager {
     
     // Double-check textures are loaded
     if (!this.scene.textures.exists('moblin_idle') || !this.scene.textures.exists('moblin_walk')) {
-      console.warn('⚠️ PetManager: Moblin textures not loaded, retrying...');
-      
-      // Retry after another delay
-      this.scene.time.delayedCall(500, () => {
-        this.createPetIfEligible();
-      });
+      // If textures are not loaded, retry with exponential backoff
+      if (retryCount < 5) { // Max 5 retries
+        const delay = Math.pow(2, retryCount) * 200; // Exponential backoff: 200, 400, 800, 1600, 3200 ms
+        console.warn(`⚠️ PetManager: Moblin textures not loaded, retrying in ${delay}ms (${retryCount + 1}/5)...`);
+        
+        this.scene.time.delayedCall(delay, () => {
+          this.createMoblinPet(retryCount + 1);
+        });
+      } else {
+        console.error('❌ PetManager: Moblin textures not loaded after 5 retries, skipping pet creation');
+      }
       return;
     }
 
@@ -133,7 +164,17 @@ export default class PetManager {
       
       console.log('✅ PetManager: Moblin pet spawned successfully!');
     } catch (error) {
-      console.error('❌ PetManager: Error creating Moblin pet:', error);
+      // If there's an error creating the pet, retry with exponential backoff
+      if (retryCount < 3) { // Max 3 retries for errors
+        const delay = Math.pow(2, retryCount) * 300; // Exponential backoff: 300, 600, 1200 ms
+        console.warn(`⚠️ PetManager: Error creating Moblin pet, retrying in ${delay}ms (${retryCount + 1}/3)...`, error);
+        
+        this.scene.time.delayedCall(delay, () => {
+          this.createMoblinPet(retryCount + 1);
+        });
+      } else {
+        console.error('❌ PetManager: Error creating Moblin pet after 3 retries:', error);
+      }
     }
   }
 
@@ -508,6 +549,28 @@ export default class PetManager {
     }
     
     this.createPetIfEligible();
+  }
+
+  /**
+   * Refresh pet after teleportation
+   */
+  public refreshPet(): void {
+    console.log('🔄 PetManager: Refreshing pet after teleportation...');
+    
+    // Destroy existing pet if it exists
+    if (this.moblin) {
+      try {
+        this.moblin.destroy();
+        this.moblin = undefined;
+      } catch (e) {
+        console.warn('⚠️ PetManager: Error destroying existing pet', e);
+      }
+    }
+    
+    // Wait a bit for scene to stabilize, then recreate pet
+    this.scene.time.delayedCall(300, () => {
+      this.waitForTexturesAndCreatePet();
+    });
   }
 
   /**

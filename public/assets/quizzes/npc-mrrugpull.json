@@ -5,184 +5,304 @@
   "description": "Quiz questions about rug pulls, scams, and how to protect your web3 assets.",
   "questions": [
     {
-      "question": "What is a rug pull?",
-      "options": ["A type of NFT", "A scam where developers abandon a project", "A blockchain upgrade"],
-      "answer": "A scam where developers abandon a project",
-      "explainer": "Rug pulls are scams where developers create fake projects, attract investors to liquidity pools, then drain all funds and disappear, leaving investors with worthless tokens."
+      "question": "Greetings, security seeker.\nWhat exactly is a rug pull?\n🧼",
+      "options": [
+        "A scam where developers abandon a project - It's like a party where the host suddenly takes all the snacks and leaves! 🎉🍽️",
+        "A type of NFT - That's just a digital collectible, not a scam! 🖼️",
+        "A blockchain upgrade - That's a legitimate improvement, not a scam! 🔧"
+      ],
+      "answer": "A scam where developers abandon a project - It's like a party where the host suddenly takes all the snacks and leaves! 🎉🍽️",
+      "explainer": "Rug pulls are scams where developers create fake projects, attract investors to liquidity pools, then drain all funds and disappear, leaving investors with worthless tokens. It's like a party where the host suddenly takes all the snacks and leaves - very rude! 🎉🍽️"
     },
     {
-      "question": "How can you protect yourself from rug pulls?",
-      "options": ["Never invest in crypto", "Research the team and smart contract", "Send all your crypto to unknown projects"],
-      "answer": "Research the team and smart contract",
-      "explainer": "Research is key: verify team credentials, audit smart contracts for backdoors, check liquidity locks, analyze tokenomics, and look for third-party security audits."
+      "question": "Welcome, protection pro.\nHow can you protect yourself from rug pulls?\n🛡️",
+      "options": [
+        "Research the team and smart contract - It's like doing your homework before buying a used car! 📚🚗",
+        "Never invest in crypto - That's like staying home because you might trip! 🏠",
+        "Send all your crypto to unknown projects - That's the opposite of protection! 🚫"
+      ],
+      "answer": "Research the team and smart contract - It's like doing your homework before buying a used car! 📚🚗",
+      "explainer": "Research is key: verify team credentials, audit smart contracts for backdoors, check liquidity locks, analyze tokenomics, and look for third-party security audits. It's like doing your homework before buying a used car - due diligence saves you from getting scammed! 📚🚗"
     },
     {
-      "question": "What should you never share with anyone?",
-      "options": ["Your favorite crypto", "Your private key or seed phrase", "Your portfolio value"],
-      "answer": "Your private key or seed phrase",
-      "explainer": "Private keys and seed phrases are your wallet's master passwords. Unlike banks, crypto transactions are irreversible - anyone with these credentials has permanent access to all your funds."
+      "question": "Hey there, privacy protector.\nWhat should you never share with anyone?\n🤫",
+      "options": [
+        "Your private key or seed phrase - It's like giving someone all your house keys at once! 🏠🏦",
+        "Your favorite crypto - That's just harmless preference sharing! 💬",
+        "Your portfolio value - That's personal but not dangerous to share! 💰"
+      ],
+      "answer": "Your private key or seed phrase - It's like giving someone all your house keys at once! 🏠🏦",
+      "explainer": "Private keys and seed phrases are your wallet's master passwords. Unlike banks, crypto transactions are irreversible - anyone with these credentials has permanent access to all your funds. Sharing them is like giving someone the keys to your house, bank account, and safe combination all at once! 🏠🏦"
     },
     {
-      "question": "What is a honeypot scam?",
-      "options": ["A type of DeFi yield farm", "A scam where you can't sell your tokens", "A legitimate NFT project"],
-      "answer": "A scam where you can't sell your tokens",
-      "explainer": "Honeypot tokens look legitimate and can be bought easily, but contain hidden smart contract code that prevents selling, trapping investors' funds permanently in their wallets."
+      "question": "Greetings, scam spotter.\nWhat is a honeypot scam?\n🍯",
+      "options": [
+        "A scam where you can't sell your tokens - It's like a beautiful flower that's actually a trap! 🌸🪤",
+        "A type of DeFi yield farm - That's a legitimate way to earn rewards! 🚜",
+        "A legitimate NFT project - That's not a scam at all! ✅"
+      ],
+      "answer": "A scam where you can't sell your tokens - It's like a beautiful flower that's actually a trap! 🌸🪤",
+      "explainer": "Honeypot tokens look legitimate and can be bought easily, but contain hidden smart contract code that prevents selling, trapping investors' funds permanently in their wallets. It's like a beautiful flower that looks inviting but is actually a trap - hence the name 'honeypot'! 🌸🪤"
     },
     {
-      "question": "Why is it important to check smart contract audits?",
-      "options": ["To see the project's logo", "To identify potential security vulnerabilities", "To know the team's favorite color"],
-      "answer": "To identify potential security vulnerabilities",
-      "explainer": "Smart contracts handle real money in irreversible environments. Audits by security experts identify vulnerabilities, logic errors, and backdoors that could lead to permanent fund loss."
+      "question": "Welcome, audit advocate.\nWhy is it important to check smart contract audits?\n🔍",
+      "options": [
+        "To identify potential security vulnerabilities - Better safe than sorry like a home inspection! 🏠🔍",
+        "To see the project's logo - That's just branding, not security! 🎨",
+        "To know the team's favorite color - That's personal preference, not security! 🌈"
+      ],
+      "answer": "To identify potential security vulnerabilities - Better safe than sorry like a home inspection! 🏠🔍",
+      "explainer": "Smart contracts handle real money in irreversible environments. Audits by security experts identify vulnerabilities, logic errors, and backdoors that could lead to permanent fund loss. It's like having a home inspector check for problems before you buy a house - better safe than sorry! 🏠🔍"
     },
     {
-      "question": "What should you do before investing in a new token?",
-      "options": ["Send all your money immediately", "Research the project, team, and contract", "Ask strangers on social media for advice"],
-      "answer": "Research the project, team, and contract",
-      "explainer": "Successful investing requires research: examine whitepapers, verify team backgrounds, audit smart contracts, check community engagement, and start with small amounts you can afford to lose."
+      "question": "Hey there, research expert.\nWhat should you do before investing in a new token?\n📚",
+      "options": [
+        "Research the project, team, and contract - Take it slow like dating! 💘📚",
+        "Send all your money immediately - That's impulsive, not smart! 🤯",
+        "Ask strangers on social media for advice - That's risky, not reliable! 🤷‍♂️"
+      ],
+      "answer": "Research the project, team, and contract - Take it slow like dating! 💘📚",
+      "explainer": "Successful investing requires research: examine whitepapers, verify team backgrounds, audit smart contracts, check community engagement, and start with small amounts you can afford to lose. It's like dating - take it slow, get to know them first, and don't commit everything too quickly! 💘📚"
     },
     {
-      "question": "What is a common sign of a potential scam?",
-      "options": ["Transparent team and code", "Promises of guaranteed high returns", "Regular project updates"],
-      "answer": "Promises of guaranteed high returns",
-      "explainer": "Legitimate investments never guarantee returns due to market risks. Scammers promise unrealistic gains to attract victims, often using Ponzi schemes that inevitably collapse."
+      "question": "Greetings, red flag finder.\nWhat is a common sign of a potential scam?\n🚩",
+      "options": [
+        "Promises of guaranteed high returns - If it sounds too good to be true, it is! 💰🚨",
+        "Transparent team and code - That's actually a good sign! ✅",
+        "Regular project updates - That shows commitment, not scamming! 📈"
+      ],
+      "answer": "Promises of guaranteed high returns - If it sounds too good to be true, it is! 💰🚨",
+      "explainer": "Legitimate investments never guarantee returns due to market risks. Scammers promise unrealistic gains to attract victims, often using Ponzi schemes that inevitably collapse. If it sounds too good to be true, it probably is - like a 'get rich quick' scheme! 💰🚨"
     },
     {
-      "question": "What is phishing in the context of crypto?",
-      "options": ["A type of blockchain", "Tricking users to reveal sensitive information", "A new DeFi protocol"],
-      "answer": "Tricking users to reveal sensitive information",
-      "explainer": "Crypto phishing uses fake websites, fraudulent emails, and urgent security messages to steal private keys and wallet access. Always verify URLs and sources before entering credentials."
+      "question": "Welcome, phishing preventer.\nWhat is phishing in the context of crypto?\n🎣",
+      "options": [
+        "Tricking users to reveal sensitive information - Like a con artist in disguise! 🎭🕵️",
+        "A type of blockchain - That's a technology, not a scam! 🔗",
+        "A new DeFi protocol - That's a legitimate financial tool! 💼"
+      ],
+      "answer": "Tricking users to reveal sensitive information - Like a con artist in disguise! 🎭🕵️",
+      "explainer": "Crypto phishing uses fake websites, fraudulent emails, and urgent security messages to steal private keys and wallet access. It's like a con artist pretending to be someone trustworthy to trick you into giving up your secrets! 🎭🕵️"
     },
     {
-      "question": "Why should you be cautious of projects with anonymous teams?",
-      "options": ["All crypto projects have anonymous teams", "It's impossible to verify their credibility", "They always have the best returns"],
-      "answer": "It's impossible to verify their credibility",
-      "explainer": "Anonymous teams can't be verified for credentials or track records. Without accountability, there's no recourse if problems arise, though some legitimate projects maintain anonymity."
+      "question": "Hey there, credibility checker.\nWhy should you be cautious of projects with anonymous teams?\n🕵️",
+      "options": [
+        "It's impossible to verify their credibility - Like buying from a street vendor with no reviews! 🛍️❓",
+        "All crypto projects have anonymous teams - That's not true, many are transparent! 🤔",
+        "They always have the best returns - That's a dangerous assumption! ⚠️"
+      ],
+      "answer": "It's impossible to verify their credibility - Like buying from a street vendor with no reviews! 🛍️❓",
+      "explainer": "Anonymous teams can't be verified for credentials or track records. Without accountability, there's no recourse if problems arise, though some legitimate projects maintain anonymity. It's like buying from a street vendor with no name or reviews - proceed with caution! 🛍️❓"
     },
     {
-      "question": "What is a good practice for wallet security?",
-      "options": ["Use the same password for everything", "Enable two-factor authentication", "Share your seed phrase with friends"],
-      "answer": "Enable two-factor authentication",
-      "explainer": "2FA requires two authentication factors: password + mobile device/token. Even if passwords are stolen, attackers can't access accounts without the second factor."
+      "question": "Greetings, wallet warrior.\nWhat is a good practice for wallet security?\n🔐",
+      "options": [
+        "Enable two-factor authentication - Double protection like a key and alarm code! 🔐📱",
+        "Use the same password for everything - That's a security nightmare! 🚨",
+        "Share your seed phrase with friends - That's like leaving your house key under the mat! 🚪"
+      ],
+      "answer": "Enable two-factor authentication - Double protection like a key and alarm code! 🔐📱",
+      "explainer": "2FA requires two authentication factors: password + mobile device/token. Even if passwords are stolen, attackers can't access accounts without the second factor. It's like having both a key and an alarm code for your house - double protection! 🔐📱"
     },
     {
-      "question": "What should you do if a project promises unrealistic returns?",
-      "options": ["Invest all your money", "Be suspicious and do more research", "Trust but verify"],
-      "answer": "Be suspicious and do more research",
-      "explainer": "Unrealistic promises are red flags. Research the project's business model, revenue sources, and sustainability. Compare with market norms and verify claims independently."
+      "question": "Welcome, research ranger.\nWhat should you do if a project promises unrealistic returns?\n❓",
+      "options": [
+        "Be suspicious and do more research - Like checking a used car before buying! 🚗💰",
+        "Invest all your money - That's impulsive, not smart! 🤯",
+        "Trust but verify - That's better than blind trust, but still risky! ⚠️"
+      ],
+      "answer": "Be suspicious and do more research - Like checking a used car before buying! 🚗💰",
+      "explainer": "Unrealistic promises are red flags. Research the project's business model, revenue sources, and sustainability. Compare with market norms and verify claims independently. It's like a used car salesman promising a Ferrari for the price of a bicycle - sounds amazing, but probably too good to be true! 🚗💰"
     },
     {
-      "question": "What is a liquidity pool in DeFi?",
-      "options": ["A scam to steal your crypto", "A collection of funds locked in a smart contract", "A type of NFT"],
-      "answer": "A collection of funds locked in a smart contract",
-      "explainer": "Liquidity pools are smart contracts containing token pairs (like ETH/USDC) that enable instant trading. Users trade against pools using automated algorithms that calculate rates."
+      "question": "Hey there, DeFi detective.\nWhat is a liquidity pool in DeFi?\n🏊",
+      "options": [
+        "A collection of funds locked in a smart contract - Like a magical money machine! 💰🔄",
+        "A scam to steal your crypto - That's not what liquidity pools are! 🚫",
+        "A type of NFT - That's a digital collectible, not a pool! 🖼️"
+      ],
+      "answer": "A collection of funds locked in a smart contract - Like a magical money machine! 💰🔄",
+      "explainer": "Liquidity pools are smart contracts containing token pairs (like ETH/USDC) that enable instant trading. Users trade against pools using automated algorithms that calculate rates. It's like a magical money machine that automatically exchanges currencies for you! 💰🔄"
     },
     {
-      "question": "Why is it important to diversify your crypto investments?",
-      "options": ["To put all your eggs in one basket", "To reduce risk exposure", "To guarantee profits"],
-      "answer": "To reduce risk exposure",
-      "explainer": "Diversification reduces risk by spreading investments across different tokens, categories, and strategies. However, crypto markets often move together during major events."
+      "question": "Greetings, diversification expert.\nWhy is it important to diversify your crypto investments?\n🥚",
+      "options": [
+        "To reduce risk exposure - Don't put all your eggs in one basket! 🥚🧺",
+        "To put all your eggs in one basket - That's the opposite of diversification! 🚫",
+        "To guarantee profits - Nothing guarantees profits in crypto! ⚠️"
+      ],
+      "answer": "To reduce risk exposure - Don't put all your eggs in one basket! 🥚🧺",
+      "explainer": "Diversification reduces risk by spreading investments across different tokens, categories, and strategies. However, crypto markets often move together during major events. It's like not putting all your eggs in one basket - if one breaks, you still have others! 🥚🧺"
     },
     {
-      "question": "What should you do if you suspect a scam?",
-      "options": ["Ignore your instincts", "Report it and warn others", "Invest more money to average down"],
-      "answer": "Report it and warn others",
-      "explainer": "Report scams to authorities and warn the community. Include specific details like contract addresses and URLs as evidence to help prevent future victims."
+      "question": "Welcome, community guardian.\nWhat should you do if you suspect a scam?\n🚨",
+      "options": [
+        "Report it and warn others - Be a good neighbor and spread awareness! 🚨👥",
+        "Ignore your instincts - That's how scams succeed! 🤐",
+        "Invest more money to average down - That's throwing good money after bad! 💸"
+      ],
+      "answer": "Report it and warn others - Be a good neighbor and spread awareness! 🚨👥",
+      "explainer": "Report scams to authorities and warn the community. Include specific details like contract addresses and URLs as evidence to help prevent future victims. It's like being a good neighbor and warning others about a suspicious person in the area! 🚨👥"
     },
     {
-      "question": "What is social engineering in crypto?",
-      "options": ["A type of smart contract", "Manipulating people to gain access to information", "A new blockchain"],
-      "answer": "Manipulating people to gain access to information",
-      "explainer": "Social engineering exploits human psychology rather than technical vulnerabilities. Attackers impersonate support staff, create fake urgency, or build trust over time to steal credentials."
+      "question": "Hey there, psychology expert.\nWhat is social engineering in crypto?\n🎭",
+      "options": [
+        "Manipulating people to gain access to information - Like a con artist befriending you! 🎭💔",
+        "A type of smart contract - That's code, not manipulation! 💻",
+        "A new blockchain - That's technology, not psychology! 🔗"
+      ],
+      "answer": "Manipulating people to gain access to information - Like a con artist befriending you! 🎭💔",
+      "explainer": "Social engineering exploits human psychology rather than technical vulnerabilities. Attackers impersonate support staff, create fake urgency, or build trust over time to steal credentials. It's like a con artist who befriends you to gain your trust before stealing from you! 🎭💔"
     },
     {
-      "question": "What is a good way to verify a project's legitimacy?",
-      "options": ["Trust the hype on social media", "Check their code on Etherscan and community feedback", "Follow celebrity endorsements"],
-      "answer": "Check their code on Etherscan and community feedback",
-      "explainer": "Use Etherscan to verify smart contracts and check community feedback across multiple platforms. Look for genuine technical discussions rather than just price talk."
+      "question": "Greetings, verification virtuoso.\nWhat is a good way to verify a project's legitimacy?\n✅",
+      "options": [
+        "Check their code on Etherscan and community feedback - Don't just trust one source! 📖🔍",
+        "Trust the hype on social media - That's not reliable verification! 📱",
+        "Follow celebrity endorsements - Fame doesn't equal legitimacy! 🌟"
+      ],
+      "answer": "Check their code on Etherscan and community feedback - Don't just trust one source! 📖🔍",
+      "explainer": "Use Etherscan to verify smart contracts and check community feedback across multiple platforms. Look for genuine technical discussions rather than just price talk. It's like checking reviews on multiple sites before buying a product - don't just trust one source! 📖🔍"
     },
     {
-      "question": "What should you do with unsolicited investment advice?",
-      "options": ["Follow it immediately", "Verify the source and do your own research", "Share it with all your friends"],
-      "answer": "Verify the source and do your own research",
-      "explainer": "Verify the source's credentials and motivations before acting. Conduct independent research as market conditions change rapidly and advice may become outdated."
+      "question": "Welcome, advice analyzer.\nWhat should you do with unsolicited investment advice?\n🤔",
+      "options": [
+        "Verify the source and do your own research - Always get a second opinion! 🏥❓",
+        "Follow it immediately - That's risky without verification! 🚨",
+        "Share it with all your friends - That could spread bad advice! 📢"
+      ],
+      "answer": "Verify the source and do your own research - Always get a second opinion! 🏥❓",
+      "explainer": "Verify the source's credentials and motivations before acting. Conduct independent research as market conditions change rapidly and advice may become outdated. It's like getting medical advice from a random person on the internet - always get a second opinion from a trusted expert! 🏥❓"
     },
     {
-      "question": "What is the importance of a project's whitepaper?",
-      "options": ["It's just for decoration", "It provides technical and business details", "It guarantees profits"],
-      "answer": "It provides technical and business details",
-      "explainer": "Whitepapers outline technical architecture, business models, and tokenomics. Look for clear problem definitions, realistic specifications, and transparent risk acknowledgment."
+      "question": "Hey there, whitepaper wizard.\nWhat is the importance of a project's whitepaper?\n📘",
+      "options": [
+        "It provides technical and business details - Like a blueprint for a building! 🏗️📘",
+        "It's just for decoration - That would be a waste of paper! 🗑️",
+        "It guarantees profits - Nothing guarantees profits in crypto! ⚠️"
+      ],
+      "answer": "It provides technical and business details - Like a blueprint for a building! 🏗️📘",
+      "explainer": "Whitepapers outline technical architecture, business models, and tokenomics. Look for clear problem definitions, realistic specifications, and transparent risk acknowledgment. It's like a blueprint for a building - without it, you don't know what you're getting! 🏗️📘"
     },
     {
-      "question": "Why should you be cautious of FOMO investing?",
-      "options": ["It's the best investment strategy", "It often leads to poor decision making", "It's required by law"],
-      "answer": "It often leads to poor decision making",
-      "explainer": "FOMO creates emotional pressure leading to impulsive decisions, buying at peaks, and panic selling during corrections. Develop systematic investment processes instead."
+      "question": "Greetings, FOMO fighter.\nWhy should you be cautious of FOMO investing?\n😅",
+      "options": [
+        "It often leads to poor decision making - Don't let emotions drive investments! 🎫😰",
+        "It's the best investment strategy - That's not true at all! 🚫",
+        "It's required by law - There's no law requiring FOMO investing! ⚖️"
+      ],
+      "answer": "It often leads to poor decision making - Don't let emotions drive investments! 🎫😰",
+      "explainer": "FOMO creates emotional pressure leading to impulsive decisions, buying at peaks, and panic selling during corrections. Develop systematic investment processes instead. It's like buying concert tickets at the last minute because everyone else is doing it - you might overpay or miss out entirely! 🎫😰"
     },
     {
-      "question": "What is a good security practice for your crypto accounts?",
-      "options": ["Use simple passwords", "Enable 2FA and use strong passwords", "Share passwords with family"],
-      "answer": "Enable 2FA and use strong passwords",
-      "explainer": "Use strong unique passwords (12+ characters) with password managers, enable 2FA, and regularly review account activity. Consider dedicated devices for high-value accounts."
+      "question": "Welcome, security specialist.\nWhat is a good security practice for your crypto accounts?\n🔒",
+      "options": [
+        "Enable 2FA and use strong passwords - Layers of protection like a house security system! 🏠🔒",
+        "Use simple passwords - That's like leaving your door unlocked! 🚪",
+        "Share passwords with family - That's like giving your keys to strangers! 🗝️"
+      ],
+      "answer": "Enable 2FA and use strong passwords - Layers of protection like a house security system! 🏠🔒",
+      "explainer": "Use strong unique passwords (12+ characters) with password managers, enable 2FA, and regularly review account activity. Consider dedicated devices for high-value accounts. It's like securing your house with both a strong lock and an alarm system - layers of protection! 🏠🔒"
     },
     {
-      "question": "What should you do if a project's website suddenly goes down?",
-      "options": ["Ignore it", "Be suspicious and investigate", "Buy more tokens immediately"],
-      "answer": "Be suspicious and investigate",
-      "explainer": "Check if sites are globally down, monitor social media for explanations, examine blockchain activity for unusual transfers, and watch for potential exit scam warnings."
+      "question": "Hey there, website watcher.\nWhat should you do if a project's website suddenly goes down?\n🌐",
+      "options": [
+        "Be suspicious and investigate - Check if your friend is okay when they go offline! 📱❓",
+        "Ignore it - That's how you miss warning signs! 🚫",
+        "Buy more tokens immediately - That's panic buying, not smart investing! 🤯"
+      ],
+      "answer": "Be suspicious and investigate - Check if your friend is okay when they go offline! 📱❓",
+      "explainer": "Check if sites are globally down, monitor social media for explanations, examine blockchain activity for unusual transfers, and watch for potential exit scam warnings. It's like your friend suddenly going offline - if it's unexpected, you might want to check if they're okay! 📱❓"
     },
     {
-      "question": "Why is it important to understand what you're investing in?",
-      "options": ["To impress your friends", "To make informed decisions and reduce risk", "To guarantee profits"],
-      "answer": "To make informed decisions and reduce risk",
-      "explainer": "Understanding investments enables rational decisions during market volatility, helps identify red flags, and protects against hype cycles and fraudulent projects."
+      "question": "Greetings, understanding expert.\nWhy is it important to understand what you're investing in?\n🧠",
+      "options": [
+        "To make informed decisions and reduce risk - Know what you're putting in your body! 📋👀",
+        "To impress your friends - That's not a good investment strategy! 🤷‍♂️",
+        "To guarantee profits - Nothing guarantees profits in crypto! ⚠️"
+      ],
+      "answer": "To make informed decisions and reduce risk - Know what you're putting in your body! 📋👀",
+      "explainer": "Understanding investments enables rational decisions during market volatility, helps identify red flags, and protects against hype cycles and fraudulent projects. It's like reading the ingredients on food packaging - you want to know what you're putting in your body! 📋👀"
     },
     {
-      "question": "What is a red flag for potential exit scams?",
-      "options": ["Regular updates and communication", "Promises of guaranteed returns with no risk", "Transparent team members"],
-      "answer": "Promises of guaranteed returns with no risk",
-      "explainer": "Guaranteed returns with no risk violate investment principles. Scammers combine these promises with artificial urgency to attract maximum investment before disappearing."
+      "question": "Welcome, exit scam spotter.\nWhat is a red flag for potential exit scams?\n🚩",
+      "options": [
+        "Promises of guaranteed returns with no risk - Like a casino that promises you'll always win! 🎰🚨",
+        "Regular updates and communication - That's actually a good sign! ✅",
+        "Transparent team members - That's also a positive sign! 👥"
+      ],
+      "answer": "Promises of guaranteed returns with no risk - Like a casino that promises you'll always win! 🎰🚨",
+      "explainer": "Guaranteed returns with no risk violate investment principles. Scammers combine these promises with artificial urgency to attract maximum investment before disappearing. It's like a casino that promises you'll always win - if it sounds impossible, it probably is! 🎰🚨"
     },
     {
-      "question": "What should you do with your private keys?",
-      "options": ["Store them on your computer", "Keep them offline in a secure location", "Share them with trusted friends"],
-      "answer": "Keep them offline in a secure location",
-      "explainer": "Store private keys offline using hardware wallets, paper backups, or steel solutions. Use secure locations with fireproof/waterproof protection and multiple security layers."
+      "question": "Hey there, key keeper.\nWhat should you do with your private keys?\n🔑",
+      "options": [
+        "Keep them offline in a secure location - Like keeping cash in a bank vault! 💰🛡️",
+        "Store them on your computer - That's like leaving cash under your mattress! 💻",
+        "Share them with trusted friends - That's like giving your keys to strangers! 🗝️"
+      ],
+      "answer": "Keep them offline in a secure location - Like keeping cash in a bank vault! 💰🛡️",
+      "explainer": "Store private keys offline using hardware wallets, paper backups, or steel solutions. Use secure locations with fireproof/waterproof protection and multiple security layers. It's like keeping your most valuable jewelry in a bank vault rather than at home - much safer! 💰🛡️"
     },
     {
-      "question": "Why is it important to stay updated on crypto news?",
-      "options": ["To gossip about celebrities", "To be aware of market trends and security threats", "To know the latest memes"],
-      "answer": "To be aware of market trends and security threats",
-      "explainer": "Stay informed about regulatory changes, security threats, and technological developments. Use reliable sources and be cautious of social media rumors or conflicted sources."
+      "question": "Greetings, news navigator.\nWhy is it important to stay updated on crypto news?\n📰",
+      "options": [
+        "To be aware of market trends and security threats - Like weather forecasts for preparation! 🌦️📚",
+        "To gossip about celebrities - That's not relevant to investing! 📱",
+        "To know the latest memes - That's entertainment, not education! 😂"
+      ],
+      "answer": "To be aware of market trends and security threats - Like weather forecasts for preparation! 🌦️📚",
+      "explainer": "Stay informed about regulatory changes, security threats, and technological developments. Use reliable sources and be cautious of social media rumors or conflicted sources. It's like staying informed about weather forecasts - you want to know what's coming to prepare properly! 🌦️📚"
     },
     {
-      "question": "What is a common tactic used in phishing attacks?",
-      "options": ["Sending legitimate newsletters", "Creating fake websites that look real", "Providing accurate market analysis"],
-      "answer": "Creating fake websites that look real",
-      "explainer": "Fake websites meticulously duplicate legitimate platforms using similar domain names and layouts. Always verify URLs, use bookmarks, and check for SSL certificates."
+      "question": "Welcome, phishing preventer.\nWhat is a common tactic used in phishing attacks?\n🎣",
+      "options": [
+        "Creating fake websites that look real - Like a wolf in sheep's clothing! 🐺🐑",
+        "Sending legitimate newsletters - That's not phishing, it's communication! 📧",
+        "Providing accurate market analysis - That's helpful, not harmful! 📊"
+      ],
+      "answer": "Creating fake websites that look real - Like a wolf in sheep's clothing! 🐺🐑",
+      "explainer": "Fake websites meticulously duplicate legitimate platforms using similar domain names and layouts. Always verify URLs, use bookmarks, and check for SSL certificates. It's like a wolf in sheep's clothing - looks real but is actually dangerous! 🐺🐑"
     },
     {
-      "question": "What should you do before clicking on crypto-related links?",
-      "options": ["Click immediately for FOMO gains", "Verify the URL and source", "Share with friends first"],
-      "answer": "Verify the URL and source",
-      "explainer": "Examine URLs for suspicious elements, verify sources through official channels, and be cautious of exclusive deals or urgent actions. Use bookmarks for important sites."
+      "question": "Hey there, link checker.\nWhat should you do before clicking on crypto-related links?\n🔗",
+      "options": [
+        "Verify the URL and source - Like checking ingredients before eating! 🔍✅",
+        "Click immediately for FOMO gains - That's how you get scammed! 🚨",
+        "Share with friends first - That could spread malicious links! 📢"
+      ],
+      "answer": "Verify the URL and source - Like checking ingredients before eating! 🔍✅",
+      "explainer": "Examine URLs for suspicious elements, verify sources through official channels, and be cautious of exclusive deals or urgent actions. Use bookmarks for important sites. It's like checking the ingredients in food before eating it - better safe than sorry! 🔍✅"
     },
     {
-      "question": "Why is it important to use a hardware wallet?",
-      "options": ["They're fashionable accessories", "They provide offline storage for private keys", "They guarantee profits"],
-      "answer": "They provide offline storage for private keys",
-      "explainer": "Hardware wallets store private keys offline on secure chips, preventing remote attacks. They sign transactions internally without exposing keys to compromised devices."
+      "question": "Greetings, hardware wallet hero.\nWhy is it important to use a hardware wallet?\n🛡️",
+      "options": [
+        "They provide offline storage for private keys - Like keeping cash in a safe! 💰🛡️",
+        "They're fashionable accessories - That's not their purpose! 👜",
+        "They guarantee profits - Nothing guarantees profits in crypto! ⚠️"
+      ],
+      "answer": "They provide offline storage for private keys - Like keeping cash in a safe! 💰🛡️",
+      "explainer": "Hardware wallets store private keys offline on secure chips, preventing remote attacks. They sign transactions internally without exposing keys to compromised devices. It's like keeping your cash in a safe rather than under your mattress - much more secure! 💰🛡️"
     },
     {
-      "question": "What is a good practice when using DeFi protocols?",
-      "options": ["Approve unlimited token spending", "Start with small amounts to test", "Use the first protocol you find"],
-      "answer": "Start with small amounts to test",
-      "explainer": "Test with small amounts to understand functionality, verify transactions, and identify issues. This helps research audit results and community feedback safely."
+      "question": "Welcome, DeFi explorer.\nWhat is a good practice when using DeFi protocols?\n🧪",
+      "options": [
+        "Start with small amounts to test - Test the water with your toe first! 🏊‍♂️💧",
+        "Approve unlimited token spending - That's like giving someone access to your entire bank account! 🚫",
+        "Use the first protocol you find - That's not proper research! 🔍"
+      ],
+      "answer": "Start with small amounts to test - Test the water with your toe first! 🏊‍♂️💧",
+      "explainer": "Test with small amounts to understand functionality, verify transactions, and identify issues. This helps research audit results and community feedback safely. It's like testing the water with your toe before jumping into a pool - start small to avoid big mistakes! 🏊‍♂️💧"
     },
     {
-      "question": "What should you do if you lose access to your wallet?",
-      "options": ["Panic and invest in recovery services", "Use your seed phrase to recover", "Create a new wallet and forget the old one"],
-      "answer": "Use your seed phrase to recover",
-      "explainer": "Seed phrases (12-24 words) contain all cryptographic information to restore wallet access. Download software from official sources and perform recovery on secure devices."
+      "question": "Hey there, recovery expert.\nWhat should you do if you lose access to your wallet?\n🔑",
+      "options": [
+        "Use your seed phrase to recover - Like having a master key for all your locks! 🔑📖",
+        "Panic and invest in recovery services - That's how scammers make money from your panic! 🤯",
+        "Create a new wallet and forget the old one - You might lose your funds forever! 🚫"
+      ],
+      "answer": "Use your seed phrase to recover - Like having a master key for all your locks! 🔑📖",
+      "explainer": "Seed phrases (12-24 words) contain all cryptographic information to restore wallet access. Download software from official sources and perform recovery on secure devices. It's like having a master key that can open all your locks - keep it safe and secret! 🔑📖"
     }
   ]
 }

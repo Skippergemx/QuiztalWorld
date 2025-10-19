@@ -1,200 +1,328 @@
 {
   "npcId": "securitykai",
   "npcName": "Security Kai",
-  "theme": "Web3 Security",
-  "description": "Quiz questions about web3 security best practices.",
+  "theme": "🔐 Web3 Security",
+  "description": "Quiz questions about web3 security best practices, presented with a security expert's flair",
   "questions": [
     {
-      "question": "Common phishing technique?",
-      "options": ["Fake airdrop links", "Validating transactions", "Using hardware wallet"],
-      "answer": "Fake airdrop links",
-      "explainer": "Fake airdrop links trick users into connecting wallets to malicious sites that steal funds or private keys."
+      "question": "Greetings, security seeker.\nWhat is a common phishing technique?\n🕵️",
+      "options": [
+        "Fake airdrop links - It's like a digital fishing expedition - don't take the bait! 🎣🎣",
+        "Validating transactions - That's a legitimate security practice! ✅",
+        "Using hardware wallet - That's actually a security measure, not a phishing technique! 🛡️"
+      ],
+      "answer": "Fake airdrop links - It's like a digital fishing expedition - don't take the bait! 🎣🎣",
+      "explainer": "Fake airdrop links trick users into connecting wallets to malicious sites that steal funds or private keys. It's like a digital fishing expedition - don't take the bait! 🎣🎣"
     },
     {
-      "question": "What is hardware wallet?",
-      "options": ["Software wallet", "Physical key storage", "Browser extension"],
-      "answer": "Physical key storage",
-      "explainer": "Hardware wallets are physical devices that store private keys offline, providing maximum security against online threats."
+      "question": "Welcome, wallet warrior.\nWhat is a hardware wallet?\n🛡️",
+      "options": [
+        "Physical key storage - Think of it as a bank vault for your crypto - offline and secure! 🏦🔒",
+        "Software wallet - That's a different type of wallet that's connected to the internet! 💻",
+        "Browser extension - That's also connected to the internet and less secure! 🌐"
+      ],
+      "answer": "Physical key storage - Think of it as a bank vault for your crypto - offline and secure! 🏦🔒",
+      "explainer": "Hardware wallets are physical devices that store private keys offline, providing maximum security against online threats. Think of it as a bank vault for your crypto - offline and secure! 🏦🔒"
     },
     {
-      "question": "What is seed phrase?",
-      "options": ["Password", "12-24 word backup", "Transaction hash"],
-      "answer": "12-24 word backup",
-      "explainer": "Seed phrases are 12-24 word backups that can restore your entire wallet and all associated private keys."
+      "question": "Hey there, backup expert.\nWhat is a seed phrase?\n🔑",
+      "options": [
+        "12-24 word backup - It's like the master key to your entire digital kingdom - keep it safe! 👑🗝️",
+        "Password - That's typically shorter and different from a seed phrase! 🔑",
+        "Transaction hash - That's a transaction identifier, not a backup! 🆔"
+      ],
+      "answer": "12-24 word backup - It's like the master key to your entire digital kingdom - keep it safe! 👑🗝️",
+      "explainer": "Seed phrases are 12-24 word backups that can restore your entire wallet and all associated private keys. It's like the master key to your entire digital kingdom - keep it safe! 👑🗝️"
     },
     {
-      "question": "Never share seed phrase?",
-      "options": ["Not important", "Funds get stolen", "Public information"],
-      "answer": "Funds get stolen",
-      "explainer": "Sharing seed phrases allows anyone to access and steal all funds from your wallet permanently and irreversibly."
+      "question": "Greetings, privacy protector.\nWhat happens if you share your seed phrase?\n🚨",
+      "options": [
+        "Funds get stolen - It's like giving someone the keys to your house, bank account, and safe all at once! 🏠🏦",
+        "Not important - That's incorrect, it's very important to keep it secret! ⚠️",
+        "Public information - That's the opposite of what it should be! 🚫"
+      ],
+      "answer": "Funds get stolen - It's like giving someone the keys to your house, bank account, and safe all at once! 🏠🏦",
+      "explainer": "Sharing seed phrases allows anyone to access and steal all funds from your wallet permanently and irreversibly. It's like giving someone the keys to your house, bank account, and safe all at once! 🏠🏦"
     },
     {
-      "question": "What is rug pull?",
-      "options": ["NFT type", "Scam artist trick", "Decentralized exchange"],
-      "answer": "Scam artist trick",
-      "explainer": "Rug pulls occur when project creators abandon projects and disappear with investor funds, leaving worthless tokens."
+      "question": "Welcome, scam spotter.\nWhat is a rug pull?\n🧻",
+      "options": [
+        "Scam artist trick - It's like a party where the host suddenly takes all the snacks and leaves! 🎉🍽️",
+        "NFT type - That's just a category of digital assets! 🖼️",
+        "Decentralized exchange - That's a platform, not a scam! 🔄"
+      ],
+      "answer": "Scam artist trick - It's like a party where the host suddenly takes all the snacks and leaves! 🎉🍽️",
+      "explainer": "Rug pulls occur when project creators abandon projects and disappear with investor funds, leaving worthless tokens. It's like a party where the host suddenly takes all the snacks and leaves - very rude! 🎉🍽️"
     },
     {
-      "question": "Smart contract audit?",
-      "options": ["Code vulnerability review", "Cryptocurrency type", "Legal document"],
-      "answer": "Code vulnerability review",
-      "explainer": "Smart contract audits are security reviews that identify vulnerabilities and bugs before deployment to prevent exploits."
+      "question": "Hey there, audit advocate.\nWhat is a smart contract audit?\n🔍",
+      "options": [
+        "Code vulnerability review - It's like having a home inspector check for problems before you buy a house! 🏠🔍",
+        "Cryptocurrency type - That's a digital asset, not a security review! 💰",
+        "Legal document - That's paperwork, not a code review! 📜"
+      ],
+      "answer": "Code vulnerability review - It's like having a home inspector check for problems before you buy a house! 🏠🔍",
+      "explainer": "Smart contract audits are security reviews that identify vulnerabilities and bugs before deployment to prevent exploits. It's like having a home inspector check for problems before you buy a house - better safe than sorry! 🏠🔍"
     },
     {
-      "question": "What is gas?",
-      "options": ["Fuel type", "Transaction fee", "Measurement unit"],
-      "answer": "Transaction fee",
-      "explainer": "Gas represents transaction fees paid to blockchain validators for processing and executing operations on the network."
+      "question": "Greetings, transaction expert.\nWhat is gas?\n⛽",
+      "options": [
+        "Transaction fee - It's like toll booth fees for using the blockchain highway! 🚗💸",
+        "Fuel type - That's physical fuel, not blockchain gas! ⛽",
+        "Measurement unit - That's too general, it's specifically a fee! 📏"
+      ],
+      "answer": "Transaction fee - It's like toll booth fees for using the blockchain highway! 🚗💸",
+      "explainer": "Gas represents transaction fees paid to blockchain validators for processing and executing operations on the network. It's like toll booth fees for using the blockchain highway! 🚗💸"
     },
     {
-      "question": "Transaction signing?",
-      "options": ["Approve with private key", "Sending transaction", "Cancelling transaction"],
-      "answer": "Approve with private key",
-      "explainer": "Transaction signing uses your private key to cryptographically approve and authorize blockchain transactions securely."
+      "question": "Welcome, signing specialist.\nWhat is transaction signing?\n✍️",
+      "options": [
+        "Approve with private key - It's like putting your digital signature on an important document! 📝✅",
+        "Sending transaction - That's just sending, not signing! 📤",
+        "Cancelling transaction - That's a different action entirely! ❌"
+      ],
+      "answer": "Approve with private key - It's like putting your digital signature on an important document! 📝✅",
+      "explainer": "Transaction signing uses your private key to cryptographically approve and authorize blockchain transactions securely. It's like putting your digital signature on an important document! 📝✅"
     },
     {
-      "question": "Multi-signature wallet?",
-      "options": ["One key wallet", "Multiple approval wallet", "Paper wallet"],
-      "answer": "Multiple approval wallet",
-      "explainer": "Multi-signature wallets require multiple private key approvals for transactions, increasing security and shared control."
+      "question": "Hey there, multi-sig master.\nWhat is a multi-signature wallet?\n🔐",
+      "options": [
+        "Multiple approval wallet - It's like needing multiple keys to open a safe - extra security! 🗝️🗝️",
+        "One key wallet - That's a regular wallet, not multi-sig! 🔑",
+        "Paper wallet - That's a different type of cold storage! 📄"
+      ],
+      "answer": "Multiple approval wallet - It's like needing multiple keys to open a safe - extra security! 🗝️🗝️",
+      "explainer": "Multi-signature wallets require multiple private key approvals for transactions, increasing security and shared control. It's like needing multiple keys to open a safe - extra security! 🗝️🗝️"
     },
     {
-      "question": "Honeypot contract?",
-      "options": ["Secure contract", "Fake vulnerable trap", "Hackers attractor"],
-      "answer": "Fake vulnerable trap",
-      "explainer": "Honeypot contracts appear vulnerable but trap attackers, often used to detect malicious actors or as scams."
+      "question": "Greetings, trap avoider.\nWhat is a honeypot contract?\n🍯",
+      "options": [
+        "Fake vulnerable trap - It's like a beautiful flower that looks inviting but is actually a trap! 🌸🪤",
+        "Secure contract - That's the opposite of what it is! ✅",
+        "Hackers attractor - That's not the specific definition! 🎯"
+      ],
+      "answer": "Fake vulnerable trap - It's like a beautiful flower that looks inviting but is actually a trap! 🌸🪤",
+      "explainer": "Honeypot contracts appear vulnerable but trap attackers, often used to detect malicious actors or as scams. It's like a beautiful flower that looks inviting but is actually a trap! 🌸🪤"
     },
     {
-      "question": "Replay attack?",
-      "options": ["Replaying on chain", "Attacking contract", "Stealing NFTs"],
-      "answer": "Replaying on chain",
-      "explainer": "Replay attacks reuse valid transactions on different chains or contexts to unauthorized duplicate operations."
+      "question": "Welcome, attack analyst.\nWhat is a replay attack?\n🔄",
+      "options": [
+        "Replaying on chain - It's like photocopying a check and trying to cash it multiple times! 📄❌",
+        "Attacking contract - That's too vague, it's specifically about replaying transactions! ⚔️",
+        "Stealing NFTs - That's a different type of attack! 🖼️"
+      ],
+      "answer": "Replaying on chain - It's like photocopying a check and trying to cash it multiple times! 📄❌",
+      "explainer": "Replay attacks reuse valid transactions on different chains or contexts to unauthorized duplicate operations. It's like photocopying a check and trying to cash it multiple times - not allowed! 📄❌"
     },
     {
-      "question": "51% attack?",
-      "options": ["Hashrate majority control", "Stealing 51% funds", "Phishing attack"],
-      "answer": "Hashrate majority control",
-      "explainer": "51% attacks occur when someone controls majority mining power, potentially enabling double-spending and chain reorganization."
+      "question": "Hey there, hash power expert.\nWhat is a 51% attack?\n🧮",
+      "options": [
+        "Hashrate majority control - It's like having a majority vote in a democracy - you can change the rules! 🗳️⚖️",
+        "Stealing 51% funds - That's not what it's about, it's about controlling the network! 💰",
+        "Phishing attack - That's a different type of attack entirely! 🎣"
+      ],
+      "answer": "Hashrate majority control - It's like having a majority vote in a democracy - you can change the rules! 🗳️⚖️",
+      "explainer": "51% attacks occur when someone controls majority mining power, potentially enabling double-spending and chain reorganization. It's like having a majority vote in a democracy - you can change the rules! 🗳️⚖️"
     },
     {
-      "question": "What is a DAO?",
-      "options": ["Decentralized Organization", "Decentralized Application", "Digital Art Object"],
-      "answer": "Decentralized Organization",
-      "explainer": "DAOs are decentralized autonomous organizations governed by smart contracts and community voting without central authority."
+      "question": "Greetings, governance guru.\nWhat is a DAO?\n🏛️",
+      "options": [
+        "Decentralized Organization - It's like a democracy, but on the blockchain! 🗳️🏛️",
+        "Decentralized Application - That's a dApp, not a DAO! 🌐",
+        "Digital Art Object - That's just digital art! 🎨"
+      ],
+      "answer": "Decentralized Organization - It's like a democracy, but on the blockchain! 🗳️🏛️",
+      "explainer": "DAOs are decentralized autonomous organizations governed by smart contracts and community voting without central authority. It's like a democracy, but on the blockchain and without politicians! 🗳️🏛️"
     },
     {
-      "question": "What is DeFi?",
-      "options": ["Decentralized Finance", "Digital Finance", "Data Finance"],
-      "answer": "Decentralized Finance",
-      "explainer": "DeFi provides financial services like lending, borrowing, and trading using smart contracts without traditional banks."
+      "question": "Welcome, finance futurist.\nWhat is DeFi?\n🏦",
+      "options": [
+        "Decentralized Finance - It's like a bank, but without the bank - peer-to-peer finance! 🤝💸",
+        "Digital Finance - That's too broad, it's specifically decentralized! 💻",
+        "Data Finance - That's not what DeFi stands for! 📊"
+      ],
+      "answer": "Decentralized Finance - It's like a bank, but without the bank - peer-to-peer finance! 🤝💸",
+      "explainer": "DeFi provides financial services like lending, borrowing, and trading using smart contracts without traditional banks. It's like a bank, but without the bank - peer-to-peer finance! 🤝💸"
     },
     {
-      "question": "What is an NFT?",
-      "options": ["Non-Fungible Token", "New Financial Tech", "Network File Transfer"],
-      "answer": "Non-Fungible Token",
-      "explainer": "NFTs are unique digital tokens representing ownership of specific digital or physical assets on blockchain networks."
+      "question": "Hey there, NFT navigator.\nWhat is an NFT?\n🖼️",
+      "options": [
+        "Non-Fungible Token - Think of them as digital collectibles - like Pokemon cards, but on the blockchain! 🃏🔗",
+        "New Financial Tech - That's fintech, not NFT! 💰",
+        "Network File Transfer - That's a different technology! 📁"
+      ],
+      "answer": "Non-Fungible Token - Think of them as digital collectibles - like Pokemon cards, but on the blockchain! 🃏🔗",
+      "explainer": "NFTs are unique digital tokens representing ownership of specific digital or physical assets on blockchain networks. Think of them as digital collectibles - like Pokemon cards, but on the blockchain! 🃏🔗"
     },
     {
-      "question": "What is blockchain?",
-      "options": ["Database type", "Cryptocurrency", "Smart contract"],
-      "answer": "Database type",
-      "explainer": "Blockchain is a distributed database that maintains a secure, immutable ledger of transactions across multiple computers."
+      "question": "Greetings, chain keeper.\nWhat is a blockchain?\n🔗",
+      "options": [
+        "Database type - It's like a shared notebook that everyone can read but no one can erase! 📓✍️",
+        "Cryptocurrency - That's an application of blockchain, not the technology itself! 💰",
+        "Smart contract - That's a feature of blockchain, not the technology itself! 🤖"
+      ],
+      "answer": "Database type - It's like a shared notebook that everyone can read but no one can erase! 📓✍️",
+      "explainer": "Blockchain is a distributed database that maintains a secure, immutable ledger of transactions across multiple computers. It's like a shared notebook that everyone can read but no one can erase! 📓✍️"
     },
     {
-      "question": "Private key?",
-      "options": ["Public address", "Secret fund code", "Transaction hash"],
-      "answer": "Secret fund code",
-      "explainer": "Private keys are secret codes that prove ownership and enable spending of cryptocurrency funds, must never be shared."
+      "question": "Welcome, key keeper.\nWhat is a private key?\n🗝️",
+      "options": [
+        "Secret fund code - It's like the PIN to your bank account - keep it secret! 🏦🤫",
+        "Public address - That's the opposite of private! 📬",
+        "Transaction hash - That's a transaction identifier, not a key! 🆔"
+      ],
+      "answer": "Secret fund code - It's like the PIN to your bank account - keep it secret! 🏦🤫",
+      "explainer": "Private keys are secret codes that prove ownership and enable spending of cryptocurrency funds, must never be shared. It's like the PIN to your bank account - keep it secret! 🏦🤫"
     },
     {
-      "question": "Public key?",
-      "options": ["Private address", "Receive funds address", "Seed phrase"],
-      "answer": "Receive funds address",
-      "explainer": "Public keys generate wallet addresses where others can send you cryptocurrency, safe to share publicly."
+      "question": "Hey there, address sharer.\nWhat is a public key?\n📬",
+      "options": [
+        "Receive funds address - It's like your email address - you can share it without worry! 📧✅",
+        "Private address - That's contradictory - public keys are meant to be shared! 🔐",
+        "Seed phrase - That's a backup, not a key for receiving funds! 📜"
+      ],
+      "answer": "Receive funds address - It's like your email address - you can share it without worry! 📧✅",
+      "explainer": "Public keys generate wallet addresses where others can send you cryptocurrency, safe to share publicly. It's like your email address - you can share it without worry! 📧✅"
     },
     {
-      "question": "Web3 wallet?",
-      "options": ["Physical wallet", "Digital crypto manager", "Bank account"],
-      "answer": "Digital crypto manager",
-      "explainer": "Web3 wallets manage cryptocurrencies and interact with decentralized applications, storing keys and signing transactions."
+      "question": "Greetings, wallet wizard.\nWhat is a Web3 wallet?\n📱",
+      "options": [
+        "Digital crypto manager - It's like a digital keychain for all your crypto assets! 🔑📱",
+        "Physical wallet - That's a hardware wallet, not a Web3 wallet! 💼",
+        "Bank account - That's traditional finance, not Web3! 🏦"
+      ],
+      "answer": "Digital crypto manager - It's like a digital keychain for all your crypto assets! 🔑📱",
+      "explainer": "Web3 wallets manage cryptocurrencies and interact with decentralized applications, storing keys and signing transactions. It's like a digital keychain for all your crypto assets! 🔑📱"
     },
     {
-      "question": "What is a dApp?",
-      "options": ["Decentralized App", "Digital Application", "Data Application"],
-      "answer": "Decentralized App",
-      "explainer": "dApps are decentralized applications running on blockchain networks without central servers or single points of failure."
+      "question": "Welcome, app explorer.\nWhat is a dApp?\n🌐",
+      "options": [
+        "Decentralized App - It's like a regular app, but with blockchain superpowers! 🦸‍♂️🔗",
+        "Digital Application - That's too broad, it's specifically decentralized! 💻",
+        "Data Application - That's not what dApp stands for! 📊"
+      ],
+      "answer": "Decentralized App - It's like a regular app, but with blockchain superpowers! 🦸‍♂️🔗",
+      "explainer": "dApps are decentralized applications running on blockchain networks without central servers or single points of failure. It's like a regular app, but with blockchain superpowers! 🦸‍♂️🔗"
     },
     {
-      "question": "Gas limit?",
-      "options": ["Max gas willing spend", "Min gas must spend", "Average gas price"],
-      "answer": "Max gas willing spend",
-      "explainer": "Gas limit sets the maximum amount of gas you're willing to spend on a transaction to prevent excessive fees."
+      "question": "Hey there, gas manager.\nWhat is a gas limit?\n⛽",
+      "options": [
+        "Max gas willing spend - It's like setting a budget before going shopping - spend wisely! 🛒💰",
+        "Min gas must spend - That's not what it limits! ⚠️",
+        "Average gas price - That's gas price, not gas limit! 💵"
+      ],
+      "answer": "Max gas willing spend - It's like setting a budget before going shopping - spend wisely! 🛒💰",
+      "explainer": "Gas limit sets the maximum amount of gas you're willing to spend on a transaction to prevent excessive fees. It's like setting a budget before going shopping - spend wisely! 🛒💰"
     },
     {
-      "question": "Transaction hash?",
-      "options": ["Unique transaction ID", "Seed phrase", "Private key"],
-      "answer": "Unique transaction ID",
-      "explainer": "Transaction hashes are unique identifiers that allow you to track and verify specific transactions on the blockchain."
+      "question": "Greetings, transaction tracker.\nWhat is a transaction hash?\n🆔",
+      "options": [
+        "Unique transaction ID - It's like a tracking number for your package - you can follow it anywhere! 📦🔍",
+        "Seed phrase - That's a backup, not a transaction identifier! 📜",
+        "Private key - That's a secret key, not a transaction identifier! 🔐"
+      ],
+      "answer": "Unique transaction ID - It's like a tracking number for your package - you can follow it anywhere! 📦🔍",
+      "explainer": "Transaction hashes are unique identifiers that allow you to track and verify specific transactions on the blockchain. It's like a tracking number for your package - you can follow it anywhere! 📦🔍"
     },
     {
-      "question": "Block explorer?",
-      "options": ["View blockchain txns", "Cryptocurrency type", "Web browser"],
-      "answer": "View blockchain txns",
-      "explainer": "Block explorers are websites that allow you to search and view transactions, addresses, and blocks on blockchains."
+      "question": "Welcome, blockchain detective.\nWhat is a block explorer?\n🔍",
+      "options": [
+        "View blockchain txns - It's like Google, but for blockchain information! 🔎🌐",
+        "Cryptocurrency type - That's a digital asset, not a tool! 💰",
+        "Web browser - That's for regular internet, not blockchain! 🌐"
+      ],
+      "answer": "View blockchain txns - It's like Google, but for blockchain information! 🔎🌐",
+      "explainer": "Block explorers are websites that allow you to search and view transactions, addresses, and blocks on blockchains. It's like Google, but for blockchain information! 🔎🌐"
     },
     {
-      "question": "What is KYC?",
-      "options": ["Know Your Customer", "Keep Your Coins", "Key Your Code"],
-      "answer": "Know Your Customer",
-      "explainer": "KYC requires identity verification to comply with regulations and prevent money laundering in financial services."
+      "question": "Hey there, compliance expert.\nWhat is KYC?\n📋",
+      "options": [
+        "Know Your Customer - It's like showing your ID at the bank - standard procedure! 🆔🏦",
+        "Keep Your Coins - That's not what KYC stands for! 💰",
+        "Key Your Code - That's programming, not compliance! 💻"
+      ],
+      "answer": "Know Your Customer - It's like showing your ID at the bank - standard procedure! 🆔🏦",
+      "explainer": "KYC requires identity verification to comply with regulations and prevent money laundering in financial services. It's like showing your ID at the bank - standard procedure! 🆔🏦"
     },
     {
-      "question": "What is AML?",
-      "options": ["Anti-Money Laundering", "Automated Machine Learning", "Advanced Malware Locator"],
-      "answer": "Anti-Money Laundering",
-      "explainer": "AML policies detect and prevent money laundering activities in financial institutions and cryptocurrency exchanges."
+      "question": "Greetings, money launderer preventer.\nWhat is AML?\n🧼",
+      "options": [
+        "Anti-Money Laundering - It's like having security guards at a bank - protecting everyone's money! 🛡️🏦",
+        "Automated Machine Learning - That's AI technology, not compliance! 🤖",
+        "Advanced Malware Locator - That's cybersecurity, not financial compliance! 🦠"
+      ],
+      "answer": "Anti-Money Laundering - It's like having security guards at a bank - protecting everyone's money! 🛡️🏦",
+      "explainer": "AML policies detect and prevent money laundering activities in financial institutions and cryptocurrency exchanges. It's like having security guards at a bank - protecting everyone's money! 🛡️🏦"
     },
     {
-      "question": "Cold wallet?",
-      "options": ["Hot wallet", "Hardware wallet", "Paper wallet"],
-      "answer": "Hardware wallet",
-      "explainer": "Cold wallets store private keys offline in hardware devices, providing maximum security against online threats."
+      "question": "Welcome, cold storage specialist.\nWhat is a cold wallet?\n❄️",
+      "options": [
+        "Hardware wallet - It's like keeping your cash in a safe rather than under your mattress! 💰🛡️",
+        "Hot wallet - That's the opposite - it's connected to the internet! 🔥",
+        "Paper wallet - That's one type, but hardware wallets are more common now! 📄"
+      ],
+      "answer": "Hardware wallet - It's like keeping your cash in a safe rather than under your mattress! 💰🛡️",
+      "explainer": "Cold wallets store private keys offline in hardware devices, providing maximum security against online threats. It's like keeping your cash in a safe rather than under your mattress - much more secure! 💰🛡️"
     },
     {
-      "question": "Hot wallet?",
-      "options": ["Cold wallet", "Online software wallet", "Paper wallet"],
-      "answer": "Online software wallet",
-      "explainer": "Hot wallets are connected to the internet for convenience but have higher security risks than cold storage."
+      "question": "Hey there, hot wallet user.\nWhat is a hot wallet?\n🔥",
+      "options": [
+        "Online software wallet - It's like keeping cash in your pocket rather than in a bank - convenient but risky! 💸⚠️",
+        "Cold wallet - That's the opposite - it's offline! ❄️",
+        "Paper wallet - That's also a cold wallet, not hot! 📄"
+      ],
+      "answer": "Online software wallet - It's like keeping cash in your pocket rather than in a bank - convenient but risky! 💸⚠️",
+      "explainer": "Hot wallets are connected to the internet for convenience but have higher security risks than cold storage. It's like keeping cash in your pocket rather than in a bank - convenient but risky! 💸⚠️"
     },
     {
-      "question": "What is mempool?",
-      "options": ["Pending txns waiting", "Cryptocurrency type", "Smart contract"],
-      "answer": "Pending txns waiting",
-      "explainer": "Mempool contains pending transactions waiting to be confirmed and included in the next blockchain block."
+      "question": "Greetings, transaction waiter.\nWhat is a mempool?\n⏳",
+      "options": [
+        "Pending txns waiting - It's like a waiting room at the doctor's office - transactions wait their turn! ⏰🩺",
+        "Cryptocurrency type - That's a digital asset, not a pool of transactions! 💰",
+        "Smart contract - That's a program, not a pool! 🤖"
+      ],
+      "answer": "Pending txns waiting - It's like a waiting room at the doctor's office - transactions wait their turn! ⏰🩺",
+      "explainer": "Mempool contains pending transactions waiting to be confirmed and included in the next blockchain block. It's like a waiting room at the doctor's office - transactions wait their turn! ⏰🩺"
     },
     {
-      "question": "What is fork?",
-      "options": ["Spoon type", "Protocol change", "Cryptocurrency exchange"],
-      "answer": "Protocol change",
-      "explainer": "Forks are protocol changes that create new blockchain versions, either compatible (soft) or incompatible (hard) updates."
+      "question": "Welcome, protocol changer.\nWhat is a fork?\n🍴",
+      "options": [
+        "Protocol change - It's like a tree that splits into two branches - both grow in different directions! 🌳🌿",
+        "Spoon type - That's just silverware, not blockchain! 🥄",
+        "Cryptocurrency exchange - That's a platform, not a protocol change! 🔄"
+      ],
+      "answer": "Protocol change - It's like a tree that splits into two branches - both grow in different directions! 🌳🌿",
+      "explainer": "Forks are protocol changes that create new blockchain versions, either compatible (soft) or incompatible (hard) updates. It's like a tree that splits into two branches - both grow in different directions! 🌳🌿"
     },
     {
-      "question": "Sidechain?",
-      "options": ["Layer 2 solution", "Alternative blockchain", "Cryptocurrency type"],
-      "answer": "Alternative blockchain",
-      "explainer": "Sidechains are separate blockchains that connect to main chains, enabling asset transfers and additional features."
+      "question": "Hey there, chain connector.\nWhat is a sidechain?\n⛓️",
+      "options": [
+        "Alternative blockchain - It's like a tributary that connects to a main river - both flow together! 🌊🔗",
+        "Layer 2 solution - That's a specific type of scaling solution, not all sidechains! 📈",
+        "Cryptocurrency type - That's a digital asset, not a blockchain! 💎"
+      ],
+      "answer": "Alternative blockchain - It's like a tributary that connects to a main river - both flow together! 🌊🔗",
+      "explainer": "Sidechains are separate blockchains that connect to main chains, enabling asset transfers and additional features. It's like a tributary that connects to a main river - both flow together! 🌊🔗"
     },
     {
-      "question": "Testnet?",
-      "options": ["Mainnet", "Testing blockchain", "Cryptocurrency exchange"],
-      "answer": "Testing blockchain",
-      "explainer": "Testnets are separate blockchain networks for testing applications and features without risking real cryptocurrency."
+      "question": "Greetings, test environment expert.\nWhat is a testnet?\n🧪",
+      "options": [
+        "Testing blockchain - It's like a sandbox where you can build castles without worrying about them breaking! 🏖️🏰",
+        "Mainnet - That's the real network, not the testing one! 🌐",
+        "Cryptocurrency exchange - That's a platform, not a testing environment! 🔄"
+      ],
+      "answer": "Testing blockchain - It's like a sandbox where you can build castles without worrying about them breaking! 🏖️🏰",
+      "explainer": "Testnets are separate blockchain networks for testing applications and features without risking real cryptocurrency. It's like a sandbox where you can build castles without worrying about them breaking! 🏖️🏰"
     },
     {
-      "question": "Mainnet?",
-      "options": ["Testnet", "Main blockchain", "Cryptocurrency exchange"],
-      "answer": "Main blockchain",
-      "explainer": "Mainnet is the primary blockchain network where real transactions occur with actual cryptocurrency value and consequences."
+      "question": "Welcome, real world navigator.\nWhat is a mainnet?\n🌐",
+      "options": [
+        "Main blockchain - It's like the real world compared to a dream - what happens here actually matters! 🌍✅",
+        "Testnet - That's the testing network, not the main one! 🧪",
+        "Cryptocurrency exchange - That's a platform, not a network! 🔄"
+      ],
+      "answer": "Main blockchain - It's like the real world compared to a dream - what happens here actually matters! 🌍✅",
+      "explainer": "Mainnet is the primary blockchain network where real transactions occur with actual cryptocurrency value and consequences. It's like the real world compared to a dream - what happens here actually matters! 🌍✅"
     }
   ]
 }

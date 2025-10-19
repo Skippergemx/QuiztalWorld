@@ -4,61 +4,61 @@ import { QuizAntiSpamManager } from '../managers/QuizAntiSpamManager';
 import { NetworkMonitor } from '../utils/NetworkMonitor';
 import NPCQuizManager from '../managers/NPCQuizManager';
 
-// Import modular managers
+// Import modular managers (same as GameScene)
 import AssetManager from '../managers/AssetManager';
-import NPCManager from '../managers/NPCManager';
 import PlayerManager from '../managers/PlayerManager';
 import MobileControlsManager from '../managers/MobileControlsManager';
 import PhysicsManager from '../managers/PhysicsManager';
 import PetManager from '../managers/PetManager';
-
-// Import walking NPC system
 import WalkingNPCManager from '../managers/WalkingNPCManager';
-
-// Import AudioManager
 import AudioManager from '../managers/AudioManager';
+import MonsterManager from '../managers/MonsterManager';
 
-export default class GameScene extends Phaser.Scene {
+// Import monster classes
+// @ts-ignore: Used in MonsterManager
+import { FieldMonster } from '../entities/FieldMonster';
+
+export default class ExplorationScene extends Phaser.Scene {
   // Core game objects
   private player!: Phaser.Physics.Arcade.Sprite;
   private selectedCharacter: string = 'lsxd';
-  private initialStamina: number | undefined = undefined; // Store initial stamina for teleportation
+  private initialStamina: number = 100; // Store initial stamina value
   private initialSpeedBoostActive: boolean = false; // Store initial speed boost state
   
   // System readiness flag
   // @ts-ignore: Used in PlayerManager
   private systemsReady: boolean = false;
 
-  // Manager instances
+  // Manager instances (note: no npcManager)
   private assetManager!: AssetManager;
-  private npcManager!: NPCManager;
   private playerManager!: PlayerManager;
   private mobileControlsManager!: MobileControlsManager;
   private physicsManager!: PhysicsManager;
   private petManager!: PetManager;
   private walkingNPCManager!: WalkingNPCManager;
+  private monsterManager!: MonsterManager;
 
   // System managers
   private quizAntiSpamManager!: QuizAntiSpamManager;
   private networkMonitor!: NetworkMonitor;
   
   // Speed boost system
-  // private nKey!: Phaser.Input.Keyboard.Key;
   private isSpeedBoostActive: boolean = false;
   private speedBoostEndTime: number = 0;
-  // private baseSpeed: number = 160;
   private speedBoostText!: Phaser.GameObjects.Text;
   private speedBoostTimerText!: Phaser.GameObjects.Text;
+  
+
 
   constructor() {
-    super({ key: 'GameScene' });
+    super({ key: 'ExplorationScene' });
   }
 
   init(data: { selectedCharacter?: string, currentStamina?: number, isSpeedBoostActive?: boolean }) {
+    // Same as GameScene
     if (data?.selectedCharacter) {
       this.selectedCharacter = data.selectedCharacter;
     } else {
-      // Try to get character from localStorage if not passed in data
       const playerDataStr = localStorage.getItem("quiztal-player");
       if (playerDataStr) {
         try {
@@ -72,27 +72,29 @@ export default class GameScene extends Phaser.Scene {
       }
     }
     
-    // Store initial stamina if provided (for teleportation)
-    this.initialStamina = data?.currentStamina;
+    // Store initial stamina if provided
+    if (data?.currentStamina !== undefined) {
+      this.initialStamina = data.currentStamina;
+    }
     
-    // Store initial speed boost state if provided (for teleportation)
+    // Store initial speed boost state if provided
     if (data?.isSpeedBoostActive !== undefined) {
       this.initialSpeedBoostActive = data.isSpeedBoostActive;
     }
   }
 
   preload() {
-    console.log('🚀 GameScene: Starting asset loading...');
+    console.log('🚀 ExplorationScene: Starting asset loading...');
     
     // Initialize and use AssetManager for centralized asset loading
     this.assetManager = AssetManager.getInstance(this);
     this.assetManager.loadAllAssets();
     
-    console.log('✅ GameScene: Asset loading delegated to AssetManager');
+    console.log('✅ ExplorationScene: Asset loading delegated to AssetManager');
   }
 
   async create() {
-    console.log('🎮 GameScene: Creating game world...');
+    console.log('🎮 ExplorationScene: Creating exploration world...');
 
     // 1. Set up basic scene
     await this.initializeScene();
@@ -106,42 +108,43 @@ export default class GameScene extends Phaser.Scene {
     // 4. Initialize player
     await this.initializePlayer();
 
-    // 5. Initialize NPCs
-    this.initializeNPCs();
+    // NOTE: Skipping NPC initialization
 
-    // 6. Initialize walking NPCs (new)
+    // 5. Initialize walking NPCs (but with empty initialization)
     this.initializeWalkingNPCs();
 
-    // 7. Set up input handling
+    // 6. Set up input handling
     this.setupInputHandling();
 
-    // 8. Initialize mobile controls
+    // 7. Initialize mobile controls
     this.initializeMobileControls();
 
-    // 9. Initialize pet system
+    // 8. Initialize pet system
     this.initializePetSystem();
 
-    // 10. Create player UI (title, name, etc.)
+    // 9. Create player UI (title, name, etc.)
     await this.initializePlayerUI();
 
-    // 11. Initialize audio system
+    // 10. Initialize audio system
     this.initializeAudio();
+
+    // 11. Initialize monster system
+    this.initializeMonsters();
 
     // 12. Final setup
     this.finalizeSetup();
 
     // Mark all systems as ready
     this.systemsReady = true;
-    console.log('✅ GameScene: All systems ready!');
+    console.log('✅ ExplorationScene: All systems ready!');
 
-    console.log('✅ GameScene: Game world created successfully!');
+    console.log('✅ ExplorationScene: Exploration world created successfully!');
   }
 
   update() {
-    // Delegate updates to managers
+    // Delegate updates to managers (note: no npcManager.updateNPCProximity())
     this.playerManager?.handleMovement(this.mobileControlsManager?.getIsMobile());
     this.playerManager?.updatePlayerUI();
-    this.npcManager?.updateNPCProximity();
     this.petManager?.update();
     this.walkingNPCManager?.updateWalkingNPCs();
     
@@ -150,12 +153,22 @@ export default class GameScene extends Phaser.Scene {
     
     // Check if speed boost has expired
     this.checkSpeedBoostExpiration();
+    
+    // Update monsters
+    if (this.player && this.monsterManager) {
+      // Update the monster manager
+      this.monsterManager.update();
+      
+      // In a future update, individual monster updates will be handled by the MonsterManager
+      // For now, we need to access the monsters directly
+      // This will be improved in a later iteration
+    }
   }
 
   // === INITIALIZATION METHODS ===
 
   private async initializeScene(): Promise<void> {
-    console.log('🏗️ GameScene: Initializing basic scene...');
+    console.log('🏗️ ExplorationScene: Initializing basic scene...');
     this.scene.launch('UIScene');
     
     // Set up mobile-specific resize handling
@@ -163,7 +176,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private async initializeCoreSystem(): Promise<void> {
-    console.log('⚙️ GameScene: Initializing core systems...');
+    console.log('⚙️ ExplorationScene: Initializing core systems...');
 
     // Initialize quiz and network systems
     const quizManager = NPCQuizManager.getInstance(this);
@@ -175,17 +188,17 @@ export default class GameScene extends Phaser.Scene {
     // Make managers globally accessible
     if (typeof window !== 'undefined') {
       (window as any).quizAntiSpamManager = this.quizAntiSpamManager;
-      (window as any).gameScene = this;
+      (window as any).explorationScene = this;
     }
   }
 
   private setupWorldAndPhysics(): void {
-    console.log('🌍 GameScene: Setting up world and physics...');
+    console.log('🌍 ExplorationScene: Setting up world and physics...');
 
-    // Create tilemap
-    const map = this.make.tilemap({ key: 'map' });
-    const tileset = map.addTilesetImage('tileset', 'tiles');
-    if (!tileset) throw new Error('Tileset failed to load!');
+    // Create tilemap (using field01 map and tileset)
+    const map = this.make.tilemap({ key: 'map_field01' });
+    const tileset = map.addTilesetImage('tileset', 'tiles_field01');
+    if (!tileset) throw new Error('Field 01 tileset failed to load!');
 
     // Initialize PhysicsManager and set up world
     this.physicsManager = PhysicsManager.getInstance(this);
@@ -193,13 +206,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private async initializePlayer(): Promise<void> {
-    console.log('👤 GameScene: Initializing player...');
+    console.log('👤 ExplorationScene: Initializing player...');
 
     const playerConfig = {
       selectedCharacter: this.selectedCharacter,
       startPosition: { x: 800, y: 750 },
       speed: 160,
-      initialStamina: this.initialStamina, // Pass initial stamina value if available
+      initialStamina: this.initialStamina, // Pass initial stamina value
       isSpeedBoostActive: this.initialSpeedBoostActive // Pass initial speed boost state
     };
 
@@ -219,30 +232,31 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  private initializeNPCs(): void {
-    console.log('🤖 GameScene: Initializing NPCs...');
+  // Empty NPC initialization (no NPCs in this world)
+  /*private initializeNPCs(): void {
+    console.log('🤖 ExplorationScene: Skipping NPC initialization...');
+    // Intentionally left empty
+  }*/
 
-    this.npcManager = NPCManager.getInstance(this, this.player);
-    this.npcManager.initializeAllNPCs();
-    this.npcManager.setupPhysicsColliders();
-    this.npcManager.registerWithAntiSpamManager(this.quizAntiSpamManager);
-
-    // Validate NPC setup
-    const validation = this.npcManager.validateNPCs();
-    if (!validation.valid) {
-      console.warn('⚠️ GameScene: NPC validation issues:', validation.issues);
-    }
+  // Empty walking NPC initialization
+  private initializeWalkingNPCs(): void {
+    console.log('🚶 ExplorationScene: Initializing empty walking NPC system...');
+    
+    // Initialize the WalkingNPCManager but don't register any NPCs
+    this.walkingNPCManager = WalkingNPCManager.getInstance(this);
+    
+    console.log('✅ ExplorationScene: Empty walking NPC system initialized');
   }
 
   private initializePetSystem(): void {
-    console.log('🐾 GameScene: Initializing pet system...');
+    console.log('🐾 ExplorationScene: Initializing pet system...');
 
     this.petManager = PetManager.getInstance(this, this.player, this.networkMonitor);
     
     // Initialize the pet if the player is eligible
     this.petManager.initializePetSystem();
     
-    // Add a delayed refresh to ensure pet is properly created
+    // Add a delayed refresh to ensure pet is properly created after teleportation
     this.time.delayedCall(1500, () => {
       if (this.petManager) {
         this.petManager.refreshPet();
@@ -250,88 +264,33 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
-  // Add this new method for walking NPC initialization
-  private initializeWalkingNPCs(): void {
-    console.log('🚶 GameScene: Initializing walking NPCs...');
-
-    // Initialize the WalkingNPCManager
-    this.walkingNPCManager = WalkingNPCManager.getInstance(this);
-
-    // Get the MrRugPull instance from the NPCManager and register it with the WalkingNPCManager
-    const mrRugPull = this.npcManager.getNPC('mrrugpull');
-    if (mrRugPull) {
-      this.walkingNPCManager.registerWalkingNPC(mrRugPull);
-      console.log('✅ GameScene: MrRugPull registered with WalkingNPCManager');
-    } else {
-      console.warn('⚠️ GameScene: MrRugPull not found in NPCManager, cannot register with WalkingNPCManager');
-    }
-
-    // Get the ArtizenGent instance from the NPCManager and register it with the WalkingNPCManager
-    const artizenGent = this.npcManager.getNPC('artizengent');
-    if (artizenGent) {
-      this.walkingNPCManager.registerWalkingNPC(artizenGent);
-      console.log('✅ GameScene: ArtizenGent registered with WalkingNPCManager');
-    } else {
-      console.warn('⚠️ GameScene: ArtizenGent not found in NPCManager, cannot register with WalkingNPCManager');
-    }
-
-    // Get the ThirdWebGuy instance from the NPCManager and register it with the WalkingNPCManager
-    const thirdWebGuy = this.npcManager.getNPC('thirdwebguy');
-    if (thirdWebGuy) {
-      this.walkingNPCManager.registerWalkingNPC(thirdWebGuy);
-      console.log('✅ GameScene: ThirdWebGuy registered with WalkingNPCManager');
-    } else {
-      console.warn('⚠️ GameScene: ThirdWebGuy not found in NPCManager, cannot register with WalkingNPCManager');
-    }
-
-    // Get the AlchemyMan instance from the NPCManager and register it with the WalkingNPCManager
-    const alchemyMan = this.npcManager.getNPC('alchemyman');
-    if (alchemyMan) {
-      this.walkingNPCManager.registerWalkingNPC(alchemyMan);
-      console.log('✅ GameScene: AlchemyMan registered with WalkingNPCManager');
-    } else {
-      console.warn('⚠️ GameScene: AlchemyMan not found in NPCManager, cannot register with WalkingNPCManager');
-    }
-
-    // Get the BasePal instance from the NPCManager and register it with the WalkingNPCManager
-    const basePal = this.npcManager.getNPC('basepal');
-    if (basePal) {
-      this.walkingNPCManager.registerWalkingNPC(basePal);
-      console.log('✅ GameScene: BasePal registered with WalkingNPCManager');
-    } else {
-      console.warn('⚠️ GameScene: BasePal not found in NPCManager, cannot register with WalkingNPCManager');
-    }
-
-    console.log('✅ GameScene: Walking NPC system initialized');
-  }
-
   private setupInputHandling(): void {
-    console.log('🎮 GameScene: Setting up input handling...');
+    console.log('🎮 ExplorationScene: Setting up input handling...');
 
-    // Set up keyboard event handlers
+    // Set up keyboard event handlers (same as GameScene)
     this.input.keyboard?.on('keydown-C', () => this.handleInteraction('C'));
     this.input.keyboard?.on('keydown-c', () => this.handleInteraction('C'));
     this.input.keyboard?.on('keydown-O', () => this.handleInteraction('O'));
     this.input.keyboard?.on('keydown-o', () => this.handleInteraction('O'));
     this.input.keyboard?.on('keydown-G', () => this.toggleGuideBook());
     this.input.keyboard?.on('keydown-g', () => this.toggleGuideBook());
-    this.input.keyboard?.on('keydown-Q', () => this.toggleSkillWindow()); // Changed from S to Q key for skill window
-    this.input.keyboard?.on('keydown-q', () => this.toggleSkillWindow()); // Changed from s to q key for skill window
+    this.input.keyboard?.on('keydown-Q', () => this.toggleSkillWindow());
+    this.input.keyboard?.on('keydown-q', () => this.toggleSkillWindow());
     
     // Add N key binding for speed boost
     this.input.keyboard?.on('keydown-N', () => this.activateSpeedBoost());
     this.input.keyboard?.on('keydown-n', () => this.activateSpeedBoost());
     
-    // Add T key binding for teleport to field map
-    this.input.keyboard?.on('keydown-T', () => this.teleportToFieldMap());
-    this.input.keyboard?.on('keydown-t', () => this.teleportToFieldMap());
+    // Add T key binding for teleport back to main game
+    this.input.keyboard?.on('keydown-T', () => this.teleportToMainGame());
+    this.input.keyboard?.on('keydown-t', () => this.teleportToMainGame());
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
   }
 
   private initializeMobileControls(): void {
-    console.log('📱 GameScene: Initializing mobile controls...');
+    console.log('📱 ExplorationScene: Initializing mobile controls...');
 
     this.mobileControlsManager = MobileControlsManager.getInstance(
       this,
@@ -342,17 +301,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private async initializePlayerUI(): Promise<void> {
-    console.log('👑 GameScene: Initializing player UI...');
+    console.log('👑 ExplorationScene: Initializing player UI...');
 
     await this.playerManager.createPlayerTitle();
     await this.playerManager.createPlayerName();
+    
+    // Add a delayed refresh to ensure title is properly created
+    this.time.delayedCall(1000, async () => {
+      if (this.playerManager) {
+        await this.playerManager.refreshPlayerTitle();
+      }
+    });
   }
 
   private initializeAudio(): void {
-    console.log('🔊 GameScene: Initializing audio system...');
-
-    // Debug: Check what audio files are available
-    console.log('🎵 GameScene: Available audio files in cache:', this.cache.audio.getKeys());
+    console.log('🔊 ExplorationScene: Initializing audio system...');
 
     // Get the AudioManager instance
     const audioManager = AudioManager.getInstance();
@@ -360,31 +323,58 @@ export default class GameScene extends Phaser.Scene {
     // Initialize sound effects
     audioManager.initSounds(this);
 
-    // Set up background music - check if it exists in cache first
-    console.log('🎵 GameScene: Checking for bgm in cache...');
+    // Set up background music
+    console.log('🎵 ExplorationScene: Checking for bgm in cache...');
     if (this.cache.audio.exists('bgm')) {
-        console.log('🎵 GameScene: BGM found in cache, adding to sound manager');
+        console.log('🎵 ExplorationScene: BGM found in cache, adding to sound manager');
         const bgm = this.sound.add('bgm', {
             volume: 0.5,
             loop: true
         });
-        console.log('🎵 GameScene: BGM loaded successfully');
+        console.log('🎵 ExplorationScene: BGM loaded successfully');
         audioManager.setMusic(bgm);
-        console.log('🎵 GameScene: BGM set in AudioManager');
+        console.log('🎵 ExplorationScene: BGM set in AudioManager');
     } else {
-        console.warn('⚠️ GameScene: Background music not found in cache');
+        console.warn('⚠️ ExplorationScene: Background music not found in cache');
         // Set up to play on first interaction
         this.setupFirstInteractionAudio();
     }
 
-    console.log('✅ GameScene: Audio system initialized');
+    console.log('✅ ExplorationScene: Audio system initialized');
   }
 
+  private initializeMonsters(): void {
+    console.log('👾 ExplorationScene: Initializing monsters...');
+    
+    // Initialize MonsterManager with a maximum of 10 monsters
+    this.monsterManager = MonsterManager.getInstance(this);
+    this.monsterManager.initialize(10);
+    
+    // Set up monster collisions (this will be handled by the MonsterManager in future updates)
+    // For now, we'll set up a single collision handler
+    this.setupMonsterCollisions();
+  }
+
+  private setupMonsterCollisions(): void {
+    // Note: In a more advanced implementation, collision handling would be done per monster
+    // For now, we're keeping the existing structure but it will be updated
+    console.log('👾 ExplorationScene: Setting up monster collision system');
+  }
+
+  /*private handlePlayerMonsterCollision(player: any, monster: any): void {
+    console.log('💥 Player collided with monster!');
+    // Handle collision effect (damage to player, knockback, etc.)
+    // This would integrate with your existing player damage system
+    
+    // In a future update, we'll handle monster damage and removal through the MonsterManager
+    // For now, we're keeping the basic structure
+  }*/
+
   private setupFirstInteractionAudio(): void {
-    console.log('🎵 GameScene: Setting up first interaction audio');
+    console.log('🎵 ExplorationScene: Setting up first interaction audio');
     
     const playAudioOnFirstInteraction = () => {
-        console.log('🎵 GameScene: First interaction detected, playing audio');
+        console.log('🎵 ExplorationScene: First interaction detected, playing audio');
         // Remove event listeners to prevent multiple triggers
         this.input.keyboard?.off('keydown');
         this.input.off('pointerdown');
@@ -396,29 +386,29 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private finalizeSetup(): void {
-    console.log('🎯 GameScene: Finalizing setup...');
+    console.log('🎯 ExplorationScene: Finalizing setup...');
 
     // Validate asset loading
     const assetValidation = this.assetManager.validateAssets();
     if (!assetValidation.success) {
-      console.warn('⚠️ GameScene: Asset validation issues:', assetValidation.missingAssets);
+      console.warn('⚠️ ExplorationScene: Asset validation issues:', assetValidation.missingAssets);
     }
 
     // Validate physics setup
     const physicsValidation = this.physicsManager.validatePhysicsSetup();
     if (!physicsValidation.valid) {
-      console.warn('⚠️ GameScene: Physics validation issues:', physicsValidation.issues);
+      console.warn('⚠️ ExplorationScene: Physics validation issues:', physicsValidation.issues);
     }
   }
 
   // === INTERACTION HANDLING ===
 
   private handleInteraction(key: string): void {
-    console.log(`🎮 GameScene: Handling interaction for key: ${key}`);
+    console.log(`🎮 ExplorationScene: Handling interaction for key: ${key}`);
     
     // Check if interactions are blocked
     if (this.isInteractionBlocked()) {
-      console.log(`GameScene: ${key} key press blocked - interactions are currently blocked`);
+      console.log(`ExplorationScene: ${key} key press blocked - interactions are currently blocked`);
       return;
     }
 
@@ -430,29 +420,29 @@ export default class GameScene extends Phaser.Scene {
     // Handle different interaction types
     switch (key) {
       case 'C':
-        console.log('🎮 GameScene: Handling NPC interaction (C key)');
-        this.handleNPCInteraction();
+        console.log('🎮 ExplorationScene: Handling interaction (C key)');
+        // In exploration mode, C key might trigger different actions
+        this.handleExplorationInteraction();
         break;
       case 'O':
-        console.log('🎮 GameScene: Handling Pet interaction (O key)');
+        console.log('🎮 ExplorationScene: Handling Pet interaction (O key)');
         this.handlePetInteraction();
         break;
       default:
-        console.log(`GameScene: Unknown interaction key: ${key}`);
+        console.log(`ExplorationScene: Unknown interaction key: ${key}`);
     }
   }
 
-  private handleNPCInteraction(): void {
-    const success = this.npcManager.handleNPCInteraction('C');
-    if (!success) {
-      console.log('GameScene: No NPC interaction available');
-    }
+  private handleExplorationInteraction(): void {
+    // Custom interaction logic for exploration mode
+    console.log('ExplorationScene: Exploration interaction triggered');
+    // Add your custom exploration interaction logic here
   }
 
   private async handlePetInteraction(): Promise<void> {
     const success = await this.petManager.handleMoblinInteraction('O');
     if (!success) {
-      console.log('GameScene: No pet interaction available');
+      console.log('ExplorationScene: No pet interaction available');
     }
   }
 
@@ -467,7 +457,7 @@ export default class GameScene extends Phaser.Scene {
 
   private checkNetworkConnectivity(): boolean {
     if (!this.networkMonitor.getIsOnline()) {
-      console.log('GameScene: Network offline - preventing interaction');
+      console.log('ExplorationScene: Network offline - preventing interaction');
       showDialog(this, [
         {
           text: '🚫 Network connection lost! Please check your internet connection to continue playing.',
@@ -480,25 +470,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private handleSceneShutdown(): void {
-    console.log('🛑 GameScene: Shutting down...');
+    console.log('🛑 ExplorationScene: Shutting down...');
     
     // Stop all audio
     try {
       const audioManager = AudioManager.getInstance();
       audioManager.stopAllAudio();
     } catch (e) {
-      console.warn('⚠️ GameScene: Error stopping audio during shutdown', e);
+      console.warn('⚠️ ExplorationScene: Error stopping audio during shutdown', e);
     }
     
     // Clear any existing dialogs
     try {
-      if (typeof showDialog === 'function') {
-        // Don't call with empty array as it will cause an error
-        // Instead, we just want to close any existing dialog
-        // showDialog(this, []); // This was causing the error
-      }
+      // Don't call with empty array as it will cause an error
     } catch (e) {
-      console.warn('⚠️ GameScene: Error clearing dialogs during shutdown', e);
+      console.warn('⚠️ ExplorationScene: Error clearing dialogs during shutdown', e);
     }
     
     // Clean up network monitor
@@ -506,7 +492,7 @@ export default class GameScene extends Phaser.Scene {
       try {
         this.networkMonitor.destroy();
       } catch (e) {
-        console.warn('⚠️ GameScene: Error destroying network monitor', e);
+        console.warn('⚠️ ExplorationScene: Error destroying network monitor', e);
       }
     }
   }
@@ -515,11 +501,11 @@ export default class GameScene extends Phaser.Scene {
    * Clean up mobile-specific resources
    */
   shutdown(): void {
-    console.log('🛑 GameScene: Starting shutdown...');
+    console.log('🛑 ExplorationScene: Starting shutdown...');
     
     // Flag to prevent multiple shutdown calls
     if ((this as any)._isShuttingDown) {
-      console.log('⚠️ GameScene: Shutdown already in progress, skipping...');
+      console.log('⚠️ ExplorationScene: Shutdown already in progress, skipping...');
       return;
     }
     (this as any)._isShuttingDown = true;
@@ -528,7 +514,7 @@ export default class GameScene extends Phaser.Scene {
       // Remove resize listener
       this.scale.off('resize', this.handleResize, this);
     } catch (e) {
-      console.warn('⚠️ GameScene: Error removing resize listener', e);
+      console.warn('⚠️ ExplorationScene: Error removing resize listener', e);
     }
     
     try {
@@ -540,7 +526,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.removeAllListeners();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error cleaning up event listeners', e);
+      console.warn('⚠️ ExplorationScene: Error cleaning up event listeners', e);
     }
     
     // Stop UIScene if it's running
@@ -551,7 +537,7 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error stopping UIScene', e);
+      console.warn('⚠️ ExplorationScene: Error stopping UIScene', e);
     }
     
     // Clean up managers in reverse order of initialization
@@ -560,7 +546,7 @@ export default class GameScene extends Phaser.Scene {
         this.mobileControlsManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying mobile controls manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying mobile controls manager', e);
     }
     
     try {
@@ -568,7 +554,7 @@ export default class GameScene extends Phaser.Scene {
         this.petManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying pet manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying pet manager', e);
     }
     
     try {
@@ -576,15 +562,7 @@ export default class GameScene extends Phaser.Scene {
         this.walkingNPCManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying walking NPC manager', e);
-    }
-    
-    try {
-      if (this.npcManager) {
-        this.npcManager.destroy();
-      }
-    } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying NPC manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying walking NPC manager', e);
     }
     
     try {
@@ -592,7 +570,7 @@ export default class GameScene extends Phaser.Scene {
         this.playerManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying player manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying player manager', e);
     }
     
     try {
@@ -600,7 +578,7 @@ export default class GameScene extends Phaser.Scene {
         this.physicsManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying physics manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying physics manager', e);
     }
     
     try {
@@ -608,7 +586,16 @@ export default class GameScene extends Phaser.Scene {
         this.assetManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying asset manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying asset manager', e);
+    }
+    
+    // Clean up monsters
+    try {
+      if (this.monsterManager) {
+        this.monsterManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ ExplorationScene: Error destroying monster manager', e);
     }
     
     // Clean up audio
@@ -616,7 +603,7 @@ export default class GameScene extends Phaser.Scene {
       const audioManager = AudioManager.getInstance();
       audioManager.destroy();
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying audio manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying audio manager', e);
     }
     
     // Clean up system managers
@@ -625,7 +612,7 @@ export default class GameScene extends Phaser.Scene {
         this.networkMonitor.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying network monitor', e);
+      console.warn('⚠️ ExplorationScene: Error destroying network monitor', e);
     }
     
     try {
@@ -633,23 +620,23 @@ export default class GameScene extends Phaser.Scene {
         this.quizAntiSpamManager.destroy();
       }
     } catch (e) {
-      console.warn('⚠️ GameScene: Error destroying quiz anti-spam manager', e);
+      console.warn('⚠️ ExplorationScene: Error destroying quiz anti-spam manager', e);
     }
     
     // Remove global references
     if (typeof window !== 'undefined') {
       try {
         delete (window as any).quizAntiSpamManager;
-        delete (window as any).gameScene;
+        delete (window as any).explorationScene;
       } catch (e) {
-        console.warn('⚠️ GameScene: Error removing global references', e);
+        console.warn('⚠️ ExplorationScene: Error removing global references', e);
       }
     }
     
     // Clear the shutdown flag
     (this as any)._isShuttingDown = false;
     
-    console.log('✅ GameScene: Shutdown complete');
+    console.log('✅ ExplorationScene: Shutdown complete');
   }
 
   /**
@@ -662,11 +649,11 @@ export default class GameScene extends Phaser.Scene {
     if (isGuideBookOpen) {
       // Close guide book if it's open
       this.scene.stop('GuideBookScene');
-      this.scene.resume('GameScene');
+      this.scene.resume('ExplorationScene');
     } else {
       // Open guide book if it's closed
       this.scene.launch('GuideBookScene');
-      this.scene.pause('GameScene');
+      this.scene.pause('ExplorationScene');
     }
   }
 
@@ -680,138 +667,14 @@ export default class GameScene extends Phaser.Scene {
     if (isSkillWindowOpen) {
       // Close skill window if it's open
       this.scene.stop('SkillWindowScene');
-      this.scene.resume('GameScene');
+      this.scene.resume('ExplorationScene');
     } else {
       // Open skill window if it's closed
       this.scene.launch('SkillWindowScene', {
-        onClose: () => this.scene.resume('GameScene')
+        onClose: () => this.scene.resume('ExplorationScene')
       });
-      this.scene.pause('GameScene');
+      this.scene.pause('ExplorationScene');
     }
-  }
-
-  // === PUBLIC API METHODS ===
-
-  /**
-   * Refresh NPC depths to fix rendering issues (for debugging)
-   */
-  public refreshNPCDepths(): void {
-    if (this.npcManager) {
-      this.npcManager.refreshNPCDepths();
-      console.log('🔄 GameScene: NPC depths refreshed manually');
-    } else {
-      console.warn('⚠️ GameScene: NPCManager not initialized');
-    }
-  }
-
-  /**
-   * Refresh player depth to fix rendering issues (for debugging)
-   */
-  public refreshPlayerDepth(): void {
-    if (this.playerManager) {
-      this.playerManager.refreshPlayerDepth();
-      console.log('🔄 GameScene: Player depth refreshed manually');
-    } else {
-      console.warn('⚠️ GameScene: PlayerManager not initialized');
-    }
-  }
-
-  /**
-   * Refresh player title depths to fix rendering issues (for debugging)
-   */
-  public refreshTitleDepths(): void {
-    if (this.playerManager) {
-      this.playerManager.refreshTitleDepths();
-      console.log('🔄 GameScene: Title depths refreshed manually');
-    } else {
-      console.warn('⚠️ GameScene: PlayerManager not initialized');
-    }
-  }
-
-  /**
-   * Refresh all character depths (NPCs + Player + Titles) for debugging
-   */
-  public refreshAllDepths(): void {
-    console.log('🔄 GameScene: Refreshing all rendering depths...');
-    this.refreshPlayerDepth();
-    this.refreshTitleDepths();
-    this.refreshNPCDepths();
-    console.log('✅ GameScene: All rendering depths refreshed');
-  }
-
-  /**
-   * Get debug information about all managers
-   */
-  public getDebugInfo(): any {
-    return {
-      scene: 'GameScene',
-      selectedCharacter: this.selectedCharacter,
-      managers: {
-        asset: this.assetManager?.areAssetsLoaded() || false,
-        npc: this.npcManager?.getDebugInfo() || null,
-        player: this.playerManager?.getDebugInfo() || null,
-        mobileControls: this.mobileControlsManager?.getDebugInfo() || null,
-        physics: this.physicsManager?.getDebugInfo() || null,
-        pet: this.petManager?.getDebugInfo() || null
-      },
-      systems: {
-        quizAntiSpam: !!this.quizAntiSpamManager,
-        networkMonitor: !!this.networkMonitor
-      }
-    };
-  }
-
-  /**
-   * Get specific manager instance (for external access)
-   */
-  public getManager(managerType: string): any {
-    switch (managerType.toLowerCase()) {
-      case 'npc': return this.npcManager;
-      case 'player': return this.playerManager;
-      case 'mobile': return this.mobileControlsManager;
-      case 'physics': return this.physicsManager;
-      case 'pet': return this.petManager;
-      case 'asset': return this.assetManager;
-      default: return null;
-    }
-  }
-
-  /**
-   * Validate all systems are working correctly
-   */
-  public validateSystems(): { valid: boolean; issues: string[] } {
-    const issues: string[] = [];
-
-    // Check managers exist
-    if (!this.assetManager) issues.push('AssetManager not initialized');
-    if (!this.npcManager) issues.push('NPCManager not initialized');
-    if (!this.playerManager) issues.push('PlayerManager not initialized');
-    if (!this.physicsManager) issues.push('PhysicsManager not initialized');
-    if (!this.petManager) issues.push('PetManager not initialized');
-
-    // Check core systems
-    if (!this.quizAntiSpamManager) issues.push('QuizAntiSpamManager not initialized');
-    if (!this.networkMonitor) issues.push('NetworkMonitor not initialized');
-
-    // Validate individual systems
-    if (this.npcManager) {
-      const npcValidation = this.npcManager.validateNPCs();
-      if (!npcValidation.valid) {
-        issues.push(...npcValidation.issues.map(issue => `NPC: ${issue}`));
-      }
-    }
-
-    if (this.physicsManager) {
-      const physicsValidation = this.physicsManager.validatePhysicsSetup();
-      if (!physicsValidation.valid) {
-        issues.push(...physicsValidation.issues.map(issue => `Physics: ${issue}`));
-      }
-    }
-
-    return {
-      valid: issues.length === 0,
-      issues
-    };
   }
 
   // === MOBILE SUPPORT METHODS ===
@@ -820,7 +683,7 @@ export default class GameScene extends Phaser.Scene {
    * Handle window resize events for mobile devices
    */
   private handleResize(): void {
-    console.log('📱 GameScene: Handling resize event...');
+    console.log('📱 ExplorationScene: Handling resize event...');
     
     // Update mobile controls layout
     if (this.mobileControlsManager) {
@@ -842,41 +705,7 @@ export default class GameScene extends Phaser.Scene {
       }
     }
     
-    // Notify other systems of resize
-    // Note: PlayerManager and NPCManager don't have handleResize methods
-    // but we could add them in the future if needed
-    
-    console.log(`📱 GameScene: Resized to ${this.scale.width}x${this.scale.height}`);
-  }
-
-  // Add method to teleport to field map
-  private teleportToFieldMap(): void {
-    console.log('🎮 GameScene: Teleporting to field map...');
-    
-    // Stop all audio before teleporting to prevent duplication
-    try {
-      const audioManager = AudioManager.getInstance();
-      audioManager.stopAllAudio();
-    } catch (e) {
-      console.warn('⚠️ GameScene: Error stopping audio before teleport', e);
-    }
-    
-    // Get current stamina and speed boost state to pass to the new scene
-    let currentStamina = 100; // Default value
-    let isSpeedBoostActive = false; // Default value
-    if (this.playerManager) {
-      currentStamina = this.playerManager.getCurrentStamina();
-      isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
-      // Save current stamina before teleporting
-      this.playerManager.saveStaminaData();
-    }
-    
-    // Transition to ExplorationScene with current stamina and speed boost state
-    this.scene.start('ExplorationScene', {
-      selectedCharacter: this.selectedCharacter,
-      currentStamina: currentStamina,
-      isSpeedBoostActive: isSpeedBoostActive
-    });
+    console.log(`📱 ExplorationScene: Resized to ${this.scale.width}x${this.scale.height}`);
   }
 
   // Add speed boost activation method
@@ -1054,4 +883,57 @@ export default class GameScene extends Phaser.Scene {
       }
     });
   }
+
+  // Add method to teleport back to main game
+  private teleportToMainGame(): void {
+    console.log('🎮 ExplorationScene: Teleporting back to main game...');
+    
+    // Stop all audio before teleporting to prevent duplication
+    try {
+      const audioManager = AudioManager.getInstance();
+      audioManager.stopAllAudio();
+    } catch (e) {
+      console.warn('⚠️ ExplorationScene: Error stopping audio before teleport', e);
+    }
+    
+    // Get current stamina and speed boost state to pass to the new scene
+    let currentStamina = 100; // Default value
+    let isSpeedBoostActive = false; // Default value
+    if (this.playerManager) {
+      currentStamina = this.playerManager.getCurrentStamina();
+      isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
+      // Save current stamina before teleporting
+      this.playerManager.saveStaminaData();
+    }
+    
+    // Transition to GameScene with current stamina and speed boost state
+    this.scene.start('GameScene', {
+      selectedCharacter: this.selectedCharacter,
+      currentStamina: currentStamina,
+      isSpeedBoostActive: isSpeedBoostActive
+    });
+  }
+
+  // Add method to teleport to different field maps (for future expansion)
+  /*private teleportToFieldMap(mapId: string = 'field01'): void {
+    console.log(`🎮 ExplorationScene: Teleporting to ${mapId}...`);
+    
+    // Get current stamina and speed boost state to pass to the new scene
+    let currentStamina = 100; // Default value
+    let isSpeedBoostActive = false; // Default value
+    if (this.playerManager) {
+      currentStamina = this.playerManager.getCurrentStamina();
+      isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
+      // Save current stamina before teleporting
+      this.playerManager.saveStaminaData();
+    }
+    
+    // For now, we only have field01, so we'll just reload the current scene
+    // In the future, we could load different field maps based on the mapId
+    this.scene.restart({
+      selectedCharacter: this.selectedCharacter,
+      currentStamina: currentStamina,
+      isSpeedBoostActive: isSpeedBoostActive
+    });
+  }*/
 }

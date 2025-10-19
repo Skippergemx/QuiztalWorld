@@ -20,11 +20,13 @@ const DEFAULT_OPTIONS: NFTFetchOptions = {
 export class OptimizedNFTService {
   private provider: BrowserProvider | null = null;
   private cache: Map<string, NFTCacheEntry> = new Map();
-  private readonly IPFS_GATEWAYS = [
+  private static readonly IPFS_GATEWAYS = [
     'https://ipfs.io/ipfs/',
     'https://cloudflare-ipfs.com/ipfs/',
     'https://gateway.pinata.cloud/ipfs/'
   ];
+
+  private readonly IPFS_GATEWAYS = OptimizedNFTService.IPFS_GATEWAYS;
 
   constructor(provider: BrowserProvider | null = null) {
     this.provider = provider;
@@ -434,6 +436,41 @@ export class OptimizedNFTService {
    */
   clearCache(): void {
     this.cache.clear();
+  }
+
+  /**
+   * Convert IPFS URI to HTTP URI trying multiple gateways
+   */
+  public static async convertIPFSToHTTPWithFallback(ipfsUri: string): Promise<string> {
+    if (!ipfsUri.startsWith('ipfs://')) {
+      return ipfsUri;
+    }
+
+    const hash = ipfsUri.slice(7);
+    const IPFS_GATEWAYS = [
+      'https://ipfs.io/ipfs/',
+      'https://cloudflare-ipfs.com/ipfs/',
+      'https://gateway.pinata.cloud/ipfs/'
+    ];
+    
+    // Try each gateway in order
+    for (const gateway of IPFS_GATEWAYS) {
+      try {
+        const url = gateway + hash;
+        // Test if the gateway is accessible
+        const response = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        if (response.ok) {
+          return url;
+        }
+      } catch (error: any) {
+        // Continue to next gateway
+        console.warn(`Gateway ${gateway} failed for ${ipfsUri}:`, error.message || error);
+      }
+    }
+    
+    // If all gateways fail, return the first one as fallback
+    console.warn(`All gateways failed for ${ipfsUri}, using fallback`);
+    return IPFS_GATEWAYS[0] + hash;
   }
 
   /**

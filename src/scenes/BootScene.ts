@@ -8,7 +8,7 @@ export default class BootScene extends Phaser.Scene {
 
         // Add progress tracking
         let loadingProgress = 0;
-        const totalAssets = 30; // Approximate number of assets being loaded
+        const totalAssets = 32; // Updated number of assets being loaded
         
         // Function to update progress
         const updateProgress = () => {
@@ -37,8 +37,13 @@ export default class BootScene extends Phaser.Scene {
         // ✅ Load Tileset & Map
         this.load.image("tiles", "assets/tilesets/tileset.png");
         this.load.tilemapTiledJSON("map", "assets/maps/map.json");
+        // ✅ Load Field 01 Tileset & Map for Exploration Scene
+        this.load.image("tiles_field01", "assets/tilesets/tileset_field01.png");
+        this.load.tilemapTiledJSON("map_field01", "assets/maps/map_field01.json");
         this.load.on('filecomplete-image-tiles', updateProgress);
         this.load.on('filecomplete-tilemapJSON-map', updateProgress);
+        this.load.on('filecomplete-image-tiles_field01', updateProgress);
+        this.load.on('filecomplete-tilemapJSON-map_field01', updateProgress);
 
         // ✅ Load NPC Huntboy as a spritesheet (REMOVED duplicate image load)
         this.load.spritesheet("npc_huntboy", "assets/npc/npc_huntboy_idle_1.png", {
@@ -106,6 +111,18 @@ export default class BootScene extends Phaser.Scene {
         });
         this.load.on('filecomplete-spritesheet-moblin_idle', updateProgress);
         this.load.on('filecomplete-spritesheet-moblin_walk', updateProgress);
+
+        // ✅ Load Monster spritesheets (idle and walk)
+        this.load.spritesheet("mobster_idle", "assets/monsters/mobster_idle.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("mobster_walk", "assets/monsters/mobster_walk.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.on('filecomplete-spritesheet-mobster_idle', updateProgress);
+        this.load.on('filecomplete-spritesheet-mobster_walk', updateProgress);
 
         // ✅ Load Player Spritesheets (Idle & Walk)
         const characters = ["lsxd", "penski", "sarah", "xander"];

@@ -9,6 +9,13 @@ export class NetworkMonitor {
   private checkInterval: number = 5000; // Check every 5 seconds
   private checkTimer: Phaser.Time.TimerEvent | null = null;
   private networkStatusChangeCallbacks: Array<() => void> = [];
+  
+  // Properly store references to event listener functions
+  private onlineHandler: (() => void) | null = null;
+  private offlineHandler: (() => void) | null = null;
+  
+  // Track if we're showing online confirmation
+  private showingOnlineConfirmation: boolean = false;
 
   private constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -22,20 +29,24 @@ export class NetworkMonitor {
     }
     return NetworkMonitor.instance;
   }
+  
 private setupEventListeners() {
-  window.addEventListener('online', () => {
+  // Store references to the event listener functions
+  this.onlineHandler = () => {
     this.isOnline = true;
     this.updateNetworkStatusUI();
     this.notifyNetworkStatusChange();
-  });
+  };
 
-  window.addEventListener('offline', () => {
+  this.offlineHandler = () => {
     this.isOnline = false;
     this.updateNetworkStatusUI();
     this.notifyNetworkStatusChange();
-  });
-}
+  };
 
+  window.addEventListener('online', this.onlineHandler);
+  window.addEventListener('offline', this.offlineHandler);
+}
 
   private startConnectivityChecks() {
     // Periodic connectivity check
@@ -48,38 +59,42 @@ private setupEventListeners() {
   }
 
   private async checkConnectivity() {
-    try {
-      // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 5000);
-      });
-      
-      // Create the fetch promise
-      const fetchPromise = fetch('https://httpbin.org/get', {
-        method: 'HEAD',
-        cache: 'no-cache'
-      });
-      
-      // Race the promises to implement timeout
-      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-      
-      if (!response.ok) {
-        throw new Error('Network response not ok');
+    // Use multiple fallback endpoints for better reliability
+    const endpoints = [
+      'https://httpbin.org/get',
+      'https://www.google.com',
+      'https://1.1.1.1'
+    ];
+
+    let isReachable = false;
+    
+    for (const endpoint of endpoints) {
+      try {
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), 3000);
+        });
+        
+        const fetchPromise = fetch(endpoint, {
+          method: 'HEAD',
+          cache: 'no-cache'
+        });
+        
+        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+        
+        if (response.ok) {
+          isReachable = true;
+          break;
+        }
+      } catch (error) {
+        // Try next endpoint
+        continue;
       }
-      
-      // If we get here, we're online
-      if (!this.isOnline) {
-        this.isOnline = true;
-        this.updateNetworkStatusUI();
-        this.notifyNetworkStatusChange();
-      }
-    } catch (error) {
-      // If we're already marked as offline, don't update UI again
-      if (this.isOnline) {
-        this.isOnline = false;
-        this.updateNetworkStatusUI();
-        this.notifyNetworkStatusChange();
-      }
+    }
+    
+    if (isReachable !== this.isOnline) {
+      this.isOnline = isReachable;
+      this.updateNetworkStatusUI();
+      this.notifyNetworkStatusChange();
     }
   }
 
@@ -95,7 +110,25 @@ private setupEventListeners() {
     }
 
     if (this.networkStatusContainer) {
-      this.networkStatusContainer.setVisible(!this.isOnline);
+      // Show container briefly when coming online, always show when offline
+      if (this.isOnline) {
+        // Only show online confirmation if we were previously offline
+        if (!this.showingOnlineConfirmation) {
+          this.networkStatusContainer.setVisible(true);
+          this.showingOnlineConfirmation = true;
+          
+          // Hide after 3 seconds
+          this.scene.time.delayedCall(3000, () => {
+            if (this.networkStatusContainer && this.getIsOnline()) {
+              this.networkStatusContainer.setVisible(false);
+              this.showingOnlineConfirmation = false;
+            }
+          });
+        }
+      } else {
+        this.networkStatusContainer.setVisible(true);
+        this.showingOnlineConfirmation = false;
+      }
     }
   }
 
@@ -126,6 +159,7 @@ private setupEventListeners() {
     // Initially hide the container
     this.networkStatusContainer.setVisible(false);
   }
+  
 public getIsOnline(): boolean {
   return this.isOnline;
 }
@@ -143,11 +177,11 @@ public removeNetworkStatusChangeListener(callback: () => void): void {
 
 private notifyNetworkStatusChange(): void {
   // Call all registered callbacks
-  this.networkStatusChangeCallbacks.forEach(callback => {
+  this.networkStatusChangeCallbacks.forEach((callback, index) => {
     try {
       callback();
     } catch (error) {
-      console.error('Error in network status change callback:', error);
+      console.error(`Error in network status change callback [${index}]:`, error);
     }
   });
 }
@@ -159,12 +193,12 @@ public destroy() {
     this.checkTimer = null;
   }
   
-  // Remove event listeners
-  try {
-    window.removeEventListener('online', this.setupEventListeners as any);
-    window.removeEventListener('offline', this.setupEventListeners as any);
-  } catch (e) {
-    console.warn('⚠️ NetworkMonitor: Error removing event listeners', e);
+  // Remove event listeners using the stored references
+  if (this.onlineHandler) {
+    window.removeEventListener('online', this.onlineHandler);
+  }
+  if (this.offlineHandler) {
+    window.removeEventListener('offline', this.offlineHandler);
   }
   
   // Destroy UI elements

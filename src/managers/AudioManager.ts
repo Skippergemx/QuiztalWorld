@@ -64,4 +64,81 @@ export default class AudioManager {
     isPlaying(): boolean {
         return this.music ? this.music.isPlaying : false;
     }
+
+    stopAllAudio(): void {
+        console.log('⏹️ AudioManager: Stopping all audio...');
+        
+        // Stop music
+        if (this.music && this.music.isPlaying) {
+            try {
+                this.music.stop();
+                console.log('⏹️ AudioManager: Music stopped');
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error stopping music', e);
+            }
+        }
+        
+        // Stop sound effects
+        if (this.correctSound && this.correctSound.isPlaying) {
+            try {
+                this.correctSound.stop();
+                console.log('⏹️ AudioManager: Correct sound stopped');
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error stopping correct sound', e);
+            }
+        }
+        
+        if (this.wrongSound && this.wrongSound.isPlaying) {
+            try {
+                this.wrongSound.stop();
+                console.log('⏹️ AudioManager: Wrong sound stopped');
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error stopping wrong sound', e);
+            }
+        }
+    }
+
+    destroy(): void {
+        console.log('🧹 AudioManager: Cleaning up audio resources...');
+        
+        // Stop and destroy music
+        if (this.music) {
+            try {
+                if (this.music.isPlaying) {
+                    this.music.stop();
+                }
+                this.music.destroy();
+                this.music = undefined;
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error destroying music', e);
+            }
+        }
+        
+        // Destroy sound effects
+        if (this.correctSound) {
+            try {
+                if (this.correctSound.isPlaying) {
+                    this.correctSound.stop();
+                }
+                this.correctSound.destroy();
+                this.correctSound = undefined;
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error destroying correct sound', e);
+            }
+        }
+        
+        if (this.wrongSound) {
+            try {
+                if (this.wrongSound.isPlaying) {
+                    this.wrongSound.stop();
+                }
+                this.wrongSound.destroy();
+                this.wrongSound = undefined;
+            } catch (e) {
+                console.warn('⚠️ AudioManager: Error destroying wrong sound', e);
+            }
+        }
+        
+        console.log('✅ AudioManager: Audio resources cleaned up');
+    }
 }

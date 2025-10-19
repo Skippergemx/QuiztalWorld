@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { NFTData } from '../types/nft';
 import { loadNFTsFromDatabase } from '../utils/Database';
+import { OptimizedNFTService } from '../services/OptimizedNFTService';
 
 interface TabContent {
     container: Phaser.GameObjects.Container;
@@ -673,20 +674,41 @@ export default class InventoryScene extends Phaser.Scene {
 
         // Load NFT image with collection-specific key
         const imageKey = `nft-${nft.collectionType}-${nft.tokenId}`; // Add collection type to key
-        if (!this.textures.exists(imageKey)) {
-            console.log('Loading NFT image:', {
-                key: imageKey,
-                url: nft.image,
-                type: nft.collectionType
-            });
-            this.load.image(imageKey, nft.image);
-            this.load.once(`filecomplete-image-${imageKey}`, () => {
+        
+        // Convert IPFS URLs to HTTP URLs before loading
+        OptimizedNFTService.convertIPFSToHTTPWithFallback(nft.image).then((httpUrl: string) => {
+            if (!this.textures.exists(imageKey)) {
+                console.log('Loading NFT image:', {
+                    key: imageKey,
+                    url: httpUrl,
+                    type: nft.collectionType
+                });
+                this.load.image(imageKey, httpUrl);
+                this.load.once(`filecomplete-image-${imageKey}`, () => {
+                    this.addNFTImage(card, imageKey, loadingText, nft);
+                });
+                this.load.start();
+            } else {
                 this.addNFTImage(card, imageKey, loadingText, nft);
-            });
-            this.load.start();
-        } else {
-            this.addNFTImage(card, imageKey, loadingText, nft);
-        }
+            }
+        }).catch((error: any) => {
+            console.error('Error converting IPFS URL:', error);
+            // Fallback to original URL if conversion fails
+            if (!this.textures.exists(imageKey)) {
+                console.log('Loading NFT image (fallback):', {
+                    key: imageKey,
+                    url: nft.image,
+                    type: nft.collectionType
+                });
+                this.load.image(imageKey, nft.image);
+                this.load.once(`filecomplete-image-${imageKey}`, () => {
+                    this.addNFTImage(card, imageKey, loadingText, nft);
+                });
+                this.load.start();
+            } else {
+                this.addNFTImage(card, imageKey, loadingText, nft);
+            }
+        });
 
         // Make card interactive with collection-specific hover effects
         bg.setInteractive({ useHandCursor: true })

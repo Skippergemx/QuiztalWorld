@@ -4,23 +4,25 @@
   "theme": "Quiztal World Guide",
   "description": "A friendly guide who introduces players to the Quiztal Metaverse and explains how Quiztal World works.",
   "shoutMessages": [
-    "Welcome to Quiztal World! 🌍",
-    "Need help? Talk to me for a guide! 📚",
-    "Explorers and thinkers, gather around! 🧠",
-    "Curious about Quiztal World? Click me to learn! ✨",
-    "Press G to open the full guide book! 📖"
+    "Welcome to Quiztal World! 🌍✨",
+    "Need help? Talk to me for a guide! 📚🎮",
+    "Explorers and thinkers, gather around! 🧠🎉",
+    "Curious about Quiztal World? Click me to learn! ✨🖱️",
+    "Press G to open the full guide book! 📖📚",
+    "Lost in the metaverse? I've got the map! 🗺️🧭",
+    "New here? Let me show you around! 🎉👋"
   ],
   "networkOfflineMessages": [
-    "Network down! No knowledge until connection restored! 🚫📡",
-    "Internet connection lost! Quiztal wisdom on hold! 😢🔌",
-    "Offline mode: Mr. Gemx's wisdom disabled! ⏸️",
-    "No network, no Quiztal knowledge! 🔌",
-    "Connection error: Knowledge unavailable! 📡"
+    "Network down! No knowledge until connection restored! 🚫📡😭",
+    "Internet connection lost! Quiztal wisdom on hold! 😢🔌⏰",
+    "Offline mode: Mr. Gemx's wisdom disabled! ⏸️😴",
+    "No network, no Quiztal knowledge! 🔌🤔",
+    "Connection error: Knowledge unavailable! 📡❌"
   ],
   "dialogs": {
     "welcome": {
       "id": "welcome",
-      "text": "Welcome, explorer! 🌍 Ready to learn about Quiztal World?",
+      "text": "Welcome, explorer! 🌍 Ready to dive into the amazing world of Quiztal?",
       "avatar": "npc_mrgemx_avatar",
       "options": [
         {
@@ -36,7 +38,7 @@
           "nextDialog": "explainRewards"
         },
         {
-          "text": "Not right now.",
+          "text": "Not right now, thanks!",
           "nextDialog": "goodbye"
         }
       ]
@@ -45,31 +47,31 @@
       "id": "explainControls",
       "sequence": [
         {
-          "text": "Master the controls to navigate Quiztal World effectively:",
+          "text": "Master the controls to navigate Quiztal World like a pro! 🎮✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "🖱️ DESKTOP CONTROLS:\n• ⬅️➡️⬆️⬇️ Arrow Keys or WASD - Move your character\n• C Key - Interact with nearby NPCs\n• I Key - Open/Close Inventory\n• R Key - Toggle Session Rewards Tracker\n• G Key - Open/Close this Guide Book",
+          "text": "🖱️ DESKTOP CONTROLS:\n• ⬅️➡️⬆️⬇️ Arrow Keys or WASD - Move your character around\n• C Key - Interact with nearby NPCs (like me!)\n• I Key - Open/Close Inventory (check your cool stuff!)\n• R Key - Toggle Session Rewards Tracker (see your earnings!)\n• G Key - Open/Close this Guide Book (your handy reference!)",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "📱 MOBILE CONTROLS:\n• Virtual Joystick (bottom-left) - Move character\n• Interact Button (bottom-right) - Talk to NPCs\n• Tap UI buttons for Inventory, Rewards, etc.",
+          "text": "📱 MOBILE CONTROLS:\n• Virtual Joystick (bottom-left) - Move character (swipe to walk!)\n• Interact Button (bottom-right) - Talk to NPCs (tap to chat!)\n• Tap UI buttons for Inventory, Rewards, etc. (everything at your fingertips!)",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Want to learn about NPCs and quizzes?",
-          "avatar": "npc_mrgemx_avatar",
+          "text": "Feeling like a control master now? Want to learn about our quirky NPCs and their fun quizzes?",
+          "avatar": "npc_megmx_avatar",
           "options": [
             {
-              "text": "Yes, tell me!",
+              "text": "Yes, tell me about the NPCs!",
               "nextDialog": "explainNPCs"
             },
             {
-              "text": "What about rewards?",
+              "text": "What about those sweet rewards?",
               "nextDialog": "explainRewards"
             },
             {
-              "text": "No thanks, bye!",
+              "text": "I'm good for now, thanks!",
               "nextDialog": "goodbye"
             }
           ]
@@ -80,31 +82,35 @@
       "id": "explainNPCs",
       "sequence": [
         {
-          "text": "Learn about the various NPCs and their specialties:",
+          "text": "Meet the coolest characters in Quiztal World! Each one has their own specialty: 🤖✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide\n• Explains the Quiztal Metaverse and Gemante NFTs\n• Perfect starting point for new players",
+          "text": "🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide\n• Explains the Quiztal Metaverse and Gemante NFTs\n• Perfect starting point for new players (that's me!)\n• Your friendly neighborhood guide! 🎉",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "👩‍🎨 NFT CYN - NFT & Blockchain Expert\n• Teaches about NFTs, digital art, and blockchain\n• Great for learning about digital ownership",
+          "text": "👩‍🎨 NFT CYN - NFT & Blockchain Expert\n• Teaches about NFTs, digital art, and blockchain\n• Great for learning about digital ownership\n• Artistic and tech-savvy! 🎨💻",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Want to learn about Quiztal rewards?",
+        "text": "🎯 HUNT BOY - Web3 Development Expert\n• Teaches about Hunt Town developer community\n• All about building awesome Web3 projects\n• Loves a good coding challenge! 💻🚀",
+          "avatar": "npc_mrgemx_avatar"
+        },
+        {
+          "text": "Ready to learn about those sweet Quiztal rewards?",
           "avatar": "npc_mrgemx_avatar",
           "options": [
             {
-              "text": "Yes, tell me!",
+              "text": "Yes, tell me about rewards!",
               "nextDialog": "explainRewards"
             },
             {
-              "text": "What about controls?",
+              "text": "What about game controls?",
               "nextDialog": "explainControls"
             },
             {
-              "text": "No thanks, bye!",
+              "text": "I'm all set for now!",
               "nextDialog": "goodbye"
             }
           ]
@@ -115,31 +121,31 @@
       "id": "explainRewards",
       "sequence": [
         {
-          "text": "Earn and manage your Quiztal tokens:",
+          "text": "Earn and manage your Quiztal tokens - the currency of knowledge! 💰✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "💎 EARNING QUIZTALS:\n• Answer quiz questions correctly (0.01-0.5 Quiztals)\n• Complete challenges and explore new areas\n• Participate in special events and activities",
+          "text": "💎 EARNING QUIZTALS:\n• Answer quiz questions correctly (0.01-0.5 Quiztals per question!)\n• Complete challenges and explore new areas\n• Participate in special events and activities\n• The more you learn, the more you earn! 📚💰",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "📊 TRACKING YOUR PROGRESS:\n• Session Rewards Tracker (🎯 button) shows current session\n• Balance display shows total accumulated Quiztals\n• Inventory system tracks your collected items",
+          "text": "📊 TRACKING YOUR PROGRESS:\n• Session Rewards Tracker (🎯 button) shows current session earnings\n• Balance display shows total accumulated Quiztals\n• Inventory system tracks your collected items\n• Watch your wealth grow as you learn! 📈🎉",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Want to learn about game controls?",
+          "text": "Want to learn about game controls or meet our awesome NPCs?",
           "avatar": "npc_mrgemx_avatar",
           "options": [
             {
-              "text": "Yes, tell me!",
+              "text": "Tell me about controls!",
               "nextDialog": "explainControls"
             },
             {
-              "text": "What about NPCs?",
+              "text": "Tell me about the NPCs!",
               "nextDialog": "explainNPCs"
             },
             {
-              "text": "No thanks, bye!",
+              "text": "I'm ready to explore!",
               "nextDialog": "goodbye"
             }
           ]
@@ -148,7 +154,7 @@
     },
     "goodbye": {
       "id": "goodbye",
-      "text": "No worries, adventurer! I'll be here when you're ready to learn more! Press G anytime to open the full guide book! ✨",
+      "text": "No worries, adventurer! I'll be here when you're ready to learn more! Press G anytime to open the full guide book! ✨📚\nHappy exploring, and remember - knowledge is the best treasure! 🧠💎",
       "avatar": "npc_mrgemx_avatar",
       "isExitDialog": true
     }
