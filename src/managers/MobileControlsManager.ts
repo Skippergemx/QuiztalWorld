@@ -554,7 +554,10 @@ export default class MobileControlsManager {
     if (this.playerManager) {
       currentStamina = this.playerManager.getCurrentStamina();
       // Save current stamina before teleporting
-      this.playerManager.saveStaminaData();
+      this.playerManager.saveStaminaData().catch((error: Error) => {
+        console.error('Error saving stamina data during teleportation:', error);
+        // Continue with teleportation even if save fails
+      });
     }
     
     // Determine which scene we're in and teleport accordingly

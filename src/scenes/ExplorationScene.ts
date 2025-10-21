@@ -156,12 +156,13 @@ export default class ExplorationScene extends Phaser.Scene {
     
     // Update monsters
     if (this.player && this.monsterManager) {
-      // Update the monster manager
-      this.monsterManager.update();
-      
-      // In a future update, individual monster updates will be handled by the MonsterManager
-      // For now, we need to access the monsters directly
-      // This will be improved in a later iteration
+      // Update the monster manager with player position
+      this.monsterManager.update(this.player.x, this.player.y);
+    }
+    
+    // Periodically check if pet needs to be recreated (every 5 seconds)
+    if (this.time.now % 5000 < 50) {
+      this.petManager?.checkAndRecreatePet();
     }
   }
 
@@ -282,8 +283,28 @@ export default class ExplorationScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-n', () => this.activateSpeedBoost());
     
     // Add T key binding for teleport back to main game
-    this.input.keyboard?.on('keydown-T', () => this.teleportToMainGame());
-    this.input.keyboard?.on('keydown-t', () => this.teleportToMainGame());
+    this.input.keyboard?.on('keydown-T', () => {
+      this.teleportToMainGame().catch(error => {
+        console.error('Error during teleportation:', error);
+        // Continue with teleportation even if save fails
+        this.scene.start('GameScene', {
+          selectedCharacter: this.selectedCharacter,
+          currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
+        });
+      });
+    });
+    this.input.keyboard?.on('keydown-t', () => {
+      this.teleportToMainGame().catch(error => {
+        console.error('Error during teleportation:', error);
+        // Continue with teleportation even if save fails
+        this.scene.start('GameScene', {
+          selectedCharacter: this.selectedCharacter,
+          currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
+        });
+      });
+    });
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
@@ -378,6 +399,17 @@ export default class ExplorationScene extends Phaser.Scene {
         // Remove event listeners to prevent multiple triggers
         this.input.keyboard?.off('keydown');
         this.input.off('pointerdown');
+        
+        // Play background music on first interaction
+        const audioManager = AudioManager.getInstance();
+        if (this.cache.audio.exists('bgm')) {
+            console.log('🎵 ExplorationScene: Playing BGM on first interaction');
+            const bgm = this.sound.add('bgm', {
+                volume: 0.5,
+                loop: true
+            });
+            audioManager.setMusic(bgm);
+        }
     };
     
     // Set up listeners for first interaction
@@ -885,7 +917,7 @@ export default class ExplorationScene extends Phaser.Scene {
   }
 
   // Add method to teleport back to main game
-  private teleportToMainGame(): void {
+  private async teleportToMainGame(): Promise<void> {
     console.log('🎮 ExplorationScene: Teleporting back to main game...');
     
     // Stop all audio before teleporting to prevent duplication
@@ -903,7 +935,7 @@ export default class ExplorationScene extends Phaser.Scene {
       currentStamina = this.playerManager.getCurrentStamina();
       isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
       // Save current stamina before teleporting
-      this.playerManager.saveStaminaData();
+      await this.playerManager.saveStaminaData();
     }
     
     // Transition to GameScene with current stamina and speed boost state

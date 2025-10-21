@@ -254,8 +254,9 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
             ease: 'Sine.easeInOut',
             onUpdate: (tween) => {
                 const target = tween.targets[0] as Phaser.GameObjects.Container;
-                const baseX = target.data.values.baseX as number;
-                const baseY = target.data.values.baseY as number;
+                // Use proper data retrieval methods instead of direct access
+                const baseX = target.getData('baseX') as number;
+                const baseY = target.getData('baseY') as number;
                 if (baseX !== undefined && baseY !== undefined) {
                     // Calculate floating offset based on tween progress
                     const progress = tween.totalProgress;
@@ -664,63 +665,112 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
 
     // Clean up when moblin is destroyed
     destroy(fromScene?: boolean) {
+        // Clean up gift box container
         if ((this as any).giftBoxContainer) {
-            (this as any).giftBoxContainer.destroy();
+            try {
+                (this as any).giftBoxContainer.destroy();
+            } catch (e) {
+                console.warn('⚠️ Moblin: Error destroying gift box container', e);
+            }
         }
+        
+        // Clean up shout text
+        if (this.shoutText) {
+            try {
+                this.shoutText.destroy();
+            } catch (e) {
+                console.warn('⚠️ Moblin: Error destroying shout text', e);
+            }
+        }
+        
+        // Clean up event listeners
+        try {
+            this.removeAllListeners();
+        } catch (e) {
+            console.warn('⚠️ Moblin: Error removing event listeners', e);
+        }
+        
+        // Call parent destroy
         super.destroy(fromScene);
+        
+        console.log('✅ Moblin: Cleanup complete');
     }
 
     // Start shouting periodically
     private startShouting() {
+        // Safety check to ensure the scene exists
+        if (!this.scene) {
+            return;
+        }
+        
         this.scene.time.addEvent({
             delay: this.shoutInterval,
             callback: () => {
-                this.shoutRandomMessage();
+                // Safety check before calling shoutRandomMessage
+                if (this.scene && this.active) {
+                    this.shoutRandomMessage();
+                }
                 // Restart for continuous shouting (but with interval check)
             },
             loop: false
         });
     }
-// Shout a random message
-private shoutRandomMessage() {
-    const currentTime = Date.now();
-    if (currentTime - this.lastShoutTime >= this.shoutInterval) {
-        let randomMessage;
-        
-        // Check network connectivity to determine which message to show
-        if (!this.networkMonitor.getIsOnline()) {
-            // Network is offline, show offline message
-            randomMessage = Phaser.Utils.Array.GetRandom(this.offlineMessages);
-        } else {
-            // Network is online, show regular message
-            randomMessage = Phaser.Utils.Array.GetRandom(this.shoutMessages);
+
+    // Shout a random message
+    private shoutRandomMessage() {
+        // Safety check to ensure the moblin still exists and is active
+        if (!this.scene || !this.active) {
+            return;
         }
         
-        this.showShout(randomMessage);
-        this.lastShoutTime = currentTime;
+        const currentTime = Date.now();
+        if (currentTime - this.lastShoutTime >= this.shoutInterval) {
+            let randomMessage;
+            
+            // Check network connectivity to determine which message to show
+            if (!this.networkMonitor.getIsOnline()) {
+                // Network is offline, show offline message
+                randomMessage = Phaser.Utils.Array.GetRandom(this.offlineMessages);
+            } else {
+                // Network is online, show regular message
+                randomMessage = Phaser.Utils.Array.GetRandom(this.shoutMessages);
+            }
+            
+            this.showShout(randomMessage);
+            this.lastShoutTime = currentTime;
+        }
+        
+        // Schedule next shout
+        this.scene.time.delayedCall(this.shoutInterval, () => {
+            this.shoutRandomMessage();
+        });
     }
-    
-    // Schedule next shout
-    this.scene.time.delayedCall(this.shoutInterval, () => {
-        this.shoutRandomMessage();
-    });
-}
-
 
     // Show shout message
     private showShout(message: string) {
-        if (this.shoutText) {
-            this.shoutText.setText(message).setVisible(true);
-            
-            // Animate the shout text
-            this.scene.tweens.add({
-                targets: this.shoutText,
-                alpha: 0,
-                duration: 3000,
-                onComplete: () => {
+        // Safety check to ensure the scene and shoutText still exist
+        if (!this.scene || !this.shoutText) {
+            return;
+        }
+        
+        // Additional safety check to ensure the shoutText is still valid
+        if (this.shoutText.active === false) {
+            return;
+        }
+        
+        this.shoutText.setText(message).setVisible(true);
+        
+        // Animate the shout text
+        this.scene.tweens.add({
+            targets: this.shoutText,
+            alpha: 0,
+            duration: 3000,
+            onComplete: () => {
+                // Safety check before setting visibility
+                if (this.shoutText) {
                     this.shoutText.setVisible(false).setAlpha(1);
                 }
-            });
-        }
+            }
+        });
     }
 }

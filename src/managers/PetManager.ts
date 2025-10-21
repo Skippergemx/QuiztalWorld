@@ -590,6 +590,31 @@ export default class PetManager {
   }
 
   /**
+   * Check if pet should be recreated (useful after scene changes)
+   */
+  public checkAndRecreatePet(): void {
+    console.log('🐾 PetManager: Checking if pet needs to be recreated...');
+    
+    // If no pet exists but player should have one, create it
+    if (!this.moblin) {
+      const nftsStr = localStorage.getItem('quiztal-nfts');
+      if (nftsStr) {
+        try {
+          const nfts = JSON.parse(nftsStr);
+          const titleConfig = getPlayerTitle(nfts);
+          
+          if (titleConfig.text) {
+            console.log('🐾 PetManager: Player should have a pet, recreating...');
+            this.waitForTexturesAndCreatePet();
+          }
+        } catch (error) {
+          console.error('❌ PetManager: Error checking pet eligibility:', error);
+        }
+      }
+    }
+  }
+
+  /**
    * Clean up pet resources
    */
   public destroy(): void {

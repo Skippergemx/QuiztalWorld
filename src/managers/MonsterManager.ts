@@ -12,12 +12,12 @@ export default class MonsterManager {
 
   private constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    // Define spawn area (you can adjust these values based on your map)
+    // Define spawn area to cover the entire field01 map (50x50 tiles at 32px each = 1600x1600px)
     this.spawnArea = {
-      x: 100,
-      y: 100,
-      width: 700,
-      height: 500
+      x: 50,    // Margin from left edge
+      y: 50,    // Margin from top edge
+      width: 1500,  // 1600px - 100px margins
+      height: 1500  // 1600px - 100px margins
     };
   }
 
@@ -37,11 +37,20 @@ export default class MonsterManager {
     this.spawnMonsters();
   }
 
-  public update(): void {
+  public update(playerX?: number, playerY?: number): void {
     // Check if we need to spawn more monsters
     if (this.scene.time.now > this.lastSpawnTime + this.spawnInterval) {
       this.spawnMonsters();
       this.lastSpawnTime = this.scene.time.now;
+    }
+    
+    // Update all monsters with player position if provided
+    if (playerX !== undefined && playerY !== undefined) {
+      this.monsters.forEach(monster => {
+        if (monster && typeof monster.update === 'function') {
+          monster.update(playerX, playerY);
+        }
+      });
     }
   }
 
@@ -53,9 +62,11 @@ export default class MonsterManager {
       
       // Check if position is valid (not inside a wall)
       if (this.isPositionValid(x, y)) {
-        const monster = new FieldMonster(this.scene, x, y);
+        // Randomly select monster type (50% chance for each type)
+        const monsterType = Math.random() < 0.5 ? 'mobster' : 'mobster02';
+        const monster = new FieldMonster(this.scene, x, y, monsterType);
         this.monsters.push(monster);
-        console.log(`👾 Monster spawned at (${x}, ${y}). Total monsters: ${this.monsters.length}`);
+        console.log(`👾 ${monsterType} spawned at (${x}, ${y}). Total monsters: ${this.monsters.length}`);
       }
     }
   }

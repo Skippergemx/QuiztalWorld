@@ -371,6 +371,14 @@ export default class AssetManager {
         walkPath: 'assets/monsters/mobster_walk.png',
         frameWidth: 32,
         frameHeight: 53
+      },
+      {
+        idleKey: 'mobster_idle02',
+        idlePath: 'assets/monsters/mobster_idle02.png',
+        walkKey: 'mobster_walk02',
+        walkPath: 'assets/monsters/mobster_walk02.png',
+        frameWidth: 32,
+        frameHeight: 53
       }
     ];
 
@@ -434,7 +442,9 @@ export default class AssetManager {
       'Correct_Answer',
       'Wrong_Answer',
       'mobster_idle',
-      'mobster_walk'
+      'mobster_walk',
+      'mobster_idle02',
+      'mobster_walk02'
     ];
 
     return requiredAssets.every(key => this.scene.textures.exists(key) || this.scene.cache.audio.exists(key));
@@ -448,7 +458,8 @@ export default class AssetManager {
     const requiredTextures = [
       'joystick', 'joystick-base', 'button-interact',
       'moblin_walk', 'moblin_idle',
-      'mobster_idle', 'mobster_walk'
+      'mobster_idle', 'mobster_walk',
+      'mobster_idle02', 'mobster_walk02'
     ];
     const requiredAudio = ['moblin-giftbox', 'bgm', 'Correct_Answer', 'Wrong_Answer'];
 

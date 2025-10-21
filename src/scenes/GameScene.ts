@@ -150,6 +150,11 @@ export default class GameScene extends Phaser.Scene {
     
     // Check if speed boost has expired
     this.checkSpeedBoostExpiration();
+    
+    // Periodically check if pet needs to be recreated (every 5 seconds)
+    if (this.time.now % 5000 < 50) {
+      this.petManager?.checkAndRecreatePet();
+    }
   }
 
   // === INITIALIZATION METHODS ===
@@ -323,8 +328,28 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-n', () => this.activateSpeedBoost());
     
     // Add T key binding for teleport to field map
-    this.input.keyboard?.on('keydown-T', () => this.teleportToFieldMap());
-    this.input.keyboard?.on('keydown-t', () => this.teleportToFieldMap());
+    this.input.keyboard?.on('keydown-T', () => {
+      this.teleportToFieldMap().catch(error => {
+        console.error('Error during teleportation:', error);
+        // Continue with teleportation even if save fails
+        this.scene.start('ExplorationScene', {
+          selectedCharacter: this.selectedCharacter,
+          currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
+        });
+      });
+    });
+    this.input.keyboard?.on('keydown-t', () => {
+      this.teleportToFieldMap().catch(error => {
+        console.error('Error during teleportation:', error);
+        // Continue with teleportation even if save fails
+        this.scene.start('ExplorationScene', {
+          selectedCharacter: this.selectedCharacter,
+          currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
+        });
+      });
+    });
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
@@ -388,6 +413,17 @@ export default class GameScene extends Phaser.Scene {
         // Remove event listeners to prevent multiple triggers
         this.input.keyboard?.off('keydown');
         this.input.off('pointerdown');
+        
+        // Play background music on first interaction
+        const audioManager = AudioManager.getInstance();
+        if (this.cache.audio.exists('bgm')) {
+            console.log('🎵 GameScene: Playing BGM on first interaction');
+            const bgm = this.sound.add('bgm', {
+                volume: 0.5,
+                loop: true
+            });
+            audioManager.setMusic(bgm);
+        }
     };
     
     // Set up listeners for first interaction
@@ -850,7 +886,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   // Add method to teleport to field map
-  private teleportToFieldMap(): void {
+  private async teleportToFieldMap(): Promise<void> {
     console.log('🎮 GameScene: Teleporting to field map...');
     
     // Stop all audio before teleporting to prevent duplication
@@ -868,7 +904,7 @@ export default class GameScene extends Phaser.Scene {
       currentStamina = this.playerManager.getCurrentStamina();
       isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
       // Save current stamina before teleporting
-      this.playerManager.saveStaminaData();
+      await this.playerManager.saveStaminaData();
     }
     
     // Transition to ExplorationScene with current stamina and speed boost state

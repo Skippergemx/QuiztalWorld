@@ -121,8 +121,19 @@ export default class BootScene extends Phaser.Scene {
             frameWidth: 32,
             frameHeight: 53,
         });
+        // ✅ Load Second Monster spritesheets (idle and walk)
+        this.load.spritesheet("mobster_idle02", "assets/monsters/mobster_idle02.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("mobster_walk02", "assets/monsters/mobster_walk02.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
         this.load.on('filecomplete-spritesheet-mobster_idle', updateProgress);
         this.load.on('filecomplete-spritesheet-mobster_walk', updateProgress);
+        this.load.on('filecomplete-spritesheet-mobster_idle02', updateProgress);
+        this.load.on('filecomplete-spritesheet-mobster_walk02', updateProgress);
 
         // ✅ Load Player Spritesheets (Idle & Walk)
         const characters = ["lsxd", "penski", "sarah", "xander"];

@@ -10,14 +10,22 @@ export class FieldMonster extends Monster {
     private isChasing: boolean = false;
     private chaseTimer: number = 0;
     private chaseDuration: number = 5000; // Chase for 5 seconds max
+    private isIdle: boolean = false; // Track if monster is currently idle
+    private idleTimer: number = 0; // Track how long monster has been idle
+    private idleDuration: number = 3000; // Idle for 3 seconds before moving again
+    private monsterType: string;
 
     constructor(
         scene: Phaser.Scene,
         x: number,
-        y: number
+        y: number,
+        monsterType: string = 'mobster'
     ) {
-        // Using the monster idle texture
-        super(scene, x, y, 'mobster_idle');
+        // Using the monster idle texture based on type
+        const texture = monsterType === 'mobster02' ? 'mobster_idle02' : 'mobster_idle';
+        super(scene, x, y, texture);
+        
+        this.monsterType = monsterType;
         
         // Initialize monster-specific properties
         this.health = 50;
@@ -26,12 +34,16 @@ export class FieldMonster extends Monster {
         this.damage = 15;
         this.isAggressive = true;
         
+        // Set depth to match Moblin pet (5) for proper z-axis alignment
+        this.setDepth(5);
+        
         // Define roam area (monsters will stay within this area)
+        // Increased roam area size to 800x800 to allow better coverage of the map
         this.roamArea = {
-            x: Math.max(0, x - 200),
-            y: Math.max(0, y - 200),
-            width: 400,
-            height: 400
+            x: Math.max(50, x - 400),  // Ensure we stay within map bounds (50px margin)
+            y: Math.max(50, y - 400),  // Ensure we stay within map bounds (50px margin)
+            width: 800,  // Larger roam area
+            height: 800  // Larger roam area
         };
         
         // Set initial move target
@@ -42,35 +54,38 @@ export class FieldMonster extends Monster {
         this.setupAnimations();
         
         // Start with idle animation
-        this.play('monster-idle');
+        this.play(`${this.monsterType}-idle`);
     }
 
     private setupAnimations(): void {
+        const idleKey = this.monsterType === 'mobster02' ? 'mobster_idle02' : 'mobster_idle';
+        const walkKey = this.monsterType === 'mobster02' ? 'mobster_walk02' : 'mobster_walk';
+        
         // Create idle animation
-        if (!this.scene.anims.exists('monster-idle')) {
+        if (!this.scene.anims.exists(`${this.monsterType}-idle`)) {
             this.scene.anims.create({
-                key: 'monster-idle',
-                frames: this.scene.anims.generateFrameNumbers('mobster_idle', { start: 0, end: 3 }),
+                key: `${this.monsterType}-idle`,
+                frames: this.scene.anims.generateFrameNumbers(idleKey, { start: 0, end: 3 }),
                 frameRate: 5,
                 repeat: -1
             });
         }
 
         // Create walk animation
-        if (!this.scene.anims.exists('monster-walk')) {
+        if (!this.scene.anims.exists(`${this.monsterType}-walk`)) {
             this.scene.anims.create({
-                key: 'monster-walk',
-                frames: this.scene.anims.generateFrameNumbers('mobster_walk', { start: 0, end: 3 }),
+                key: `${this.monsterType}-walk`,
+                frames: this.scene.anims.generateFrameNumbers(walkKey, { start: 0, end: 3 }),
                 frameRate: 10,
                 repeat: -1
             });
         }
 
         // Create attack animation (using walk frames as placeholder)
-        if (!this.scene.anims.exists('monster-attack')) {
+        if (!this.scene.anims.exists(`${this.monsterType}-attack`)) {
             this.scene.anims.create({
-                key: 'monster-attack',
-                frames: this.scene.anims.generateFrameNumbers('mobster_walk', { start: 0, end: 3 }),
+                key: `${this.monsterType}-attack`,
+                frames: this.scene.anims.generateFrameNumbers(walkKey, { start: 0, end: 3 }),
                 frameRate: 15,
                 repeat: 0
             });
@@ -84,6 +99,11 @@ export class FieldMonster extends Monster {
         );
 
         if (distanceToPlayer < this.playerDetectionRange && this.isAggressive) {
+            // If we were idle, reset idle state when starting to chase
+            if (this.isIdle) {
+                this.isIdle = false;
+                this.idleTimer = 0;
+            }
             this.chasePlayer(playerX, playerY);
         } else {
             // If we were chasing, continue roaming after a short time
@@ -101,7 +121,7 @@ export class FieldMonster extends Monster {
         if (!this.isChasing) {
             this.isChasing = true;
             this.chaseTimer = 0;
-            this.play('monster-walk', true);
+            this.play(`${this.monsterType}-walk`, true);
         }
 
         // Move toward player
@@ -119,25 +139,37 @@ export class FieldMonster extends Monster {
         this.isChasing = false;
         this.chaseTimer = 0;
         this.setNewRoamTarget();
+        // Reset idle state when stopping chase
+        this.isIdle = false;
+        this.idleTimer = 0;
     }
 
     private roam(): void {
+        // If monster is currently idle, update idle timer
+        if (this.isIdle) {
+            this.idleTimer += this.scene.game.loop.delta;
+            
+            // Check if idle duration has passed
+            if (this.idleTimer > this.idleDuration) {
+                this.isIdle = false;
+                this.idleTimer = 0;
+                // Set a new roam target when coming out of idle
+                this.setNewRoamTarget();
+            }
+            // Stay idle, don't move
+            return;
+        }
+        
         // Update move timer
         this.moveTimer += this.scene.game.loop.delta;
-        
-        // Check if it's time to set a new target
-        if (this.moveTimer > this.moveInterval) {
-            this.setNewRoamTarget();
-            this.moveTimer = 0;
-        }
         
         // Move toward target
         if (this.body) {
             this.scene.physics.moveTo(this, this.moveTarget.x, this.moveTarget.y, this.speed);
             
             // Play walk animation if not already playing
-            if (!this.anims.currentAnim || this.anims.currentAnim.key !== 'monster-walk') {
-                this.play('monster-walk', true);
+            if (!this.anims.currentAnim || this.anims.currentAnim.key !== `${this.monsterType}-walk`) {
+                this.play(`${this.monsterType}-walk`, true);
             }
             
             // Flip sprite based on movement direction
@@ -152,9 +184,20 @@ export class FieldMonster extends Monster {
             if (distance < 10) {
                 // Reached target, set idle animation
                 this.setVelocity(0, 0);
-                if (!this.anims.currentAnim || this.anims.currentAnim.key !== 'monster-idle') {
-                    this.play('monster-idle', true);
+                if (!this.anims.currentAnim || this.anims.currentAnim.key !== `${this.monsterType}-idle`) {
+                    this.play(`${this.monsterType}-idle`, true);
                 }
+                // Enter idle state
+                this.isIdle = true;
+                this.idleTimer = 0;
+                this.moveTimer = 0; // Reset move timer
+                return; // Don't set new target immediately
+            }
+            
+            // Check if it's time to set a new target (only if not idle)
+            if (this.moveTimer > this.moveInterval) {
+                this.setNewRoamTarget();
+                this.moveTimer = 0;
             }
         }
     }
@@ -163,6 +206,9 @@ export class FieldMonster extends Monster {
         // Set a new random target within the roam area
         this.moveTarget.x = Phaser.Math.Between(this.roamArea.x, this.roamArea.x + this.roamArea.width);
         this.moveTarget.y = Phaser.Math.Between(this.roamArea.y, this.roamArea.y + this.roamArea.height);
+        // When setting a new target, monster is no longer idle
+        this.isIdle = false;
+        this.idleTimer = 0;
     }
 
     public takeDamage(amount: number): void {
@@ -177,7 +223,7 @@ export class FieldMonster extends Monster {
 
     protected die(): void {
         // Play death animation
-        this.play('monster-attack'); // Using attack animation as placeholder for death
+        this.play(`${this.monsterType}-attack`); // Using attack animation as placeholder for death
         this.scene.time.delayedCall(500, () => {
             super.die();
         });

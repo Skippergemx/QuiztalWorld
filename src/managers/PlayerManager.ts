@@ -1369,6 +1369,15 @@ export default class PlayerManager {
   public destroy(): void {
     console.log('🧹 PlayerManager: Cleaning up player resources...');
     
+    // Clean up player sprite
+    if (this.player) {
+      try {
+        this.player.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying player sprite', e);
+      }
+    }
+    
     // Clean up UI elements
     if (this.playerTitle) {
       try {
@@ -1416,6 +1425,31 @@ export default class PlayerManager {
         }
       } catch (e) {
         console.warn('⚠️ PlayerManager: Error cleaning up controls', e);
+      }
+    }
+    
+    // Clean up stamina bar and text
+    if (this.staminaBar) {
+      try {
+        this.staminaBar.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying stamina bar', e);
+      }
+    }
+    
+    if (this.staminaText) {
+      try {
+        this.staminaText.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying stamina text', e);
+      }
+    }
+    
+    if (this.staminaLowText) {
+      try {
+        this.staminaLowText.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying stamina low text', e);
       }
     }
     
