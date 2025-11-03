@@ -5,6 +5,7 @@ import { db } from '../utils/firebase';
 import QuiztalRewardTracker from '../components/QuiztalRewardTracker';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import modernUITheme, { UIHelpers } from '../utils/UITheme';
+import HotkeySlotManager from '../managers/HotkeySlotManager';
 
 export default class UIScene extends Phaser.Scene {
     private uiContainer!: Phaser.GameObjects.Container;
@@ -24,6 +25,9 @@ export default class UIScene extends Phaser.Scene {
     private mobileMenuButton!: Phaser.GameObjects.Container; // Hamburger menu for mobile
     private mobileMenuPanel!: Phaser.GameObjects.Container; // Expanded menu panel
     private isMobileMenuOpen: boolean = false; // Track mobile menu state
+    
+    // Hotkey slot manager
+    private hotkeySlotManager!: HotkeySlotManager;
 
     constructor() {
         super({ key: 'UIScene' });
@@ -51,6 +55,9 @@ export default class UIScene extends Phaser.Scene {
             this.createBalanceDisplay();
             this.createFooterInstructions();
             
+            // Create hotkey slot system
+            this.createHotkeySlots();
+            
             // Add mobile-specific UI elements
             if (this.scale.width < 768) {
                 this.createMobileSpecificElements();
@@ -76,6 +83,31 @@ export default class UIScene extends Phaser.Scene {
         } catch (error) {
             console.error('Error initializing UI:', error);
             this.playerId = '';
+        }
+    }
+    
+    private createHotkeySlots(): void {
+        this.hotkeySlotManager = new HotkeySlotManager(this);
+        this.hotkeySlotManager.createUI();
+        
+        // Set up callback to update slot quantities when inventory changes
+        this.hotkeySlotManager.setOnSlotUpdateCallback(() => {
+            // This could be expanded to do more when slots update
+            console.log('Hotkey slots updated');
+        });
+    }
+    
+    // Public method to update hotkey slot quantities (can be called from other scenes)
+    public updateHotkeySlotQuantities(): void {
+        if (this.hotkeySlotManager) {
+            this.hotkeySlotManager.updateAllSlotQuantities();
+        }
+    }
+    
+    // Toggle hotkey slots visibility
+    private toggleHotkeySlots(): void {
+        if (this.hotkeySlotManager) {
+            this.hotkeySlotManager.toggleSlotsVisibility();
         }
     }
 
@@ -183,6 +215,13 @@ export default class UIScene extends Phaser.Scene {
                 callback: () => this.openInventory()
             },
             {
+                text: '퀵',  // Hotkey slots toggle button (Korean for "quick")
+                tooltip: 'Toggle Hotkey Slots',
+                color: '#9b59b6',
+                hoverColor: '#8e44ad',
+                callback: () => this.toggleHotkeySlots()
+            },
+            {
                 text: '🚪',
                 tooltip: 'Logout',
                 color: '#e74c3c',
@@ -288,6 +327,7 @@ export default class UIScene extends Phaser.Scene {
             { icon: '💎', text: 'Wallet', callback: () => this.openWalletWindow() },
             { icon: '🎯', text: 'Session Rewards', callback: () => this.toggleRewardTracker() },
             { icon: '🎒', text: 'Inventory', callback: () => this.openInventory() },
+            { icon: '퀵', text: 'Toggle Hotkey Slots', callback: () => this.toggleHotkeySlots() },
             { icon: '🚪', text: 'Logout', callback: () => this.handleLogout() }
         ];
         
@@ -1173,6 +1213,7 @@ export default class UIScene extends Phaser.Scene {
             this.scene.stop('GameScene');
             this.scene.stop('UIScene');
             this.scene.stop('InventoryScene');
+            this.scene.stop('ExplorationScene');
             
             // Start GoogleLoginScene with fade in
             this.scene.start('GoogleLoginScene', {

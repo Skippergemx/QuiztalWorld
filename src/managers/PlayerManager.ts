@@ -10,6 +10,7 @@ interface PlayerConfig {
   speed: number;
   initialStamina?: number; // Add initial stamina parameter
   isSpeedBoostActive?: boolean; // Add speed boost state parameter
+  initialHealth?: number; // Add initial health parameter
 }
 
 interface MovementControls {
@@ -40,6 +41,14 @@ export default class PlayerManager {
   private staminaRegenTimer: Phaser.Time.TimerEvent | null = null;
   private staminaSaveTimer: Phaser.Time.TimerEvent | null = null; // Timer to save stamina to Firestore
   
+  // Health system
+  private maxHealth: number = 100;
+  private currentHealth: number = 100;
+  private isInvulnerable: boolean = false;
+  private invulnerabilityTimer: Phaser.Time.TimerEvent | null = null;
+  private healthBar?: Phaser.GameObjects.Graphics; // Make healthBar optional like staminaBar
+  private healthText?: Phaser.GameObjects.Text; // Add health text property
+  
   // UI Elements
   private playerTitle?: Phaser.GameObjects.Text;
   private titleAura?: Phaser.GameObjects.Group;
@@ -48,6 +57,7 @@ export default class PlayerManager {
   private staminaBar?: Phaser.GameObjects.Graphics;
   private staminaText?: Phaser.GameObjects.Text;
   private staminaLowText?: Phaser.GameObjects.Text;
+  private isCreatingTitle: boolean = false; // Add this line to prevent multiple simultaneous calls
 
   private static instance: PlayerManager;
 
@@ -61,6 +71,11 @@ export default class PlayerManager {
     // Set initial stamina if provided
     if (config.initialStamina !== undefined) {
       this.currentStamina = config.initialStamina;
+    }
+    
+    // Set initial health if provided
+    if (config.initialHealth !== undefined) {
+      this.currentHealth = config.initialHealth;
     }
     
     // Set speed boost state if provided
@@ -79,10 +94,90 @@ export default class PlayerManager {
   }
 
   /**
+   * Clean up UI elements to prevent duplicates when reinitializing player
+   */
+  private cleanupUIElements(): void {
+    try {
+      // Clean up player title elements
+      if (this.playerTitle) {
+        this.playerTitle.destroy();
+        this.playerTitle = undefined;
+      }
+      
+      if (this.playerNameText) {
+        this.playerNameText.destroy();
+        this.playerNameText = undefined;
+      }
+      
+      if (this.playerGlow) {
+        this.playerGlow.destroy();
+        this.playerGlow = undefined;
+      }
+      
+      if (this.titleAura) {
+        this.titleAura.destroy();
+        this.titleAura = undefined;
+      }
+      
+      // Clean up stamina bar and text
+      if (this.staminaBar) {
+        this.staminaBar.destroy();
+        this.staminaBar = undefined;
+      }
+      
+      if (this.staminaText) {
+        this.staminaText.destroy();
+        this.staminaText = undefined;
+      }
+      
+      if (this.staminaLowText) {
+        this.staminaLowText.destroy();
+        this.staminaLowText = undefined;
+      }
+      
+      // Clean up health bar and text
+      if (this.healthBar) {
+        this.healthBar.destroy();
+        this.healthBar = undefined;
+      }
+      
+      if (this.healthText) {
+        this.healthText.destroy();
+        this.healthText = undefined;
+      }
+    } catch (e) {
+      console.warn('⚠️ PlayerManager: Error cleaning up UI elements', e);
+    }
+  }
+
+  /**
    * Initialize the player sprite and set up basic properties
    */
   public async initializePlayer(): Promise<Phaser.Physics.Arcade.Sprite> {
     console.log('👤 PlayerManager: Initializing player...');
+    
+    // Check if player already exists and clean it up
+    if (this.player) {
+      console.log('⚠️ PlayerManager: Player already exists, cleaning up...');
+      try {
+        // Stop following the old player
+        if (this.scene.cameras && this.scene.cameras.main) {
+          this.scene.cameras.main.stopFollow();
+        }
+        
+        // Destroy the old player sprite
+        if (this.player.body) {
+          this.player.body.destroy();
+        }
+        this.player.destroy();
+        this.player = undefined as any;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error cleaning up existing player', e);
+      }
+    }
+    
+    // Clean up any existing UI elements before creating new ones
+    this.cleanupUIElements();
     
     const playerTexture = `player_${this.config.selectedCharacter}_walk_1`;
     
@@ -122,6 +217,9 @@ export default class PlayerManager {
     
     // Create stamina bar UI
     this.createStaminaBar();
+    
+    // Create health bar UI
+    this.createHealthBar();
     
     // Start the stamina save timer
     this.startStaminaSaveTimer();
@@ -370,6 +468,40 @@ export default class PlayerManager {
     this.isSpeedBoostActive = this.shouldSpeedBoostBeActive();
   }
 
+  /**
+   * Play player attack animation
+   */
+  public playAttackAnimation(): void {
+    if (!this.player) return;
+    
+    // Play attack animation based on last direction
+    const attackKey = `attack-${this.lastDirection}`;
+    
+    // Create attack animation if it doesn't exist
+    // Use walk frames as placeholder for attack animation
+    if (!this.scene.anims.exists(attackKey)) {
+      this.scene.anims.create({
+        key: attackKey,
+        frames: this.scene.anims.generateFrameNumbers(`player_${this.config.selectedCharacter}_walk_1`, {
+          start: 0,
+          end: 5,
+        }),
+        frameRate: 15,
+        repeat: 0,
+      });
+    }
+    
+    // Play the attack animation
+    this.player.play(attackKey, true);
+    
+    // Return to idle animation after attack completes
+    this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (this.player) {
+        this.player.play(`idle-${this.lastDirection}`, true);
+      }
+    });
+  }
+
   // Add method to get current player speed
   public getPlayerSpeed(): number {
     return this.config.speed;
@@ -405,18 +537,8 @@ export default class PlayerManager {
     this.staminaBar.fillStyle(0x333333, 0.8);
     this.staminaBar.fillRoundedRect(x, y, width, height, 3);
     
-    // Stamina fill - change color based on stamina level
-    let fillColor: number;
-    const staminaPercent = this.currentStamina / this.maxStamina;
-    
-    if (staminaPercent > 0.5) {
-      fillColor = 0x00ff00; // Green
-    } else if (staminaPercent > 0.25) {
-      fillColor = 0xffff00; // Yellow
-    } else {
-      fillColor = 0xff0000; // Red
-    }
-    
+    // Stamina fill - orange color
+    const fillColor = 0xffa500; // Orange
     const fillWidth = Math.max(0, (this.currentStamina / this.maxStamina) * (width - 2));
     this.staminaBar.fillStyle(fillColor, 0.8);
     this.staminaBar.fillRoundedRect(x + 1, y + 1, fillWidth, height - 2, 2);
@@ -499,6 +621,14 @@ export default class PlayerManager {
   }
 
   /**
+   * Restore stamina points
+   */
+  public restoreStamina(amount: number): void {
+    this.currentStamina = Math.min(this.maxStamina, this.currentStamina + amount);
+    this.updateStaminaBar();
+  }
+
+  /**
    * Check if stamina is depleted
    */
   public isStaminaDepleted(): boolean {
@@ -558,76 +688,94 @@ export default class PlayerManager {
    * Create player title display for NFT holders
    */
   public async createPlayerTitle(retryCount: number = 0): Promise<void> {
-    console.log('👑 PlayerManager: Creating player title...');
-    
-    // Check if player title already exists
-    if (this.playerTitle) {
-      console.log('ℹ️ PlayerManager: Player title already exists, skipping creation');
-      return;
+    // Prevent multiple simultaneous calls
+    if (this.isCreatingTitle) {
+        console.log('ℹ️ PlayerManager: Player title creation already in progress, skipping');
+        return;
     }
     
-    // Check for player-glow texture
-    if (!this.scene.textures.exists('player-glow')) {
-      // If texture doesn't exist, retry after a short delay (up to 3 times)
-      if (retryCount < 3) {
-        console.warn(`⚠️ PlayerManager: player-glow texture not found, retrying (${retryCount + 1}/3)...`);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return this.createPlayerTitle(retryCount + 1);
-      } else {
-        console.error('❌ PlayerManager: player-glow texture not found after 3 retries!');
-        return;
-      }
-    }
-
-    const nftsStr = localStorage.getItem('quiztal-nfts');
-    if (!nftsStr) {
-      // If NFT data is not available, retry after a short delay (up to 3 times)
-      if (retryCount < 3) {
-        console.warn(`⚠️ PlayerManager: No NFTs found, retrying (${retryCount + 1}/3)...`);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return this.createPlayerTitle(retryCount + 1);
-      } else {
-        console.log('ℹ️ PlayerManager: No NFTs found after 3 retries, skipping title creation');
-        return;
-      }
-    }
-
+    this.isCreatingTitle = true;
+    
     try {
-      const nfts = JSON.parse(nftsStr);
-      const titleConfig = getPlayerTitle(nfts);
+        console.log('👑 PlayerManager: Creating player title...');
+        
+        // Check if player title already exists
+        if (this.playerTitle) {
+            console.log('ℹ️ PlayerManager: Player title already exists, skipping creation');
+            return;
+        }
+        
+        // Check for player-glow texture
+        if (!this.scene.textures.exists('player-glow')) {
+            // If texture doesn't exist, retry after a short delay (up to 3 times)
+            if (retryCount < 3) {
+                console.warn(`⚠️ PlayerManager: player-glow texture not found, retrying (${retryCount + 1}/3)...`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return this.createPlayerTitle(retryCount + 1);
+            } else {
+                console.error('❌ PlayerManager: player-glow texture not found after 3 retries!');
+                return;
+            }
+        }
 
-      if (!titleConfig.text) {
-        console.log('ℹ️ PlayerManager: No title configuration, skipping title creation');
-        return;
-      }
+        const nftsStr = localStorage.getItem('quiztal-nfts');
+        if (!nftsStr) {
+            // If NFT data is not available, retry after a short delay (up to 3 times)
+            if (retryCount < 3) {
+                console.warn(`⚠️ PlayerManager: No NFTs found, retrying (${retryCount + 1}/3)...`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return this.createPlayerTitle(retryCount + 1);
+            } else {
+                console.log('ℹ️ PlayerManager: No NFTs found after 3 retries, skipping title creation');
+                return;
+            }
+        }
 
-      // Create player glow effect
-      this.createPlayerGlow(titleConfig);
-      
-      // Create aura effect
-      this.createPlayerAura(titleConfig);
-      
-      // Create main title text
-      this.createTitleText(titleConfig);
+        try {
+            const nfts = JSON.parse(nftsStr);
+            const titleConfig = getPlayerTitle(nfts);
 
-      console.log('✅ PlayerManager: Player title created successfully');
-    } catch (error) {
-      // If parsing fails, retry after a short delay (up to 3 times)
-      if (retryCount < 3) {
-        console.warn(`⚠️ PlayerManager: Error parsing NFT data, retrying (${retryCount + 1}/3)...`, error);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return this.createPlayerTitle(retryCount + 1);
-      } else {
-        console.error('❌ PlayerManager: Error creating player title after 3 retries:', error);
-      }
+            if (!titleConfig.text) {
+                console.log('ℹ️ PlayerManager: No title configuration, skipping title creation');
+                return;
+            }
+
+            // Create player glow effect
+            this.createPlayerGlow(titleConfig);
+            
+            // Create aura effect
+            this.createPlayerAura(titleConfig);
+            
+            // Create main title text
+            this.createTitleText(titleConfig);
+
+            console.log('✅ PlayerManager: Player title created successfully');
+        } catch (error) {
+            // If parsing fails, retry after a short delay (up to 3 times)
+            if (retryCount < 3) {
+                console.warn(`⚠️ PlayerManager: Error parsing NFT data, retrying (${retryCount + 1}/3)...`, error);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                return this.createPlayerTitle(retryCount + 1);
+            } else {
+                console.error('❌ PlayerManager: Error creating player title after 3 retries:', error);
+            }
+        }
+    } finally {
+        this.isCreatingTitle = false;
     }
-  }
+}
 
   /**
    * Create player name display from Firestore
    */
   public async createPlayerName(): Promise<void> {
     console.log('📝 PlayerManager: Creating player name...');
+    
+    // Check if player name already exists
+    if (this.playerNameText) {
+      console.log('ℹ️ PlayerManager: Player name already exists, skipping creation');
+      return;
+    }
     
     const userStr = localStorage.getItem('quiztal-player');
     if (!userStr) {
@@ -652,7 +800,7 @@ export default class PlayerManager {
 
         this.playerNameText = this.scene.add.text(
           this.player.x,
-          this.player.y + 35,
+          this.player.y - 25, // Position just below the NFT title (which is at y - 40)
           displayName,
           {
             fontSize: '10px',
@@ -684,7 +832,7 @@ export default class PlayerManager {
         if (this.player) {
           this.playerNameText = this.scene.add.text(
             this.player.x,
-            this.player.y + 35,
+            this.player.y - 25, // Position just below the NFT title (which is at y - 40)
             'Unknown Adventurer',
             {
               fontSize: '10px',
@@ -771,9 +919,9 @@ export default class PlayerManager {
       }
     }
 
-    // Update player name position
+    // Update player name position (positioned just below the NFT title)
     if (this.playerNameText) {
-      this.playerNameText.setPosition(this.player.x, this.player.y + 35);
+      this.playerNameText.setPosition(this.player.x, this.player.y - 25);
     }
 
     // Update glow position and depth
@@ -806,6 +954,16 @@ export default class PlayerManager {
     // Update stamina low text position
     if (this.staminaLowText && this.player) {
       this.staminaLowText.setPosition(this.player.x, this.player.y + 57);
+    }
+    
+    // Update health bar position (positioned just above the stamina bar)
+    if (this.healthBar && this.player) {
+      this.healthBar.setPosition(this.player.x, this.player.y + 35);
+    }
+    
+    // Update health text position (positioned with the health bar)
+    if (this.healthText && this.player) {
+      this.healthText.setPosition(this.player.x, this.player.y + 25);
     }
   }
 
@@ -951,40 +1109,52 @@ export default class PlayerManager {
    * Manually refresh player title - useful for fixing title rendering issues during teleportation
    */
   public async refreshPlayerTitle(): Promise<void> {
-    console.log('🔄 PlayerManager: Manually refreshing player title...');
-    
-    // Clean up existing title elements if they exist
-    if (this.playerTitle) {
-      try {
-        this.playerTitle.destroy();
-        this.playerTitle = undefined;
-      } catch (e) {
-        console.warn('⚠️ PlayerManager: Error destroying existing player title', e);
-      }
+    // Prevent multiple simultaneous calls
+    if (this.isCreatingTitle) {
+        console.log('ℹ️ PlayerManager: Player title refresh already in progress, skipping');
+        return;
     }
     
-    if (this.playerGlow) {
-      try {
-        this.playerGlow.destroy();
-        this.playerGlow = undefined;
-      } catch (e) {
-        console.warn('⚠️ PlayerManager: Error destroying existing player glow', e);
-      }
+    this.isCreatingTitle = true;
+    
+    try {
+        console.log('🔄 PlayerManager: Manually refreshing player title...');
+        
+        // Clean up existing title elements if they exist
+        if (this.playerTitle) {
+          try {
+            this.playerTitle.destroy();
+            this.playerTitle = undefined;
+          } catch (e) {
+            console.warn('⚠️ PlayerManager: Error destroying existing player title', e);
+          }
+        }
+        
+        if (this.playerGlow) {
+          try {
+            this.playerGlow.destroy();
+            this.playerGlow = undefined;
+          } catch (e) {
+            console.warn('⚠️ PlayerManager: Error destroying existing player glow', e);
+          }
+        }
+        
+        if (this.titleAura) {
+          try {
+            this.titleAura.destroy();
+            this.titleAura = undefined;
+          } catch (e) {
+            console.warn('⚠️ PlayerManager: Error destroying existing title aura', e);
+          }
+        }
+        
+        // Recreate player title
+        await this.createPlayerTitle();
+        
+        console.log('✅ PlayerManager: Player title refreshed');
+    } finally {
+        this.isCreatingTitle = false;
     }
-    
-    if (this.titleAura) {
-      try {
-        this.titleAura.destroy();
-        this.titleAura = undefined;
-      } catch (e) {
-        console.warn('⚠️ PlayerManager: Error destroying existing title aura', e);
-      }
-    }
-    
-    // Recreate player title
-    await this.createPlayerTitle();
-    
-    console.log('✅ PlayerManager: Player title refreshed');
   }
 
   /**
@@ -1364,45 +1534,61 @@ export default class PlayerManager {
   }
 
   /**
-   * Clean up player resources
+   * Clean up resources when shutting down
    */
   public destroy(): void {
-    console.log('🧹 PlayerManager: Cleaning up player resources...');
+    console.log('🧹 PlayerManager: Cleaning up resources...');
     
     // Clean up player sprite
     if (this.player) {
       try {
+        // Stop following the player
+        if (this.scene.cameras && this.scene.cameras.main) {
+          this.scene.cameras.main.stopFollow();
+        }
+        
+        // Destroy the player sprite and its physics body
+        if (this.player.body) {
+          this.player.body.destroy();
+        }
         this.player.destroy();
+        this.player = undefined as any;
       } catch (e) {
         console.warn('⚠️ PlayerManager: Error destroying player sprite', e);
       }
     }
     
-    // Clean up UI elements
+    // Clean up player title
     if (this.playerTitle) {
       try {
         this.playerTitle.destroy();
+        this.playerTitle = undefined; // Clear the reference after destruction
       } catch (e) {
         console.warn('⚠️ PlayerManager: Error destroying player title', e);
       }
     }
     
+    // Clean up player name text
     if (this.playerNameText) {
       try {
         this.playerNameText.destroy();
+        this.playerNameText = undefined; // Clear the reference after destruction
       } catch (e) {
-        console.warn('⚠️ PlayerManager: Error destroying player name', e);
+        console.warn('⚠️ PlayerManager: Error destroying player name text', e);
       }
     }
     
+    // Clean up player glow effect
     if (this.playerGlow) {
       try {
         this.playerGlow.destroy();
+        this.playerGlow = undefined; // Clear the reference after destruction
       } catch (e) {
         console.warn('⚠️ PlayerManager: Error destroying player glow', e);
       }
     }
     
+    // Clean up title aura
     if (this.titleAura) {
       try {
         this.titleAura.destroy();
@@ -1453,7 +1639,235 @@ export default class PlayerManager {
       }
     }
     
+    // Clean up health bar
+    if (this.healthBar) {
+      try {
+        this.healthBar.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying health bar', e);
+      }
+    }
+    
+    // Clean up health text
+    if (this.healthText) {
+      try {
+        this.healthText.destroy();
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error destroying health text', e);
+      }
+    }
+    
+    // Clean up timers
+    if (this.staminaRegenTimer) {
+      try {
+        this.staminaRegenTimer.remove();
+        this.staminaRegenTimer = null;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error removing stamina regen timer', e);
+      }
+    }
+    
+    if (this.staminaSaveTimer) {
+      try {
+        this.staminaSaveTimer.remove();
+        this.staminaSaveTimer = null;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error removing stamina save timer', e);
+      }
+    }
+    
+    if (this.invulnerabilityTimer) {
+      try {
+        this.invulnerabilityTimer.remove();
+        this.invulnerabilityTimer = null;
+      } catch (e) {
+        console.warn('⚠️ PlayerManager: Error removing invulnerability timer', e);
+      }
+    }
+    
     PlayerManager.instance = null as any;
     console.log('✅ PlayerManager: Cleanup complete');
   }
+
+  /**
+   * Take damage from combat
+   */
+  public takeDamage(amount: number): void {
+    // Don't take damage if invulnerable
+    if (this.isInvulnerable) return;
+    
+    this.currentHealth = Math.max(0, this.currentHealth - amount);
+    this.updateHealthBar();
+    
+    // Visual feedback
+    this.player.setTint(0xff0000);
+    this.scene.time.delayedCall(200, () => {
+      if (this.player) {
+        this.player.clearTint();
+      }
+    });
+    
+    // Set invulnerability for a short time
+    this.setInvulnerable(1000); // 1 second of invulnerability
+    
+    // Screen shake effect
+    this.scene.cameras.main.shake(200, 0.01);
+    
+    if (this.currentHealth <= 0) {
+      this.handlePlayerDeath();
+    }
+  }
+  
+  /**
+   * Set player invulnerability
+   */
+  private setInvulnerable(duration: number): void {
+    this.isInvulnerable = true;
+    
+    // Clear any existing timer
+    if (this.invulnerabilityTimer) {
+      this.invulnerabilityTimer.remove();
+    }
+    
+    // Set timer to remove invulnerability
+    this.invulnerabilityTimer = this.scene.time.delayedCall(duration, () => {
+      this.isInvulnerable = false;
+      this.invulnerabilityTimer = null;
+    });
+  }
+  
+  /**
+   * Handle player death
+   */
+  private handlePlayerDeath(): void {
+    console.log('💀 PlayerManager: Player has been defeated!');
+    // In a full implementation, this would trigger game over or respawn logic
+    
+    // Screen flash effect
+    const flash = this.scene.add.graphics();
+    flash.fillStyle(0xff0000, 0.5);
+    flash.fillRect(0, 0, this.scene.scale.width, this.scene.scale.height);
+    flash.setDepth(1000);
+    
+    this.scene.tweens.add({
+      targets: flash,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => {
+        flash.destroy();
+      }
+    });
+  }
+
+  /**
+   * Heal the player
+   */
+  public heal(amount: number): void {
+    this.currentHealth = Math.min(this.maxHealth, this.currentHealth + amount);
+    this.updateHealthBar();
+  }
+
+  /**
+   * Check if player is alive
+   */
+  public isAlive(): boolean {
+    return this.currentHealth > 0;
+  }
+
+  /**
+   * Get current health
+   */
+  public getHealth(): number {
+    return this.currentHealth;
+  }
+
+  /**
+   * Get maximum health
+   */
+  public getMaxHealth(): number {
+    return this.maxHealth;
+  }
+
+  /**
+   * Set current health
+   */
+  public setHealth(health: number): void {
+    this.currentHealth = Math.max(0, Math.min(this.maxHealth, health));
+    this.updateHealthBar();
+  }
+
+  /**
+   * Create health bar UI
+   */
+  private createHealthBar(): void {
+    if (!this.player) return;
+    
+    this.healthBar = this.scene.add.graphics();
+    this.healthBar.setPosition(this.player.x, this.player.y + 35); // Position just above stamina bar
+    this.healthBar.setDepth(100);
+    
+    // Create health text
+    this.healthText = this.scene.add.text(this.player.x, this.player.y + 25, 
+      `${Math.floor(this.currentHealth)}/${this.maxHealth}`, {
+        fontSize: '8px',
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 2
+      })
+      .setOrigin(0.5)
+      .setDepth(101);
+      
+    this.updateHealthBar();
+  }
+
+  /**
+   * Update health bar display
+   */
+  private updateHealthBar(): void {
+    if (!this.healthBar || !this.player) return;
+    
+    const width = 50;
+    const height = 6;
+    const x = -width / 2;
+    const y = -height / 2;
+    
+    this.healthBar.clear();
+    
+    // Background
+    this.healthBar.fillStyle(0x333333, 0.8);
+    this.healthBar.fillRoundedRect(x, y, width, height, 2);
+    
+    // Health fill
+    const healthPercent = this.currentHealth / this.maxHealth;
+    const fillWidth = Math.max(0, healthPercent * (width - 2));
+    
+    let fillColor: number;
+    if (healthPercent > 0.6) {
+      fillColor = 0x00ff00; // Green
+    } else if (healthPercent > 0.3) {
+      fillColor = 0xffff00; // Yellow
+    } else {
+      fillColor = 0xff0000; // Red
+    }
+    
+    this.healthBar.fillStyle(fillColor, 0.8);
+    this.healthBar.fillRoundedRect(x + 1, y + 1, fillWidth, height - 2, 1);
+    
+    // Border
+    this.healthBar.lineStyle(1, 0xffffff, 1);
+    this.healthBar.strokeRoundedRect(x, y, width, height, 2);
+    
+    // Update position to follow player (positioned just above the stamina bar)
+    this.healthBar.setPosition(this.player.x, this.player.y + 35);
+    
+    // Update health text
+    if (this.healthText) {
+      this.healthText.setText(`${Math.floor(this.currentHealth)}/${this.maxHealth}`);
+      this.healthText.setPosition(this.player.x, this.player.y + 25);
+    }
+  }
+
+
+
 }

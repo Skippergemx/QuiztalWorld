@@ -13,6 +13,7 @@ import PetManager from '../managers/PetManager';
 import WalkingNPCManager from '../managers/WalkingNPCManager';
 import AudioManager from '../managers/AudioManager';
 import MonsterManager from '../managers/MonsterManager';
+import CombatManager from '../managers/CombatManager';
 
 // Import monster classes
 // @ts-ignore: Used in MonsterManager
@@ -23,6 +24,7 @@ export default class ExplorationScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private selectedCharacter: string = 'lsxd';
   private initialStamina: number = 100; // Store initial stamina value
+  private initialHealth: number = 100; // Store initial health value
   private initialSpeedBoostActive: boolean = false; // Store initial speed boost state
   
   // System readiness flag
@@ -37,6 +39,7 @@ export default class ExplorationScene extends Phaser.Scene {
   private petManager!: PetManager;
   private walkingNPCManager!: WalkingNPCManager;
   private monsterManager!: MonsterManager;
+  private combatManager!: CombatManager;
 
   // System managers
   private quizAntiSpamManager!: QuizAntiSpamManager;
@@ -54,7 +57,7 @@ export default class ExplorationScene extends Phaser.Scene {
     super({ key: 'ExplorationScene' });
   }
 
-  init(data: { selectedCharacter?: string, currentStamina?: number, isSpeedBoostActive?: boolean }) {
+  init(data: { selectedCharacter?: string, currentStamina?: number, currentHealth?: number, isSpeedBoostActive?: boolean }) {
     // Same as GameScene
     if (data?.selectedCharacter) {
       this.selectedCharacter = data.selectedCharacter;
@@ -75,6 +78,11 @@ export default class ExplorationScene extends Phaser.Scene {
     // Store initial stamina if provided
     if (data?.currentStamina !== undefined) {
       this.initialStamina = data.currentStamina;
+    }
+    
+    // Store initial health if provided
+    if (data?.currentHealth !== undefined) {
+      this.initialHealth = data.currentHealth;
     }
     
     // Store initial speed boost state if provided
@@ -148,8 +156,8 @@ export default class ExplorationScene extends Phaser.Scene {
     this.petManager?.update();
     this.walkingNPCManager?.updateWalkingNPCs();
     
-    // Update mobile controls for smooth movement
-    this.mobileControlsManager?.update();
+    // Update combat system
+    this.combatManager?.update();
     
     // Check if speed boost has expired
     this.checkSpeedBoostExpiration();
@@ -158,7 +166,13 @@ export default class ExplorationScene extends Phaser.Scene {
     if (this.player && this.monsterManager) {
       // Update the monster manager with player position
       this.monsterManager.update(this.player.x, this.player.y);
+      
+      // Check for player-monster collisions
+      this.checkPlayerMonsterCollisions();
     }
+    
+    // Update mobile controls for smooth movement
+    this.mobileControlsManager?.update();
     
     // Periodically check if pet needs to be recreated (every 5 seconds)
     if (this.time.now % 5000 < 50) {
@@ -166,10 +180,60 @@ export default class ExplorationScene extends Phaser.Scene {
     }
   }
 
+  private checkPlayerMonsterCollisions(): void {
+    // Check for collisions between player and monsters
+    const monsters = this.monsterManager['monsters'];
+    
+    for (let i = monsters.length - 1; i >= 0; i--) {
+      const monster = monsters[i];
+      
+      // Skip if monster is not valid
+      if (!monster || !monster.active || !monster.body) {
+        continue;
+      }
+      
+      // Check if monster is currently attacking
+      if (monster.isCurrentlyAttacking()) {
+        // Check if player is within attack range
+        const distance = Phaser.Math.Distance.Between(
+          this.player.x, this.player.y,
+          monster.x, monster.y
+        );
+        
+        if (distance <= monster.getAttackRange()) {
+          // Apply damage to player through PlayerManager
+          this.playerManager.takeDamage(monster.getDamage());
+        }
+      }
+      
+      // Check if monster is dead
+      if (!monster.isAlive()) {
+        // Remove monster from the game
+        this.monsterManager.removeMonster(monster);
+        monster.destroy();
+        
+        // Update combat manager's monster list
+        this.combatManager.registerMonsters(this.monsterManager['monsters']);
+      }
+    }
+  }
+
   // === INITIALIZATION METHODS ===
 
   private async initializeScene(): Promise<void> {
     console.log('🏗️ ExplorationScene: Initializing basic scene...');
+    
+    // Check if UIScene is already running and stop it if needed
+    try {
+      if (this.scene.get('UIScene')) {
+        if (this.scene.isActive('UIScene')) {
+          this.scene.stop('UIScene');
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ ExplorationScene: Error checking/stopping UIScene', e);
+    }
+    
     this.scene.launch('UIScene');
     
     // Set up mobile-specific resize handling
@@ -190,6 +254,7 @@ export default class ExplorationScene extends Phaser.Scene {
     if (typeof window !== 'undefined') {
       (window as any).quizAntiSpamManager = this.quizAntiSpamManager;
       (window as any).explorationScene = this;
+      (window as any).gameScene = this; // Also set gameScene for compatibility
     }
   }
 
@@ -214,6 +279,7 @@ export default class ExplorationScene extends Phaser.Scene {
       startPosition: { x: 800, y: 750 },
       speed: 160,
       initialStamina: this.initialStamina, // Pass initial stamina value
+      initialHealth: this.initialHealth, // Pass initial health value
       isSpeedBoostActive: this.initialSpeedBoostActive // Pass initial speed boost state
     };
 
@@ -278,6 +344,22 @@ export default class ExplorationScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-Q', () => this.toggleSkillWindow());
     this.input.keyboard?.on('keydown-q', () => this.toggleSkillWindow());
     
+    // Add combat input handling
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.leftButtonDown()) {
+        // Debug information
+        console.log('Mouse click detected:', {
+          screenX: pointer.x,
+          screenY: pointer.y,
+          worldX: pointer.worldX,
+          worldY: pointer.worldY,
+          playerX: this.player.x,
+          playerY: this.player.y
+        });
+        this.playerEnergyAttack(pointer.worldX, pointer.worldY);
+      }
+    });
+    
     // Add N key binding for speed boost
     this.input.keyboard?.on('keydown-N', () => this.activateSpeedBoost());
     this.input.keyboard?.on('keydown-n', () => this.activateSpeedBoost());
@@ -290,6 +372,7 @@ export default class ExplorationScene extends Phaser.Scene {
         this.scene.start('GameScene', {
           selectedCharacter: this.selectedCharacter,
           currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          currentHealth: this.playerManager ? this.playerManager.getHealth() : 100,
           isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
         });
       });
@@ -301,6 +384,7 @@ export default class ExplorationScene extends Phaser.Scene {
         this.scene.start('GameScene', {
           selectedCharacter: this.selectedCharacter,
           currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          currentHealth: this.playerManager ? this.playerManager.getHealth() : 100,
           isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
         });
       });
@@ -308,6 +392,14 @@ export default class ExplorationScene extends Phaser.Scene {
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
+  }
+
+  /**
+   * Handle scene shutdown event
+   */
+  private handleSceneShutdown(): void {
+    console.log('🛑 ExplorationScene: Handling scene shutdown event...');
+    this.shutdown();
   }
 
   private initializeMobileControls(): void {
@@ -327,11 +419,19 @@ export default class ExplorationScene extends Phaser.Scene {
     await this.playerManager.createPlayerTitle();
     await this.playerManager.createPlayerName();
     
-    // Add a delayed refresh to ensure title is properly created
-    this.time.delayedCall(1000, async () => {
-      if (this.playerManager) {
+    // Store reference to the delayed call so we can cancel it if needed
+    // But first, check if there's already a delayed refresh pending and cancel it
+    if ((this as any)._titleRefreshTimer) {
+      (this as any)._titleRefreshTimer.remove(false);
+    }
+    
+    (this as any)._titleRefreshTimer = this.time.delayedCall(1000, async () => {
+      // Check if scene and playerManager still exist before calling refreshPlayerTitle
+      if (this.scene && this.playerManager && this.playerManager.refreshPlayerTitle) {
         await this.playerManager.refreshPlayerTitle();
       }
+      // Clear the reference after execution
+      (this as any)._titleRefreshTimer = null;
     });
   }
 
@@ -340,6 +440,11 @@ export default class ExplorationScene extends Phaser.Scene {
 
     // Get the AudioManager instance
     const audioManager = AudioManager.getInstance();
+
+    // Make audio manager globally accessible for combat sounds
+    if (typeof window !== 'undefined') {
+      (window as any).audioManager = audioManager;
+    }
 
     // Initialize sound effects
     audioManager.initSounds(this);
@@ -371,15 +476,24 @@ export default class ExplorationScene extends Phaser.Scene {
     this.monsterManager = MonsterManager.getInstance(this);
     this.monsterManager.initialize(10);
     
+    // Initialize CombatManager
+    this.combatManager = new CombatManager(this, this.player);
+    this.combatManager.initialize();
+    
+    // Register monsters with the combat system
+    this.combatManager.registerMonsters(this.monsterManager['monsters']);
+    
     // Set up monster collisions (this will be handled by the MonsterManager in future updates)
     // For now, we'll set up a single collision handler
     this.setupMonsterCollisions();
   }
 
   private setupMonsterCollisions(): void {
-    // Note: In a more advanced implementation, collision handling would be done per monster
-    // For now, we're keeping the existing structure but it will be updated
+    // Set up collision detection between player and monsters
     console.log('👾 ExplorationScene: Setting up monster collision system');
+    
+    // We'll check for collisions in the update loop instead of using Phaser's overlap
+    // This gives us more control over the collision handling
   }
 
   /*private handlePlayerMonsterCollision(player: any, monster: any): void {
@@ -501,36 +615,8 @@ export default class ExplorationScene extends Phaser.Scene {
     return true;
   }
 
-  private handleSceneShutdown(): void {
-    console.log('🛑 ExplorationScene: Shutting down...');
-    
-    // Stop all audio
-    try {
-      const audioManager = AudioManager.getInstance();
-      audioManager.stopAllAudio();
-    } catch (e) {
-      console.warn('⚠️ ExplorationScene: Error stopping audio during shutdown', e);
-    }
-    
-    // Clear any existing dialogs
-    try {
-      // Don't call with empty array as it will cause an error
-    } catch (e) {
-      console.warn('⚠️ ExplorationScene: Error clearing dialogs during shutdown', e);
-    }
-    
-    // Clean up network monitor
-    if (this.networkMonitor) {
-      try {
-        this.networkMonitor.destroy();
-      } catch (e) {
-        console.warn('⚠️ ExplorationScene: Error destroying network monitor', e);
-      }
-    }
-  }
-
   /**
-   * Clean up mobile-specific resources
+   * Clean up resources when shutting down
    */
   shutdown(): void {
     console.log('🛑 ExplorationScene: Starting shutdown...');
@@ -541,6 +627,16 @@ export default class ExplorationScene extends Phaser.Scene {
       return;
     }
     (this as any)._isShuttingDown = true;
+    
+    // Cancel any pending title refresh timer
+    if ((this as any)._titleRefreshTimer) {
+      try {
+        (this as any)._titleRefreshTimer.remove(false);
+        (this as any)._titleRefreshTimer = null;
+      } catch (e) {
+        console.warn('⚠️ ExplorationScene: Error removing title refresh timer', e);
+      }
+    }
     
     try {
       // Remove resize listener
@@ -556,6 +652,11 @@ export default class ExplorationScene extends Phaser.Scene {
       // Clean up keyboard listeners
       if (this.input && this.input.keyboard) {
         this.input.keyboard.removeAllListeners();
+      }
+      
+      // Clean up pointer listeners
+      if (this.input) {
+        this.input.removeAllListeners();
       }
     } catch (e) {
       console.warn('⚠️ ExplorationScene: Error cleaning up event listeners', e);
@@ -573,6 +674,22 @@ export default class ExplorationScene extends Phaser.Scene {
     }
     
     // Clean up managers in reverse order of initialization
+    try {
+      if (this.combatManager) {
+        this.combatManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ ExplorationScene: Error destroying combat manager', e);
+    }
+    
+    try {
+      if (this.monsterManager) {
+        this.monsterManager.destroy();
+      }
+    } catch (e) {
+      console.warn('⚠️ ExplorationScene: Error destroying monster manager', e);
+    }
+    
     try {
       if (this.mobileControlsManager) {
         this.mobileControlsManager.destroy();
@@ -619,15 +736,6 @@ export default class ExplorationScene extends Phaser.Scene {
       }
     } catch (e) {
       console.warn('⚠️ ExplorationScene: Error destroying asset manager', e);
-    }
-    
-    // Clean up monsters
-    try {
-      if (this.monsterManager) {
-        this.monsterManager.destroy();
-      }
-    } catch (e) {
-      console.warn('⚠️ ExplorationScene: Error destroying monster manager', e);
     }
     
     // Clean up audio
@@ -706,6 +814,16 @@ export default class ExplorationScene extends Phaser.Scene {
         onClose: () => this.scene.resume('ExplorationScene')
       });
       this.scene.pause('ExplorationScene');
+    }
+  }
+
+  /**
+   * Handle player energy attack
+   */
+  private playerEnergyAttack(targetX: number, targetY: number): void {
+    // Call the combat manager to handle player energy attack
+    if (this.combatManager) {
+      this.combatManager.playerEnergyAttack(this.player.x, this.player.y, targetX, targetY);
     }
   }
 
@@ -918,7 +1036,7 @@ export default class ExplorationScene extends Phaser.Scene {
 
   // Add method to teleport back to main game
   private async teleportToMainGame(): Promise<void> {
-    console.log('🎮 ExplorationScene: Teleporting back to main game...');
+    console.log('🎮 ExplorationScene: Teleporting to main game...');
     
     // Stop all audio before teleporting to prevent duplication
     try {
@@ -928,20 +1046,23 @@ export default class ExplorationScene extends Phaser.Scene {
       console.warn('⚠️ ExplorationScene: Error stopping audio before teleport', e);
     }
     
-    // Get current stamina and speed boost state to pass to the new scene
+    // Get current player state to pass to the new scene
     let currentStamina = 100; // Default value
+    let currentHealth = 100; // Default value
     let isSpeedBoostActive = false; // Default value
     if (this.playerManager) {
       currentStamina = this.playerManager.getCurrentStamina();
+      currentHealth = this.playerManager.getHealth();
       isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
       // Save current stamina before teleporting
       await this.playerManager.saveStaminaData();
     }
     
-    // Transition to GameScene with current stamina and speed boost state
+    // Transition to GameScene with current player state
     this.scene.start('GameScene', {
       selectedCharacter: this.selectedCharacter,
       currentStamina: currentStamina,
+      currentHealth: currentHealth,
       isSpeedBoostActive: isSpeedBoostActive
     });
   }

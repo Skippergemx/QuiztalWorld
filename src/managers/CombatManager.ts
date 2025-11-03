@@ -1,0 +1,684 @@
+import Phaser from 'phaser';
+import { FieldMonster } from '../entities/FieldMonster';
+import { EnergyBall } from '../entities/EnergyBall';
+import { monsterDropConfigs } from '../config/monsterDrops';
+import { MonsterDropConfig, MonsterDrop } from '../types/drops';
+// Remove HealthBarUI import since we'll use PlayerManager's health bar
+// import HealthBarUI from '../ui/HealthBarUI';
+
+export default class CombatManager {
+  private scene: Phaser.Scene;
+  private player: Phaser.Physics.Arcade.Sprite;
+  private monsters: FieldMonster[] = [];
+  private isCombatActive: boolean = false;
+  
+  // Combat state
+  private playerHealth: number = 100;
+  private playerMaxHealth: number = 100;
+  private combatCooldown: number = 0;
+  
+  // UI elements (removed healthBar since we're using PlayerManager's)
+  private damageTexts: Phaser.GameObjects.Text[] = [];
+  private combatEffects: Phaser.GameObjects.Graphics[] = [];
+
+  constructor(scene: Phaser.Scene, player: Phaser.Physics.Arcade.Sprite) {
+    this.scene = scene;
+    this.player = player;
+  }
+
+  /**
+   * Initialize the combat manager
+   */
+  public initialize(): void {
+    console.log('⚔️ CombatManager: Initializing combat system...');
+    // Remove health bar creation since PlayerManager handles it
+  }
+
+  /**
+   * Update combat logic
+   */
+  public update(): void {
+    // Update combat cooldown
+    if (this.combatCooldown > 0) {
+      this.combatCooldown -= this.scene.game.loop.delta;
+    }
+    
+    // Update damage texts
+    this.updateDamageTexts();
+    
+    // Update combat effects
+    this.updateCombatEffects();
+    
+    // Check for item collection
+    this.checkItemCollection();
+    
+    // Check if combat is active
+    this.isCombatActive = this.monsters.some(monster => monster && monster.active && monster.isAlive());
+  }
+
+  /**
+   * Register monsters with the combat system
+   */
+  public registerMonsters(monsters: FieldMonster[]): void {
+    this.monsters = monsters;
+  }
+
+  /**
+   * Handle player taking damage
+   */
+  public playerTakeDamage(amount: number): void {
+    if (this.combatCooldown > 0) return;
+    
+    this.playerHealth = Math.max(0, this.playerHealth - amount);
+    
+    // Update PlayerManager's health (since it manages the health bar)
+    const playerManager = (this.scene as any).playerManager;
+    if (playerManager && typeof playerManager.takeDamage === 'function') {
+      playerManager.takeDamage(amount);
+    }
+    
+    // Visual feedback
+    this.player.setTint(0xff0000);
+    this.scene.time.delayedCall(200, () => {
+      if (this.player) {
+        this.player.clearTint();
+      }
+    });
+    
+    // Screen shake effect
+    this.scene.cameras.main.shake(200, 0.01);
+    
+    // Combat cooldown to prevent damage spam
+    this.combatCooldown = 800; // Reduced from 1000ms for more responsive combat
+    
+    // Show damage text
+    this.showDamageText(amount, this.player.x, this.player.y - 30);
+    
+    // Play damage sound
+    const audioManager = (window as any).audioManager || { playPlayerDamageSound: () => {} };
+    audioManager.playPlayerDamageSound();
+    
+    // Create hit effect
+    this.createHitEffect(this.player.x, this.player.y);
+    
+    if (this.playerHealth <= 0) {
+      this.handlePlayerDeath();
+    }
+  }
+
+  /**
+   * Handle player healing
+   */
+  public playerHeal(amount: number): void {
+    this.playerHealth = Math.min(this.playerMaxHealth, this.playerHealth + amount);
+    
+    // Update PlayerManager's health (since it manages the health bar)
+    const playerManager = (this.scene as any).playerManager;
+    if (playerManager && typeof playerManager.heal === 'function') {
+      playerManager.heal(amount);
+    }
+    
+    // Show healing text
+    this.showDamageText(-amount, this.player.x, this.player.y - 30, '#00ff00');
+    
+    // Create healing effect
+    this.createHealingEffect(this.player.x, this.player.y);
+  }
+
+  /**
+   * Handle player energy attack (new mouse-targeted attack)
+   */
+  public playerEnergyAttack(playerX: number, playerY: number, targetX: number, targetY: number): void {
+    // Debug information
+    console.log('playerEnergyAttack called:', {
+      playerX: playerX,
+      playerY: playerY,
+      targetX: targetX,
+      targetY: targetY
+    });
+    
+    // Use the updated playerAttack method for energy balls
+    this.playerAttack(playerX, playerY, targetX, targetY);
+  }
+
+  /**
+   * Handle player attack with energy balls
+   */
+  public playerAttack(playerX: number, playerY: number, targetX: number, targetY: number): void {
+    // Check if player can attack (not on cooldown)
+    const attackCooldown = 500; // Slightly longer cooldown for energy attacks
+    const currentTime = this.scene.time.now;
+    
+    // Simple cooldown check using a property
+    if (!(this as any).lastPlayerAttackTime) {
+      (this as any).lastPlayerAttackTime = 0;
+    }
+    
+    if (currentTime - (this as any).lastPlayerAttackTime < attackCooldown) {
+      return;
+    }
+    
+    // Set last attack time
+    (this as any).lastPlayerAttackTime = currentTime;
+    
+    // Play attack sound
+    const audioManager = (window as any).audioManager || { playPlayerAttackSound: () => {} };
+    audioManager.playPlayerAttackSound();
+    
+    // Create energy ball
+    const energyBall = new EnergyBall(this.scene, playerX, playerY, targetX, targetY);
+    
+    // Check for collisions with monsters
+    this.scene.physics.add.overlap(energyBall, this.monsters, (ball: any, monster: any) => {
+      if (monster && monster.active && monster.isAlive()) {
+        // Apply damage to monster
+        monster.takeDamage(ball.getDamage());
+        
+        // Show damage text
+        this.showDamageText(ball.getDamage(), monster.x, monster.y - 20, '#00ffff');
+        
+        // Play monster damage sound
+        const monsterAudioManager = (window as any).audioManager || { playMonsterDamageSound: () => {} };
+        monsterAudioManager.playMonsterDamageSound();
+        
+        // Notify energy ball that it hit a target
+        ball.hitTarget();
+        
+        // Check if monster is dead
+        if (!monster.isAlive()) {
+          // Monster is defeated
+          console.log('👹 Monster defeated!');
+          
+          // Play monster death sound
+          const deathAudioManager = (window as any).audioManager || { playMonsterDeathSound: () => {} };
+          deathAudioManager.playMonsterDeathSound();
+          
+          // Create death effect
+          this.createMonsterDeathEffect(monster.x, monster.y);
+          
+          // Trigger monster drops
+          const monsterType = monster.getMonsterType ? monster.getMonsterType() : 'mobster';
+          this.createMonsterDrops(monsterType, monster.x, monster.y);
+          
+          // Remove monster from the game
+          const monsterIndex = this.monsters.indexOf(monster);
+          if (monsterIndex !== -1) {
+            this.monsters.splice(monsterIndex, 1);
+          }
+          
+          // Notify MonsterManager to handle respawn
+          const monsterManager = (this.scene as any).monsterManager;
+          if (monsterManager && typeof monsterManager.handleMonsterDefeated === 'function') {
+            monsterManager.handleMonsterDefeated(monster);
+          }
+          
+          // Destroy monster
+          monster.destroy();
+        }
+      }
+    });
+  }
+
+  /**
+   * Show damage/healing text
+   */
+  private showDamageText(amount: number, x: number, y: number, color: string = '#ff0000'): void {
+    const text = this.scene.add.text(x, y, amount > 0 ? `-${amount}` : `+${Math.abs(amount)}`, {
+      fontSize: '16px',
+      color: color,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+    
+    text.setDepth(101);
+    
+    // Add to damage texts array
+    this.damageTexts.push(text);
+    
+    // Tween to move upward and fade out
+    this.scene.tweens.add({
+      targets: text,
+      y: y - 30,
+      alpha: 0,
+      duration: 1000,
+      ease: 'Power1',
+      onComplete: () => {
+        text.destroy();
+        // Remove from array
+        const index = this.damageTexts.indexOf(text);
+        if (index > -1) {
+          this.damageTexts.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  /**
+   * Create hit effect
+   */
+  private createHitEffect(x: number, y: number): void {
+    const effect = this.scene.add.graphics();
+    effect.fillStyle(0xff0000, 0.5);
+    effect.fillCircle(0, 0, 20);
+    effect.setPosition(x, y);
+    effect.setDepth(100);
+    
+    this.combatEffects.push(effect);
+    
+    // Animate the effect
+    this.scene.tweens.add({
+      targets: effect,
+      alpha: 0,
+      scale: 2,
+      duration: 300,
+      onComplete: () => {
+        effect.destroy();
+        // Remove from array
+        const index = this.combatEffects.indexOf(effect);
+        if (index > -1) {
+          this.combatEffects.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  /**
+   * Create healing effect
+   */
+  private createHealingEffect(x: number, y: number): void {
+    const effect = this.scene.add.graphics();
+    effect.fillStyle(0x00ff00, 0.5);
+    effect.fillCircle(0, 0, 20);
+    effect.setPosition(x, y);
+    effect.setDepth(100);
+    
+    this.combatEffects.push(effect);
+    
+    // Animate the effect
+    this.scene.tweens.add({
+      targets: effect,
+      alpha: 0,
+      scale: 2,
+      duration: 300,
+      onComplete: () => {
+        effect.destroy();
+        // Remove from array
+        const index = this.combatEffects.indexOf(effect);
+        if (index > -1) {
+          this.combatEffects.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  /**
+   * Create monster death effect
+   */
+  private createMonsterDeathEffect(x: number, y: number): void {
+    // Create explosion effect
+    const explosion = this.scene.add.graphics();
+    explosion.fillStyle(0xff4500, 0.8);
+    explosion.fillCircle(0, 0, 30);
+    explosion.setPosition(x, y);
+    explosion.setDepth(100);
+    
+    this.combatEffects.push(explosion);
+    
+    // Animate the explosion
+    this.scene.tweens.add({
+      targets: explosion,
+      alpha: 0,
+      scale: 3,
+      duration: 500,
+      onComplete: () => {
+        explosion.destroy();
+        // Remove from array
+        const index = this.combatEffects.indexOf(explosion);
+        if (index > -1) {
+          this.combatEffects.splice(index, 1);
+        }
+      }
+    });
+    
+    // Create particle effects
+    for (let i = 0; i < 8; i++) {
+      const particle = this.scene.add.graphics();
+      particle.fillStyle(0xff6347, 0.7);
+      particle.fillCircle(0, 0, 5);
+      particle.setPosition(x, y);
+      particle.setDepth(100);
+      
+      this.combatEffects.push(particle);
+      
+      // Animate particles flying outward
+      const angle = (i / 8) * Math.PI * 2;
+      const distance = 50;
+      const targetX = x + Math.cos(angle) * distance;
+      const targetY = y + Math.sin(angle) * distance;
+      
+      this.scene.tweens.add({
+        targets: particle,
+        x: targetX,
+        y: targetY,
+        alpha: 0,
+        duration: 400,
+        onComplete: () => {
+          particle.destroy();
+          // Remove from array
+          const index = this.combatEffects.indexOf(particle);
+          if (index > -1) {
+            this.combatEffects.splice(index, 1);
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * Create monster drops
+   */
+  private createMonsterDrops(monsterType: string, x: number, y: number): void {
+    console.log('Creating drops for', monsterType, 'at', x, y);
+    const config = monsterDropConfigs.find((c: MonsterDropConfig) => c.monsterType === monsterType);
+    if (!config) {
+      console.log('No drop config found for monster type:', monsterType);
+      return;
+    }
+    
+    console.log('Found drop config:', config);
+    
+    config.drops.forEach((drop: MonsterDrop) => {
+      const roll = Math.random() * 100;
+      console.log('Rolling for drop:', drop.itemId, 'chance:', drop.chance, 'roll:', roll);
+      if (roll < drop.chance) {
+        const quantity = Phaser.Math.Between(drop.minQuantity, drop.maxQuantity);
+        console.log('Drop succeeded:', drop.itemId, 'quantity:', quantity);
+        this.createDropItem(drop.itemId, quantity, x, y);
+      } else {
+        console.log('Drop failed:', drop.itemId);
+      }
+    });
+  }
+
+  /**
+   * Create a visual drop item in the world
+   */
+  private createDropItem(itemId: string, quantity: number, x: number, y: number): void {
+    console.log('Creating drop item:', { itemId, quantity, x, y });
+    
+    // Get item info from existing inventory system
+    // For now, we'll use the mock items from InventoryScene
+    const mockItems = [
+      { id: 'health_crystal', icon: '💖', name: 'Health Crystal' },
+      { id: 'mana_crystal', icon: '💎', name: 'Mana Crystal' },
+      { id: 'stamina_potion', icon: '🔋', name: 'Stamina Potion' },
+      { id: 'golden_key', icon: '🔑', name: 'Golden Key' },
+      { id: 'dragon_scale', icon: '🐉', name: 'Dragon Scale' },
+      { id: 'phoenix_feather', icon: '🔥', name: 'Phoenix Feather' },
+      { id: 'speed_potion', icon: '⚡', name: 'Speed Potion' },
+      { id: 'mystic_orb', icon: '🔮', name: 'Mystic Orb' },
+      { id: 'dungeon_key', icon: '🗝️', name: 'Dungeon Key' }
+    ];
+    
+    const itemInfo = mockItems.find(item => item.id === itemId);
+    if (!itemInfo) {
+      console.log('Item not found in mock items:', itemId);
+      return;
+    }
+    
+    console.log('Creating drop with emoji:', itemInfo.icon);
+    
+    // Create visual representation using emoji with better sizing
+    const dropItem = this.scene.add.text(x, y, itemInfo.icon, {
+      fontSize: '28px', // Reduced from 32px to prevent cropping
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3 // Reduced from 4 to match the smaller size
+    }).setOrigin(0.5);
+    
+    // Set depth to ensure items appear above other elements
+    dropItem.setDepth(100);
+    
+    // Add physics body for collection (adjusted for smaller size)
+    this.scene.physics.world.enable(dropItem);
+    if (dropItem.body) {
+      (dropItem.body as Phaser.Physics.Arcade.Body).setCircle(18); // Adjusted from 20
+      (dropItem.body as Phaser.Physics.Arcade.Body).setOffset(-18, -18); // Adjusted from -20
+    }
+    
+    // Store item data
+    (dropItem as any).itemData = {
+      itemId: itemId,
+      quantity: quantity,
+      name: itemInfo.name
+    };
+    
+    // Add bobbing animation
+    this.scene.tweens.add({
+      targets: dropItem,
+      y: y - 12, // Adjusted from 15 to match the smaller size
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    
+    // Add a subtle glow effect (adjusted for smaller size)
+    const glow = this.scene.add.graphics();
+    glow.fillStyle(0xffffff, 0.3);
+    glow.fillCircle(0, 0, 20); // Adjusted from 25
+    glow.setPosition(x, y);
+    glow.setDepth(99);
+    
+    // Animate the glow
+    this.scene.tweens.add({
+      targets: glow,
+      alpha: 0.1,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+    
+    // Auto-collect after 30 seconds
+    this.scene.time.delayedCall(30000, () => {
+      if (dropItem.active) {
+        dropItem.destroy();
+        glow.destroy();
+      }
+    });
+    
+    // Store reference for collection checking
+    if (!(this as any).dropItems) {
+      (this as any).dropItems = [];
+    }
+    (this as any).dropItems.push({ item: dropItem, glow: glow });
+    
+    console.log('Drop item created successfully:', dropItem);
+  }
+
+  /**
+   * Update combat effects
+   */
+  private updateCombatEffects(): void {
+    // Combat effects are handled by tweens, so this is just a placeholder
+    // for any additional effect updates that might be needed
+  }
+
+  /**
+   * Update damage texts
+   */
+  private updateDamageTexts(): void {
+    // Position health bar above player (removed since PlayerManager handles this)
+    
+    // Update all damage texts to follow their targets if needed
+    // (Currently static, but could be extended for following targets)
+  }
+  
+  /**
+   * Check for item collection based on player proximity
+   */
+  public checkItemCollection(): void {
+    if (!(this as any).dropItems || (this as any).dropItems.length === 0) return;
+    
+    // Check each drop item for proximity to player
+    for (let i = (this as any).dropItems.length - 1; i >= 0; i--) {
+      const dropItemObj = (this as any).dropItems[i];
+      const dropItem = dropItemObj.item;
+      
+      // Check if item still exists
+      if (!dropItem.active) {
+        // Remove inactive items
+        (this as any).dropItems.splice(i, 1);
+        continue;
+      }
+      
+      // Calculate distance between player and item
+      const distance = Phaser.Math.Distance.Between(
+        this.player.x, this.player.y,
+        dropItem.x, dropItem.y
+      );
+      
+      // If player is close enough, collect the item
+      if (distance < 30) {
+        // Get item data
+        const itemData = (dropItem as any).itemData;
+        console.log('Collected item:', itemData);
+        
+        // Show collection effect with positive number
+        this.showCollectionText(itemData.quantity, dropItem.x, dropItem.y - 20);
+        
+        // Play collection sound (if available)
+        const audioManager = (window as any).audioManager || { playCollectItemSound: () => {} };
+        audioManager.playCollectItemSound && audioManager.playCollectItemSound();
+        
+        // Add item to inventory
+        this.addItemToInventory(itemData.itemId, itemData.quantity);
+        
+        // Destroy the item and its glow effect
+        dropItem.destroy();
+        dropItemObj.glow.destroy();
+        
+        // Remove from drop items array
+        (this as any).dropItems.splice(i, 1);
+      }
+    }
+  }
+  
+  /**
+   * Add collected item to inventory
+   */
+  private addItemToInventory(itemId: string, quantity: number): void {
+    try {
+      // Access the inventory scene and add the item
+      const inventoryScene = this.scene.scene.get('InventoryScene');
+      if (inventoryScene && typeof (inventoryScene as any).addItem === 'function') {
+        (inventoryScene as any).addItem(itemId, quantity);
+        console.log('Item added to inventory:', itemId, quantity);
+      } else {
+        console.warn('InventoryScene not available or addItem method not found');
+      }
+    } catch (error) {
+      console.error('Error adding item to inventory:', error);
+    }
+  }
+  
+  /**
+   * Show item collection text
+   */
+  private showCollectionText(quantity: number, x: number, y: number): void {
+    const text = this.scene.add.text(x, y, `+${quantity}`, {
+      fontSize: '16px',
+      color: '#00ff00',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5);
+    
+    text.setDepth(101);
+    
+    // Add to damage texts array for consistency
+    this.damageTexts.push(text);
+    
+    // Tween to move upward and fade out
+    this.scene.tweens.add({
+      targets: text,
+      y: y - 30,
+      alpha: 0,
+      duration: 1000,
+      ease: 'Power1',
+      onComplete: () => {
+        text.destroy();
+        // Remove from array
+        const index = this.damageTexts.indexOf(text);
+        if (index > -1) {
+          this.damageTexts.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  /**
+   * Handle player death
+   */
+  private handlePlayerDeath(): void {
+    console.log('💀 CombatManager: Player has been defeated!');
+    // In a full implementation, this would trigger game over or respawn logic
+    
+    // Screen flash effect
+    const flash = this.scene.add.graphics();
+    flash.fillStyle(0xff0000, 0.5);
+    flash.fillRect(0, 0, this.scene.scale.width, this.scene.scale.height);
+    flash.setDepth(1000);
+    
+    this.scene.tweens.add({
+      targets: flash,
+      alpha: 0,
+      duration: 1000,
+      onComplete: () => {
+        flash.destroy();
+      }
+    });
+  }
+
+  /**
+   * Clean up resources
+   */
+  public destroy(): void {
+    // Remove healthBar destroy since PlayerManager handles it
+    
+    // Destroy all damage texts
+    this.damageTexts.forEach(text => {
+      text.destroy();
+    });
+    this.damageTexts = [];
+    
+    // Destroy all combat effects
+    this.combatEffects.forEach(effect => {
+      effect.destroy();
+    });
+    this.combatEffects = [];
+  }
+
+  // Getters
+  public getPlayerHealth(): number {
+    return this.playerHealth;
+  }
+
+  public getPlayerMaxHealth(): number {
+    return this.playerMaxHealth;
+  }
+
+  public isPlayerAlive(): boolean {
+    return this.playerHealth > 0;
+  }
+  
+  public getMonsters(): FieldMonster[] {
+    return this.monsters;
+  }
+  
+  public isCombatInProgress(): boolean {
+    return this.isCombatActive;
+  }
+}

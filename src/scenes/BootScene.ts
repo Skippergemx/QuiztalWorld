@@ -29,10 +29,18 @@ export default class BootScene extends Phaser.Scene {
         this.load.audio('Correct_Answer', 'assets/audio/Correct_Answer.wav');
         this.load.audio('Wrong_Answer', 'assets/audio/Wrong_Answer.wav');
         this.load.audio('moblin-giftbox', 'assets/audio/Moblin_giftbox.wav'); // Add Moblin gift box sound
+        // Add combat audio assets
+        this.load.audio('player-damage', 'assets/audio/Wrong_Answer.wav'); // Using Wrong_Answer for player damage
+        this.load.audio('monster-damage', 'assets/audio/Correct_Answer.wav'); // Using Correct_Answer for monster damage
+        this.load.audio('combat-music', 'assets/audio/background_music.mp3'); // Using background music for combat
         this.load.on('filecomplete-audio-bgm', updateProgress);
         this.load.on('filecomplete-audio-Correct_Answer', updateProgress);
         this.load.on('filecomplete-audio-Wrong_Answer', updateProgress);
         this.load.on('filecomplete-audio-moblin-giftbox', updateProgress);
+        // Add combat audio event listeners
+        this.load.on('filecomplete-audio-player-damage', updateProgress);
+        this.load.on('filecomplete-audio-monster-damage', updateProgress);
+        this.load.on('filecomplete-audio-combat-music', updateProgress);
 
         // ✅ Load Tileset & Map
         this.load.image("tiles", "assets/tilesets/tileset.png");

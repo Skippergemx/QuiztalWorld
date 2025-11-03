@@ -292,7 +292,8 @@ export default class AssetManager {
     const essentialUIAssets: UIAssetConfig[] = [
       { key: 'joystick', path: 'assets/ui/joystick.png' },
       { key: 'joystick-base', path: 'assets/ui/joystick-base.png' },
-      { key: 'button-interact', path: 'assets/ui/button-interact.png' }
+      { key: 'button-interact', path: 'assets/ui/button-interact.png' },
+      { key: 'glow', path: 'assets/effects/glow.png' }
     ];
 
     // For mobile, ensure we have optimized versions of UI assets
@@ -379,6 +380,14 @@ export default class AssetManager {
         walkPath: 'assets/monsters/mobster_walk02.png',
         frameWidth: 32,
         frameHeight: 53
+      },
+      {
+        idleKey: 'mobster_idle03',
+        idlePath: 'assets/monsters/mobster_idle03.png',
+        walkKey: 'mobster_walk03',
+        walkPath: 'assets/monsters/mobster_walk03.png',
+        frameWidth: 32,
+        frameHeight: 53
       }
     ];
 
@@ -435,6 +444,7 @@ export default class AssetManager {
       'joystick',
       'joystick-base', 
       'button-interact',
+      'glow',
       'moblin_walk',
       'moblin_idle',
       'moblin-giftbox',
@@ -444,7 +454,9 @@ export default class AssetManager {
       'mobster_idle',
       'mobster_walk',
       'mobster_idle02',
-      'mobster_walk02'
+      'mobster_walk02',
+      'mobster_idle03',
+      'mobster_walk03'
     ];
 
     return requiredAssets.every(key => this.scene.textures.exists(key) || this.scene.cache.audio.exists(key));
@@ -456,10 +468,11 @@ export default class AssetManager {
   public validateAssets(): { success: boolean; missingAssets: string[] } {
     const missingAssets: string[] = [];
     const requiredTextures = [
-      'joystick', 'joystick-base', 'button-interact',
+      'joystick', 'joystick-base', 'button-interact', 'glow',
       'moblin_walk', 'moblin_idle',
       'mobster_idle', 'mobster_walk',
-      'mobster_idle02', 'mobster_walk02'
+      'mobster_idle02', 'mobster_walk02',
+      'mobster_idle03', 'mobster_walk03'
     ];
     const requiredAudio = ['moblin-giftbox', 'bgm', 'Correct_Answer', 'Wrong_Answer'];
 

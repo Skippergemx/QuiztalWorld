@@ -23,6 +23,7 @@ export default class GameScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private selectedCharacter: string = 'lsxd';
   private initialStamina: number | undefined = undefined; // Store initial stamina for teleportation
+  private initialHealth: number | undefined = undefined; // Store initial health for teleportation
   private initialSpeedBoostActive: boolean = false; // Store initial speed boost state
   
   // System readiness flag
@@ -54,7 +55,7 @@ export default class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
-  init(data: { selectedCharacter?: string, currentStamina?: number, isSpeedBoostActive?: boolean }) {
+  init(data: { selectedCharacter?: string, currentStamina?: number, currentHealth?: number, isSpeedBoostActive?: boolean }) {
     if (data?.selectedCharacter) {
       this.selectedCharacter = data.selectedCharacter;
     } else {
@@ -74,6 +75,9 @@ export default class GameScene extends Phaser.Scene {
     
     // Store initial stamina if provided (for teleportation)
     this.initialStamina = data?.currentStamina;
+    
+    // Store initial health if provided (for teleportation)
+    this.initialHealth = data?.currentHealth;
     
     // Store initial speed boost state if provided (for teleportation)
     if (data?.isSpeedBoostActive !== undefined) {
@@ -161,6 +165,18 @@ export default class GameScene extends Phaser.Scene {
 
   private async initializeScene(): Promise<void> {
     console.log('🏗️ GameScene: Initializing basic scene...');
+    
+    // Check if UIScene is already running and stop it if needed
+    try {
+      if (this.scene.get('UIScene')) {
+        if (this.scene.isActive('UIScene')) {
+          this.scene.stop('UIScene');
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ GameScene: Error checking/stopping UIScene', e);
+    }
+    
     this.scene.launch('UIScene');
     
     // Set up mobile-specific resize handling
@@ -205,6 +221,7 @@ export default class GameScene extends Phaser.Scene {
       startPosition: { x: 800, y: 750 },
       speed: 160,
       initialStamina: this.initialStamina, // Pass initial stamina value if available
+      initialHealth: this.initialHealth, // Pass initial health value if available
       isSpeedBoostActive: this.initialSpeedBoostActive // Pass initial speed boost state
     };
 
@@ -335,6 +352,7 @@ export default class GameScene extends Phaser.Scene {
         this.scene.start('ExplorationScene', {
           selectedCharacter: this.selectedCharacter,
           currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          currentHealth: this.playerManager ? this.playerManager.getHealth() : 100,
           isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
         });
       });
@@ -346,6 +364,7 @@ export default class GameScene extends Phaser.Scene {
         this.scene.start('ExplorationScene', {
           selectedCharacter: this.selectedCharacter,
           currentStamina: this.playerManager ? this.playerManager.getCurrentStamina() : 100,
+          currentHealth: this.playerManager ? this.playerManager.getHealth() : 100,
           isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
         });
       });
@@ -353,6 +372,14 @@ export default class GameScene extends Phaser.Scene {
 
     // Set up cleanup event
     this.events.on('shutdown', this.handleSceneShutdown, this);
+  }
+
+  /**
+   * Handle scene shutdown event
+   */
+  private handleSceneShutdown(): void {
+    console.log('🛑 GameScene: Handling scene shutdown event...');
+    this.shutdown();
   }
 
   private initializeMobileControls(): void {
@@ -381,6 +408,11 @@ export default class GameScene extends Phaser.Scene {
 
     // Get the AudioManager instance
     const audioManager = AudioManager.getInstance();
+
+    // Make audio manager globally accessible
+    if (typeof window !== 'undefined') {
+      (window as any).audioManager = audioManager;
+    }
 
     // Initialize sound effects
     audioManager.initSounds(this);
@@ -513,38 +545,6 @@ export default class GameScene extends Phaser.Scene {
       return false;
     }
     return true;
-  }
-
-  private handleSceneShutdown(): void {
-    console.log('🛑 GameScene: Shutting down...');
-    
-    // Stop all audio
-    try {
-      const audioManager = AudioManager.getInstance();
-      audioManager.stopAllAudio();
-    } catch (e) {
-      console.warn('⚠️ GameScene: Error stopping audio during shutdown', e);
-    }
-    
-    // Clear any existing dialogs
-    try {
-      if (typeof showDialog === 'function') {
-        // Don't call with empty array as it will cause an error
-        // Instead, we just want to close any existing dialog
-        // showDialog(this, []); // This was causing the error
-      }
-    } catch (e) {
-      console.warn('⚠️ GameScene: Error clearing dialogs during shutdown', e);
-    }
-    
-    // Clean up network monitor
-    if (this.networkMonitor) {
-      try {
-        this.networkMonitor.destroy();
-      } catch (e) {
-        console.warn('⚠️ GameScene: Error destroying network monitor', e);
-      }
-    }
   }
 
   /**
@@ -897,20 +897,23 @@ export default class GameScene extends Phaser.Scene {
       console.warn('⚠️ GameScene: Error stopping audio before teleport', e);
     }
     
-    // Get current stamina and speed boost state to pass to the new scene
+    // Get current player state to pass to the new scene
     let currentStamina = 100; // Default value
+    let currentHealth = 100; // Default value
     let isSpeedBoostActive = false; // Default value
     if (this.playerManager) {
       currentStamina = this.playerManager.getCurrentStamina();
+      currentHealth = this.playerManager.getHealth();
       isSpeedBoostActive = this.playerManager.isSpeedBoostActiveCheck();
       // Save current stamina before teleporting
       await this.playerManager.saveStaminaData();
     }
     
-    // Transition to ExplorationScene with current stamina and speed boost state
+    // Transition to ExplorationScene with current player state
     this.scene.start('ExplorationScene', {
       selectedCharacter: this.selectedCharacter,
       currentStamina: currentStamina,
+      currentHealth: currentHealth,
       isSpeedBoostActive: isSpeedBoostActive
     });
   }

@@ -30,8 +30,9 @@ export default class MobileControlsManager {
   private targetVelocityY: number = 0;
   private currentVelocityX: number = 0;
   private currentVelocityY: number = 0;
-  private velocitySmoothing: number = 0.15; // Smoothing factor (0-1, lower = smoother)
-  private stopThreshold: number = 0.5; // Threshold for immediate stop
+  private velocitySmoothing: number = 0.5; // Smoothing factor (0-1, lower = smoother)
+  private stopThreshold: number = 1.0; // Threshold for immediate stop
+  private instantStop: boolean = false; // Flag for instant stopping
   
   // Animation direction handling
   private lastDirection: string = 'down';
@@ -149,6 +150,21 @@ export default class MobileControlsManager {
    */
   public getStopThreshold(): number {
     return this.stopThreshold;
+  }
+
+  /**
+   * Enable or disable instant stopping
+   * @param instant - Whether to stop immediately when joystick is released
+   */
+  public setInstantStop(instant: boolean): void {
+    this.instantStop = instant;
+  }
+
+  /**
+   * Get the current instant stop setting
+   */
+  public getInstantStop(): boolean {
+    return this.instantStop;
   }
 
   /**
@@ -482,6 +498,20 @@ export default class MobileControlsManager {
     this.targetVelocityX = 0;
     this.targetVelocityY = 0;
     
+    // If instant stop is enabled, stop immediately
+    if (this.instantStop) {
+      this.currentVelocityX = 0;
+      this.currentVelocityY = 0;
+      // Apply immediate stop to player
+      if (this.playerManager && typeof this.playerManager.setPlayerVelocityWithStamina === 'function') {
+        this.playerManager.setPlayerVelocityWithStamina(0, 0);
+      }
+    } else {
+      // For more immediate stop, also reduce current velocity significantly
+      this.currentVelocityX *= 0.3; // Reduce current velocity by 70%
+      this.currentVelocityY *= 0.3; // Reduce current velocity by 70%
+    }
+    
     // Reset direction change timer to allow immediate direction change when joystick is used again
     this.directionChangeTimer = 0;
     
@@ -654,12 +684,37 @@ export default class MobileControlsManager {
     const isStopping = this.targetVelocityX === 0 && this.targetVelocityY === 0;
     const currentSpeed = Math.sqrt(this.currentVelocityX * this.currentVelocityX + this.currentVelocityY * this.currentVelocityY);
     
-    if (isStopping && currentSpeed < this.stopThreshold) {
-      // Stop immediately when close to zero and target is zero
-      this.currentVelocityX = 0;
-      this.currentVelocityY = 0;
+    if (isStopping) {
+      // If instant stop is enabled, stop immediately
+      if (this.instantStop) {
+        this.currentVelocityX = 0;
+        this.currentVelocityY = 0;
+        if (this.playerManager && typeof this.playerManager.setPlayerVelocityWithStamina === 'function') {
+          this.playerManager.setPlayerVelocityWithStamina(0, 0);
+        }
+        return;
+      }
+      
+      // More aggressive stopping - use higher smoothing when stopping
+      const stopSmoothing = Math.min(this.velocitySmoothing * 3, 0.8); // Increase smoothing when stopping
+      
+      // Smoothly interpolate velocity towards target with increased smoothing
+      this.currentVelocityX += (this.targetVelocityX - this.currentVelocityX) * stopSmoothing;
+      this.currentVelocityY += (this.targetVelocityY - this.currentVelocityY) * stopSmoothing;
+      
+      // If we're very close to zero, stop immediately
+      if (currentSpeed < this.stopThreshold) {
+        this.currentVelocityX = 0;
+        this.currentVelocityY = 0;
+      }
+      
       if (this.playerManager && typeof this.playerManager.setPlayerVelocityWithStamina === 'function') {
-        this.playerManager.setPlayerVelocityWithStamina(0, 0);
+        this.playerManager.setPlayerVelocityWithStamina(this.currentVelocityX, this.currentVelocityY);
+      }
+      
+      // If we've stopped, no need to continue
+      if (this.currentVelocityX === 0 && this.currentVelocityY === 0) {
+        return;
       }
     } else {
       // Smoothly interpolate velocity towards target
@@ -800,9 +855,11 @@ export default class MobileControlsManager {
    */
   private initializeDefaultParameters(): void {
     // These values can be adjusted based on testing and user feedback
-    this.velocitySmoothing = 0.15;
+    this.velocitySmoothing = 0.5; // Increased for more responsive stopping
     this.directionChangeDelay = 150;
     this.directionChangeThreshold = 0.3;
+    this.stopThreshold = 1.0; // Increased for immediate stopping
+    this.instantStop = true; // Enable instant stopping by default
   }
 
   /**
@@ -824,6 +881,10 @@ export default class MobileControlsManager {
     
     if (config.stopThreshold !== undefined) {
       this.stopThreshold = config.stopThreshold;
+    }
+    
+    if (config.instantStop !== undefined) {
+      this.instantStop = config.instantStop;
     }
   }
 }

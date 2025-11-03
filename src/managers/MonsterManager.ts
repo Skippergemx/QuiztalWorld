@@ -62,8 +62,17 @@ export default class MonsterManager {
       
       // Check if position is valid (not inside a wall)
       if (this.isPositionValid(x, y)) {
-        // Randomly select monster type (50% chance for each type)
-        const monsterType = Math.random() < 0.5 ? 'mobster' : 'mobster02';
+        // Randomly select monster type (33% chance for each type)
+        const rand = Math.random();
+        let monsterType = 'mobster';
+        if (rand < 0.33) {
+            monsterType = 'mobster';
+        } else if (rand < 0.66) {
+            monsterType = 'mobster02';
+        } else {
+            monsterType = 'mobster03';
+        }
+        
         const monster = new FieldMonster(this.scene, x, y, monsterType);
         this.monsters.push(monster);
         console.log(`👾 ${monsterType} spawned at (${x}, ${y}). Total monsters: ${this.monsters.length}`);
@@ -83,6 +92,23 @@ export default class MonsterManager {
       this.monsters.splice(index, 1);
       console.log(`👾 Monster removed. Total monsters: ${this.monsters.length}`);
     }
+  }
+
+  /**
+   * Handle monster defeat - called when a monster is defeated in combat
+   */
+  public handleMonsterDefeated(monster: FieldMonster): void {
+    // Remove the monster from our list
+    const index = this.monsters.indexOf(monster);
+    if (index !== -1) {
+      this.monsters.splice(index, 1);
+      console.log(`👾 Monster defeated. Total monsters: ${this.monsters.length}`);
+    }
+    
+    // Schedule a respawn after a delay
+    this.scene.time.delayedCall(3000, () => {
+      this.spawnMonsters();
+    });
   }
 
   public getMonsterCount(): number {

@@ -3,13 +3,8 @@ import { NFTData } from '../types/nft';
 import { loadNFTsFromDatabase } from '../utils/Database';
 import { OptimizedNFTService } from '../services/OptimizedNFTService';
 
-interface TabContent {
-    container: Phaser.GameObjects.Container;
-    isActive: boolean;
-}
-
-// Add this interface at the top with other interfaces
-interface InventoryItem {
+// Define the inventory item structure
+export interface InventoryItem {
     id: string;
     name: string;
     description: string;
@@ -17,6 +12,19 @@ interface InventoryItem {
     type: 'consumable' | 'material' | 'key';
     rarity: 'common' | 'rare' | 'epic' | 'legendary';
     icon: string;
+    // Add usage function for consumables
+    use?: () => void;
+}
+
+// Define the inventory data structure
+interface InventoryData {
+    items: InventoryItem[];
+    version: number;
+}
+
+interface TabContent {
+    container: Phaser.GameObjects.Container;
+    isActive: boolean;
 }
 
 export default class InventoryScene extends Phaser.Scene {
@@ -26,83 +34,9 @@ export default class InventoryScene extends Phaser.Scene {
     private tabButtons: Map<string, Phaser.GameObjects.Rectangle> = new Map();
     private tooltipContainer?: Phaser.GameObjects.Container;
 
-    // Add this property to the InventoryScene class
-    private mockItems: InventoryItem[] = [
-        // First page items (existing)
-        {
-            id: 'health_crystal',
-            name: 'Health Crystal',
-            description: 'Restores 50 HP when used',
-            quantity: 5,
-            type: 'consumable',
-            rarity: 'common',
-            icon: '💖'
-        },
-        {
-            id: 'mana_crystal',
-            name: 'Mana Crystal',
-            description: 'Restores 30 MP when used',
-            quantity: 3,
-            type: 'consumable',
-            rarity: 'common',
-            icon: '💎'
-        },
-        {
-            id: 'golden_key',
-            name: 'Golden Key',
-            description: 'Opens special chests',
-            quantity: 1,
-            type: 'key',
-            rarity: 'rare',
-            icon: '🔑'
-        },
-        {
-            id: 'dragon_scale',
-            name: 'Dragon Scale',
-            description: 'A rare crafting material',
-            quantity: 2,
-            type: 'material',
-            rarity: 'epic',
-            icon: '🐉'
-        },
-        // Second page items (new)
-        {
-            id: 'phoenix_feather',
-            name: 'Phoenix Feather',
-            description: 'A legendary crafting material',
-            quantity: 1,
-            type: 'material',
-            rarity: 'legendary',
-            icon: '🔥'
-        },
-        {
-            id: 'speed_potion',
-            name: 'Speed Potion',
-            description: 'Increases movement speed',
-            quantity: 3,
-            type: 'consumable',
-            rarity: 'rare',
-            icon: '⚡'
-        },
-        {
-            id: 'mystic_orb',
-            name: 'Mystic Orb',
-            description: 'Contains mysterious power',
-            quantity: 2,
-            type: 'material',
-            rarity: 'epic',
-            icon: '🔮'
-        },
-        {
-            id: 'dungeon_key',
-            name: 'Dungeon Key',
-            description: 'Opens dungeon doors',
-            quantity: 1,
-            type: 'key',
-            rarity: 'rare',
-            icon: '🗝️'
-        }
-    ];
+    // Replace mockItems with actual inventory
+    private inventoryItems: InventoryItem[] = [];
+    private inventoryKey: string = 'quiztal-inventory';
 
     // Update these properties in the class
     private currentPage: number = 0;
@@ -118,6 +52,9 @@ export default class InventoryScene extends Phaser.Scene {
     }
 
     create() {
+        // Load inventory data
+        this.loadInventory();
+        
         // Detect mobile
         this.isMobile = this.game.device.os.android || 
                        this.game.device.os.iOS || 
@@ -136,6 +73,300 @@ export default class InventoryScene extends Phaser.Scene {
             this.input.keyboard?.addKey('ESC').on('down', () => this.closeInventory());
             this.input.keyboard?.addKey('I').on('down', () => this.closeInventory());
         }
+    }
+
+    // Load inventory from localStorage
+    private loadInventory(): void {
+        try {
+            const inventoryString = localStorage.getItem(this.inventoryKey);
+            if (inventoryString) {
+                const inventoryData: InventoryData = JSON.parse(inventoryString);
+                this.inventoryItems = inventoryData.items;
+                console.log('Loaded inventory with', this.inventoryItems.length, 'items');
+            } else {
+                // Initialize with empty inventory
+                this.inventoryItems = [];
+                this.saveInventory();
+            }
+        } catch (error) {
+            console.error('Error loading inventory:', error);
+            this.inventoryItems = [];
+        }
+    }
+
+    // Save inventory to localStorage
+    private saveInventory(): void {
+        try {
+            const inventoryData: InventoryData = {
+                items: this.inventoryItems,
+                version: 1
+            };
+            localStorage.setItem(this.inventoryKey, JSON.stringify(inventoryData));
+        } catch (error) {
+            console.error('Error saving inventory:', error);
+        }
+    }
+
+    // Add an item to the inventory
+    public addItem(itemId: string, quantity: number = 1): void {
+        console.log('Adding item to inventory:', itemId, quantity);
+        
+        // Define item templates
+        const itemTemplates: { [key: string]: Omit<InventoryItem, 'quantity'> } = {
+            'health_crystal': {
+                id: 'health_crystal',
+                name: 'Health Crystal',
+                description: 'Restores 50 HP when used',
+                type: 'consumable',
+                rarity: 'common',
+                icon: '💖'
+            },
+            'mana_crystal': {
+                id: 'mana_crystal',
+                name: 'Mana Crystal',
+                description: 'Restores 30 MP when used',
+                type: 'consumable',
+                rarity: 'common',
+                icon: '💎'
+            },
+            'stamina_potion': {
+                id: 'stamina_potion',
+                name: 'Stamina Potion',
+                description: 'Restores 30 Stamina when used',
+                type: 'consumable',
+                rarity: 'common',
+                icon: '🔋'
+            },
+            'golden_key': {
+                id: 'golden_key',
+                name: 'Golden Key',
+                description: 'Opens special chests',
+                type: 'key',
+                rarity: 'rare',
+                icon: '🔑'
+            },
+            'dragon_scale': {
+                id: 'dragon_scale',
+                name: 'Dragon Scale',
+                description: 'A rare crafting material',
+                type: 'material',
+                rarity: 'epic',
+                icon: '🐉'
+            },
+            'phoenix_feather': {
+                id: 'phoenix_feather',
+                name: 'Phoenix Feather',
+                description: 'A legendary crafting material',
+                type: 'material',
+                rarity: 'legendary',
+                icon: '🔥'
+            },
+            'speed_potion': {
+                id: 'speed_potion',
+                name: 'Speed Potion',
+                description: 'Increases movement speed',
+                type: 'consumable',
+                rarity: 'rare',
+                icon: '⚡'
+            },
+            'mystic_orb': {
+                id: 'mystic_orb',
+                name: 'Mystic Orb',
+                description: 'Contains mysterious power',
+                type: 'material',
+                rarity: 'epic',
+                icon: '🔮'
+            },
+            'dungeon_key': {
+                id: 'dungeon_key',
+                name: 'Dungeon Key',
+                description: 'Opens dungeon doors',
+                type: 'key',
+                rarity: 'rare',
+                icon: '🗝️'
+            }
+        };
+
+        // Check if item exists in templates
+        const template = itemTemplates[itemId];
+        if (!template) {
+            console.warn('Unknown item ID:', itemId);
+            return;
+        }
+
+        // Check if item already exists in inventory
+        const existingItem = this.inventoryItems.find(item => item.id === itemId);
+        const previousQuantity = existingItem ? existingItem.quantity : 0;
+        if (existingItem) {
+            existingItem.quantity += quantity;
+            console.log('Updated existing item quantity:', existingItem.quantity);
+        } else {
+            // Add new item to inventory
+            this.inventoryItems.push({
+                ...template,
+                quantity: quantity
+            });
+            console.log('Added new item to inventory');
+        }
+
+        // Save inventory
+        this.saveInventory();
+        console.log('Added', quantity, 'of', itemId, 'to inventory. New total:', this.getItemCount(itemId));
+        
+        // Check if this item should be auto-reassigned to any hotkey slot
+        try {
+            const uiScene = this.scene.get('UIScene') as any;
+            console.log('UIScene reference:', uiScene);
+            if (uiScene && uiScene.hotkeySlotManager) {
+                // If the item was previously at zero quantity, force update the slots
+                if (previousQuantity === 0) {
+                    console.log('Item was previously at zero, forcing slot update');
+                    uiScene.hotkeySlotManager.forceUpdateSlotsForItem(itemId);
+                } else {
+                    console.log('Calling checkAutoReassignItem for:', itemId);
+                    uiScene.hotkeySlotManager.checkAutoReassignItem(itemId);
+                }
+            } else {
+                console.log('UIScene or hotkeySlotManager not available for auto-reassign');
+            }
+        } catch (error) {
+            console.error('Error during auto-reassign check:', error);
+        }
+    }
+
+    // Remove an item from the inventory
+    public removeItem(itemId: string, quantity: number = 1): boolean {
+        const itemIndex = this.inventoryItems.findIndex(item => item.id === itemId);
+        if (itemIndex === -1) {
+            return false;
+        }
+
+        const item = this.inventoryItems[itemIndex];
+        if (item.quantity <= quantity) {
+            // Remove entire item
+            this.inventoryItems.splice(itemIndex, 1);
+        } else {
+            // Reduce quantity
+            item.quantity -= quantity;
+        }
+
+        // Save inventory
+        this.saveInventory();
+        console.log('Removed', quantity, 'of', itemId, 'from inventory');
+        return true;
+    }
+
+    // Get item count
+    public getItemCount(itemId: string): number {
+        const item = this.inventoryItems.find(item => item.id === itemId);
+        return item ? item.quantity : 0;
+    }
+
+    // Use an item (for consumables)
+    public useItem(itemId: string): boolean {
+        const item = this.inventoryItems.find(item => item.id === itemId);
+        if (!item || item.type !== 'consumable' || item.quantity <= 0) {
+            return false;
+        }
+
+        // Apply item effect based on item type
+        let playerManager = null;
+        
+        // Try to get player manager through window object (most reliable when GameScene is paused)
+        if (typeof window !== 'undefined') {
+            // Try gameScene first (GameScene)
+            if ((window as any).gameScene && (window as any).gameScene.playerManager) {
+                playerManager = (window as any).gameScene.playerManager;
+            } 
+            // Try explorationScene (ExplorationScene)
+            else if ((window as any).explorationScene && (window as any).explorationScene.playerManager) {
+                playerManager = (window as any).explorationScene.playerManager;
+            }
+        }
+        
+        // Fallback to direct scene access
+        if (!playerManager) {
+            try {
+                // Try to get from GameScene first
+                const gameScene = this.scene.get('GameScene');
+                if (gameScene && (gameScene as any).playerManager) {
+                    playerManager = (gameScene as any).playerManager;
+                }
+            } catch (e) {
+                // If that fails, try ExplorationScene
+                try {
+                    const explorationScene = this.scene.get('ExplorationScene');
+                    if (explorationScene && (explorationScene as any).playerManager) {
+                        playerManager = (explorationScene as any).playerManager;
+                    }
+                } catch (e2) {
+                    console.error('Error accessing GameScene or ExplorationScene:', e, e2);
+                }
+            }
+        }
+        
+        // Check if we have access to player manager
+        if (!playerManager) {
+            console.error('Could not access PlayerManager');
+            return false;
+        }
+
+        // Apply effect based on item type
+        switch (item.id) {
+            case 'health_crystal':
+                if (typeof playerManager.heal === 'function') {
+                    playerManager.heal(50);
+                    console.log('Player healed by 50 HP using Health Crystal');
+                }
+                break;
+                
+            case 'stamina_potion':
+                if (typeof playerManager.restoreStamina === 'function') {
+                    playerManager.restoreStamina(30);
+                    console.log('Player stamina restored by 30 points using Stamina Potion');
+                }
+                break;
+                
+            case 'speed_potion':
+                if (typeof playerManager.activateSpeedBoost === 'function') {
+                    playerManager.activateSpeedBoost();
+                    console.log('Speed boost activated using Speed Potion');
+                }
+                break;
+                
+            case 'mana_crystal':
+                // Currently no mana system implemented, but placeholder for future
+                console.log('Mana Crystal used (no mana system implemented)');
+                break;
+                
+            default:
+                console.log('Unknown consumable item used:', item.id);
+                break;
+        }
+
+        // Remove one from inventory
+        this.removeItem(itemId, 1);
+        
+        // Update hotkey slot quantities
+        const uiScene = this.scene.get('UIScene') as any;
+        if (uiScene && uiScene.hotkeySlotManager) {
+            uiScene.hotkeySlotManager.updateAllSlotQuantities();
+        }
+        
+        // Reset page if needed
+        this.currentPage = 0;
+        return true;
+    }
+
+    private closeInventory(): void {
+        // Resume the game scene
+        this.scene.resume('GameScene');
+        
+        // Stop the inventory scene
+        this.scene.stop('InventoryScene');
+        
+        // Reset default cursor
+        this.input.setDefaultCursor('default');
     }
 
     private createInventoryWindow(centerX: number, centerY: number): void {
@@ -227,17 +458,6 @@ export default class InventoryScene extends Phaser.Scene {
         ]);
 
         this.inventoryWindow.setDepth(1000);
-    }
-
-    private closeInventory(): void {
-        // Resume the game scene
-        this.scene.resume('GameScene');
-        
-        // Stop the inventory scene
-        this.scene.stop('InventoryScene');
-        
-        // Reset default cursor
-        this.input.setDefaultCursor('default');
     }
 
     private async createTabs(): Promise<void> {
@@ -396,11 +616,11 @@ export default class InventoryScene extends Phaser.Scene {
 
         // Calculate start and end indices for current page
         const startIndex = this.currentPage * this.itemsPerPage;
-        const endIndex = Math.min(startIndex + this.itemsPerPage, this.mockItems.length);
+        const endIndex = Math.min(startIndex + this.itemsPerPage, this.inventoryItems.length);
 
         // Create item slots for current page
         for (let i = startIndex; i < endIndex; i++) {
-            const item = this.mockItems[i];
+            const item = this.inventoryItems[i];
             const pageIndex = i - startIndex;
             const col = pageIndex % grid.columns;
             const row = Math.floor(pageIndex / grid.columns);
@@ -462,9 +682,157 @@ export default class InventoryScene extends Phaser.Scene {
             .on('pointerout', () => {
                 bg.setStrokeStyle(2, 0x3498db);
                 this.hideItemTooltip();
+            })
+            // Add click functionality for consumables
+            .on('pointerdown', () => {
+                if (item.type === 'consumable') {
+                    this.showHotkeyAssignmentUI(item.id);
+                } else {
+                    // For non-consumables, just show tooltip
+                    this.showItemTooltip(item, x, y);
+                }
             });
 
         return slot;
+    }
+    
+    // Show UI for assigning item to hotkey slot
+    private showHotkeyAssignmentUI(itemId: string): void {
+        // Get the UIScene to access the hotkey manager
+        const uiScene = this.scene.get('UIScene') as any;
+        if (!uiScene || !uiScene.hotkeySlotManager) {
+            console.warn('UIScene or hotkeySlotManager not available');
+            return;
+        }
+        
+        const hotkeyManager = uiScene.hotkeySlotManager;
+        const availableSlots = hotkeyManager.getAvailableSlotIds();
+        
+        // Create a simple UI to select a slot
+        const centerX = this.cameras.main.centerX;
+        const centerY = this.cameras.main.centerY;
+        
+        // Background overlay
+        const overlay = this.add.rectangle(
+            centerX, centerY,
+            this.scale.width, this.scale.height,
+            0x000000, 0.7
+        ).setOrigin(0.5).setDepth(2000);
+        
+        // Dialog container
+        const dialog = this.add.container(centerX, centerY).setDepth(2001);
+        
+        // Dialog background
+        const dialogBg = this.add.rectangle(0, 0, 300, 200, 0x2c3e50)
+            .setStrokeStyle(2, 0x3498db);
+        dialog.add(dialogBg);
+        
+        // Title
+        const title = this.add.text(0, -70, 'Assign to Hotkey Slot', {
+            fontSize: '16px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        dialog.add(title);
+        
+        // Instructions
+        const instructions = this.add.text(0, -40, 'Click a slot number to assign:', {
+            fontSize: '12px',
+            color: '#bbbbbb'
+        }).setOrigin(0.5);
+        dialog.add(instructions);
+        
+        // Create slot buttons
+        const buttonSize = 30;
+        const spacing = 10;
+        const totalWidth = (availableSlots.length * buttonSize) + ((availableSlots.length - 1) * spacing);
+        const startX = -totalWidth / 2 + buttonSize / 2;
+        
+        availableSlots.forEach((slotId: number, index: number) => {
+            const x = startX + (index * (buttonSize + spacing));
+            const displayNumber = slotId === 10 ? '0' : slotId.toString();
+            
+            const button = this.add.container(x, 0);
+            const buttonBg = this.add.rectangle(0, 0, buttonSize, buttonSize, 0x34495e)
+                .setStrokeStyle(1, 0x3498db);
+            const buttonText = this.add.text(0, 0, displayNumber, {
+                fontSize: '14px',
+                color: '#ffffff',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+            
+            button.add([buttonBg, buttonText]);
+            
+            // Make button interactive
+            buttonBg.setInteractive({ useHandCursor: true })
+                .on('pointerover', () => {
+                    buttonBg.setFillStyle(0x3498db);
+                })
+                .on('pointerout', () => {
+                    buttonBg.setFillStyle(0x34495e);
+                })
+                .on('pointerdown', () => {
+                    // Assign item to this slot
+                    const success = hotkeyManager.assignItemToSlot(slotId, itemId);
+                    if (success) {
+                        console.log(`Assigned item ${itemId} to slot ${slotId}`);
+                        
+                        // Show confirmation
+                        const confirmation = this.add.text(
+                            centerX, centerY,
+                            `Assigned to slot ${displayNumber}!`,
+                            {
+                                fontSize: '16px',
+                                color: '#2ecc71',
+                                backgroundColor: '#000000',
+                                padding: { x: 10, y: 5 }
+                            }
+                        ).setOrigin(0.5).setDepth(2002);
+                        
+                        // Remove confirmation after 2 seconds
+                        this.time.delayedCall(2000, () => {
+                            confirmation.destroy();
+                        });
+                    } else {
+                        console.warn(`Failed to assign item ${itemId} to slot ${slotId}`);
+                    }
+                    
+                    // Close dialog
+                    overlay.destroy();
+                    dialog.destroy();
+                });
+            
+            dialog.add(button);
+        });
+        
+        // Close button
+        const closeBtn = this.add.container(0, 80);
+        const closeBg = this.add.rectangle(0, 0, 80, 30, 0xe74c3c);
+        const closeText = this.add.text(0, 0, 'Cancel', {
+            fontSize: '12px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+        closeBtn.add([closeBg, closeText]);
+        
+        closeBg.setInteractive({ useHandCursor: true })
+            .on('pointerover', () => {
+                closeBg.setFillStyle(0xc0392b);
+            })
+            .on('pointerout', () => {
+                closeBg.setFillStyle(0xe74c3c);
+            })
+            .on('pointerdown', () => {
+                overlay.destroy();
+                dialog.destroy();
+            });
+        
+        dialog.add(closeBtn);
+        
+        // Allow closing with ESC key
+        this.input.keyboard?.addKey('ESC').on('down', () => {
+            overlay.destroy();
+            dialog.destroy();
+        });
     }
 
     // Add helper method for rarity background colors
@@ -791,8 +1159,8 @@ export default class InventoryScene extends Phaser.Scene {
         };
 
         // Add debug logging
-        console.log('Total mock items:', this.mockItems.length);
-        const totalPages = Math.ceil(this.mockItems.length / this.itemsPerPage);
+        console.log('Total inventory items:', this.inventoryItems.length);
+        const totalPages = Math.ceil(this.inventoryItems.length / this.itemsPerPage);
         console.log('Total pages:', totalPages);
         console.log('Current page:', this.currentPage);
 
@@ -802,7 +1170,9 @@ export default class InventoryScene extends Phaser.Scene {
                 console.log('Moving to page:', this.currentPage);
                 this.updateItemsPage(itemsContainer, grid);
                 // Update page text
-                pageText.setText(`Page ${this.currentPage + 1} / ${totalPages}`);
+                if (pageText) {
+                    pageText.setText(`Page ${this.currentPage + 1} / ${totalPages}`);
+                }
             }
         });
 
@@ -812,13 +1182,15 @@ export default class InventoryScene extends Phaser.Scene {
                 console.log('Moving to page:', this.currentPage);
                 this.updateItemsPage(itemsContainer, grid);
                 // Update page text
-                pageText.setText(`Page ${this.currentPage + 1} / ${totalPages}`);
+                if (pageText) {
+                    pageText.setText(`Page ${this.currentPage + 1} / ${totalPages}`);
+                }
             }
         });
 
         // Move page indicator between buttons
         const pageText = this.add.text(0, 100, 
-            `Page ${this.currentPage + 1} / ${totalPages}`, {
+            `Page ${this.currentPage + 1} / ${totalPages || 1}`, {
             fontSize: '15px',    // Increased by 25%
             color: '#ffffff'
         }).setOrigin(0.5);
