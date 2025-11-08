@@ -46,19 +46,39 @@ export default class HotkeySlotManager {
   // Create the UI for hotkey slots
   public createUI(): void {
     const isMobile = this.scene.scale.width < 768;
-    const slotSize = isMobile ? 40 : 50;
-    const slotSpacing = isMobile ? 5 : 10;
-    const startY = this.scene.scale.height - (isMobile ? 120 : 150);
+    const slotSize = isMobile ? 45 : 55;
+    const slotSpacing = isMobile ? 8 : 12;
+    const startY = this.scene.scale.height - (isMobile ? 130 : 160);
     
     // Create a container for all slots
     this.slotsContainer = this.scene.add.container(0, startY);
     
-    // Create 10 slots
+    // Create 10 slots with improved positioning
+    const slots = [];
     for (let i = 0; i < 10; i++) {
       const slotX = (this.scene.scale.width / 2) - (5 * slotSize) - (4.5 * slotSpacing) + (i * (slotSize + slotSpacing));
       const slot = this.createSlot(i + 1, slotX, 0, slotSize);
       this.slotsContainer.add(slot);
+      slots.push(slot);
       this.slotContainers.push(slot);
+    }
+    
+    // Calculate the bounds of all slots to create a proper background panel
+    if (slots.length > 0) {
+      const firstSlotX = slots[0].x;
+      const lastSlotX = slots[slots.length - 1].x;
+      const panelWidth = (lastSlotX - firstSlotX) + slotSize + 20;
+      const panelHeight = slotSize + 20;
+      const panelX = (firstSlotX + lastSlotX) / 2;
+      const panelY = 0;
+      
+      const panelBg = this.scene.add.rectangle(panelX, panelY, panelWidth, panelHeight, 0x1a1a1a)
+        .setAlpha(0.7)
+        .setStrokeStyle(1, 0x3498db)
+        .setOrigin(0.5);
+      
+      // Add the panel to the container behind the slots
+      this.slotsContainer.addAt(panelBg, 0);
     }
     
     // Set depth to ensure slots appear above other UI elements
@@ -68,41 +88,85 @@ export default class HotkeySlotManager {
   private createSlot(slotId: number, x: number, y: number, size: number): Phaser.GameObjects.Container {
     const container = this.scene.add.container(x, y);
 
-    // Background
-    const bg = this.scene.add.rectangle(0, 0, size, size, 0x34495e)
+    // Enhanced background with gradient and rounded corners
+    const bg = this.scene.add.rectangle(0, 0, size, size, 0x2c3e50)
       .setStrokeStyle(2, 0x3498db)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setAlpha(0.9);
 
-    // Slot number
+    // Add a subtle inner highlight for depth
+    const highlight = this.scene.add.rectangle(0, -size/4, size - 4, size/3, 0xffffff)
+      .setOrigin(0.5)
+      .setAlpha(0.1);
+
+    // Slot number with improved styling
     const displayNumber = slotId === 10 ? '0' : slotId.toString();
     const numberText = this.scene.add.text(0, -size/3, displayNumber, {
-      fontSize: '14px',
-      color: '#ffffff',
-      fontStyle: 'bold'
+      fontSize: '16px',
+      color: '#3498db',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
     }).setOrigin(0.5);
 
-    // Item icon (initially empty)
+    // Item icon with improved styling
     const iconText = this.scene.add.text(0, size/6, '', {
-      fontSize: '20px'
+      fontSize: '24px',
+      color: '#ffffff'
     }).setOrigin(0.5);
 
-    // Quantity text
+    // Quantity text with improved styling
     const quantityText = this.scene.add.text(size/3, size/3, '', {
-      fontSize: '10px',
+      fontSize: '12px',
       color: '#ffffff',
-      backgroundColor: '#000000'
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      padding: { x: 4, y: 2 }
     }).setOrigin(0.5);
 
     // Make container interactive for drag and drop
     container.setInteractive(new Phaser.Geom.Rectangle(-size/2, -size/2, size, size), Phaser.Geom.Rectangle.Contains);
 
-    // Add hover effects
+    // Add hover effects with smooth transitions
     container.on('pointerover', () => {
-      bg.setStrokeStyle(2, 0xf1c40f); // Yellow border on hover
+      this.scene.tweens.add({
+        targets: bg,
+        strokeColor: 0xf1c40f,
+        duration: 200
+      });
+      
+      // Scale up slightly on hover
+      this.scene.tweens.add({
+        targets: container,
+        scale: 1.1,
+        duration: 200,
+        ease: 'Power2'
+      });
     });
 
     container.on('pointerout', () => {
-      bg.setStrokeStyle(2, 0x3498db); // Blue border normally
+      this.scene.tweens.add({
+        targets: bg,
+        strokeColor: 0x3498db,
+        duration: 200
+      });
+      
+      // Scale back to normal
+      this.scene.tweens.add({
+        targets: container,
+        scale: 1,
+        duration: 200,
+        ease: 'Power2'
+      });
+    });
+
+    // Add click effect
+    container.on('pointerdown', () => {
+      this.scene.tweens.add({
+        targets: container,
+        scale: 0.95,
+        duration: 100,
+        yoyo: true
+      });
     });
 
     // Store references for updates
@@ -110,7 +174,7 @@ export default class HotkeySlotManager {
     (container as any).iconText = iconText;
     (container as any).quantityText = quantityText;
 
-    container.add([bg, numberText, iconText, quantityText]);
+    container.add([bg, highlight, numberText, iconText, quantityText]);
 
     return container;
   }
@@ -125,6 +189,7 @@ export default class HotkeySlotManager {
 
     const iconText = (container as any).iconText;
     const quantityText = (container as any).quantityText;
+    const bg = (container as any).bg;
 
     if (slot.itemId && slot.quantity > 0) {
       // Get item icon from inventory
@@ -132,10 +197,29 @@ export default class HotkeySlotManager {
       iconText.setText(icon);
       quantityText.setText(slot.quantity.toString());
       quantityText.setVisible(true);
+      
+      // Add a subtle glow effect for active slots
+      if (bg) {
+        bg.setStrokeStyle(2, 0x2ecc71); // Green border for active slots
+      }
+      
+      // Add a subtle animation when updating
+      this.scene.tweens.add({
+        targets: container,
+        alpha: 0.7,
+        duration: 100,
+        yoyo: true,
+        repeat: 1
+      });
     } else {
       iconText.setText('');
       quantityText.setText('');
       quantityText.setVisible(false);
+      
+      // Reset to default border color for empty slots
+      if (bg) {
+        bg.setStrokeStyle(2, 0x3498db);
+      }
     }
   }
 
@@ -395,28 +479,57 @@ export default class HotkeySlotManager {
   
   // Toggle visibility of hotkey slots
   public toggleSlotsVisibility(): void {
-    if (this.slotsContainer) {
-      this.slotsVisible = !this.slotsVisible;
-      this.slotsContainer.setVisible(this.slotsVisible);
-      console.log('Hotkey slots visibility toggled:', this.slotsVisible);
+    if (this.slotsVisible) {
+      this.hideSlots();
+    } else {
+      this.showSlots();
     }
   }
   
-  // Show hotkey slots
+  // Show hotkey slots with animation
   public showSlots(): void {
     if (this.slotsContainer && !this.slotsVisible) {
       this.slotsVisible = true;
       this.slotsContainer.setVisible(true);
-      console.log('Hotkey slots shown');
+      
+      // Add slide-up animation
+      const originalY = this.slotsContainer.y;
+      this.slotsContainer.setY(originalY + 50); // Start below
+      this.slotsContainer.setAlpha(0);
+      
+      this.scene.tweens.add({
+        targets: this.slotsContainer,
+        y: originalY,
+        alpha: 1,
+        duration: 300,
+        ease: 'Back.easeOut'
+      });
+      
+      console.log('Hotkey slots shown with animation');
     }
   }
   
-  // Hide hotkey slots
+  // Hide hotkey slots with animation
   public hideSlots(): void {
     if (this.slotsContainer && this.slotsVisible) {
-      this.slotsVisible = false;
-      this.slotsContainer.setVisible(false);
-      console.log('Hotkey slots hidden');
+      // Add slide-down animation
+      const originalY = this.slotsContainer.y;
+      
+      this.scene.tweens.add({
+        targets: this.slotsContainer,
+        y: originalY + 50, // Move down
+        alpha: 0,
+        duration: 300,
+        ease: 'Back.easeIn',
+        onComplete: () => {
+          if (this.slotsContainer) {
+            this.slotsContainer.setVisible(false);
+            this.slotsVisible = false;
+          }
+        }
+      });
+      
+      console.log('Hotkey slots hidden with animation');
     }
   }
   

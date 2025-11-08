@@ -351,11 +351,27 @@ export default class PetManager {
       if (user?.uid) {
         const playerId = user.uid;
         
+        // Validate reward amount before saving
+        if (typeof totalReward !== 'number' || isNaN(totalReward)) {
+          console.error("❌ Invalid reward amount:", totalReward);
+          return;
+        }
+
+        // If reward is too large, cap it at the maximum allowed value
+        let rewardToSave = totalReward;
+        if (totalReward > 10) {
+          console.warn(`⚠️ PetManager: Reward amount ${totalReward} exceeds maximum allowed value of 10. Capping to 10.`);
+          rewardToSave = 10;
+        } else if (totalReward < 0.01) {
+          console.warn(`⚠️ PetManager: Reward amount ${totalReward} is below minimum allowed value of 0.01. Setting to minimum.`);
+          rewardToSave = 0.01;
+        }
+
         // Save to database
-        await saveQuiztalsToDatabase(playerId, totalReward, 'Moblin');
+        await saveQuiztalsToDatabase(playerId, rewardToSave, 'Moblin');
         
         // Log to local session tracker
-        QuiztalRewardLog.logReward('Moblin', totalReward);
+        QuiztalRewardLog.logReward('Moblin', rewardToSave);
         
         console.log('✅ PetManager: Rewards processed successfully');
       }

@@ -4,6 +4,7 @@ export class EnergyBall extends Phaser.Physics.Arcade.Sprite {
     private damage: number;
     private speed: number;
     private directionAngle: number;
+    private monsterCheckCallback: ((ball: any) => void) | null = null;
 
     constructor(
         scene: Phaser.Scene,
@@ -82,6 +83,9 @@ export class EnergyBall extends Phaser.Physics.Arcade.Sprite {
                 this.destroy();
             }
         });
+        
+        // Add update callback to check for monster collisions
+        scene.events.on('postupdate', this.checkMonsterCollisions, this);
     }
 
     private createVisualEffect(): void {
@@ -168,5 +172,42 @@ export class EnergyBall extends Phaser.Physics.Arcade.Sprite {
                 }
             });
         }
+    }
+    
+    // Set callback for monster checking
+    public setMonsterCheckCallback(callback: (ball: any) => void): void {
+        this.monsterCheckCallback = callback;
+    }
+    
+    // Check for monster collisions
+    private checkMonsterCollisions(): void {
+        // Add null checks to prevent errors when the energy ball is being destroyed
+        if (!this.scene || !this.active) {
+            this.cleanupEventListeners();
+            return;
+        }
+        
+        if (this.monsterCheckCallback && this.active) {
+            this.monsterCheckCallback(this);
+        }
+        
+        // Clean up if the energy ball is no longer active
+        if (!this.active) {
+            this.cleanupEventListeners();
+        }
+    }
+    
+    // Cleanup event listeners
+    private cleanupEventListeners(): void {
+        if (this.scene) {
+            this.scene.events.off('postupdate', this.checkMonsterCollisions, this);
+        }
+    }
+    
+    // Override destroy method to clean up events
+    public destroy(): void {
+        this.cleanupEventListeners();
+        // Call parent destroy method
+        super.destroy();
     }
 }

@@ -168,52 +168,73 @@ export default class CombatManager {
     // Create energy ball
     const energyBall = new EnergyBall(this.scene, playerX, playerY, targetX, targetY);
     
-    // Check for collisions with monsters
-    this.scene.physics.add.overlap(energyBall, this.monsters, (ball: any, monster: any) => {
-      if (monster && monster.active && monster.isAlive()) {
-        // Apply damage to monster
-        monster.takeDamage(ball.getDamage());
-        
-        // Show damage text
-        this.showDamageText(ball.getDamage(), monster.x, monster.y - 20, '#00ffff');
-        
-        // Play monster damage sound
-        const monsterAudioManager = (window as any).audioManager || { playMonsterDamageSound: () => {} };
-        monsterAudioManager.playMonsterDamageSound();
-        
-        // Notify energy ball that it hit a target
-        ball.hitTarget();
-        
-        // Check if monster is dead
-        if (!monster.isAlive()) {
-          // Monster is defeated
-          console.log('👹 Monster defeated!');
-          
-          // Play monster death sound
-          const deathAudioManager = (window as any).audioManager || { playMonsterDeathSound: () => {} };
-          deathAudioManager.playMonsterDeathSound();
-          
-          // Create death effect
-          this.createMonsterDeathEffect(monster.x, monster.y);
-          
-          // Trigger monster drops
-          const monsterType = monster.getMonsterType ? monster.getMonsterType() : 'mobster';
-          this.createMonsterDrops(monsterType, monster.x, monster.y);
-          
-          // Remove monster from the game
-          const monsterIndex = this.monsters.indexOf(monster);
-          if (monsterIndex !== -1) {
-            this.monsters.splice(monsterIndex, 1);
+    // Check for collisions with monsters using a more robust approach
+    // Instead of setting up overlap for specific monsters, we'll check all current monsters
+    // in the update loop of the energy ball
+    energyBall.setMonsterCheckCallback((ball: any) => {
+      // Get current monsters directly from the MonsterManager to ensure we have the latest references
+      const monsterManager = (this.scene as any).monsterManager;
+      let currentMonsters: any[] = [];
+      
+      if (monsterManager) {
+        // Get the current monsters array directly from MonsterManager
+        currentMonsters = monsterManager['monsters'] || [];
+      } else {
+        // Fallback to cached monsters if MonsterManager is not available
+        currentMonsters = this.monsters || [];
+      }
+      
+      for (const monster of currentMonsters) {
+        if (monster && monster.active && monster.isAlive()) {
+          // Check if the energy ball is overlapping with this monster
+          if (this.scene.physics.overlap(ball, monster)) {
+            // Apply damage to monster
+            monster.takeDamage(ball.getDamage());
+            
+            // Show damage text
+            this.showDamageText(ball.getDamage(), monster.x, monster.y - 20, '#00ffff');
+            
+            // Play monster damage sound
+            const monsterAudioManager = (window as any).audioManager || { playMonsterDamageSound: () => {} };
+            monsterAudioManager.playMonsterDamageSound();
+            
+            // Notify energy ball that it hit a target
+            ball.hitTarget();
+            
+            // Check if monster is dead
+            if (!monster.isAlive()) {
+              // Monster is defeated
+              console.log('👹 Monster defeated!');
+              
+              // Play monster death sound
+              const deathAudioManager = (window as any).audioManager || { playMonsterDeathSound: () => {} };
+              deathAudioManager.playMonsterDeathSound();
+              
+              // Create death effect
+              this.createMonsterDeathEffect(monster.x, monster.y);
+              
+              // Trigger monster drops
+              const monsterType = monster.getMonsterType ? monster.getMonsterType() : 'mobster';
+              this.createMonsterDrops(monsterType, monster.x, monster.y);
+              
+              // Instead of directly modifying the array, let the MonsterManager handle it
+              // const monsterIndex = currentMonsters.indexOf(monster);
+              // if (monsterIndex !== -1) {
+              //   currentMonsters.splice(monsterIndex, 1);
+              // }
+              
+              // Notify MonsterManager to handle respawn
+              if (monsterManager && typeof monsterManager.handleMonsterDefeated === 'function') {
+                monsterManager.handleMonsterDefeated(monster);
+              }
+              
+              // Destroy monster
+              monster.destroy();
+            }
+            
+            // Break after hitting the first monster
+            break;
           }
-          
-          // Notify MonsterManager to handle respawn
-          const monsterManager = (this.scene as any).monsterManager;
-          if (monsterManager && typeof monsterManager.handleMonsterDefeated === 'function') {
-            monsterManager.handleMonsterDefeated(monster);
-          }
-          
-          // Destroy monster
-          monster.destroy();
         }
       }
     });

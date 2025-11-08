@@ -14,6 +14,7 @@ export default class UIScene extends Phaser.Scene {
     private balanceUnsubscribe?: () => void;
     private keyI!: Phaser.Input.Keyboard.Key; // <-- Added keyI property
     private keyR!: Phaser.Input.Keyboard.Key; // <-- Added keyR property for rewards
+    private keyK!: Phaser.Input.Keyboard.Key; // <-- Added keyK property for hotkey slots
     private walletBtn!: Phaser.GameObjects.Text; // Update or add this property
     // private web3Service: Web3Service;
     private rewardTracker!: QuiztalRewardTracker; // Reward tracker component
@@ -79,6 +80,9 @@ export default class UIScene extends Phaser.Scene {
                 
                 this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
                 this.keyR.on('down', () => this.toggleRewardTracker());
+                
+                this.keyK = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
+                this.keyK.on('down', () => this.toggleHotkeySlots());
             }
         } catch (error) {
             console.error('Error initializing UI:', error);
@@ -215,7 +219,7 @@ export default class UIScene extends Phaser.Scene {
                 callback: () => this.openInventory()
             },
             {
-                text: '퀵',  // Hotkey slots toggle button (Korean for "quick")
+                text: '⌨️',  // Hotkey slots toggle button (keyboard emoji)
                 tooltip: 'Toggle Hotkey Slots',
                 color: '#9b59b6',
                 hoverColor: '#8e44ad',
@@ -327,7 +331,7 @@ export default class UIScene extends Phaser.Scene {
             { icon: '💎', text: 'Wallet', callback: () => this.openWalletWindow() },
             { icon: '🎯', text: 'Session Rewards', callback: () => this.toggleRewardTracker() },
             { icon: '🎒', text: 'Inventory', callback: () => this.openInventory() },
-            { icon: '퀵', text: 'Toggle Hotkey Slots', callback: () => this.toggleHotkeySlots() },
+            { icon: '⌨️', text: 'Toggle Hotkey Slots', callback: () => this.toggleHotkeySlots() },
             { icon: '🚪', text: 'Logout', callback: () => this.handleLogout() }
         ];
         
