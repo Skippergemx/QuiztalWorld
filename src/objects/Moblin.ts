@@ -301,7 +301,7 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
         // Load saved gift box data from Firestore
         try {
             // Get player ID from localStorage
-            const userStr = localStorage.getItem('quiztal-player');
+            const userStr = localStorage.getItem('niftdood-player');
             if (!userStr) {
                 console.log('No player data found, using default values');
                 return;
@@ -347,7 +347,7 @@ export default class Moblin extends Phaser.Physics.Arcade.Sprite {
         // Save gift box data to Firestore
         try {
             // Get player ID from localStorage
-            const userStr = localStorage.getItem('quiztal-player');
+            const userStr = localStorage.getItem('niftdood-player');
             if (!userStr) {
                 console.log('No player data found, skipping save');
                 return;

@@ -41,14 +41,14 @@ export default class GuideBookScene extends Phaser.Scene {
     this.sections = [
       {
         id: 'welcome',
-        title: 'Welcome to Quiztal World',
+        title: 'Welcome to Niftdood World',
         emoji: '🌍',
         content: [
-          'Welcome to the Quiztal Metaverse, explorer!',
+          'Welcome to the Niftdood Metaverse, explorer!',
           '',
           '🎮 This is a solar-punk inspired world where knowledge fuels your journey.',
           '',
-          '🧠 Interact with NPCs to take quizzes and earn Quiztals tokens.',
+          '🧠 Interact with NPCs to take quizzes and earn Niftdood tokens.',
           '',
           '🎯 Complete challenges, explore the world, and level up your character!',
           '',
@@ -62,7 +62,7 @@ export default class GuideBookScene extends Phaser.Scene {
         title: 'Game Controls',
         emoji: '🎮',
         content: [
-          'Master the controls to navigate Quiztal World effectively:',
+          'Master the controls to navigate Niftdood World effectively:',
           '',
           '🖱️ DESKTOP CONTROLS:',
           '• ⬅️➡️⬆️⬇️ Arrow Keys or WASD - Move your character',
@@ -86,8 +86,8 @@ export default class GuideBookScene extends Phaser.Scene {
         content: [
           'Learn about the various NPCs and their specialties:',
           '',
-          '🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide',
-          '• Explains the Quiztal Metaverse and Gemante NFTs',
+          '🧑‍🏫 MR. GEMX - Niftdood Metaverse Guide',
+          '• Explains the Niftdood Metaverse and Gemante NFTs',
           '• Perfect starting point for new players',
           '',
           '👩‍🎨 NFT CYN - NFT & Blockchain Expert',
@@ -102,24 +102,24 @@ export default class GuideBookScene extends Phaser.Scene {
           '• Deep dive into blockchain technology',
           '• Advanced concepts and technical knowledge',
           '',
-          '💡 Each NPC offers unique quizzes with Quiztal rewards!'
+          '💡 Each NPC offers unique quizzes with Niftdood rewards!'
         ]
       },
       {
         id: 'rewards',
-        title: 'Quiztals & Rewards',
+        title: 'Niftdoods & Rewards',
         emoji: '💰',
         content: [
-          'Earn and manage your Quiztal tokens:',
+          'Earn and manage your Niftdood tokens:',
           '',
-          '💎 EARNING QUIZTALS:',
-          '• Answer quiz questions correctly (0.01-0.5 Quiztals)',
+          '💎 EARNING NIFTDOODS:',
+          '• Answer quiz questions correctly (0.01-0.5 Niftdoods)',
           '• Complete challenges and explore new areas',
           '• Participate in special events and activities',
           '',
           '📊 TRACKING YOUR PROGRESS:',
           '• Session Rewards Tracker (🎯 button) shows current session',
-          '• Balance display shows total accumulated Quiztals',
+          '• Balance display shows total accumulated Niftdoods',
           '• Inventory system tracks your collected items',
           '',
           '🔄 CLAIMING TOKENS:',
@@ -146,7 +146,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '• Browse through pages of items',
           '',
           '📦 ITEM CATEGORIES:',
-          '• Quiztal Tokens - Your earned currency',
+          '• Niftdood Tokens - Your earned currency',
           '• Gemante NFTs - Boost items and collectibles',
           '• Special Items - Unlocked through exploration',
           '• Achievement Badges - Progress markers',
@@ -168,7 +168,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '',
           '💎 WHAT ARE GEMANTE NFTS?',
           '• ERC-1155 gemstone NFTs with special properties',
-          '• Act as powerful boosters in Quiztal World',
+          '• Act as powerful boosters in Niftdood World',
           '• Each gem has unique effects and rarities',
           '',
           '⚡ BOOST EFFECTS:',
@@ -195,7 +195,7 @@ export default class GuideBookScene extends Phaser.Scene {
         title: 'Pro Tips & Strategies',
         emoji: '🏆',
         content: [
-          'Master these strategies to excel in Quiztal World:',
+          'Master these strategies to excel in Niftdood World:',
           '',
           '🎯 QUIZ STRATEGIES:',
           '• Take your time to read questions carefully',
@@ -213,7 +213,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '• Start with easier NPCs to build confidence',
           '• Collect a variety of Gemante NFTs for different boosts',
           '• Track your session progress regularly',
-          '• Set daily goals for Quiztal earnings',
+          '• Set daily goals for Niftdood earnings',
           '',
           '🤝 COMMUNITY:',
           '• Share strategies with other players',
@@ -246,7 +246,7 @@ export default class GuideBookScene extends Phaser.Scene {
     titleBg.fillRoundedRect(-bookWidth/2 + 10, -bookHeight/2 + 10, bookWidth - 20, 80, 10);
 
     // Guide book title
-    const mainTitle = this.add.text(0, -bookHeight/2 + 30, '📖 Quiztal World Guide Book', {
+    const mainTitle = this.add.text(0, -bookHeight/2 + 30, '📖 Niftdood World Guide Book', {
       fontSize: isMobile ? '20px' : '24px',
       color: '#f1c40f',
       fontStyle: 'bold',

@@ -300,7 +300,7 @@ export default class ArtizenGent extends WalkingNPC {
         const tipsContent = this.generateArtTips();
         
         // Create enhanced reward message
-        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`;
+        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Niftdoods for your art knowledge!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -432,7 +432,7 @@ export default class ArtizenGent extends WalkingNPC {
         const tipsContent = this.generateArtTips();
         
         // Create enhanced reward message
-        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your art knowledge!`;
+        const rewardMessage = `🎨 Brilliant! You've earned ${reward.toFixed(2)} $Niftdoods for your art knowledge!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {

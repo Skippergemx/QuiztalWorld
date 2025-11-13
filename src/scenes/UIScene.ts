@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 // import { Web3Service } from '../services/Web3Service';
-import QuiztalRewardTracker from '../components/QuiztalRewardTracker';
+import QuiztalRewardTracker from '../components/NiftdoodRewardTracker';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import modernUITheme, { UIHelpers } from '../utils/UITheme';
 import HotkeySlotManager from '../managers/HotkeySlotManager';
@@ -39,7 +39,7 @@ export default class UIScene extends Phaser.Scene {
         try {
             // Check if localStorage is available
             if (typeof window !== 'undefined' && window.localStorage) {
-                const userDataStr = window.localStorage.getItem('quiztal-player');
+                const userDataStr = window.localStorage.getItem('niftdood-player');
                 const user = userDataStr ? JSON.parse(userDataStr) : { uid: '' };
                 this.playerId = user.uid || '';
             } else {
@@ -656,6 +656,8 @@ export default class UIScene extends Phaser.Scene {
             fontFamily: modernUITheme.typography.fontFamily.primary,
             color: modernUITheme.colors.accent,
             fontStyle: 'bold',
+            wordWrap: { width: 200 }, // Add word wrap to prevent overflow
+            maxLines: 2,
             shadow: {
                 offsetX: 2,
                 offsetY: 2,
@@ -673,7 +675,9 @@ export default class UIScene extends Phaser.Scene {
             {
                 fontSize: UIHelpers.getResponsiveFontSize(isMobile, modernUITheme.typography.fontSize.sm),
                 fontFamily: modernUITheme.typography.fontFamily.primary,
-                color: modernUITheme.colors.info
+                color: modernUITheme.colors.info,
+                wordWrap: { width: 200 }, // Add word wrap to prevent overflow
+                maxLines: 1
             }
         ).setScrollFactor(0);
 
@@ -710,7 +714,11 @@ export default class UIScene extends Phaser.Scene {
         const totalHeight = this.walletBtn.y + this.walletBtn.height + 10;
         const totalWidth = Math.max(this.balanceText.width, this.walletBtn.width) + 20;
         
-        balanceBg.fillRoundedRect(0, 0, totalWidth, totalHeight, 
+        // Ensure minimum width to prevent text overflow
+        const minWidth = isMobile ? 150 : 200;
+        const finalWidth = Math.max(totalWidth, minWidth);
+        
+        balanceBg.fillRoundedRect(0, 0, finalWidth, totalHeight, 
             UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
         
         // Enhanced border with accent color
@@ -719,7 +727,7 @@ export default class UIScene extends Phaser.Scene {
             UIHelpers.hexToNumber(modernUITheme.colors.accent),
             0.8
         );
-        balanceBg.strokeRoundedRect(0, 0, totalWidth, totalHeight,
+        balanceBg.strokeRoundedRect(0, 0, finalWidth, totalHeight,
             UIHelpers.getResponsiveSpacing(isMobile, 16, 12));
         
         // Add subtle inner glow
@@ -728,7 +736,7 @@ export default class UIScene extends Phaser.Scene {
             UIHelpers.hexToNumber('#ffffff'),
             0.3
         );
-        balanceBg.strokeRoundedRect(2, 2, totalWidth - 4, totalHeight - 4,
+        balanceBg.strokeRoundedRect(2, 2, finalWidth - 4, totalHeight - 4,
             UIHelpers.getResponsiveSpacing(isMobile, 14, 10));
 
         balanceContainer.add([balanceBg, this.balanceText, this.walletBtn]);
@@ -829,11 +837,13 @@ export default class UIScene extends Phaser.Scene {
     private updateBalanceDisplay(amount: number) {
         if (this.balanceText) {
             this.balanceText
-                .setText(`💰 ${amount.toLocaleString()} Quiztals`)
+                .setText(`💰 ${amount.toLocaleString()} $NiftDOOD`)
                 .setStyle({
                     fontSize: '16px',
                     color: '#f1c40f',
                     fontStyle: 'bold',
+                    wordWrap: { width: 200 }, // Add word wrap to prevent overflow
+                    maxLines: 2,
                     padding: { x: 10, y: 5 },
                     shadow: {
                         offsetX: 1,
@@ -1203,7 +1213,7 @@ export default class UIScene extends Phaser.Scene {
             try {
                 // Check if localStorage is available
                 if (typeof window !== 'undefined' && window.localStorage) {
-                    window.localStorage.removeItem('quiztal-player');
+                    window.localStorage.removeItem('niftdood-player');
                     
                     // Clear reward log on logout as requested
                     QuiztalRewardLog.clearLog();

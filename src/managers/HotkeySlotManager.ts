@@ -15,7 +15,7 @@ export default class HotkeySlotManager {
   private scene: Phaser.Scene;
   private slots: HotkeySlot[] = [];
   private slotContainers: Phaser.GameObjects.Container[] = [];
-  private storageKey: string = 'quiztal-hotkey-slots';
+  private storageKey: string = 'niftdood-hotkey-slots';
   private onSlotUpdateCallback: (() => void) | null = null;
   private slotsVisible: boolean = true; // Track visibility state
   private slotsContainer: Phaser.GameObjects.Container | null = null; // Reference to the main container

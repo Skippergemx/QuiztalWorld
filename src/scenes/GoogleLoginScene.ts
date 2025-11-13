@@ -11,6 +11,14 @@ export default class GoogleLoginScene extends Phaser.Scene {
     private titleContainer!: Phaser.GameObjects.Container;
     private floatingShapesEvent!: Phaser.Time.TimerEvent;
     private loginCard!: Phaser.GameObjects.Container;
+    private infoButton!: Phaser.GameObjects.Container;
+    private explainerModal: {
+        overlay: Phaser.GameObjects.Graphics;
+        cardBg: Phaser.GameObjects.Graphics;
+        title: Phaser.GameObjects.Text;
+        content: Phaser.GameObjects.Text;
+        closeBtn: Phaser.GameObjects.Container;
+    } | null = null;
 
     constructor() {
         super({ key: "GoogleLoginScene" });
@@ -33,6 +41,9 @@ export default class GoogleLoginScene extends Phaser.Scene {
         
         // Create login card with modern design
         this.createLoginCard();
+
+        // Create info button for game explainer
+        this.createInfoButton();
 
         // Setup responsive layout
         this.scale.on('resize', this.handleResize, this);
@@ -187,7 +198,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
         this.titleContainer = this.add.container(this.scale.width / 2, isMobile ? 120 : 150);
 
         // Main title with modern typography
-        const mainTitle = this.add.text(0, 0, "Quiztal World", {
+        const mainTitle = this.add.text(0, 0, "Niftdood World", {
             fontSize: UIHelpers.getResponsiveFontSize(isMobile, '56px'),
             fontFamily: modernUITheme.typography.fontFamily.primary,
             color: modernUITheme.colors.text.primary,
@@ -322,6 +333,313 @@ export default class GoogleLoginScene extends Phaser.Scene {
         });
     }
 
+    // Add the new info button creation method here
+    private createInfoButton() {
+        const isMobile = this.scale.width < 768;
+        const buttonSize = isMobile ? 40 : 50;
+        const buttonX = this.scale.width - buttonSize - 20;
+        const buttonY = buttonSize + 20;
+        
+        this.infoButton = this.add.container(buttonX, buttonY);
+
+        const buttonBg = this.add.graphics();
+        buttonBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.9);
+        buttonBg.fillCircle(0, 0, buttonSize / 2);
+        buttonBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 1);
+        buttonBg.strokeCircle(0, 0, buttonSize / 2);
+
+        const infoText = this.add.text(0, 0, "i", {
+            fontSize: isMobile ? '20px' : '24px',
+            fontFamily: modernUITheme.typography.fontFamily.primary,
+            color: '#ffffff',
+            fontStyle: modernUITheme.typography.fontWeight.bold
+        }).setOrigin(0.5);
+
+        this.infoButton.add([buttonBg, infoText]);
+        this.infoButton.setInteractive(new Phaser.Geom.Circle(0, 0, buttonSize / 2), Phaser.Geom.Circle.Contains);
+        
+        // Add hover effects for non-mobile devices
+        if (!isMobile) {
+            this.infoButton.on('pointerover', () => {
+                this.tweens.add({
+                    targets: this.infoButton,
+                    scale: 1.1,
+                    duration: 200,
+                    ease: 'Power2'
+                });
+            });
+
+            this.infoButton.on('pointerout', () => {
+                this.tweens.add({
+                    targets: this.infoButton,
+                    scale: 1,
+                    duration: 200,
+                    ease: 'Power2'
+                });
+            });
+        }
+
+        this.infoButton.on('pointerdown', () => {
+            this.showGameExplainer();
+        });
+    }
+
+    // Replace the showGameExplainer method with an improved scrollable version
+    private showGameExplainer() {
+        // Create semi-transparent background overlay
+        const overlay = this.add.graphics();
+        overlay.fillStyle(0x000000, 0.7);
+        overlay.fillRect(0, 0, this.scale.width, this.scale.height);
+        overlay.setDepth(2000);
+        overlay.setInteractive(new Phaser.Geom.Rectangle(0, 0, this.scale.width, this.scale.height), Phaser.Geom.Rectangle.Contains);
+
+        // Create modal card
+        const isMobile = this.scale.width < 768;
+        const cardWidth = Math.min(500, this.scale.width * 0.8);
+        const cardHeight = Math.min(600, this.scale.height * 0.8);
+        const cardX = (this.scale.width - cardWidth) / 2;
+        const cardY = (this.scale.height - cardHeight) / 2;
+
+        const cardBg = this.add.graphics().setDepth(2001);
+        UIHelpers.createGradientFill(
+            cardBg, cardX, cardY, cardWidth, cardHeight,
+            modernUITheme.gradients.glass, true
+        );
+        cardBg.lineStyle(2, UIHelpers.hexToNumber(modernUITheme.colors.border.accent), 0.6);
+        cardBg.strokeRoundedRect(cardX, cardY, cardWidth, cardHeight, modernUITheme.borderRadius.lg);
+
+        // Add title
+        const title = this.add.text(
+            this.scale.width / 2, 
+            cardY + 40, 
+            "About Niftdood World", 
+            {
+                fontSize: isMobile ? '20px' : '24px',
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.text.primary,
+                fontStyle: modernUITheme.typography.fontWeight.bold
+            }
+        ).setOrigin(0.5).setDepth(2002);
+
+        // Define content area dimensions
+        const contentX = cardX + 20;
+        const contentY = cardY + 90;
+        const contentWidth = cardWidth - 40;
+        const contentHeight = cardHeight - 150;
+
+        // Create a mask for the scrollable content area
+        const maskShape = this.add.graphics();
+        maskShape.fillStyle(0xffffff);
+        maskShape.beginPath();
+        maskShape.fillRect(contentX, contentY, contentWidth, contentHeight);
+        const mask = maskShape.createGeometryMask();
+
+        // Create content
+        const content = this.add.text(
+            contentX, 
+            contentY, 
+            this.getGameExplainerContent(),
+            {
+                fontSize: isMobile ? '14px' : '16px',
+                fontFamily: modernUITheme.typography.fontFamily.primary,
+                color: modernUITheme.colors.text.secondary,
+                wordWrap: { width: contentWidth - 20 },
+                lineSpacing: 4
+            }
+        ).setOrigin(0, 0).setDepth(2003);
+
+        // Apply mask to content
+        content.setMask(mask);
+
+        // Add scroll indicators only if content overflows
+        const scrollIndicator = this.add.graphics().setDepth(2004);
+        const contentHeightActual = content.height;
+        const maxScroll = Math.max(0, contentHeightActual - contentHeight + 20);
+        
+        if (maxScroll > 0) {
+            scrollIndicator.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.7);
+            scrollIndicator.fillRoundedRect(
+                cardX + cardWidth - 15, 
+                cardY + 100, 
+                8, 
+                30
+            );
+        } else {
+            scrollIndicator.setVisible(false);
+        }
+
+        // Add close button
+        const closeBtnSize = 30;
+        const closeBtn = this.add.container(
+            cardX + cardWidth - closeBtnSize - 10, 
+            cardY + closeBtnSize + 10
+        ).setDepth(2005);
+
+        const closeBg = this.add.graphics();
+        closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.error), 0.8);
+        closeBg.fillCircle(0, 0, closeBtnSize / 2);
+
+        const closeText = this.add.text(0, 0, "✕", {
+            fontSize: isMobile ? '18px' : '20px',
+            fontFamily: modernUITheme.typography.fontFamily.primary,
+            color: '#ffffff',
+            fontStyle: modernUITheme.typography.fontWeight.bold
+        }).setOrigin(0.5);
+
+        closeBtn.add([closeBg, closeText]);
+        closeBtn.setInteractive(new Phaser.Geom.Circle(0, 0, closeBtnSize / 2), Phaser.Geom.Circle.Contains);
+        
+        // Add hover effect for close button on non-mobile devices
+        if (!isMobile) {
+            closeBtn.on('pointerover', () => {
+                closeBg.clear();
+                closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.error), 1);
+                closeBg.fillCircle(0, 0, closeBtnSize / 2);
+            });
+
+            closeBtn.on('pointerout', () => {
+                closeBg.clear();
+                closeBg.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.error), 0.8);
+                closeBg.fillCircle(0, 0, closeBtnSize / 2);
+            });
+        }
+
+        // Scrolling functionality
+        let startY = 0;
+        let startContentY = contentY;
+        let hitArea: Phaser.GameObjects.Graphics | null = null;
+        
+        // Only enable dragging if content overflows
+        if (maxScroll > 0) {
+            // Create an invisible hit area for scrolling
+            hitArea = this.add.graphics().setDepth(2006);
+            hitArea.fillStyle(0x000000, 0.01); // Invisible but interactive
+            hitArea.fillRect(contentX, contentY, contentWidth, contentHeight);
+            hitArea.setInteractive(new Phaser.Geom.Rectangle(contentX, contentY, contentWidth, contentHeight), Phaser.Geom.Rectangle.Contains);
+            
+            hitArea.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+                startY = pointer.y;
+                startContentY = content.y;
+            });
+            
+            hitArea.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+                if (pointer.isDown) {
+                    const deltaY = pointer.y - startY;
+                    let newY = startContentY + deltaY;
+                    
+                    // Apply bounds
+                    newY = Phaser.Math.Clamp(newY, contentY - maxScroll, contentY);
+                    
+                    content.setY(newY);
+                    
+                    // Update scroll indicator position
+                    const scrollRatio = (contentY - newY) / maxScroll;
+                    scrollIndicator.clear();
+                    scrollIndicator.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.7);
+                    scrollIndicator.fillRoundedRect(
+                        cardX + cardWidth - 15, 
+                        cardY + 100 + (scrollRatio * (contentHeight - 70)), 
+                        8, 
+                        30
+                    );
+                }
+            });
+            
+            // Add mouse wheel support
+            this.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: any, deltaX: number, deltaY: number) => {
+                // Check if pointer is over the content area
+                if (pointer.x >= contentX && pointer.x <= contentX + contentWidth &&
+                    pointer.y >= contentY && pointer.y <= contentY + contentHeight) {
+                    
+                    let newY = content.y - deltaY * 0.5; // Adjust scroll speed
+                    newY = Phaser.Math.Clamp(newY, contentY - maxScroll, contentY);
+                    content.setY(newY);
+                    
+                    // Update scroll indicator position
+                    const scrollRatio = (contentY - newY) / maxScroll;
+                    scrollIndicator.clear();
+                    scrollIndicator.fillStyle(UIHelpers.hexToNumber(modernUITheme.colors.primary), 0.7);
+                    scrollIndicator.fillRoundedRect(
+                        cardX + cardWidth - 15, 
+                        cardY + 100 + (scrollRatio * (contentHeight - 70)), 
+                        8, 
+                        30
+                    );
+                }
+            });
+        }
+
+        // Close functionality
+        const closeExplainer = () => {
+            overlay.destroy();
+            cardBg.destroy();
+            title.destroy();
+            content.destroy();
+            maskShape.destroy();
+            scrollIndicator.destroy();
+            closeBtn.destroy();
+            
+            if (hitArea) {
+                hitArea.destroy();
+            }
+            
+            // Clean up event listeners
+            this.input.off('wheel');
+            
+            this.explainerModal = null;
+        };
+
+        closeBtn.on('pointerdown', closeExplainer);
+        overlay.on('pointerdown', closeExplainer);
+
+        // Store references for cleanup
+        this.explainerModal = { overlay, cardBg, title, content, closeBtn };
+
+        // Entrance animation
+        cardBg.setAlpha(0);
+        title.setAlpha(0);
+        content.setAlpha(0);
+        closeBtn.setAlpha(0);
+        scrollIndicator.setAlpha(0);
+
+        this.tweens.add({
+            targets: [cardBg, title, content, closeBtn, scrollIndicator],
+            alpha: 1,
+            duration: 300,
+            ease: 'Power2'
+        });
+    }
+
+    // Add the content for the explainer
+    private getGameExplainerContent(): string {
+        return `Welcome to Niftdood World, an innovative Web3 educational metaverse where you can learn about blockchain technology through interactive gameplay!
+
+Learning Through Play:
+• Engage with expert NPCs who teach different aspects of Web3
+• Answer quiz questions to earn Niftdood tokens as rewards
+• Explore a vibrant world filled with blockchain-themed adventures
+
+Key Features:
+• Four unique character classes to choose from
+• Over 10 specialized NPCs teaching Web3, NFTs, DeFi, and security
+• Collectible NFTs that enhance your character's abilities
+• Turn-based combat system with strategic skill usage
+• Wallet integration for managing your in-game assets
+
+How to Play:
+1. Select your character class
+2. Explore the world and interact with NPCs
+3. Answer quiz questions correctly to earn Niftdoods
+4. Use Niftdoods to purchase items and upgrade your character
+5. Battle monsters and complete quests for additional rewards
+
+In Niftdood World, education meets adventure. Each NPC specializes in different aspects of Web3 technology, providing you with valuable knowledge while you play. Answer correctly to earn Niftdood tokens, which can be used to unlock new areas, purchase items, and trade with other players.
+
+Our game makes learning about blockchain technology fun and engaging, preparing you for the decentralized future while you enjoy an immersive gaming experience.
+
+Ready to start your Web3 learning journey? Sign in with Google to begin!`;
+    }
+
     private setupButtonInteractions(button: Phaser.GameObjects.Container) {
         const isMobile = this.scale.width < 768;
         
@@ -359,6 +677,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
         });
     }
 
+    // Update handleResize to position the info button correctly
     private handleResize() {
         const isMobile = this.scale.width < 768;
         
@@ -378,6 +697,14 @@ export default class GoogleLoginScene extends Phaser.Scene {
                 Math.min(this.scale.height * 0.65, this.scale.height - 250) : 
                 this.scale.height * 0.65;
             this.loginCard.setPosition(this.scale.width / 2, verticalPosition);
+        }
+
+        // Reposition info button
+        if (this.infoButton) {
+            const buttonSize = isMobile ? 40 : 50;
+            const buttonX = this.scale.width - buttonSize - 20;
+            const buttonY = buttonSize + 20;
+            this.infoButton.setPosition(buttonX, buttonY);
         }
     }
 
@@ -409,8 +736,8 @@ export default class GoogleLoginScene extends Phaser.Scene {
             // Clean up any existing Firebase listeners and data
             try {
                 // Clear any existing player data
-                localStorage.removeItem("quiztal-player");
-                localStorage.removeItem("quiztal-nfts");
+                localStorage.removeItem("niftdood-player");
+                localStorage.removeItem("niftdood-nfts");
                 console.log('✅ GoogleLoginScene: Cleared existing localStorage data');
             } catch (e) {
                 console.warn('⚠️ GoogleLoginScene: Error clearing localStorage', e);
@@ -463,10 +790,10 @@ export default class GoogleLoginScene extends Phaser.Scene {
                 displayName: user.displayName || "Unknown Adventurer",
                 character: "" // Initialize character as empty
             };
-            localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
+            localStorage.setItem("niftdood-player", JSON.stringify(playerObj));
             console.log('✅ GoogleLoginScene: Saved player data to localStorage');
 
-            this.updateModernLoadingProgress(1, "Welcome to Quiztal World!");
+            this.updateModernLoadingProgress(1, "Welcome to Niftdood World!");
 
             // Success animation before transition
             this.tweens.add({
@@ -789,6 +1116,20 @@ export default class GoogleLoginScene extends Phaser.Scene {
         console.log('🧹 GoogleLoginScene: Starting complete resource cleanup...');
         
         try {
+            // Clean up explainer modal if it exists
+            if (this.explainerModal) {
+                try {
+                    this.explainerModal.overlay.destroy();
+                    this.explainerModal.cardBg.destroy();
+                    this.explainerModal.title.destroy();
+                    this.explainerModal.content.destroy();
+                    this.explainerModal.closeBtn.destroy();
+                } catch (e) {
+                    console.warn('⚠️ GoogleLoginScene: Error destroying explainer modal', e);
+                }
+                this.explainerModal = null;
+            }
+
             // Clean up event listeners
             try {
                 this.scale.off('resize', this.handleResize, this);
@@ -843,7 +1184,8 @@ export default class GoogleLoginScene extends Phaser.Scene {
             // Clean up container objects
             const containers = [
                 this.titleContainer,
-                this.loginCard
+                this.loginCard,
+                this.infoButton
             ];
             
             containers.forEach(container => {
@@ -861,6 +1203,7 @@ export default class GoogleLoginScene extends Phaser.Scene {
             
             this.titleContainer = null as any;
             this.loginCard = null as any;
+            this.infoButton = null as any;
             
             // Clean up any loading overlay elements
             this.cleanupLoadingOverlay();

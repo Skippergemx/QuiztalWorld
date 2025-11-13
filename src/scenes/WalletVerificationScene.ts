@@ -31,7 +31,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
     async create() {
         // Load player data at scene creation
-        const playerDataStr = localStorage.getItem("quiztal-player");
+        const playerDataStr = localStorage.getItem("niftdood-player");
         if (!playerDataStr) {
             // If no player data, return to login
             this.scene.start('GoogleLoginScene');
@@ -211,7 +211,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
         const title = this.add.text(
             0,
             this.scale.height * 0.2,
-            '🎮 Welcome to Quiztal World',
+            '🎮 Welcome to Niftdood World',
             {
                 fontSize: '36px',
                 color: '#ffffff',
@@ -522,7 +522,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
       private async handleDisconnect() {
         await this.web3Service.disconnect();
         // Clear NFTs from localStorage on disconnect
-        localStorage.removeItem('quiztal-nfts');
+        localStorage.removeItem('niftdood-nfts');
         console.log('Wallet disconnected, cleared NFTs from localStorage');
         
         if (this.connectButtonText) {
@@ -553,7 +553,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
             if (error) {
                 console.warn('NFT verification error:', error);
                 // Clear NFTs from localStorage on error
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 this.showErrorMessage('Failed to verify NFT ownership');
                 // Still allow proceeding to game
                 this.showContinueButton();
@@ -562,7 +562,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
             if (!hasNFT) {
                 // Clear NFTs if none found
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 console.log('No NFTs found, cleared localStorage');
                 // Show message but still allow continuing
                 this.showNoNFTMessage();
@@ -574,7 +574,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
         } catch (error) {
             console.error('NFT verification error:', error);
-            localStorage.removeItem('quiztal-nfts');
+            localStorage.removeItem('niftdood-nfts');
             this.showErrorMessage('Failed to verify NFTs');
             // Allow proceeding even on error
             this.showContinueButton();
@@ -628,12 +628,12 @@ export default class WalletVerificationScene extends Phaser.Scene {
                 // Save the full NFT data to Firestore, creating a complete cache.
                 await saveNFTsToDatabase(this.playerData.uid, nfts);
                 // Save the full data to localStorage for fast access during the current session.
-                localStorage.setItem('quiztal-nfts', JSON.stringify(nfts));
+                localStorage.setItem('niftdood-nfts', JSON.stringify(nfts));
                 console.log('Updated localStorage and Firestore with NFTs:', nfts);
             } else {
                 // If no NFTs are found, clear both by saving an empty array.
                 await saveNFTsToDatabase(this.playerData.uid, []);
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 console.log('No NFTs found, cleared localStorage and Firestore');
             }
 
@@ -766,7 +766,7 @@ export default class WalletVerificationScene extends Phaser.Scene {
 
         } catch (error) {
             console.error('Error displaying NFTs:', error);
-            localStorage.removeItem('quiztal-nfts');
+            localStorage.removeItem('niftdood-nfts');
             this.loadingOverlay.hide();
             this.showErrorMessage('Failed to load NFTs');
             // Only show continue button if NFT container is not active

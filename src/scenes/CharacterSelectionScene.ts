@@ -25,7 +25,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
 
   async create() {
     // Load user data
-    const playerData = localStorage.getItem("quiztal-player");
+    const playerData = localStorage.getItem("niftdood-player");
     if (!playerData) {
       this.scene.start("GoogleLoginScene");
       return;
@@ -74,7 +74,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
   }
 
   async checkLogin() {
-    const playerData = localStorage.getItem("quiztal-player");
+    const playerData = localStorage.getItem("niftdood-player");
     if (playerData) {
       this.user = JSON.parse(playerData);
       // Go directly to GameScene instead of WalletVerificationScene
@@ -127,7 +127,7 @@ export default class CharacterSelectionScene extends Phaser.Scene {
           email: user.email,
           displayName: user.displayName || "Unknown Adventurer",
         };
-        localStorage.setItem("quiztal-player", JSON.stringify(playerObj));
+        localStorage.setItem("niftdood-player", JSON.stringify(playerObj));
         this.user = playerObj;
 
         this.updateLoadingProgress(1);
@@ -503,13 +503,13 @@ export default class CharacterSelectionScene extends Phaser.Scene {
         duration: 500,
         onComplete: async () => {
           try {
-            const existing = JSON.parse(localStorage.getItem("quiztal-player") || "{}");
+            const existing = JSON.parse(localStorage.getItem("niftdood-player") || "{}");
             const updated = {
               ...existing,
               character: this.selectedCharacter,
             };
 
-            localStorage.setItem("quiztal-player", JSON.stringify(updated));
+            localStorage.setItem("niftdood-player", JSON.stringify(updated));
 
             // Only update database if user exists
             if (this.user && this.user.uid) {

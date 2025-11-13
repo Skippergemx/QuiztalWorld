@@ -14,7 +14,7 @@ export interface QuizDialogPreferences {
 export default class QuizDialogConfig {
   private static instance: QuizDialogConfig;
   private preferences: QuizDialogPreferences;
-  private readonly STORAGE_KEY = 'quiztal-dialog-preferences';
+  private readonly STORAGE_KEY = 'niftdood-dialog-preferences';
 
   private constructor() {
     this.preferences = this.loadPreferences();

@@ -50,7 +50,7 @@ export default class SkillManager {
         effects: 'Follows player, collects gift boxes for rewards',
         activationMethod: 'Automatic (when NFTs verified)',
         status: 'active',
-        requiredNFT: 'Any Quiztal NFT'
+        requiredNFT: 'Any Niftdood NFT'
       }
     ];
   }
@@ -177,7 +177,7 @@ export default class SkillManager {
     if (!skill || !skill.requiredNFT) return true; // No requirement means accessible to all
 
     // Check if player has NFTs
-    const nftsStr = localStorage.getItem('quiztal-nfts');
+    const nftsStr = localStorage.getItem('niftdood-nfts');
     if (!nftsStr) return false;
 
     try {

@@ -718,7 +718,7 @@ export default class PlayerManager {
             }
         }
 
-        const nftsStr = localStorage.getItem('quiztal-nfts');
+        const nftsStr = localStorage.getItem('niftdood-nfts');
         if (!nftsStr) {
             // If NFT data is not available, retry after a short delay (up to 3 times)
             if (retryCount < 3) {
@@ -777,7 +777,7 @@ export default class PlayerManager {
       return;
     }
     
-    const userStr = localStorage.getItem('quiztal-player');
+    const userStr = localStorage.getItem('niftdood-player');
     if (!userStr) {
       console.log('ℹ️ PlayerManager: No user data found');
       return;
@@ -979,7 +979,7 @@ export default class PlayerManager {
    * Load player stamina data from Firestore
    */
   public async loadStaminaData(): Promise<void> {
-    const userStr = localStorage.getItem('quiztal-player');
+    const userStr = localStorage.getItem('niftdood-player');
     if (!userStr) {
       console.log('ℹ️ PlayerManager: No user data found for stamina loading');
       return;
@@ -1024,7 +1024,7 @@ export default class PlayerManager {
       return;
     }
 
-    const userStr = localStorage.getItem('quiztal-player');
+    const userStr = localStorage.getItem('niftdood-player');
     if (!userStr) {
       console.log('ℹ️ PlayerManager: No user data found for stamina saving');
       return;
@@ -1294,7 +1294,7 @@ export default class PlayerManager {
 
   // Private helper methods
   private assignPlayerUID(): void {
-    const userStr = localStorage.getItem('quiztal-player');
+    const userStr = localStorage.getItem('niftdood-player');
     if (userStr) {
       try {
         const user = JSON.parse(userStr);

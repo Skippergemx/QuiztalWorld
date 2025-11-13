@@ -64,15 +64,15 @@ export const claimTokens = onCall(async (request) => {
         throw new HttpsError("internal", "Player data is missing.");
       }
 
-      // Get the current Quiztals balance or default to 0
+      // Get the current Niftdoods balance or default to 0
       const currentBalance = playerData.quiztals || 0;
       if (currentBalance <= 0) {
         logger.warn(
-          `User ${userId} has insufficient Quiztals: ${currentBalance}`
+          `User ${userId} has insufficient Niftdoods: ${currentBalance}`
         );
         throw new HttpsError(
           "failed-precondition",
-          `You have insufficient Quiztals: ${currentBalance}.`,
+          `You have insufficient Niftdoods: ${currentBalance}.`,
         );
       }
 
@@ -103,7 +103,7 @@ export const claimTokens = onCall(async (request) => {
       if (claimAmount < 50) { // Minimum claim amount
         throw new HttpsError(
           "failed-precondition",
-          `Minimum claim amount is 50 Quiztals. You have ${currentBalance}.`,
+          `Minimum claim amount is 50 Niftdoods. You have ${currentBalance}.`,
         );
       }
 
@@ -146,7 +146,7 @@ export const claimTokens = onCall(async (request) => {
     });
 
     const successMessage =
-      `Successfully claimed ${txResult.claimedAmount} Quiztals!`;
+      `Successfully claimed ${txResult.claimedAmount} Niftdoods!`;
     logger.info(
       `Successfully processed claim for user ${userId}. Tx: ${txResult.txHash}`,
     );

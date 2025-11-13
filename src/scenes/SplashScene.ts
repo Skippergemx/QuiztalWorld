@@ -65,7 +65,7 @@ export default class SplashScene extends Phaser.Scene {
         } else {
             console.warn("⚠️ Splash image not found, skipping splash screen");
             // Add a simple text splash screen as fallback
-            const splashText = this.add.text(width / 2, height / 2, "Quiztal World", {
+            const splashText = this.add.text(width / 2, height / 2, "Niftdood World", {
                 fontSize: "32px",
                 color: "#f1c40f",
                 align: "center"

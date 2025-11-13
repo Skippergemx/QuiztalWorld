@@ -321,7 +321,7 @@ export default class BasePal extends WalkingNPC {
       const tipsContent = this.generateTipsAndTricks();
       
       // Show enhanced reward dialog with additional sections
-      const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Quiztals for your curiosity!`;
+      const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Niftdoods for your curiosity!`;
       
       const rewardDialogData: OptimizedRewardDialogData = {
         npcName: "BasePal",
@@ -451,7 +451,7 @@ export default class BasePal extends WalkingNPC {
       "Learn about Base Chain with me! 📚",
       "Want to know about Layer 2 scaling? Click me! 🚀",
       "Base Chain lectures available here! 🎓",
-      "Earn $Quiztals for learning about Base! 💰"
+      "Earn $Niftdoods for learning about Base! 💰"
     ];
 
     scene.time.addEvent({

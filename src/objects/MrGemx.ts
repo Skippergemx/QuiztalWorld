@@ -91,7 +91,7 @@ export default class MrGemx extends GuideNPC {
 
   private showShortcutKeysDialog(): void {
     const shortcutContent = 
-      "Here are the essential shortcut keys for Quiztal World:\n\n" +
+      "Here are the essential shortcut keys for Niftdood World:\n\n" +
       "🎮 MOVEMENT CONTROLS:\n" +
       "• Arrow Keys or WASD - Move your character\n" +
       "• Virtual Joystick (Mobile) - Move character\n\n" +
@@ -115,16 +115,16 @@ export default class MrGemx extends GuideNPC {
     const shoutMessages = [
       "Need shortcut keys? Click me! ⌨️",
       "Press G for the full guide book! 📖",
-      "Quiztal World shortcuts available! 🎮",
+      "Niftdood World shortcuts available! 🎮",
       "Click me for essential game controls! ⚡"
     ];
     
     // Network-specific shout messages
     const networkOfflineMessages = [
       "Network down! No knowledge until connection restored! 🚫📡",
-      "Internet connection lost! Quiztal wisdom on hold! 😢🔌",
+      "Internet connection lost! Niftdood wisdom on hold! 😢🔌",
       "Offline mode: Mr. Gemx's wisdom disabled! ⏸️",
-      "No network, no Quiztal knowledge! 🔌",
+      "No network, no Niftdood knowledge! 🔌",
       "Connection error: Knowledge unavailable! 📡"
     ];
 

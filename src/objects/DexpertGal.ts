@@ -272,7 +272,7 @@ export default class DexpertGal extends QuizNPC {
         const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
         
         // Create enhanced reward message with theme
-        const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
+        const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Niftdoods for your DEX knowledge!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -410,7 +410,7 @@ export default class DexpertGal extends QuizNPC {
           const tipsContent = this.generateThemedDexTipsAndTricks(themeData.title);
           
           // Create enhanced reward message with theme
-          const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Quiztals for your DEX knowledge!`;
+          const rewardMessage = `${themeData.emoji} ${themeData.title}! You earned ${reward.toFixed(2)} $Niftdoods for your DEX knowledge!`;
           
           // Show optimized reward dialog
           const rewardDialogData: OptimizedRewardDialogData = {

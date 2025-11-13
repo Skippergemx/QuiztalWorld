@@ -37,7 +37,7 @@ export default class WalletWindowScene extends Phaser.Scene {
         this.showInitialLoadingScreen();
 
         // Load player data at scene creation
-        const playerDataStr = localStorage.getItem("quiztal-player");
+        const playerDataStr = localStorage.getItem("niftdood-player");
         if (!playerDataStr) {
             this.hideInitialLoadingScreen();
             this.closeWindow();
@@ -584,7 +584,7 @@ export default class WalletWindowScene extends Phaser.Scene {
                 // Save the full NFT data to Firestore, creating a complete cache.
                 await saveNFTsToDatabase(this.playerData.uid, nfts);
                 // Save the full data to localStorage for fast access during the current session.
-                localStorage.setItem('quiztal-nfts', JSON.stringify(nfts));
+                localStorage.setItem('niftdood-nfts', JSON.stringify(nfts));
                 console.log('Updated localStorage and Firestore with NFTs:', nfts);
                 
                 // Activate player glow, titles, and moblin pet for NFT holders
@@ -592,7 +592,7 @@ export default class WalletWindowScene extends Phaser.Scene {
             } else {
                 // If no NFTs are found, clear both by saving an empty array.
                 await saveNFTsToDatabase(this.playerData.uid, []);
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 console.log('No NFTs found, cleared localStorage and Firestore');
             }
 
@@ -607,7 +607,7 @@ export default class WalletWindowScene extends Phaser.Scene {
 
         } catch (error) {
             console.error('Error displaying NFTs:', error);
-            localStorage.removeItem('quiztal-nfts');
+            localStorage.removeItem('niftdood-nfts');
             this.loadingOverlay.hide();
             // Show error message centered on screen
             const errorText = this.add.text(
@@ -749,7 +749,7 @@ export default class WalletWindowScene extends Phaser.Scene {
     private async handleDisconnect() {
         await this.web3Service.disconnect();
         // Clear NFTs from localStorage on disconnect
-        localStorage.removeItem('quiztal-nfts');
+        localStorage.removeItem('niftdood-nfts');
         console.log('Wallet disconnected, cleared NFTs from localStorage');
         
         if (this.connectButtonText) {

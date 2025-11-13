@@ -13,7 +13,7 @@ export const NFT_COLLECTIONS: NFTCollectionConfig[] = [
       "function ownerOf(uint256 tokenId) view returns (address)"
     ],
     type: 'erc721',
-    name: 'Quiztal NFT Collection'
+    name: 'Niftdood NFT Collection'
   },
   {
     address: '0xcb12994BCFeCdfa014e26C0b001FC4C2c29E2178',

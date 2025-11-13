@@ -4,10 +4,10 @@ import { NFTData } from '../types/nft';
 
 
 /**
- * Save $Quiztals to Firestore under the player document.
+ * Save $Niftdoods to Firestore under the player document.
  * Also creates a reward history entry for tracking with NPC source.
  * @param playerId The player's unique ID
- * @param reward The amount of $Quiztals earned
+ * @param reward The amount of $Niftdoods earned
  * @param source The NPC name or identifier who gave the reward
  */
 export async function saveQuiztalsToDatabase(playerId: string, reward: number, source: string = "Unknown") {
@@ -27,7 +27,7 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     // Validate source
     const validSources = ["HuntBoy", "BaseSage", "MintGirl", "Moblin", "DexpertGal", "MrRugPull", "NftCyn", "ProfChain", "SecurityKai", "SmartContractGuy", "WalletSafetyFriend", "ArtizenGent", "AlchemyMan", "ThirdWebGuy", "BasePal", "Unknown"];
     if (!validSources.includes(source)) {
-      console.error("❌ Invalid source for quiztal reward:", source);
+      console.error("❌ Invalid source for niftdood reward:", source);
       return;
     }
 
@@ -47,7 +47,7 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
         rewardsEarned: newRewardsEarned
       }, { merge: true });
     } else {
-      // New player gets initial 100 quiztals plus reward
+      // New player gets initial 100 niftdoods plus reward
       const initialQuiztals = 100 + reward;
       
       await setDoc(playerRef, {
@@ -65,7 +65,7 @@ export async function saveQuiztalsToDatabase(playerId: string, reward: number, s
     });
 
   } catch (error) {
-    console.error("❌ Error saving quiztals to database:", error);
+    console.error("❌ Error saving niftdoods to database:", error);
   }
 }
 

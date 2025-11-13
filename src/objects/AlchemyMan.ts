@@ -275,7 +275,7 @@ export default class AlchemyMan extends WalkingNPC {
         const tipsContent = this.generateBlockchainTips();
         
         // Create enhanced reward message
-        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`;
+        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Niftdoods for your blockchain knowledge!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -406,8 +406,8 @@ export default class AlchemyMan extends WalkingNPC {
         const tipsContent = this.generateBlockchainTips();
         
         // Create enhanced reward message
-        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Quiztals for your blockchain knowledge!`;
-        
+        const rewardMessage = `🔮 Brilliant! You've earned ${reward.toFixed(2)} $Niftdoods for your blockchain knowledge!`;
+
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
           npcName: "Alchemy Man",

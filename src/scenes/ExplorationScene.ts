@@ -62,7 +62,7 @@ export default class ExplorationScene extends Phaser.Scene {
     if (data?.selectedCharacter) {
       this.selectedCharacter = data.selectedCharacter;
     } else {
-      const playerDataStr = localStorage.getItem("quiztal-player");
+      const playerDataStr = localStorage.getItem("niftdood-player");
       if (playerDataStr) {
         try {
           const playerData = JSON.parse(playerDataStr);

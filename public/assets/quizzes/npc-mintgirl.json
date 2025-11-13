@@ -15,24 +15,24 @@
       "explainer": "Mint Club is a bonding curve platform that enables fair, mathematical token launches without pre-mines or rug pull risks. Think of it as a digital art gallery where every token is a masterpiece!"
     },
     {
-      "question": "Welcome, reward seeker.\nWhat can you do with Quiztals?\n✨",
+      "question": "Welcome, reward seeker.\nWhat can you do with Niftdoods?\n✨",
       "options": [
         "Stake them for rewards - It's like having a money tree that grows cryptocurrency! 💰",
         "Throw them at people - That would be wasteful, not rewarding! 🤹",
         "Eat them for breakfast - They're digital, not edible! 🥐"
       ],
       "answer": "Stake them for rewards - It's like having a money tree that grows cryptocurrency! 💰",
-      "explainer": "Quiztals can be staked to earn rewards through revenue sharing in the Mint Club ecosystem, generating passive income. It's like having a money tree that grows cryptocurrency!"
+      "explainer": "Niftdoods can be staked to earn rewards through revenue sharing in the Mint Club ecosystem, generating passive income. It's like having a money tree that grows cryptocurrency!"
     },
     {
-      "question": "Hey there, blockchain transformer.\nQuiztals will become...?\n⛓️",
+      "question": "Hey there, blockchain transformer.\nNiftdoods will become...?\n⛓️",
       "options": [
         "On-chain tokens - Like a caterpillar transforming into a beautiful butterfly! 🦋",
         "A comic book hero - That would be a different kind of transformation! 🦸",
         "NFT Art masterpiece - They're already art, but we're talking about their form here! 🎨"
       ],
       "answer": "On-chain tokens - Like a caterpillar transforming into a beautiful butterfly! 🦋",
-      "explainer": "Quiztals will transition from off-chain rewards to on-chain tokens, enabling true DeFi integration and trading. Like a caterpillar transforming into a beautiful butterfly!"
+      "explainer": "Niftdoods will transition from off-chain rewards to on-chain tokens, enabling true DeFi integration and trading. Like a caterpillar transforming into a beautiful butterfly!"
     },
     {
       "question": "Greetings, curve connoisseur.\nWhat does Mint Club use?\n🖌️",
@@ -105,7 +105,7 @@
       "explainer": "Zero pre-minted tokens ensure all participants start equally, preventing unfair advantages for developers or insiders. Everyone starts with a blank canvas!"
     },
     {
-      "question": "Welcome, rug pull preventer.\nHow to prevent rug pulls?\n🔒",
+      "question": "Hey there, rug pull preventer.\nHow to prevent rug pulls?\n🔒",
       "options": [
         "Locked liquidity - Like having a vault that can never be opened by the wrong key! 🔐",
         "Trust badges - We prefer code over trust! 💻",
@@ -115,7 +115,7 @@
       "explainer": "Locked liquidity in smart contracts prevents developers from draining funds, providing guaranteed exit liquidity for investors. Like having a vault that can never be opened by the wrong key!"
     },
     {
-      "question": "Hey there, staking enthusiast.\nWhat can you stake?\n📈",
+      "question": "Greetings, staking enthusiast.\nWhat can you stake?\n📈",
       "options": [
         "MINT tokens - Plant your tokens and watch them grow like a money tree! 🌳",
         "Only NFTs - We're talking about token staking here! 🖼️",
@@ -125,7 +125,7 @@
       "explainer": "MINT tokens can be staked to earn revenue sharing from platform fees, providing passive income to token holders. Plant your tokens and watch them grow like a money tree!"
     },
     {
-      "question": "Greetings, token creator.\nWhat's the core feature?\n🎨",
+      "question": "Welcome, token creator.\nWhat's the core feature?\n🎨",
       "options": [
         "Token creation - Create your own cryptocurrency like a digital Picasso! 🎨",
         "Gaming - We're about tokens, not games! 🎮",
@@ -135,7 +135,7 @@
       "explainer": "Token creation is the core feature, enabling anyone to launch fair, bonding curve-powered tokens without technical expertise. Create your own cryptocurrency like a digital Picasso!"
     },
     {
-      "question": "Welcome, pricing expert.\nHow does pricing work?\n⚡",
+      "question": "Hey there, pricing expert.\nHow does pricing work?\n⚡",
       "options": [
         "Automatic curves - Like having a magical pricing tool that's always fair! 🪄",
         "Manual setting - We prefer automated fairness! ⚙️",
@@ -145,7 +145,7 @@
       "explainer": "Automatic bonding curves adjust prices as tokens are bought or sold, ensuring fair price discovery without manipulation. Like having a magical pricing tool that's always fair!"
     },
     {
-      "question": "Hey there, fairness seeker.\nWhat's the approach to fairness?\n⚖️",
+      "question": "Greetings, fairness seeker.\nWhat's the approach to fairness?\n⚖️",
       "options": [
         "Mathematical rules - Justice served by algorithms! ⚖️",
         "Manual oversight - We prefer code over human intervention! 💻",
@@ -155,7 +155,7 @@
       "explainer": "Mathematical rules encoded in smart contracts ensure fairness automatically, eliminating human bias and manipulation. Justice served by algorithms!"
     },
     {
-      "question": "Greetings, launcher.\nWhat can users launch?\n🚀",
+      "question": "Welcome, launcher.\nWhat can users launch?\n🚀",
       "options": [
         "Tokens & NFTs - Launch your own digital empire with ease! 🏰",
         "Only games - We're about tokens and NFTs, not games! 🎮",
@@ -165,7 +165,7 @@
       "explainer": "Users can launch both tokens and NFTs with bonding curve pricing, enabling diverse digital asset creation strategies. Launch your own digital empire with ease!"
     },
     {
-      "question": "Welcome, security analyst.\nHow are tokens secured?\n🔐",
+      "question": "Hey there, security analyst.\nHow are tokens secured?\n🔐",
       "options": [
         "Smart contracts - Your digital assets are protected by code, not promises! 🔒",
         "Manual locks - We prefer automated security! ⚙️",
@@ -175,7 +175,7 @@
       "explainer": "Smart contracts automatically secure tokens and liquidity, providing trustless protection without relying on human intervention. Your digital assets are protected by code, not promises!"
     },
     {
-      "question": "Hey there, curve expert.\nWhat's the token mechanism?\n🌀",
+      "question": "Greetings, curve expert.\nWhat's the token mechanism?\n🌀",
       "options": [
         "Bonding curves - Like having a fountain that flows fairly for everyone! ⛲",
         "Fixed supply - That's not our mechanism! 🔒",
@@ -185,7 +185,7 @@
       "explainer": "Bonding curves create dynamic token supply and pricing, ensuring fair distribution and preventing artificial scarcity. Like having a fountain that flows fairly for everyone!"
     },
     {
-      "question": "Greetings, transparency advocate.\nHow ensure transparency?\n🔍",
+      "question": "Hey there, transparency advocate.\nHow ensure transparency?\n🔍",
       "options": [
         "On-chain verification - Everything is out in the open like a public art exhibition! 🖼️",
         "Manual audits - We prefer automated transparency! ⚙️",
@@ -205,7 +205,7 @@
       "explainer": "Fair token launches eliminate pre-sales and insider advantages, ensuring everyone has equal opportunity to participate. Everyone gets an equal brush to paint their masterpiece!"
     },
     {
-      "question": "Hey there, fresh start seeker.\nHow do tokens start?\n🆕",
+      "question": "Greetings, fresh start seeker.\nHow do tokens start?\n🆕",
       "options": [
         "Zero pre-mints - A fresh start for everyone, like a blank canvas! 🎨",
         "Large pre-mines - That would be unfair to newcomers! ⚖️",
@@ -215,7 +215,7 @@
       "explainer": "Zero pre-minted tokens ensure fair launches where early supporters and developers have equal access and pricing. A fresh start for everyone, like a blank canvas!"
     },
     {
-      "question": "Greetings, automation enthusiast.\nWhat governs prices?\n🤖",
+      "question": "Hey there, automation enthusiast.\nWhat governs prices?\n🤖",
       "options": [
         "Smart contracts - Let the code be your fair art dealer! 💻",
         "Admins - We don't trust humans with pricing! 🧑",
@@ -285,7 +285,7 @@
       "explainer": "Fair launch only approach ensures everyone pays the same price based on timing, eliminating preferential treatment. First come, first served, like tickets to an art show!"
     },
     {
-      "question": "Welcome, math student.\nHow calculate buy price?\n🧮",
+      "question": "Hey there, math student.\nHow calculate buy price?\n🧮",
       "options": [
         "Bonding formula - Math is the artist's best friend! 🧮",
         "Market makers - We have something more reliable! 📈",
@@ -295,7 +295,7 @@
       "explainer": "Bonding formulas mathematically calculate buy prices based on current supply, ensuring predictable and fair pricing. Math is the artist's best friend!"
     },
     {
-      "question": "Hey there, contract keeper.\nWhat's locked in contracts?\n🔒",
+      "question": "Greetings, contract keeper.\nWhat's locked in contracts?\n🔒",
       "options": [
         "Liquidity & Logic - Locked away like precious art in a secure gallery! 🖼️",
         "Nothing - We do lock important things! 🔐",
@@ -305,7 +305,7 @@
       "explainer": "Both liquidity and pricing logic are locked in smart contracts, preventing manipulation and ensuring permanent functionality. Locked away like precious art in a secure gallery!"
     },
     {
-      "question": "Greetings, seller.\nHow sell tokens?\n🔁",
+      "question": "Hey there, seller.\nHow sell tokens?\n🔁",
       "options": [
         "Through the curve - Sell your digital art with ease! 🎨",
         "P2P only - We provide a better mechanism! 🔗",

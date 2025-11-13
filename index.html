@@ -1,203 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-  <meta name="description" content="QuiztalWorld - An interactive Web3 quiz game in the metaverse">
-  <meta name="theme-color" content="#2c3e50">
-  
-  <!-- Mobile-specific meta tags -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="QuiztalWorld">
-  
-  <!-- Prevent iOS Safari from automatically detecting phone numbers -->
-  <meta name="format-detection" content="telephone=no">
-  
-  <title>Metaverse Quiztal World</title>
-  
-  <style>
-    /* Mobile-optimized base styles */
-    * {
-      box-sizing: border-box;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="NiftdoodWorld - An interactive Web3 quiz game in the metaverse">
+    <meta name="keywords" content="Web3, blockchain, NFT, DeFi, crypto, education, gaming, metaverse">
+    <meta name="author" content="Niftdood Team">
+    <meta name="theme-color" content="#3498db">
     
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background-color: #2c3e50;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-overflow-scrolling: touch;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
-      /* Handle safe areas on iOS */
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    }
+    <!-- Mobile web app capable -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="NiftdoodWorld">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    /* Prevent zoom on input focus */
-    input, textarea, select {
-      font-size: 16px;
-    }
+    <!-- iOS specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="NiftdoodWorld">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
     
-    /* Loading container */
-    #loading-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      /* Handle safe areas */
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-      box-sizing: border-box;
-    }
+    <!-- Windows -->
+    <meta name="msapplication-TileColor" content="#3498db">
+    <meta name="msapplication-TileImage" content="/assets/icons/icon-144x144.png">
     
-    /* Loading background image */
-    #loading-background {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: -1;
-    }
+    <title>Metaverse Niftdood World</title>
     
-    /* Loading text container - similar to Google login screen */
-    #loading-text-container {
-      background-color: #000000; /* Black background */
-      border: 2px solid #3498db; /* Blue border */
-      border-radius: 16px; /* Large border radius */
-      padding: 30px 40px;
-      margin-bottom: 30px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Shadow effect */
-      text-align: center;
-      max-width: 90%;
-    }
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/assets/ui/splash02.png" as="image">
     
-    /* Loading text - white large text */
-    #loading-text {
-      color: #ffffff; /* White text */
-      font-size: 28px;
-      font-weight: 600; /* Bold */
-      margin: 0;
-      line-height: 1.4;
-    }
-    
-    /* Loading subtitle */
-    #loading-subtitle {
-      color: #bdc3c7; /* Light gray text */
-      font-size: 18px;
-      font-weight: 500;
-      margin-top: 10px;
-    }
-    
-    /* Progress bar container */
-    #progress-container {
-      width: 80%;
-      max-width: 400px;
-      height: 20px;
-      background-color: #34495e;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      border: 3px solid #000000; /* Big black outline */
-    }
-    
-    /* Progress bar */
-    #progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #f39c12; /* Solid orange */
-      border-radius: 10px;
-    }
-    
-    /* Progress percentage */
-    #progress-percent {
-      color: #f39c12; /* Orange text */
-      font-size: 16px;
-      font-weight: bold; /* Bold text */
-      margin-top: 15px;
-      background-color: #000000; /* Black background */
-      padding: 5px 10px;
-      border-radius: 5px;
-      text-shadow: 
-        -1px -1px 0 #ffffff,  
-         1px -1px 0 #ffffff,
-        -1px  1px 0 #ffffff,
-         1px  1px 0 #ffffff; /* White outline */
-    }
-    
-    /* Hidden class for clean removal for animation */
-    .hidden {
-      display: none !important;
-    }
-    
-    /* iOS specific styles for devices with notches */
-    @supports (padding: max(0px)) {
-      body {
-        padding-top: max(12px, env(safe-area-inset-top));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-      }
-    }
-  </style>
+    <style>
+        /* Mobile-optimized base styles */
+        * {
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #2c3e50;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-overflow-scrolling: touch;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            /* Handle safe areas on iOS */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+        
+        /* Prevent zoom on input focus */
+        input, textarea, select {
+            font-size: 16px;
+        }
+        
+        /* Loading container */
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            /* Handle safe areas */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            box-sizing: border-box;
+        }
+        
+        /* Loading background image */
+        #loading-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        /* Loading text container - similar to Google login screen */
+        #loading-text-container {
+            background-color: rgba(0, 0, 0, 0.85); /* Semi-transparent black background */
+            border: 3px solid #3498db; /* Blue border */
+            border-radius: 20px; /* Rounded corners */
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); /* Shadow effect */
+            text-align: center;
+            max-width: 90%;
+            backdrop-filter: blur(5px); /* Glass effect */
+        }
+        
+        /* Loading text - white large text */
+        #loading-text {
+            color: #ffffff; /* White text */
+            font-size: 28px;
+            font-weight: 600; /* Bold */
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        /* Loading subtitle */
+        #loading-subtitle {
+            color: #bdc3c7; /* Light gray text */
+            font-size: 18px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        /* Progress bar container */
+        #progress-container {
+            width: 80%;
+            max-width: 400px;
+            height: 20px;
+            background-color: #34495e;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 3px solid #000000; /* Big black outline */
+        }
+        
+        /* Progress bar */
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #f39c12; /* Solid orange */
+            border-radius: 10px;
+        }
+        
+        /* Progress percentage */
+        #progress-percent {
+            color: #f39c12; /* Orange text */
+            font-size: 16px;
+            font-weight: bold; /* Bold text */
+            margin-top: 15px;
+            background-color: #000000; /* Black background */
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-shadow: 
+                -1px -1px 0 #ffffff,  
+                 1px -1px 0 #ffffff,
+                -1px  1px 0 #ffffff,
+                 1px  1px 0 #ffffff; /* White outline */
+        }
+        
+        /* Hidden class for clean removal for animation */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* iOS specific styles for devices with notches */
+        @supports (padding: max(0px)) {
+            body {
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: max(12px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="loading-container">
-    <img id="loading-background" src="/assets/ui/splash02.png" alt="Loading background">
-    <div id="loading-text-container">
-      <div id="loading-text">Loading Metaverse Quiztal World</div>
-      <div id="loading-subtitle">Get ready Quiztal Masters</div>
+    <!-- Loading Screen -->
+    <div id="loading-container">
+        <img id="loading-background" src="/assets/ui/splash02.png" alt="Loading Background">
+        <div id="loading-content">
+            <div id="loading-text-container">
+                <div id="loading-text">Loading Metaverse Niftdood World</div>
+                <div id="loading-subtitle">Get ready Niftdood Masters</div>
+            </div>
+            <div id="loading-progress-container">
+                <div id="loading-progress-bar"></div>
+            </div>
+            <div id="loading-progress-text">0%</div>
+        </div>
     </div>
-    <div id="progress-container">
-      <div id="progress-bar"></div>
-    </div>
-    <div id="progress-percent">0%</div>
-  </div>
-  <script type="module" src="/src/main.ts"></script> <!-- Use absolute path for Vite -->
-  
-  <script>
-    // Update progress bar function
-    function updateProgress(percent) {
-      const progressBar = document.getElementById('progress-bar');
-      const progressPercent = document.getElementById('progress-percent');
-      
-      if (progressBar && progressPercent) {
-        progressBar.style.width = percent + '%';
-        progressPercent.textContent = Math.round(percent) + '%';
-      }
-    }
     
-    // Hide loading screen function
-    function hideLoadingScreen() {
-      const loadingContainer = document.getElementById('loading-container');
-      if (loadingContainer) {
-        // Add fade out effect
-        loadingContainer.style.transition = 'opacity 0.5s ease';
-        loadingContainer.style.opacity = '0';
+    <!-- Game Container -->
+    <div id="game-container"></div>
+    
+    <script type="module" src="/src/main.ts"></script> <!-- Use absolute path for Vite -->
+    
+    <script>
+        // Update progress bar function
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            
+            if (progressBar && progressPercent) {
+                progressBar.style.width = percent + '%';
+                progressPercent.textContent = Math.round(percent) + '%';
+            }
+        }
         
-        // Remove after transition
-        setTimeout(() => {
-          loadingContainer.classList.add('hidden');
-        }, 500);
-      }
-    }
-    
-    // Expose the functions to the global scope so the game can call them
-    window.updateProgress = updateProgress;
-    window.hideLoadingScreen = hideLoadingScreen;
-  </script>
+        // Hide loading screen function
+        function hideLoadingScreen() {
+            const loadingContainer = document.getElementById('loading-container');
+            if (loadingContainer) {
+                // Add fade out effect
+                loadingContainer.style.transition = 'opacity 0.5s ease';
+                loadingContainer.style.opacity = '0';
+                
+                // Remove after transition
+                setTimeout(() => {
+                    loadingContainer.classList.add('hidden');
+                }, 500);
+            }
+        }
+        
+        // Expose the functions to the global scope so the game can call them
+        window.updateProgress = updateProgress;
+        window.hideLoadingScreen = hideLoadingScreen;
+    </script>
 </body>
 </html>

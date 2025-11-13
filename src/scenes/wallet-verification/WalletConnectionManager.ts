@@ -335,7 +335,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
                 this.updateProgress(LoadingStage.ERROR, 100, 'NFT verification failed');
                 console.warn('WalletConnectionManager: NFT verification error', error);
                 // Clear NFTs from localStorage on error
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 
                 return {
                     hasNFTs: false,
@@ -346,7 +346,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
             if (!hasNFT) {
                 this.updateProgress(LoadingStage.COMPLETE, 100, 'No NFTs found in wallet');
                 // Clear NFTs if none found
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 await saveNFTsToDatabase(this.playerData.uid, []);
                 console.log('WalletConnectionManager: No NFTs found');
                 
@@ -376,7 +376,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
                 // Save to both Firestore and localStorage
                 this.updateProgress(LoadingStage.LOADING_NFTS, 90, 'Saving NFT data...');
                 await saveNFTsToDatabase(this.playerData.uid, uniqueNFTs);
-                localStorage.setItem('quiztal-nfts', JSON.stringify(uniqueNFTs));
+                localStorage.setItem('niftdood-nfts', JSON.stringify(uniqueNFTs));
                 
                 this.updateProgress(LoadingStage.COMPLETE, 100, `Successfully verified ${uniqueNFTs.length} NFTs!`);
                 console.log('WalletConnectionManager: Enhanced NFTs verified and saved', uniqueNFTs.length);
@@ -388,7 +388,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
             } else {
                 // No NFT data available
                 this.updateProgress(LoadingStage.COMPLETE, 100, 'No NFT data available');
-                localStorage.removeItem('quiztal-nfts');
+                localStorage.removeItem('niftdood-nfts');
                 await saveNFTsToDatabase(this.playerData.uid, []);
                 
                 return {
@@ -400,7 +400,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
         } catch (error: any) {
             this.updateProgress(LoadingStage.ERROR, 100, 'NFT verification failed');
             console.error('WalletConnectionManager: Enhanced NFT verification error', error);
-            localStorage.removeItem('quiztal-nfts');
+            localStorage.removeItem('niftdood-nfts');
             
             return {
                 hasNFTs: false,
@@ -458,7 +458,7 @@ export class WalletConnectionManager implements IWalletConnectionManager {
             await this.web3Service.disconnect();
             
             // Clear NFTs from localStorage
-            localStorage.removeItem('quiztal-nfts');
+            localStorage.removeItem('niftdood-nfts');
             
             // Update player data
             this.playerData.walletAddress = undefined;

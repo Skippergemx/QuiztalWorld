@@ -239,7 +239,7 @@ export default class MintGirl extends QuizNPC {
         
         // Create enhanced reward message with personality
         const rewardPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.correctAnswerPrefixes);
-        const rewardMessage = `${rewardPrefix} ${baseReward.toFixed(2)} $Quiztals from the Mint Club! (${question.difficulty} difficulty)`;
+        const rewardMessage = `${rewardPrefix} ${baseReward.toFixed(2)} $Niftdoods from the Mint Club! (${question.difficulty} difficulty)`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -362,7 +362,7 @@ export default class MintGirl extends QuizNPC {
           
           // Create enhanced reward message with personality
           const rewardPrefix = Phaser.Utils.Array.GetRandom(mintGirlPersonality.correctAnswerPrefixes);
-          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Mint Club!`;
+          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Niftdoods from the Mint Club!`;
           
           // Show optimized reward dialog
           const rewardDialogData: OptimizedRewardDialogData = {
@@ -456,7 +456,7 @@ export default class MintGirl extends QuizNPC {
     // Network-specific shout messages
     const networkOfflineMessages = [
       "Network down! No token creation until connection restored! 🚫📡",
-      "Internet connection lost! Quiztals on hold! 😢🔌",
+      "Internet connection lost! Niftdoods on hold! 😢🔌",
       "Offline mode: MintGirl's token creation disabled! ⏸️",
       "No network, no token creation! 🔌",
       "Connection error: Token creation unavailable! 📡"

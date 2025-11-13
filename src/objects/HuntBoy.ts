@@ -201,7 +201,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         const tipsContent = this.generateWeb3Tips();
         
         // Create enhanced reward message
-        const rewardMessage = `🎉 Correct! You've earned ${reward.toFixed(2)} $Quiztals!`;
+        const rewardMessage = `🎉 Correct! You've earned ${reward.toFixed(2)} $Niftdoods!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -333,7 +333,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
         const tipsContent = this.generateWeb3Tips();
         
         // Create enhanced reward message
-        const rewardMessage = `🗡️ Nice hunt! You earned ${baseReward.toFixed(2)} $Quiztals for your Web3 knowledge! (${question.difficulty} difficulty)`;
+        const rewardMessage = `🗡️ Nice hunt! You earned ${baseReward.toFixed(2)} $Niftdoods for your Web3 knowledge! (${question.difficulty} difficulty)`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {
@@ -451,7 +451,7 @@ this.networkMonitor.addNetworkStatusChangeListener(() => {
     // Network-specific shout messages
     const networkOfflineMessages = [
       "Network down! No quizzes until connection restored! 🚫📡",
-      "Internet connection lost! Quiztals on hold! 😢🔌",
+      "Internet connection lost! Niftdoods on hold! 😢🔌",
       "Offline mode: HuntBoy's quizzes disabled! ⏸️",
       "No network, no knowledge challenges! 🔌",
       "Connection error: Quiz unavailable! 📡"

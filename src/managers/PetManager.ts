@@ -99,7 +99,7 @@ export default class PetManager {
       return;
     }
     
-    const nftsStr = localStorage.getItem('quiztal-nfts');
+    const nftsStr = localStorage.getItem('niftdood-nfts');
     if (!nftsStr) {
       console.log('ℹ️ PetManager: No NFTs found in localStorage');
       return;
@@ -311,7 +311,7 @@ export default class PetManager {
         // Show UI feedback
         this.showGiftBoxCollectionFeedback(totalReward);
         
-        console.log(`🎁 PetManager: Collected ${collected} gift boxes and earned ${totalReward} Quiztals!`);
+        console.log(`🎁 PetManager: Collected ${collected} gift boxes and earned ${totalReward} Niftdoods!`);
       } catch (error) {
         console.error('❌ PetManager: Error collecting gift boxes:', error);
       }
@@ -340,7 +340,7 @@ export default class PetManager {
    * Process and save gift box rewards
    */
   private async processGiftBoxRewards(totalReward: number): Promise<void> {
-    const userStr = localStorage.getItem('quiztal-player');
+    const userStr = localStorage.getItem('niftdood-player');
     if (!userStr) {
       console.warn('⚠️ PetManager: No user data found for reward processing');
       return;
@@ -397,7 +397,7 @@ export default class PetManager {
     const feedbackText = this.scene.add.text(
       this.moblin.x,
       this.moblin.y - 50,
-      `+${amount} Quiztals!`,
+      `+${amount} Niftdoods!`,
       {
         fontSize: '14px',
         fontStyle: 'bold',
@@ -613,7 +613,7 @@ export default class PetManager {
     
     // If no pet exists but player should have one, create it
     if (!this.moblin) {
-      const nftsStr = localStorage.getItem('quiztal-nfts');
+      const nftsStr = localStorage.getItem('niftdood-nfts');
       if (nftsStr) {
         try {
           const nfts = JSON.parse(nftsStr);

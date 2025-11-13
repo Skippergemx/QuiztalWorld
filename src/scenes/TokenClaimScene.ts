@@ -684,13 +684,13 @@ export default class TokenClaimScene extends Phaser.Scene {
             
             // Update minimum check to 50
             if (claimAmount < 50) {  // Changed from 10 to 50
-                this.balanceText.setText(`Available balance: ${roundedBalance} Quiztals\n(Minimum 50 required to claim)`);  // Updated message
+                this.balanceText.setText(`Available balance: ${roundedBalance} $NiftDOOD\n(Minimum 50 required to claim)`);  // Updated message
                 if (this.claimButton) {
                     this.claimButton.setAlpha(0.5);
                     this.claimButton.disableInteractive();
                 }
             } else {
-                this.balanceText.setText(`Available balance: ${roundedBalance} Quiztals\nClaimable amount: ${claimAmount} Quiztals`);
+                this.balanceText.setText(`Available balance: ${roundedBalance} $NiftDOOD\nClaimable amount: ${claimAmount} $NiftDOOD`);
                 if (this.claimButton) {
                     this.claimButton.setAlpha(1);
                     this.claimButton.setInteractive();

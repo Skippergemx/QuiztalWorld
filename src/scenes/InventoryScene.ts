@@ -36,7 +36,7 @@ export default class InventoryScene extends Phaser.Scene {
 
     // Replace mockItems with actual inventory
     private inventoryItems: InventoryItem[] = [];
-    private inventoryKey: string = 'quiztal-inventory';
+    private inventoryKey: string = 'niftdood-inventory';
 
     // Update these properties in the class
     private currentPage: number = 0;
@@ -926,21 +926,21 @@ export default class InventoryScene extends Phaser.Scene {
 
         // Get saved NFTs
         let nfts: NFTData[] | null = null;
-        const savedNFTsString = localStorage.getItem('quiztal-nfts');
+        const savedNFTsString = localStorage.getItem('niftdood-nfts');
 
         if (savedNFTsString) {
             console.log('Loading NFTs from localStorage.');
             nfts = JSON.parse(savedNFTsString);
         } else {
             // Fallback to Firestore if localStorage is empty
-            const playerDataStr = localStorage.getItem("quiztal-player");
+            const playerDataStr = localStorage.getItem("niftdood-player");
             if (playerDataStr) {
                 const playerData = JSON.parse(playerDataStr);
                 console.log('localStorage is empty, loading NFTs from Firestore...');
                 nfts = await loadNFTsFromDatabase(playerData.uid);
                 // If loaded from Firestore, update localStorage for this session
                 if (nfts) {
-                    localStorage.setItem('quiztal-nfts', JSON.stringify(nfts));
+                    localStorage.setItem('niftdood-nfts', JSON.stringify(nfts));
                 }
             }
         }

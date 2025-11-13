@@ -60,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
       this.selectedCharacter = data.selectedCharacter;
     } else {
       // Try to get character from localStorage if not passed in data
-      const playerDataStr = localStorage.getItem("quiztal-player");
+      const playerDataStr = localStorage.getItem("niftdood-player");
       if (playerDataStr) {
         try {
           const playerData = JSON.parse(playerDataStr);

@@ -1,28 +1,28 @@
 {
   "npcId": "mrgemx",
   "npcName": "Mr. Gemx",
-  "theme": "Quiztal World Guide",
-  "description": "A friendly guide who introduces players to the Quiztal Metaverse and explains how Quiztal World works.",
+  "theme": "Niftdood World Guide",
+  "description": "A friendly guide who introduces players to the Niftdood Metaverse and explains how Niftdood World works.",
   "shoutMessages": [
-    "Welcome to Quiztal World! 🌍✨",
+    "Welcome to Niftdood World! 🌍✨",
     "Need help? Talk to me for a guide! 📚🎮",
     "Explorers and thinkers, gather around! 🧠🎉",
-    "Curious about Quiztal World? Click me to learn! ✨🖱️",
+    "Curious about Niftdood World? Click me to learn! ✨🖱️",
     "Press G to open the full guide book! 📖📚",
     "Lost in the metaverse? I've got the map! 🗺️🧭",
     "New here? Let me show you around! 🎉👋"
   ],
   "networkOfflineMessages": [
     "Network down! No knowledge until connection restored! 🚫📡😭",
-    "Internet connection lost! Quiztal wisdom on hold! 😢🔌⏰",
+    "Internet connection lost! Niftdood wisdom on hold! 😢🔌⏰",
     "Offline mode: Mr. Gemx's wisdom disabled! ⏸️😴",
-    "No network, no Quiztal knowledge! 🔌🤔",
+    "No network, no Niftdood knowledge! 🔌🤔",
     "Connection error: Knowledge unavailable! 📡❌"
   ],
   "dialogs": {
     "welcome": {
       "id": "welcome",
-      "text": "Welcome, explorer! 🌍 Ready to dive into the amazing world of Quiztal?",
+      "text": "Welcome, explorer! 🌍 Ready to dive into the amazing world of Niftdood?",
       "avatar": "npc_mrgemx_avatar",
       "options": [
         {
@@ -34,7 +34,7 @@
           "nextDialog": "explainNPCs"
         },
         {
-          "text": "💰 Quiztals & Rewards",
+          "text": "💰 Niftdoods & Rewards",
           "nextDialog": "explainRewards"
         },
         {
@@ -47,7 +47,7 @@
       "id": "explainControls",
       "sequence": [
         {
-          "text": "Master the controls to navigate Quiztal World like a pro! 🎮✨",
+          "text": "Master the controls to navigate Niftdood World like a pro! 🎮✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
@@ -82,11 +82,11 @@
       "id": "explainNPCs",
       "sequence": [
         {
-          "text": "Meet the coolest characters in Quiztal World! Each one has their own specialty: 🤖✨",
+          "text": "Meet the coolest characters in Niftdood World! Each one has their own specialty: 🤖✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "🧑‍🏫 MR. GEMX - Quiztal Metaverse Guide\n• Explains the Quiztal Metaverse and Gemante NFTs\n• Perfect starting point for new players (that's me!)\n• Your friendly neighborhood guide! 🎉",
+          "text": "🧑‍🏫 MR. GEMX - Niftdood Metaverse Guide\n• Explains the Niftdood Metaverse and Gemante NFTs\n• Perfect starting point for new players (that's me!)\n• Your friendly neighborhood guide! 🎉",
           "avatar": "npc_mrgemx_avatar"
         },
         {
@@ -94,11 +94,11 @@
           "avatar": "npc_mrgemx_avatar"
         },
         {
-        "text": "🎯 HUNT BOY - Web3 Development Expert\n• Teaches about Hunt Town developer community\n• All about building awesome Web3 projects\n• Loves a good coding challenge! 💻🚀",
+          "text": "🎯 HUNT BOY - Web3 Development Expert\n• Teaches about Hunt Town developer community\n• All about building awesome Web3 projects\n• Loves a good coding challenge! 💻🚀",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "Ready to learn about those sweet Quiztal rewards?",
+          "text": "Ready to learn about those sweet Niftdood rewards?",
           "avatar": "npc_mrgemx_avatar",
           "options": [
             {
@@ -121,15 +121,15 @@
       "id": "explainRewards",
       "sequence": [
         {
-          "text": "Earn and manage your Quiztal tokens - the currency of knowledge! 💰✨",
+          "text": "Earn and manage your Niftdood tokens - the currency of knowledge! 💰✨",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "💎 EARNING QUIZTALS:\n• Answer quiz questions correctly (0.01-0.5 Quiztals per question!)\n• Complete challenges and explore new areas\n• Participate in special events and activities\n• The more you learn, the more you earn! 📚💰",
+          "text": "💎 EARNING NIFTDOODS:\n• Answer quiz questions correctly (0.01-0.5 Niftdoods per question!)\n• Complete challenges and explore new areas\n• Participate in special events and activities\n• The more you learn, the more you earn! 📚💰",
           "avatar": "npc_mrgemx_avatar"
         },
         {
-          "text": "📊 TRACKING YOUR PROGRESS:\n• Session Rewards Tracker (🎯 button) shows current session earnings\n• Balance display shows total accumulated Quiztals\n• Inventory system tracks your collected items\n• Watch your wealth grow as you learn! 📈🎉",
+          "text": "📊 TRACKING YOUR PROGRESS:\n• Session Rewards Tracker (🎯 button) shows current session earnings\n• Balance display shows total accumulated Niftdoods\n• Inventory system tracks your collected items\n• Watch your wealth grow as you learn! 📈🎉",
           "avatar": "npc_mrgemx_avatar"
         },
         {

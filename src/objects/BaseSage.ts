@@ -192,7 +192,7 @@ export default class BaseSage extends QuizNPC {
           
           // Create enhanced reward message with personality
           const rewardPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.correctAnswerPrefixes);
-          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Base Sage!`;
+          const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Niftdoods from the Base Sage!`;
           
           // Show optimized reward dialog
           const rewardDialogData: OptimizedRewardDialogData = {
@@ -320,7 +320,7 @@ export default class BaseSage extends QuizNPC {
         
         // Create enhanced reward message with personality
         const rewardPrefix = Phaser.Utils.Array.GetRandom(baseSagePersonality.correctAnswerPrefixes);
-        const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Quiztals from the Base Sage!`;
+        const rewardMessage = `${rewardPrefix} ${reward.toFixed(2)} $Niftdoods from the Base Sage!`;
         
         // Show optimized reward dialog
         const rewardDialogData: OptimizedRewardDialogData = {

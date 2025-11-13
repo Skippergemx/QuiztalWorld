@@ -25,7 +25,7 @@ export default class NFTWindowScene extends Phaser.Scene {
         this.showInitialLoadingScreen();
 
         // Load player data
-        const playerDataStr = localStorage.getItem("quiztal-player");
+        const playerDataStr = localStorage.getItem("niftdood-player");
         if (!playerDataStr) {
             this.hideInitialLoadingScreen();
             this.closeWindow();
@@ -110,7 +110,7 @@ export default class NFTWindowScene extends Phaser.Scene {
             this.hideInitialLoadingScreen();
 
             // Check if we have NFTs in localStorage first
-            const nftDataStr = localStorage.getItem('quiztal-nfts');
+            const nftDataStr = localStorage.getItem('niftdood-nfts');
             if (nftDataStr) {
                 const nfts: NFTData[] = JSON.parse(nftDataStr);
                 if (nfts.length > 0) {

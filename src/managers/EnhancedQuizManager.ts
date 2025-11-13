@@ -74,7 +74,7 @@ export default class EnhancedQuizManager {
   }
 
   private initializeStatistics(): QuizStatistics {
-    const savedStats = localStorage.getItem('quiztal-quiz-statistics');
+    const savedStats = localStorage.getItem('niftdood-quiz-statistics');
     if (savedStats) {
       return JSON.parse(savedStats);
     }
@@ -92,7 +92,7 @@ export default class EnhancedQuizManager {
   }
 
   private loadQuizHistory(): void {
-    const savedHistory = localStorage.getItem('quiztal-quiz-history');
+    const savedHistory = localStorage.getItem('niftdood-quiz-history');
     if (savedHistory) {
       this.quizHistory = JSON.parse(savedHistory);
     }
@@ -101,11 +101,11 @@ export default class EnhancedQuizManager {
   private saveQuizHistory(): void {
     // Keep only last 50 quiz sessions
     const recentHistory = this.quizHistory.slice(-50);
-    localStorage.setItem('quiztal-quiz-history', JSON.stringify(recentHistory));
+    localStorage.setItem('niftdood-quiz-history', JSON.stringify(recentHistory));
   }
 
   private saveStatistics(): void {
-    localStorage.setItem('quiztal-quiz-statistics', JSON.stringify(this.statistics));
+    localStorage.setItem('niftdood-quiz-statistics', JSON.stringify(this.statistics));
   }
 
   public async startQuizSession(npcId: string): Promise<QuizSession | null> {
@@ -499,12 +499,12 @@ export default class EnhancedQuizManager {
 
     // Store in localStorage for persistence
     try {
-      const existingAttempts = JSON.parse(localStorage.getItem('quiztal-quiz-attempts') || '[]');
+      const existingAttempts = JSON.parse(localStorage.getItem('niftdood-quiz-attempts') || '[]');
       existingAttempts.push(attemptRecord);
       
       // Keep only last 1000 attempts to prevent storage bloat
       const recentAttempts = existingAttempts.slice(-1000);
-      localStorage.setItem('quiztal-quiz-attempts', JSON.stringify(recentAttempts));
+      localStorage.setItem('niftdood-quiz-attempts', JSON.stringify(recentAttempts));
     } catch (error) {
       console.error('EnhancedQuizManager: Failed to record quiz attempt:', error);
     }
