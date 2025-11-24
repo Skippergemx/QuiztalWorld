@@ -218,3 +218,124 @@ export async function loadNFTsFromDatabase(playerId: string): Promise<NFTData[] 
     return null;
   }
 }
+
+/**
+ * Save player inventory items to Firestore
+ * @param playerId The player's unique ID
+ * @param inventoryItems The array of inventory items to save
+ */
+export async function saveInventoryToDatabase(playerId: string, inventoryItems: any[]) {
+  try {
+    const playerInventoryRef = collection(db, "players", playerId, "inventory");
+    
+    // 1. Get a new write batch
+    const batch = writeBatch(db);
+
+    // 2. Delete all existing documents in the "inventory" subcollection
+    const existingItemsSnapshot = await getDocs(query(playerInventoryRef));
+    existingItemsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // 3. Add new documents for each inventory item
+    inventoryItems.forEach((item) => {
+      // Use item ID as the document ID
+      const itemDocRef = doc(playerInventoryRef, item.id);
+      batch.set(itemDocRef, item);
+    });
+
+    // 4. Commit the batch
+    await batch.commit();
+    console.log(`✅ Successfully saved ${inventoryItems.length} inventory items to database for player ${playerId}`);
+
+  } catch (error) {
+    console.error(`❌ Error saving inventory to database for player ${playerId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Load player inventory items from Firestore
+ * @param playerId The player's unique ID
+ * @returns An array of inventory items or null if an error occurs
+ */
+export async function loadInventoryFromDatabase(playerId: string): Promise<any[] | null> {
+  try {
+    const playerInventoryRef = collection(db, "players", playerId, "inventory");
+    const inventorySnapshot = await getDocs(query(playerInventoryRef));
+    return inventorySnapshot.docs.map(doc => doc.data());
+  } catch (error) {
+    console.error(`❌ Error loading inventory from database for player ${playerId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Clear all player inventory items from Firestore (for development/testing only)
+ * @param playerId The player's unique ID
+ */
+export async function clearInventoryFromDatabase(playerId: string): Promise<void> {
+  try {
+    const playerInventoryRef = collection(db, "players", playerId, "inventory");
+    
+    // Get a new write batch
+    const batch = writeBatch(db);
+
+    // Delete all existing documents in the "inventory" subcollection
+    const existingItemsSnapshot = await getDocs(query(playerInventoryRef));
+    existingItemsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // Commit the batch
+    await batch.commit();
+    console.log(`✅ Successfully cleared all inventory items from database for player ${playerId}`);
+
+  } catch (error) {
+    console.error(`❌ Error clearing inventory from database for player ${playerId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Clear all player data from Firestore (for development/testing only)
+ * @param playerId The player's unique ID
+ */
+export async function clearAllPlayerDataFromDatabase(playerId: string): Promise<void> {
+  try {
+    // Clear inventory
+    await clearInventoryFromDatabase(playerId);
+    
+    // Clear NFTs
+    const playerNftsRef = collection(db, "players", playerId, "nfts");
+    const batch = writeBatch(db);
+    const existingNftsSnapshot = await getDocs(query(playerNftsRef));
+    existingNftsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    
+    // Clear reward history
+    const playerRewardHistoryRef = collection(db, "players", playerId, "rewardHistory");
+    const rewardHistorySnapshot = await getDocs(query(playerRewardHistoryRef));
+    rewardHistorySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    
+    // Commit the batch
+    await batch.commit();
+    
+    // Update player document to reset key fields
+    const playerRef = doc(db, "players", playerId);
+    await setDoc(playerRef, {
+      quiztals: 100, // Reset to initial amount
+      rewardsEarned: 0,
+      lastUpdated: Date.now()
+    }, { merge: true });
+    
+    console.log(`✅ Successfully cleared all data from database for player ${playerId}`);
+
+  } catch (error) {
+    console.error(`❌ Error clearing all data from database for player ${playerId}:`, error);
+    throw error;
+  }
+}

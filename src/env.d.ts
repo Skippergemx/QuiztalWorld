@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
     readonly VITE_FIREBASE_API_KEY: string;
-    readonly VITE_QUIZTAL_TOKEN_ADDRESS: string;
+    readonly VITE_NDOOD_TOKEN_ADDRESS: string;
 }
 
 interface ImportMeta {

@@ -7,6 +7,7 @@ import { saveQuiztalsToDatabase } from "../utils/Database";
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import PhysicsManager from '../managers/PhysicsManager';
 import { showOptimizedRewardDialog, closeOptimizedRewardDialog, OptimizedRewardDialogData } from "../utils/OptimizedRewardDialog";
+import { NPC_PERSONALITY_CONFIG } from "../config/NPCPersonalityConfig";
 
 export default class BasePal extends WalkingNPC {
   private lectures: any[] = [];
@@ -15,6 +16,7 @@ export default class BasePal extends WalkingNPC {
   private lastLectureTime: number = 0;
   private readonly lectureCooldown: number = 30000; // 30 seconds between lectures
   private playerForReward: Phaser.Physics.Arcade.Sprite | null = null; // Store player reference for reward
+  private personality = NPC_PERSONALITY_CONFIG["npc_basepal"];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "npc_basepal");
@@ -274,23 +276,12 @@ export default class BasePal extends WalkingNPC {
         formatted += '.';
       }
       return formatted;
-    }).join('\n').trim();
+    }).join('\n\n').trim(); // Use double newline for paragraph breaks
   }
 
   private generateLectureTips(): string {
     // Generate tips related to learning and education
-    const tips = [
-      "📚 Learning new blockchain concepts daily helps build your crypto expertise!",
-      "💡 Take notes on key points to reinforce your learning!",
-      "🎯 Focus on one concept at a time for better retention!",
-      "🤔 Ask questions if something isn't clear - understanding is key!",
-      "🌟 Practice what you learn by trying out Base Chain features!",
-      "🧠 Repetition helps solidify new knowledge in your memory!",
-      "📖 Review previous lessons to strengthen your foundation!",
-      "💬 Discuss concepts with other learners to gain new perspectives!",
-      "🔍 Research topics that interest you beyond the basics!",
-      "🏆 Celebrate small wins as you progress in your learning journey!"
-    ];
+    const tips = this.personality.tipDescriptions;
     
     return Phaser.Utils.Array.GetRandom(tips);
   }
@@ -321,7 +312,7 @@ export default class BasePal extends WalkingNPC {
       const tipsContent = this.generateTipsAndTricks();
       
       // Show enhanced reward dialog with additional sections
-      const rewardMessage = `🎉 Great job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Niftdoods for your curiosity!`;
+      const rewardMessage = `🎉 Awesome job learning about Base Chain!\nYou've earned ${reward.toFixed(2)} $Niftdoods for being such a curious learner!`;
       
       const rewardDialogData: OptimizedRewardDialogData = {
         npcName: "BasePal",
@@ -342,16 +333,21 @@ export default class BasePal extends WalkingNPC {
   private generateDidYouKnow(): string {
     // Generate detailed "Did You Know" content
     const dykPhrases = [
-      "Base Chain was launched by Coinbase in February 2023 as a Layer 2 scaling solution for Ethereum! It was designed to make Ethereum more accessible and affordable for everyone, with a focus on driving global crypto adoption through simplicity and low transaction costs.",
-      "Base uses the same security model as Ethereum, making it one of the safest Layer 2 solutions available! Unlike some other Layer 2 solutions that introduce new security assumptions, Base inherits Ethereum's battle-tested security while dramatically reducing gas fees.",
-      "Base is completely free to use - no native token required, just pay ETH gas fees! This 'no-native-token' approach means there's no additional token you need to acquire or manage, making it simpler and more accessible for new users to get started.",
-      "Base is built on the OP Stack, the same technology that powers Optimism! This means Base benefits from the extensive development and security auditing that has gone into the OP Stack, while also being part of a growing ecosystem of interoperable Layer 2 solutions.",
-      "Base has processed over $100 billion in transaction volume since its launch! This rapid adoption shows the strong demand for affordable, secure Ethereum transactions, and Base's success in meeting that demand with its user-friendly approach.",
-      "Base supports all Ethereum tools and wallets out of the box with zero modifications! Developers can deploy their existing Solidity smart contracts directly to Base without any changes, and users can connect with their favorite Ethereum wallets like MetaMask, Coinbase Wallet, and Rainbow.",
-      "Base blocks are produced every 2 seconds, making transactions lightning fast! This is significantly faster than Ethereum's 12-15 second block times, providing a much smoother user experience for dApps and transactions.",
-      "Base is open-source and community-driven, with contributions from developers worldwide! The code is publicly available on GitHub, allowing anyone to review, contribute, or even fork the code to create their own Layer 2 solution based on Base's technology.",
-      "Base has attracted major projects like OpenSea, Aave, and Curve to its ecosystem! These leading DeFi and NFT protocols have chosen Base for its combination of security, low fees, and Ethereum compatibility, creating a thriving ecosystem for users.",
-      "Base's bridge supports instant withdrawals for ETH and stablecoins! This unique feature allows users to move their ETH and popular stablecoins (USDC, USDT, DAI) from Base back to Ethereum almost instantly, without the typical 7-day waiting period required by other Layer 2 solutions."
+      "Hey, did you know Base Chain was launched by Coinbase in February 2023? It was designed to make Ethereum more accessible and affordable for everyone!",
+      "Here's a cool fact: Base uses the same security model as Ethereum, making it one of the safest Layer 2 solutions available!",
+      "Fun fact: Base is completely free to use - no native token required, just pay ETH gas fees! Pretty cool, right?",
+      "Base is built on the OP Stack, the same technology that powers Optimism! This means it benefits from extensive development and security auditing.",
+      "Guess what? Base has processed over $100 billion in transaction volume since its launch! That's some serious adoption!",
+      "Base supports all Ethereum tools and wallets out of the box with zero modifications! Developers can deploy their existing Solidity smart contracts directly.",
+      "Base blocks are produced every 2 seconds, making transactions lightning fast! That's way faster than Ethereum's 12-15 second block times.",
+      "Base is open-source and community-driven, with contributions from developers worldwide! The code is publicly available on GitHub for anyone to review.",
+      "Base has attracted major projects like OpenSea, Aave, and Curve to its ecosystem! These leading protocols chose Base for its security and low fees.",
+      "Base's bridge supports instant withdrawals for ETH and stablecoins! You can move your assets back to Ethereum almost instantly, without the typical waiting period.",
+      "Here's something interesting: Base was designed to be a 'superchain' compatible network, meaning it can interoperate with other OP Stack chains!",
+      "Did you know that Base has a 'superchain' token bridge that allows for trustless transfers between all OP Stack chains?",
+      "Fun tidbit: Base's sequencer is currently centralized but will be decentralized over time as part of their progressive decentralization plan.",
+      "Cool fact: Base is one of the few Layer 2 solutions that offers instant withdrawals for ETH and stablecoins, while others require a 7-day waiting period.",
+      "Here's a neat detail: Base's development is heavily influenced by the Optimism Collective, which focuses on sustainable and equitable growth."
     ];
     
     // Return a random DYK phrase
@@ -361,16 +357,21 @@ export default class BasePal extends WalkingNPC {
   private generateTipsAndTricks(): string {
     // Generate detailed "Tips & Tricks" content
     const tipsPhrases = [
-      "Use the official Base Bridge (base.org/bridge) to move assets between Ethereum and Base - it's trustless, secure, and officially supported by Coinbase! The bridge leverages Ethereum's security for asset transfers and offers instant withdrawals for ETH and major stablecoins.",
-      "Try Base with small amounts first to get familiar with the network before moving larger funds! Start by bridging a small amount of ETH or stablecoins, then try interacting with a simple dApp to get comfortable with the faster, cheaper transaction experience.",
-      "Check out Base's ecosystem at base.org to discover new dApps and projects! The ecosystem page showcases the latest and greatest projects building on Base, from DeFi protocols to NFT marketplaces to gaming applications.",
-      "Use Chainlist.org to easily add Base to your wallet with the correct network configuration! Simply search for 'Base' on Chainlist, then click 'Add to Wallet' to automatically configure your wallet with the correct RPC URL, chain ID, and other network parameters.",
-      "Base transactions are much cheaper than Ethereum - perfect for trying new dApps! With gas fees typically 50-100x lower than Ethereum mainnet, Base is ideal for experimenting with new protocols, playing blockchain games, or minting NFTs without worrying about high costs.",
-      "Keep an eye on Base's governance proposals if you want to participate in network decisions! While Base is currently centralized, it's moving toward decentralization through a progressive roadmap. Following the governance process allows you to stay informed about future changes and potentially participate in decision-making.",
-      "Base supports all your favorite Ethereum wallets like MetaMask, Coinbase Wallet, and Rainbow! Since Base is EVM-compatible, any wallet that works with Ethereum will work seamlessly with Base, making the transition effortless for existing Ethereum users.",
-      "Explore Base's developer documentation if you're interested in building on the network! The comprehensive docs at docs.base.org provide everything you need to get started building, from quick start guides to detailed API references and best practices for Base-specific features.",
-      "Use Dune Analytics to track Base network metrics and trends! Dune dashboards provide insights into Base's growth, user activity, transaction volume, and ecosystem development, helping you stay informed about the network's progress and opportunities.",
-      "Join Base's Discord and Twitter communities to stay updated on the latest developments! These communities are great places to get help, share feedback, learn about new projects, and connect with other Base users and developers building the future of Ethereum scaling."
+      "Pro tip: Use the official Base Bridge (base.org/bridge) to move assets between Ethereum and Base - it's trustless, secure, and officially supported!",
+      "Here's a helpful tip: Try Base with small amounts first to get familiar with the network before moving larger funds!",
+      "Check out Base's ecosystem at base.org to discover new dApps and projects! There's always something exciting happening there.",
+      "Quick tip: Use Chainlist.org to easily add Base to your wallet with the correct network configuration!",
+      "Base transactions are much cheaper than Ethereum - perfect for trying new dApps! Gas fees are typically 50-100x lower.",
+      "Keep an eye on Base's governance proposals if you want to participate in network decisions! It's moving toward decentralization.",
+      "Base supports all your favorite Ethereum wallets like MetaMask, Coinbase Wallet, and Rainbow! The transition is effortless.",
+      "Explore Base's developer documentation if you're interested in building on the network! The docs at docs.base.org are really comprehensive.",
+      "Use Dune Analytics to track Base network metrics and trends! It's a great way to stay informed about the network's progress.",
+      "Join Base's Discord and Twitter communities to stay updated on the latest developments! Great places to get help and connect with other users.",
+      "Want to save even more on gas fees? Try using a gas fee tracker to deploy your contracts when fees are lowest!",
+      "When bridging assets, always use the official Base Bridge for maximum security - avoid third-party bridges when possible.",
+      "If you're a developer, check out the Base Builder Kit which provides templates and tools to get your project started quickly.",
+      "For NFT enthusiasts, Base has some amazing marketplaces with significantly lower minting costs than Ethereum mainnet.",
+      "Remember to bookmark the Base status page (status.base.org) to check for any network issues or maintenance."
     ];
     
     // Return a random tips phrase
@@ -381,7 +382,7 @@ export default class BasePal extends WalkingNPC {
     const dialogData: OptimizedRewardDialogData = {
       npcName: "BasePal",
       npcAvatar: "npc_basepal_avatar",
-      rewardMessage: "📚 Oops! I'm still preparing my lecture notes about Base Chain. Please come back later!",
+      rewardMessage: "📚 Oops! I'm still preparing my lecture notes about Base Chain. Come back soon and I'll have something awesome to share with you!",
       rewardAmount: 0
     };
 
@@ -392,10 +393,15 @@ export default class BasePal extends WalkingNPC {
     const remainingTime = this.lectureCooldown - (Date.now() - this.lastLectureTime);
     const seconds = Math.ceil(remainingTime / 1000);
     
+    // Get a random cooldown message from personality config
+    const cooldownTemplates = this.personality.cooldownMessageTemplates;
+    const template = Phaser.Utils.Array.GetRandom(cooldownTemplates);
+    const message = template.replace("{time}", `${seconds} seconds`);
+    
     const dialogData: OptimizedRewardDialogData = {
       npcName: "BasePal",
       npcAvatar: "npc_basepal_avatar",
-      rewardMessage: `⏳ I just gave a lecture! Please wait ${seconds} seconds before the next one.`,
+      rewardMessage: message,
       rewardAmount: 0
     };
 
@@ -447,12 +453,7 @@ export default class BasePal extends WalkingNPC {
   }
 
   private startShouting(scene: Phaser.Scene) {
-    const shoutMessages = [
-      "Learn about Base Chain with me! 📚",
-      "Want to know about Layer 2 scaling? Click me! 🚀",
-      "Base Chain lectures available here! 🎓",
-      "Earn $Niftdoods for learning about Base! 💰"
-    ];
+    const shoutMessages = this.personality.shoutMessageTemplates;
 
     scene.time.addEvent({
       delay: Phaser.Math.Between(8000, 15000),

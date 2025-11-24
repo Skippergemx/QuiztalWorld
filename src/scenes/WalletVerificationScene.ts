@@ -1148,8 +1148,15 @@ export default class WalletVerificationScene extends Phaser.Scene {
             wordWrap: { width: width - 20 }
         }).setOrigin(0.5);
 
+        // Determine collection name based on contract address
+        let collectionName = '';
+        if (nft.collectionType === 'erc1155') {
+          // Niftdood NFTs
+          collectionName = ' • Niftdood';
+        }
+        
         const id = this.add.text(0, height/4 + 30, 
-            `#${nft.tokenId}${nft.collectionType === 'erc1155' ? ' • Gemante' : ''}`, {
+            `#${nft.tokenId}${collectionName}`, {
             fontSize: width < 200 ? '12px' : '14px',
             color: '#3498db',
             align: 'center'

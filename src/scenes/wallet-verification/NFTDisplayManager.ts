@@ -327,7 +327,19 @@ export class NFTDisplayManager implements INFTDisplayManager {
         }).setOrigin(0.5);
 
         // NFT ID and collection info with proper containment
-        const idText = `#${nft.tokenId}${nft.collectionType === 'erc1155' ? ' • Gemante' : ''}`;
+        // Determine collection name based on address
+        let collectionName = '';
+        if (nft.collectionType === 'erc1155') {
+          // Check specific collection by contract address
+          if (nft.contractAddress?.toLowerCase() === '0xAf09f5FD0eff57cF560e680dbf25dA85E8a5795C'.toLowerCase()) {
+            // Niftdood NFTs
+            collectionName = ' • Niftdood';
+          } else if (nft.contractAddress?.toLowerCase() === '0x9C72E49d9E2DfdFE2224E8a2530F0D30174b7758'.toLowerCase()) {
+            // New NFT Collection
+            collectionName = ' • New Collection';
+          }
+        }
+        const idText = `#${nft.tokenId}${collectionName}`;
         const id = this.scene.add.text(0, idY, idText, {
             fontSize: dimensions.width < 200 ? '12px' : '14px',
             color: '#3498db',

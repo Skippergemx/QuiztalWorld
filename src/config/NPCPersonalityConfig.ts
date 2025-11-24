@@ -405,5 +405,52 @@ export const NPC_PERSONALITY_CONFIG: Record<string, NPCPersonality> = {
       "🔐 Time for a security audit! I'll return in {time} with fresh insights about protecting your assets. While you wait, see what other security experts in Niftdood World have to teach you! 🛡️🧠",
       "🔍 I'm currently researching the latest exploit methods! Please return in {time} for your next security lesson. There are other vigilant NPCs in Niftdood World who might share their protective knowledge! 🛡️📚"
     ]
+  },
+  "npc_basepal": {
+    name: "BasePal",
+    emoji: "🎓",
+    color: "#2196F3",
+    languageStyle: "wise",
+    rewardThemes: ["Base Builder", "Layer 2 Legend", "Scaling Sage", "Ethereum Expert", "OP Stack Master"],
+    mistakeDescriptions: [
+      "Even experts were beginners once! Keep learning! 📚",
+      "Mistakes are just learning opportunities in disguise! 🎯",
+      "Every wrong answer brings you closer to the right one! 🧭",
+      "Don't worry, even the best developers debug their code! 🐛",
+      "Learning is a journey, not a destination! 🚀"
+    ],
+    tipDescriptions: [
+      "Stay curious and keep exploring new technologies! 🔍",
+      "Practice makes perfect in the world of blockchain too! 💪",
+      "Connect with the Base community to learn from others! 🌐",
+      "Build small projects to reinforce your learning! 🛠️",
+      "Read the official documentation for the latest updates! 📖"
+    ],
+    wrongAnswerPrefixes: [
+      "🤔 Not quite right! Let's explore this concept together! 📚",
+      "🧩 Almost! But there's more to learn about this topic! 🔍",
+      "🔄 Let's review the basics and try again! 📖",
+      "🧭 You're on the right path, but not quite there yet! 🎯",
+      "💡 That's not it, but I'm sure you'll get it with a bit more study! ✨"
+    ],
+    correctAnswerPrefixes: [
+      "🎉 Excellent! You're mastering Base Chain concepts worth",
+      "🚀 Impressive knowledge! Your understanding earned you",
+      "🧠 Smart thinking! You've grasped the concept and earned",
+      "🏆 Well done! Your Base expertise is worth",
+      "✨ Perfect! You've unlocked Base Chain wisdom worth"
+    ],
+    shoutMessageTemplates: [
+      "Ready to dive deep into Base Chain? I've got some cool insights! 🎓✨",
+      "Want to learn about Layer 2 scaling? I make it fun and easy! 📚🚀",
+      "Base Chain knowledge is power! Let me share some with you! ⚡🧠",
+      "Click me to earn $Niftdoods while learning about Base! 💰🎓",
+      "Feeling curious about Ethereum scaling? Let's explore together! 🔍⚡"
+    ],
+    cooldownMessageTemplates: [
+      "🎓 Hey there! I'm taking a short break to research the latest Base Chain updates! Please come back in {time}. In the meantime, why not visit other NPCs around the map? They might have lessons for you too! 🌍✨",
+      "📚 Time for more research! I'll return in {time} with fresh insights about Base. While you wait, explore what other knowledgeable NPCs in Niftdood World have to teach you! 🔍🧠",
+      "🧭 I'm currently studying new Base Chain developments! Please return in {time} for your next lesson. There are other experts in Niftdood World who might share their knowledge! 🌟📖"
+    ]
   }
 };

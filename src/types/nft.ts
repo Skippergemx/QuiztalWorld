@@ -4,6 +4,7 @@ export interface NFTData {
   name: string;
   description: string;
   collectionType: 'erc721' | 'erc1155';
+  contractAddress?: string; // Add contract address to identify the collection
   attributes?: NFTAttribute[];
   externalUrl?: string;
   backgroundColor?: string;
@@ -38,6 +39,8 @@ export interface NFTCollectionConfig {
   type: 'erc721' | 'erc1155';
   name: string;
   tokenIds?: number[]; // For collections with specific token IDs
+  discoveryMethod?: 'range-check' | 'event-scan' | 'api-lookup'; // Method for discovering token IDs
+  discoveryRange?: number[]; // Range of token IDs to check for range-check method
 }
 
 export interface NFTFetchOptions {

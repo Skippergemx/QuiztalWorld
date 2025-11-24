@@ -2,25 +2,7 @@ import Phaser from 'phaser';
 import { NFTData } from '../types/nft';
 import { loadNFTsFromDatabase } from '../utils/Database';
 import { OptimizedNFTService } from '../services/OptimizedNFTService';
-
-// Define the inventory item structure
-export interface InventoryItem {
-    id: string;
-    name: string;
-    description: string;
-    quantity: number;
-    type: 'consumable' | 'material' | 'key';
-    rarity: 'common' | 'rare' | 'epic' | 'legendary';
-    icon: string;
-    // Add usage function for consumables
-    use?: () => void;
-}
-
-// Define the inventory data structure
-interface InventoryData {
-    items: InventoryItem[];
-    version: number;
-}
+import { ItemSystem } from '../systems/ItemSystem';
 
 interface TabContent {
     container: Phaser.GameObjects.Container;
@@ -35,9 +17,8 @@ export default class InventoryScene extends Phaser.Scene {
     private tooltipContainer?: Phaser.GameObjects.Container;
 
     // Replace mockItems with actual inventory
-    private inventoryItems: InventoryItem[] = [];
-    private inventoryKey: string = 'niftdood-inventory';
-
+    private itemSystem: ItemSystem;
+    
     // Update these properties in the class
     private currentPage: number = 0;
     private itemsPerPage: number = 5; // Reduced from 15 to 5 items per page
@@ -49,11 +30,20 @@ export default class InventoryScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'InventoryScene' });
+        this.itemSystem = new ItemSystem();
     }
 
     create() {
-        // Load inventory data
-        this.loadInventory();
+        // Load player ID and inventory data through ItemSystem
+        // Always refresh inventory when scene is created/opened
+        this.refreshInventory();
+        
+        // Subscribe to real-time inventory updates
+        this.itemSystem.setOnInventoryUpdateCallback(() => {
+          console.log('🔄 Inventory updated, refreshing UI');
+          this.updateInventoryDisplay();
+        });
+        this.itemSystem.subscribeToInventoryUpdates();
         
         // Detect mobile
         this.isMobile = this.game.device.os.android || 
@@ -74,288 +64,110 @@ export default class InventoryScene extends Phaser.Scene {
             this.input.keyboard?.addKey('I').on('down', () => this.closeInventory());
         }
     }
-
-    // Load inventory from localStorage
-    private loadInventory(): void {
-        try {
-            const inventoryString = localStorage.getItem(this.inventoryKey);
-            if (inventoryString) {
-                const inventoryData: InventoryData = JSON.parse(inventoryString);
-                this.inventoryItems = inventoryData.items;
-                console.log('Loaded inventory with', this.inventoryItems.length, 'items');
-            } else {
-                // Initialize with empty inventory
-                this.inventoryItems = [];
-                this.saveInventory();
-            }
-        } catch (error) {
-            console.error('Error loading inventory:', error);
-            this.inventoryItems = [];
+    
+    // Update inventory display when data changes
+    private updateInventoryDisplay(): void {
+      // Refresh the current tab content
+      if (this.activeTab === 'items') {
+        // Remove existing items content if it exists
+        if (this.tabContents.items && this.tabContents.items.container) {
+          this.tabContents.items.container.destroy();
         }
+        // Create new items content
+        const itemsContent = this.createItemsContent();
+        this.tabContents.items = {
+          container: itemsContent,
+          isActive: true
+        };
+        this.inventoryWindow.add(itemsContent);
+      } else if (this.activeTab === 'nfts') {
+        // Remove existing NFTs content if it exists
+        if (this.tabContents.nfts && this.tabContents.nfts.container) {
+          this.tabContents.nfts.container.destroy();
+        }
+        // Create new NFTs content
+        this.createNFTsContent().then(nftsContent => {
+          this.tabContents.nfts = {
+            container: nftsContent,
+            isActive: true
+          };
+          this.inventoryWindow.add(nftsContent);
+        });
+      }
+      
+      // Update hotkey slots if they exist
+      try {
+        const uiScene = this.scene.get('UIScene') as any;
+        if (uiScene && uiScene.hotkeySlotManager) {
+          uiScene.hotkeySlotManager.updateAllSlotQuantities();
+        }
+      } catch (error) {
+        console.error('Error updating hotkey slots:', error);
+      }
     }
-
-    // Save inventory to localStorage
-    private saveInventory(): void {
+    
+    // Refresh inventory data from Firestore
+    private async refreshInventory(): Promise<void> {
         try {
-            const inventoryData: InventoryData = {
-                items: this.inventoryItems,
-                version: 1
-            };
-            localStorage.setItem(this.inventoryKey, JSON.stringify(inventoryData));
+            await this.itemSystem.loadInventory();
+            console.log('🔄 Inventory refreshed from Firestore');
         } catch (error) {
-            console.error('Error saving inventory:', error);
+            console.error('❌ Error refreshing inventory:', error);
         }
     }
 
     // Add an item to the inventory
-    public addItem(itemId: string, quantity: number = 1): void {
-        console.log('Adding item to inventory:', itemId, quantity);
+    public async addItem(itemId: string, quantity: number = 1): Promise<boolean> {
+        console.log('Adding item to inventory through ItemSystem:', itemId, quantity);
         
-        // Define item templates
-        const itemTemplates: { [key: string]: Omit<InventoryItem, 'quantity'> } = {
-            'health_crystal': {
-                id: 'health_crystal',
-                name: 'Health Crystal',
-                description: 'Restores 50 HP when used',
-                type: 'consumable',
-                rarity: 'common',
-                icon: '💖'
-            },
-            'mana_crystal': {
-                id: 'mana_crystal',
-                name: 'Mana Crystal',
-                description: 'Restores 30 MP when used',
-                type: 'consumable',
-                rarity: 'common',
-                icon: '💎'
-            },
-            'stamina_potion': {
-                id: 'stamina_potion',
-                name: 'Stamina Potion',
-                description: 'Restores 30 Stamina when used',
-                type: 'consumable',
-                rarity: 'common',
-                icon: '🔋'
-            },
-            'golden_key': {
-                id: 'golden_key',
-                name: 'Golden Key',
-                description: 'Opens special chests',
-                type: 'key',
-                rarity: 'rare',
-                icon: '🔑'
-            },
-            'dragon_scale': {
-                id: 'dragon_scale',
-                name: 'Dragon Scale',
-                description: 'A rare crafting material',
-                type: 'material',
-                rarity: 'epic',
-                icon: '🐉'
-            },
-            'phoenix_feather': {
-                id: 'phoenix_feather',
-                name: 'Phoenix Feather',
-                description: 'A legendary crafting material',
-                type: 'material',
-                rarity: 'legendary',
-                icon: '🔥'
-            },
-            'speed_potion': {
-                id: 'speed_potion',
-                name: 'Speed Potion',
-                description: 'Increases movement speed',
-                type: 'consumable',
-                rarity: 'rare',
-                icon: '⚡'
-            },
-            'mystic_orb': {
-                id: 'mystic_orb',
-                name: 'Mystic Orb',
-                description: 'Contains mysterious power',
-                type: 'material',
-                rarity: 'epic',
-                icon: '🔮'
-            },
-            'dungeon_key': {
-                id: 'dungeon_key',
-                name: 'Dungeon Key',
-                description: 'Opens dungeon doors',
-                type: 'key',
-                rarity: 'rare',
-                icon: '🗝️'
-            }
-        };
-
-        // Check if item exists in templates
-        const template = itemTemplates[itemId];
-        if (!template) {
-            console.warn('Unknown item ID:', itemId);
-            return;
-        }
-
-        // Check if item already exists in inventory
-        const existingItem = this.inventoryItems.find(item => item.id === itemId);
-        const previousQuantity = existingItem ? existingItem.quantity : 0;
-        if (existingItem) {
-            existingItem.quantity += quantity;
-            console.log('Updated existing item quantity:', existingItem.quantity);
-        } else {
-            // Add new item to inventory
-            this.inventoryItems.push({
-                ...template,
-                quantity: quantity
-            });
-            console.log('Added new item to inventory');
-        }
-
-        // Save inventory
-        this.saveInventory();
-        console.log('Added', quantity, 'of', itemId, 'to inventory. New total:', this.getItemCount(itemId));
+        // Use the new ItemSystem
+        const result = await this.itemSystem.addItem(itemId, quantity);
         
-        // Check if this item should be auto-reassigned to any hotkey slot
-        try {
-            const uiScene = this.scene.get('UIScene') as any;
-            console.log('UIScene reference:', uiScene);
-            if (uiScene && uiScene.hotkeySlotManager) {
-                // If the item was previously at zero quantity, force update the slots
-                if (previousQuantity === 0) {
-                    console.log('Item was previously at zero, forcing slot update');
-                    uiScene.hotkeySlotManager.forceUpdateSlotsForItem(itemId);
+        if (result) {
+            console.log('Item added to inventory:', itemId, quantity);
+            
+            // Check if this item should be auto-reassigned to any hotkey slot
+            try {
+                const uiScene = this.scene.get('UIScene') as any;
+                console.log('UIScene reference:', uiScene);
+                if (uiScene && uiScene.hotkeySlotManager) {
+                    // If the item was previously at zero quantity, force update the slots
+                    if (this.itemSystem.getItemCount(itemId) === quantity) {
+                        console.log('Item was previously at zero, forcing slot update');
+                        uiScene.hotkeySlotManager.forceUpdateSlotsForItem(itemId); // Remove 'this' parameter
+                    } else {
+                        console.log('Calling checkAutoReassignItem for:', itemId);
+                        uiScene.hotkeySlotManager.checkAutoReassignItem(itemId); // Remove 'this' parameter
+                    }
                 } else {
-                    console.log('Calling checkAutoReassignItem for:', itemId);
-                    uiScene.hotkeySlotManager.checkAutoReassignItem(itemId);
+                    console.log('UIScene or hotkeySlotManager not available for auto-reassign');
                 }
-            } else {
-                console.log('UIScene or hotkeySlotManager not available for auto-reassign');
+            } catch (error) {
+                console.error('Error during auto-reassign check:', error);
             }
-        } catch (error) {
-            console.error('Error during auto-reassign check:', error);
         }
+        
+        return result;
     }
 
     // Remove an item from the inventory
-    public removeItem(itemId: string, quantity: number = 1): boolean {
-        const itemIndex = this.inventoryItems.findIndex(item => item.id === itemId);
-        if (itemIndex === -1) {
-            return false;
-        }
+    public async removeItem(itemId: string, quantity: number = 1): Promise<boolean> {
+        return await this.itemSystem.removeItem(itemId, quantity);
+    }
 
-        const item = this.inventoryItems[itemIndex];
-        if (item.quantity <= quantity) {
-            // Remove entire item
-            this.inventoryItems.splice(itemIndex, 1);
-        } else {
-            // Reduce quantity
-            item.quantity -= quantity;
-        }
-
-        // Save inventory
-        this.saveInventory();
-        console.log('Removed', quantity, 'of', itemId, 'from inventory');
-        return true;
+    // Use an item (for consumables)
+    public async useItem(itemId: string): Promise<boolean> {
+        return await this.itemSystem.useItem(itemId);
     }
 
     // Get item count
     public getItemCount(itemId: string): number {
-        const item = this.inventoryItems.find(item => item.id === itemId);
-        return item ? item.quantity : 0;
+        return this.itemSystem.getItemCount(itemId);
     }
 
-    // Use an item (for consumables)
-    public useItem(itemId: string): boolean {
-        const item = this.inventoryItems.find(item => item.id === itemId);
-        if (!item || item.type !== 'consumable' || item.quantity <= 0) {
-            return false;
-        }
-
-        // Apply item effect based on item type
-        let playerManager = null;
-        
-        // Try to get player manager through window object (most reliable when GameScene is paused)
-        if (typeof window !== 'undefined') {
-            // Try gameScene first (GameScene)
-            if ((window as any).gameScene && (window as any).gameScene.playerManager) {
-                playerManager = (window as any).gameScene.playerManager;
-            } 
-            // Try explorationScene (ExplorationScene)
-            else if ((window as any).explorationScene && (window as any).explorationScene.playerManager) {
-                playerManager = (window as any).explorationScene.playerManager;
-            }
-        }
-        
-        // Fallback to direct scene access
-        if (!playerManager) {
-            try {
-                // Try to get from GameScene first
-                const gameScene = this.scene.get('GameScene');
-                if (gameScene && (gameScene as any).playerManager) {
-                    playerManager = (gameScene as any).playerManager;
-                }
-            } catch (e) {
-                // If that fails, try ExplorationScene
-                try {
-                    const explorationScene = this.scene.get('ExplorationScene');
-                    if (explorationScene && (explorationScene as any).playerManager) {
-                        playerManager = (explorationScene as any).playerManager;
-                    }
-                } catch (e2) {
-                    console.error('Error accessing GameScene or ExplorationScene:', e, e2);
-                }
-            }
-        }
-        
-        // Check if we have access to player manager
-        if (!playerManager) {
-            console.error('Could not access PlayerManager');
-            return false;
-        }
-
-        // Apply effect based on item type
-        switch (item.id) {
-            case 'health_crystal':
-                if (typeof playerManager.heal === 'function') {
-                    playerManager.heal(50);
-                    console.log('Player healed by 50 HP using Health Crystal');
-                }
-                break;
-                
-            case 'stamina_potion':
-                if (typeof playerManager.restoreStamina === 'function') {
-                    playerManager.restoreStamina(30);
-                    console.log('Player stamina restored by 30 points using Stamina Potion');
-                }
-                break;
-                
-            case 'speed_potion':
-                if (typeof playerManager.activateSpeedBoost === 'function') {
-                    playerManager.activateSpeedBoost();
-                    console.log('Speed boost activated using Speed Potion');
-                }
-                break;
-                
-            case 'mana_crystal':
-                // Currently no mana system implemented, but placeholder for future
-                console.log('Mana Crystal used (no mana system implemented)');
-                break;
-                
-            default:
-                console.log('Unknown consumable item used:', item.id);
-                break;
-        }
-
-        // Remove one from inventory
-        this.removeItem(itemId, 1);
-        
-        // Update hotkey slot quantities
-        const uiScene = this.scene.get('UIScene') as any;
-        if (uiScene && uiScene.hotkeySlotManager) {
-            uiScene.hotkeySlotManager.updateAllSlotQuantities();
-        }
-        
-        // Reset page if needed
-        this.currentPage = 0;
-        return true;
+    // Get all inventory items
+    public getInventoryItems(): any[] {
+        return this.itemSystem.getInventoryItems();
     }
 
     private closeInventory(): void {
@@ -614,13 +426,16 @@ export default class InventoryScene extends Phaser.Scene {
         // Clear current items
         container.removeAll();
 
+        // Get inventory items from ItemSystem
+        const inventoryItems = this.getInventoryItems();
+
         // Calculate start and end indices for current page
         const startIndex = this.currentPage * this.itemsPerPage;
-        const endIndex = Math.min(startIndex + this.itemsPerPage, this.inventoryItems.length);
+        const endIndex = Math.min(startIndex + this.itemsPerPage, inventoryItems.length);
 
         // Create item slots for current page
         for (let i = startIndex; i < endIndex; i++) {
-            const item = this.inventoryItems[i];
+            const item = inventoryItems[i];
             const pageIndex = i - startIndex;
             const col = pageIndex % grid.columns;
             const row = Math.floor(pageIndex / grid.columns);
@@ -633,7 +448,7 @@ export default class InventoryScene extends Phaser.Scene {
         }
     }
 
-    private createItemSlot(x: number, y: number, item: InventoryItem): Phaser.GameObjects.Container {
+    private createItemSlot(x: number, y: number, item: any): Phaser.GameObjects.Container {
         const slot = this.add.container(x, y);
         const size = 90; // Match NFT card size
 
@@ -846,40 +661,61 @@ export default class InventoryScene extends Phaser.Scene {
         return colors[rarity as keyof typeof colors];
     }
 
-    private showItemTooltip(item: InventoryItem, x: number, y: number): void {
-        // Hide any existing tooltip
-        this.hideItemTooltip();
+    private showItemTooltip(item: any, x: number, y: number): void {
+        // If there's already a tooltip, destroy it
+        if (this.tooltipContainer) {
+            this.tooltipContainer.destroy();
+        }
 
         // Create tooltip container
-        const tooltip = this.add.container(x + 75, y);
+        this.tooltipContainer = this.add.container(x, y - 120).setDepth(1002);
 
         // Tooltip background
-        const bg = this.add.rectangle(0, 0, 200, 120, 0x000000, 0.8)
+        const tooltipWidth = 200;
+        const tooltipHeight = 120;
+        const bg = this.add.rectangle(0, 0, tooltipWidth, tooltipHeight, 0x1a1a1a, 0.9)
             .setStrokeStyle(1, 0x3498db);
+        this.tooltipContainer.add(bg);
 
-        // Item info - reduce all font sizes by 50%
-        const name = this.add.text(-90, -50, item.name, {
-            fontSize: '10px',    // Increased by 25%
+        // Item name
+        const name = this.add.text(0, -40, item.name, {
+            fontSize: '14px',
             color: '#ffffff',
             fontStyle: 'bold'
-        });
+        }).setOrigin(0.5);
+        this.tooltipContainer.add(name);
 
-        const rarity = this.add.text(-90, -30, item.rarity.toUpperCase(), {
-            fontSize: '8px',     // Increased by 25%
+        // Item description
+        const description = this.add.text(0, -15, item.description, {
+            fontSize: '10px',
+            color: '#bbbbbb',
+            align: 'center',
+            wordWrap: { width: tooltipWidth - 20 }
+        }).setOrigin(0.5);
+        this.tooltipContainer.add(description);
+
+        // Rarity and type
+        const rarityText = this.add.text(-tooltipWidth/2 + 10, 25, `Rarity: ${item.rarity}`, {
+            fontSize: '10px',
             color: this.getRarityColor(item.rarity)
         });
+        this.tooltipContainer.add(rarityText);
 
-        const description = this.add.text(-90, -10, item.description, {
-            fontSize: '8px',     // Increased by 25%
-            color: '#ffffff',
-            wordWrap: { width: 180 }
+        const typeText = this.add.text(-tooltipWidth/2 + 10, 40, `Type: ${item.type}`, {
+            fontSize: '10px',
+            color: '#ffffff'
         });
+        this.tooltipContainer.add(typeText);
 
-        tooltip.add([bg, name, rarity, description]);
-        tooltip.setDepth(2000);
+        // Quantity
+        const quantityText = this.add.text(tooltipWidth/2 - 10, 25, `Quantity: ${item.quantity}`, {
+            fontSize: '10px',
+            color: '#2ecc71'
+        }).setOrigin(1, 0);
+        this.tooltipContainer.add(quantityText);
 
-        // Store reference to hide later
-        this.tooltipContainer = tooltip;
+        // Add to scene
+        this.inventoryWindow.add(this.tooltipContainer);
     }
 
     private hideItemTooltip(): void {
@@ -1028,9 +864,25 @@ export default class InventoryScene extends Phaser.Scene {
         });
 
         // Card background with distinct colors per collection
-        const bg = this.add.rectangle(0, 0, size, size, 
-            nft.collectionType === 'erc1155' ? 0x8e44ad : 0x2c3e50 // Purple for Gemante, Dark blue for CrysteGuard
-        ).setStrokeStyle(2, nft.collectionType === 'erc1155' ? 0x9b59b6 : 0x3498db);
+        // Determine colors based on contract address
+        let backgroundColor = 0x2c3e50; // Default to CrysteGuard (dark blue)
+        let strokeColor = 0x3498db; // Default to CrysteGuard stroke color
+        
+        if (nft.collectionType === 'erc1155') {
+          // Check specific collection by contract address
+          if (nft.contractAddress?.toLowerCase() === '0xAf09f5FD0eff57cF560e680dbf25dA85E8a5795C'.toLowerCase()) {
+            // Niftdood NFTs
+            backgroundColor = 0x3498db; // Blue for Niftdood
+            strokeColor = 0x2980b9; // Niftdood stroke color
+          } else if (nft.contractAddress?.toLowerCase() === '0x9C72E49d9E2DfdFE2224E8a2530F0D30174b7758'.toLowerCase()) {
+            // New NFT Collection
+            backgroundColor = 0x9b59b6; // New collection color
+            strokeColor = 0x8e44ad; // New collection stroke color
+          }
+        }
+        
+        const bg = this.add.rectangle(0, 0, size, size, backgroundColor)
+            .setStrokeStyle(2, strokeColor);
 
         // Loading text - reduce from 12px to 6px
         const loadingText = this.add.text(0, 0, 'Loading...', {
@@ -1079,12 +931,29 @@ export default class InventoryScene extends Phaser.Scene {
         });
 
         // Make card interactive with collection-specific hover effects
+        // Determine hover colors based on contract address
+        let hoverColor = 0x2ecc71; // Default to CrysteGuard hover color
+        let defaultStrokeColor = 0x3498db; // Default to CrysteGuard stroke color
+        
+        if (nft.collectionType === 'erc1155') {
+          // Check specific collection by contract address
+          if (nft.contractAddress?.toLowerCase() === '0xAf09f5FD0eff57cF560e680dbf25dA85E8a5795C'.toLowerCase()) {
+            // Niftdood NFTs
+            hoverColor = 0xf1c40f; // Yellow for Niftdood hover
+            defaultStrokeColor = 0x2980b9; // Niftdood default stroke
+          } else if (nft.contractAddress?.toLowerCase() === '0x9C72E49d9E2DfdFE2224E8a2530F0D30174b7758'.toLowerCase()) {
+            // New NFT Collection
+            hoverColor = 0xe74c3c; // Red for new collection hover
+            defaultStrokeColor = 0x8e44ad; // New collection default stroke
+          }
+        }
+        
         bg.setInteractive({ useHandCursor: true })
             .on('pointerover', () => {
-                bg.setStrokeStyle(2, nft.collectionType === 'erc1155' ? 0xffd700 : 0x2ecc71);
+                bg.setStrokeStyle(2, hoverColor);
             })
             .on('pointerout', () => {
-                bg.setStrokeStyle(2, nft.collectionType === 'erc1155' ? 0x9b59b6 : 0x3498db);
+                bg.setStrokeStyle(2, defaultStrokeColor);
             })
             .on('pointerdown', () => {
                 console.log('NFT clicked:', {
@@ -1108,12 +977,28 @@ export default class InventoryScene extends Phaser.Scene {
         image.setScale(scale);
 
         // Add collection-specific badge with distinct styling
-        const badge = this.add.text(-35, -35, 
-            nft.collectionType === 'erc1155' ? '💎' : '🛡️', 
+        // Determine badge properties based on contract address
+        let badgeText = '🛡️'; // Default to CrysteGuard
+        let badgeShadowColor = '#2c3e50'; // Default to CrysteGuard shadow color
+        
+        if (nft.collectionType === 'erc1155') {
+          // Check specific collection by contract address
+          if (nft.contractAddress?.toLowerCase() === '0xAf09f5FD0eff57cF560e680dbf25dA85E8a5795C'.toLowerCase()) {
+            // Niftdood NFTs
+            badgeText = '🔮'; // Niftdood badge
+            badgeShadowColor = '#3498db'; // Niftdood shadow color
+          } else if (nft.contractAddress?.toLowerCase() === '0x9C72E49d9E2DfdFE2224E8a2530F0D30174b7758'.toLowerCase()) {
+            // New NFT Collection
+            badgeText = '💎'; // New collection badge
+            badgeShadowColor = '#9b59b6'; // New collection shadow color
+          }
+        }
+        
+        const badge = this.add.text(-35, -35, badgeText, 
             { 
                 fontSize: '7px', // Reduced from 14px
                 shadow: {
-                    color: nft.collectionType === 'erc1155' ? '#8e44ad' : '#2c3e50',
+                    color: badgeShadowColor,
                     blur: 2,
                     fill: true
                 }
@@ -1121,12 +1006,28 @@ export default class InventoryScene extends Phaser.Scene {
         );
 
         // Add collection type text - reduce from 10px to 5px
-        const typeText = this.add.text(0, 35, 
-            nft.collectionType === 'erc1155' ? 'Gemante' : 'CrysteGuard',
+        // Determine collection name based on contract address
+        let collectionName = 'CrysteGuard';
+        let backgroundColor = '#2c3e50';
+        
+        if (nft.collectionType === 'erc1155') {
+          // Check specific collection by contract address
+          if (nft.contractAddress?.toLowerCase() === '0xAf09f5FD0eff57cF560e680dbf25dA85E8a5795C'.toLowerCase()) {
+            // Niftdood NFTs
+            collectionName = 'Niftdood';
+            backgroundColor = '#3498db';
+          } else if (nft.contractAddress?.toLowerCase() === '0x9C72E49d9E2DfdFE2224E8a2530F0D30174b7758'.toLowerCase()) {
+            // New NFT Collection
+            collectionName = 'New Collection';
+            backgroundColor = '#9b59b6';
+          }
+        }
+        
+        const typeText = this.add.text(0, 35, collectionName,
             {
                 fontSize: '5px', // Reduced from 10px
                 color: '#ffffff',
-                backgroundColor: nft.collectionType === 'erc1155' ? '#8e44ad' : '#2c3e50',
+                backgroundColor: backgroundColor,
                 padding: { x: 4, y: 2 }
             }
         ).setOrigin(0.5);
@@ -1159,8 +1060,9 @@ export default class InventoryScene extends Phaser.Scene {
         };
 
         // Add debug logging
-        console.log('Total inventory items:', this.inventoryItems.length);
-        const totalPages = Math.ceil(this.inventoryItems.length / this.itemsPerPage);
+        const inventoryItems = this.getInventoryItems();
+        console.log('Total inventory items:', inventoryItems.length);
+        const totalPages = Math.ceil(inventoryItems.length / this.itemsPerPage);
         console.log('Total pages:', totalPages);
         console.log('Current page:', this.currentPage);
 
@@ -1198,5 +1100,11 @@ export default class InventoryScene extends Phaser.Scene {
         this.updateItemsPage(itemsContainer, grid);
         container.add([contentBg, itemsContainer, prevButton, nextButton, pageText]);
         return container;
+    }
+
+    // Clean up subscriptions when scene is stopped
+    shutdown() {
+      // Unsubscribe from real-time inventory updates
+      this.itemSystem.unsubscribeFromInventoryUpdates();
     }
 }

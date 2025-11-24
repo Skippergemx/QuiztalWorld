@@ -128,6 +128,9 @@ private setupEventListeners() {
       } else {
         this.networkStatusContainer.setVisible(true);
         this.showingOnlineConfirmation = false;
+        
+        // Show a more prominent offline message
+        this.showOfflineMessage();
       }
     }
   }
@@ -158,6 +161,44 @@ private setupEventListeners() {
 
     // Initially hide the container
     this.networkStatusContainer.setVisible(false);
+  }
+  
+  private showOfflineMessage(): void {
+    // Create a more prominent offline message
+    const centerX = this.scene.cameras.main.centerX;
+    const centerY = this.scene.cameras.main.centerY;
+    
+    // Create container for offline message
+    const offlineContainer = this.scene.add.container(centerX, centerY - 100);
+    
+    // Background
+    const bg = this.scene.add.graphics();
+    bg.fillStyle(0x000000, 0.8);
+    bg.fillRoundedRect(-200, -50, 400, 100, 10);
+    bg.lineStyle(3, 0xff0000, 1);
+    bg.strokeRoundedRect(-200, -50, 400, 100, 10);
+    
+    // Title
+    const title = this.scene.add.text(0, -20, 'NO INTERNET CONNECTION', {
+      fontSize: '20px',
+      color: '#ff0000',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+    
+    // Message
+    const message = this.scene.add.text(0, 10, 'Some features may be limited', {
+      fontSize: '14px',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    
+    offlineContainer.add([bg, title, message]);
+    
+    // Auto-remove after 5 seconds
+    this.scene.time.delayedCall(5000, () => {
+      if (offlineContainer.active) {
+        offlineContainer.destroy();
+      }
+    });
   }
   
 public getIsOnline(): boolean {
@@ -201,16 +242,17 @@ public destroy() {
     window.removeEventListener('offline', this.offlineHandler);
   }
   
+  // Clear callbacks
+  this.networkStatusChangeCallbacks = [];
+  
   // Destroy UI elements
   if (this.networkStatusContainer) {
     this.networkStatusContainer.destroy();
     this.networkStatusContainer = null;
   }
   
-  // Clear callbacks
-  this.networkStatusChangeCallbacks = [];
+  this.networkStatusText = null;
   
-  // Clear instance reference
   NetworkMonitor.instance = null as any;
 }
 }

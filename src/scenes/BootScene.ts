@@ -119,6 +119,18 @@ export default class BootScene extends Phaser.Scene {
         });
         this.load.on('filecomplete-spritesheet-moblin_idle', updateProgress);
         this.load.on('filecomplete-spritesheet-moblin_walk', updateProgress);
+        
+        // ✅ Load Spmech pet spritesheets (idle and walk)
+        this.load.spritesheet("spmech01_idle", "assets/pets/spmech01_idle.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.spritesheet("spmech01_walk", "assets/pets/spmech01_walk.png", {
+            frameWidth: 32,
+            frameHeight: 53,
+        });
+        this.load.on('filecomplete-spritesheet-spmech01_idle', updateProgress);
+        this.load.on('filecomplete-spritesheet-spmech01_walk', updateProgress);
 
         // ✅ Load Monster spritesheets (idle and walk)
         this.load.spritesheet("mobster_idle", "assets/monsters/mobster_idle.png", {

@@ -52,7 +52,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '',
           '🎯 Complete challenges, explore the world, and level up your character!',
           '',
-          '💎 Collect Gemante NFTs to boost your abilities and unlock special areas.',
+          '🔮 Collect Niftdood NFTs to boost your abilities and unlock special areas.',
           '',
           'Use the navigation buttons below or arrow keys to explore this guide!'
         ]
@@ -87,7 +87,7 @@ export default class GuideBookScene extends Phaser.Scene {
           'Learn about the various NPCs and their specialties:',
           '',
           '🧑‍🏫 MR. GEMX - Niftdood Metaverse Guide',
-          '• Explains the Niftdood Metaverse and Gemante NFTs',
+          '• Explains the Niftdood Metaverse and Niftdood NFTs',
           '• Perfect starting point for new players',
           '',
           '👩‍🎨 NFT CYN - NFT & Blockchain Expert',
@@ -127,8 +127,8 @@ export default class GuideBookScene extends Phaser.Scene {
           '• Connect your wallet for blockchain transactions',
           '• Tokens are stored securely in your wallet',
           '',
-          '⚡ GEMANTE NFT BOOSTS:',
-          '• Gemante NFTs provide multiplier effects',
+          '⚡ NIFTDOOD NFT BOOSTS:',
+          '• Niftdood NFTs provide multiplier effects',
           '• Increase quiz rewards and unlock special areas',
           '• Collect different types for various boosts'
         ]
@@ -147,7 +147,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '',
           '📦 ITEM CATEGORIES:',
           '• Niftdood Tokens - Your earned currency',
-          '• Gemante NFTs - Boost items and collectibles',
+          '• Niftdood NFTs - Boost items and collectibles',
           '• Special Items - Unlocked through exploration',
           '• Achievement Badges - Progress markers',
           '',
@@ -159,37 +159,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '💡 TIP: Regularly check your inventory to see new items!'
         ]
       },
-      {
-        id: 'gemante',
-        title: 'Gemante NFTs',
-        emoji: '💎',
-        content: [
-          'Discover the power of Gemante NFTs:',
-          '',
-          '💎 WHAT ARE GEMANTE NFTS?',
-          '• ERC-1155 gemstone NFTs with special properties',
-          '• Act as powerful boosters in Niftdood World',
-          '• Each gem has unique effects and rarities',
-          '',
-          '⚡ BOOST EFFECTS:',
-          '• Increase quiz reward multipliers',
-          '• Unlock exclusive areas and content',
-          '• Enhance character abilities',
-          '• Stack effects with multiple gems',
-          '',
-          '🌟 RARITY LEVELS:',
-          '• Common - Basic boost effects',
-          '• Rare - Enhanced multipliers',
-          '• Epic - Special area access',
-          '• Legendary - Maximum boost potential',
-          '',
-          '🔄 ACQUIRING GEMANTE NFTS:',
-          '• Complete special challenges',
-          '• Participate in community events',
-          '• Trade with other players',
-          '• Purchase from the marketplace'
-        ]
-      },
+
       {
         id: 'tips',
         title: 'Pro Tips & Strategies',
@@ -211,7 +181,7 @@ export default class GuideBookScene extends Phaser.Scene {
           '',
           '💡 PROGRESSION ADVICE:',
           '• Start with easier NPCs to build confidence',
-          '• Collect a variety of Gemante NFTs for different boosts',
+          '• Collect a variety of Niftdood NFTs for different boosts',
           '• Track your session progress regularly',
           '• Set daily goals for Niftdood earnings',
           '',

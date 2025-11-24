@@ -8,6 +8,7 @@ import {
   NFTCacheEntry 
 } from '../types/nft';
 
+
 // Use imported types
 
 // Default configuration
@@ -121,9 +122,8 @@ export class OptimizedNFTService {
         return await this.fetchSpecificERC1155Tokens(address, contract, collection, options);
       }
 
-      // For collections where we need to discover token IDs
-      // This is more complex and may require indexer or event scanning
-      // For now, we'll return empty array as this is collection-specific
+      // If no token IDs are specified, return empty array
+      console.log(`No token IDs specified for ${collection.name}, returning empty array`);
       return [];
     } catch (error) {
       console.error('Error fetching ERC1155 NFTs:', error);
@@ -175,7 +175,8 @@ export class OptimizedNFTService {
             image: result.value.image,
             name: result.value.name,
             description: result.value.description,
-            collectionType: 'erc1155'
+            collectionType: 'erc1155',
+            contractAddress: collection.address
           });
         } else if (result.status === 'rejected') {
           console.warn(`Failed to fetch metadata for ERC1155 token ${ownedTokens[index].tokenId}:`, result.reason);
@@ -252,7 +253,8 @@ export class OptimizedNFTService {
             image: result.value.image,
             name: result.value.name,
             description: result.value.description,
-            collectionType: 'erc721'
+            collectionType: 'erc721',
+            contractAddress: collection.address
           });
         } else if (result.status === 'rejected') {
           console.warn(`Failed to fetch metadata for ERC721 token ${tokenIds[index]}:`, result.reason);

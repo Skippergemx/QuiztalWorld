@@ -3,10 +3,11 @@ import Web3Modal from 'web3modal';
 import { getFunctions, httpsCallable, HttpsCallableResult } from 'firebase/functions';
 import { app } from '../utils/firebase';
 import { NFTData } from '../types/nft';
+import { NFT_COLLECTIONS } from '../config/nftCollections';
 import { OptimizedNFTService } from './OptimizedNFTService';
+
 // For debugging purposes, you can switch to the debug version:
 // import { OptimizedNFTServiceDebug as OptimizedNFTService } from './OptimizedNFTService.debug';
-import { NFT_COLLECTIONS } from '../config/nftCollections';
 
 interface TokenClaimResponse {
     success: boolean;
@@ -21,14 +22,7 @@ export class Web3Service {
   private optimizedNFTService: OptimizedNFTService;
   
   private readonly BASE_MAINNET_ID = '0x2105';
-  // Replace with your actual NFT contract address
-  private readonly NFT_CONTRACT_ADDRESS = '0x927d34c13bfC41145763f7b12ceB6F93Ff3b3334';
-  private NFT_ABI = [
-    "function balanceOf(address owner) view returns (uint256)",
-    "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)", // Note: This can be inefficient for large balances
-    "function tokenURI(uint256 tokenId) view returns (string)",
-    "function ownerOf(uint256 tokenId) view returns (address)"
-  ];
+
   // Add ERC1155 contract info
   // private readonly GEMANTE_NFT_ADDRESS = '0xcb12994BCFeCdfa014e26C0b001FC4C2c29E2178';
   // private readonly GEMANTE_NFT_ABI = [
@@ -54,8 +48,8 @@ export class Web3Service {
   };
 
   // Update these properties to use environment variables
-    private readonly QUIZTAL_TOKEN_ADDRESS = import.meta.env.VITE_QUIZTAL_TOKEN_ADDRESS;
-  private readonly QUIZTAL_TOKEN_ABI = [
+  private readonly NDOOD_TOKEN_ADDRESS = import.meta.env.VITE_NDOOD_TOKEN_ADDRESS;
+  private readonly NDOOD_TOKEN_ABI = [
       "function transfer(address to, uint256 amount) returns (bool)",
       "function balanceOf(address account) view returns (uint256)",
       "function decimals() view returns (uint8)"
@@ -133,19 +127,50 @@ export class Web3Service {
       // Get user's address
       const address = await this.signer.getAddress();
       
-      // Create contract instance
-      const contract = new Contract(
-        this.NFT_CONTRACT_ADDRESS,
-        this.NFT_ABI,
-        this.provider
-      );
+      // Check ownership in all configured NFT collections
+      let hasNFT = false;
+      
+      for (const collectionConfig of NFT_COLLECTIONS) {
+        try {
+          // Create contract instance for this collection
+          const contract = new Contract(
+            collectionConfig.address,
+            collectionConfig.abi,
+            this.provider
+          );
 
-      // Check NFT balance
-      const balance: bigint = await contract.balanceOf(address);
-      console.log('NFT Balance:', balance.toString());
+          // Check if user owns any tokens from this collection
+          if (collectionConfig.tokenIds && collectionConfig.tokenIds.length > 0) {
+            // For collections with specific token IDs, check those
+            for (const tokenId of collectionConfig.tokenIds) {
+              const balance: bigint = await contract.balanceOf(address, tokenId);
+              console.log(`Collection ${collectionConfig.name} Token ID ${tokenId} balance: ${balance}`);
+              if (balance > 0n) {
+                hasNFT = true;
+                break;
+              }
+            }
+          } else {
+            // For collections without specific token IDs, we might need a different approach
+            // This would depend on the specific collection's structure
+            console.log(`Checking collection ${collectionConfig.name} without specific token IDs`);
+            // We could implement discovery methods here if needed
+          }
+          
+          // If we found NFTs in this collection, we can stop checking
+          if (hasNFT) {
+            break;
+          }
+        } catch (collectionError: any) {
+          console.warn(`Error checking collection ${collectionConfig.name}:`, collectionError);
+          // Continue checking other collections even if one fails
+        }
+      }
 
+      console.log('NFT Ownership Check:', hasNFT);
+      
       return { 
-        hasNFT: balance > 0n
+        hasNFT
       };
 
     } catch (error: any) {
@@ -266,8 +291,8 @@ export class Web3Service {
         if (!this.provider) return '0';
         
         const contract = new Contract(
-            this.QUIZTAL_TOKEN_ADDRESS,
-            this.QUIZTAL_TOKEN_ABI,
+            this.NDOOD_TOKEN_ADDRESS,
+            this.NDOOD_TOKEN_ABI,
             this.provider
         );
 
@@ -293,17 +318,17 @@ export class Web3Service {
 
   // Calls the secure Firebase Cloud Function to process the token claim.
   private async claimTokensViaBackend(): Promise<TokenClaimResponse> {
-    console.log('Calling claimTokens cloud function...');
+    console.log('Calling claimNDOODTokens cloud function...');
     try {
       const functions = getFunctions(app);
-      const claimTokensFunction = httpsCallable(functions, 'claimTokens');
+      const claimTokensFunction = httpsCallable(functions, 'claimNDOODTokens');
       
       // No need to pass amount; the server calculates it securely.
       const result: HttpsCallableResult = await claimTokensFunction();
       
       // The data returned from the cloud function is in result.data
-      const data = result.data as { success: boolean; message: string; txHash?: string };
-
+      const data = result.data as { success: boolean; message: string; txHash?: string; claimedAmount?: number };
+      
       if (data.success) {
         console.log('Cloud function call successful:', data);
         return { success: true, message: data.message, txHash: data.txHash };
@@ -313,7 +338,7 @@ export class Web3Service {
       }
     } catch (error: any) {
       // This catches errors from the httpsCallable itself (e.g., network issues, permissions)
-      console.error('Error calling claimTokens cloud function:', error);
+      console.error('Error calling claimNDOODTokens cloud function:', error);
       const errorMessage = error.message || 'An unknown error occurred while calling the claim function.';
       return { success: false, message: errorMessage };
     }

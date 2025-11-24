@@ -6,6 +6,7 @@ import QuiztalRewardTracker from '../components/NiftdoodRewardTracker';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
 import modernUITheme, { UIHelpers } from '../utils/UITheme';
 import HotkeySlotManager from '../managers/HotkeySlotManager';
+import { ItemSystem } from '../systems/ItemSystem';
 
 export default class UIScene extends Phaser.Scene {
     private uiContainer!: Phaser.GameObjects.Container;
@@ -91,13 +92,34 @@ export default class UIScene extends Phaser.Scene {
     }
     
     private createHotkeySlots(): void {
-        this.hotkeySlotManager = new HotkeySlotManager(this);
-        this.hotkeySlotManager.createUI();
+        this.hotkeySlotManager = new HotkeySlotManager();
+        this.hotkeySlotManager.createUI(this);
+        this.hotkeySlotManager.setupInputHandlers(this);
+        
+        // Connect the ItemSystem to the HotkeySlotManager
+        // Try to get the ItemSystem from the InventoryScene
+        try {
+          const inventoryScene = this.scene.get('InventoryScene') as any;
+          if (inventoryScene && inventoryScene.itemSystem) {
+            this.hotkeySlotManager.setItemSystem(inventoryScene.itemSystem);
+            console.log('✅ HotkeySlotManager connected to ItemSystem from InventoryScene');
+          } else {
+            // Fallback: Create a new ItemSystem instance
+            const itemSystem = new ItemSystem();
+            this.hotkeySlotManager.setItemSystem(itemSystem);
+            console.log('⚠️ HotkeySlotManager using fallback ItemSystem instance');
+          }
+        } catch (error) {
+          console.error('Error connecting ItemSystem to HotkeySlotManager:', error);
+          // Fallback: Create a new ItemSystem instance
+          const itemSystem = new ItemSystem();
+          this.hotkeySlotManager.setItemSystem(itemSystem);
+        }
         
         // Set up callback to update slot quantities when inventory changes
         this.hotkeySlotManager.setOnSlotUpdateCallback(() => {
-            // This could be expanded to do more when slots update
-            console.log('Hotkey slots updated');
+          // This could be expanded to do more when slots update
+          console.log('Hotkey slots updated');
         });
     }
     

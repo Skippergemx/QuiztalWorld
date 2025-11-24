@@ -149,15 +149,15 @@ export default class ExplorationScene extends Phaser.Scene {
     console.log('✅ ExplorationScene: Exploration world created successfully!');
   }
 
-  update() {
-    // Delegate updates to managers (note: no npcManager.updateNPCProximity())
+  update(time: number, delta: number): void {
+    // Update player manager for UI and other player-related updates
     this.playerManager?.handleMovement(this.mobileControlsManager?.getIsMobile());
     this.playerManager?.updatePlayerUI();
     this.petManager?.update();
     this.walkingNPCManager?.updateWalkingNPCs();
     
     // Update combat system
-    this.combatManager?.update();
+    this.combatManager?.update(time, delta);
     
     // Check if speed boost has expired
     this.checkSpeedBoostExpiration();
@@ -174,9 +174,9 @@ export default class ExplorationScene extends Phaser.Scene {
     // Update mobile controls for smooth movement
     this.mobileControlsManager?.update();
     
-    // Periodically check if pet needs to be recreated (every 5 seconds)
-    if (this.time.now % 5000 < 50) {
-      this.petManager?.checkAndRecreatePet();
+    // Periodically check if pet needs to be recreated (every 30 seconds)
+    if (this.time.now % 30000 < 50) {
+      this.petManager?.refreshPet();
     }
   }
 
@@ -318,10 +318,10 @@ export default class ExplorationScene extends Phaser.Scene {
   private initializePetSystem(): void {
     console.log('🐾 ExplorationScene: Initializing pet system...');
 
-    this.petManager = PetManager.getInstance(this, this.player, this.networkMonitor);
+    this.petManager = PetManager.getInstance(this, this.player);
     
     // Initialize the pet if the player is eligible
-    this.petManager.initializePetSystem();
+    this.petManager.createPetIfEligible();
     
     // Add a delayed refresh to ensure pet is properly created after teleportation
     this.time.delayedCall(1500, () => {
@@ -388,6 +388,14 @@ export default class ExplorationScene extends Phaser.Scene {
           isSpeedBoostActive: this.playerManager ? this.playerManager.isSpeedBoostActiveCheck() : false
         });
       });
+    });
+    
+    // Add P key binding for pet selection
+    this.input.keyboard?.on('keydown-P', () => {
+      this.openPetSelection();
+    });
+    this.input.keyboard?.on('keydown-p', () => {
+      this.openPetSelection();
     });
 
     // Set up cleanup event
@@ -586,13 +594,26 @@ export default class ExplorationScene extends Phaser.Scene {
   }
 
   private async handlePetInteraction(): Promise<void> {
-    const success = await this.petManager.handleMoblinInteraction('O');
+    // First try to collect gift boxes
+    const success = await this.petManager.handlePetInteraction('O');
     if (!success) {
-      console.log('ExplorationScene: No pet interaction available');
+      // If no gift boxes to collect, show pet selection UI
+      console.log('ExplorationScene: No pet interaction available, showing pet selection UI');
+      this.petManager.showPetSelectionUI();
     }
   }
 
   // === UTILITY METHODS ===
+
+  private openPetSelection(): void {
+    console.log('🐾 ExplorationScene: Opening pet selection scene');
+    
+    // Pause the exploration scene
+    this.scene.pause('ExplorationScene');
+    
+    // Launch the pet selection scene
+    this.scene.launch('PetSelectionScene');
+  }
 
   private isInteractionBlocked(): boolean {
     if (typeof window !== 'undefined' && window.quizAntiSpamManager) {
@@ -874,9 +895,9 @@ export default class ExplorationScene extends Phaser.Scene {
       return;
     }
     
-    // Activate speed boost for 30 seconds
+    // Activate speed boost for 5 seconds
     this.isSpeedBoostActive = true;
-    this.speedBoostEndTime = this.time.now + 30000; // 30 seconds
+    this.speedBoostEndTime = this.time.now + 5000; // 5 seconds
     
     // Activate speed boost in PlayerManager
     if (this.playerManager) {
@@ -924,7 +945,7 @@ export default class ExplorationScene extends Phaser.Scene {
       this.speedBoostText = this.add.text(
         this.scale.width / 2,
         50,
-        '⚡ SPEED BOOST ACTIVATED! 2x Speed ⚡',
+        '⚡ SPEED BOOST ACTIVATED! 2x Speed ⚡ (5s)',
         {
           fontSize: '24px',
           color: '#FFD700',
@@ -945,7 +966,7 @@ export default class ExplorationScene extends Phaser.Scene {
       this.speedBoostTimerText = this.add.text(
         this.scale.width / 2,
         90,
-        '30s remaining',
+        '5s remaining',
         {
           fontSize: '20px',
           color: '#00FF00',
@@ -1023,8 +1044,8 @@ export default class ExplorationScene extends Phaser.Scene {
       }
     }
     
-    // Auto-hide after 30 seconds
-    this.time.delayedCall(30000, () => {
+    // Auto-hide after 5 seconds
+    this.time.delayedCall(5000, () => {
       if (this.speedBoostText) {
         this.speedBoostText.setVisible(false);
       }

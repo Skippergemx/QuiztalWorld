@@ -546,10 +546,10 @@ export default class GoogleLoginScene extends Phaser.Scene {
             });
             
             // Add mouse wheel support
-            this.input.on('wheel', (pointer: Phaser.Input.Pointer, gameObjects: any, deltaX: number, deltaY: number) => {
+            this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _gameObjects: any, _deltaX: number, deltaY: number) => {
                 // Check if pointer is over the content area
-                if (pointer.x >= contentX && pointer.x <= contentX + contentWidth &&
-                    pointer.y >= contentY && pointer.y <= contentY + contentHeight) {
+                if (_pointer.x >= contentX && _pointer.x <= contentX + contentWidth &&
+                    _pointer.y >= contentY && _pointer.y <= contentY + contentHeight) {
                     
                     let newY = content.y - deltaY * 0.5; // Adjust scroll speed
                     newY = Phaser.Math.Clamp(newY, contentY - maxScroll, contentY);

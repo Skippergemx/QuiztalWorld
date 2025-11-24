@@ -51,7 +51,7 @@ export default class TokenClaimScene extends Phaser.Scene {
         this.userId = auth.currentUser.uid;
 
         // FIX: Assign tokenAddress from environment here
-        this.tokenAddress = import.meta.env.VITE_QUIZTAL_TOKEN_ADDRESS;
+        this.tokenAddress = import.meta.env.VITE_NDOOD_TOKEN_ADDRESS;
 
         // Now your check will work as intended
         if (!this.tokenAddress) {
@@ -391,7 +391,7 @@ export default class TokenClaimScene extends Phaser.Scene {
         this.add.text(
             this.scale.width / 2,
             isMobile ? 100 : 150, // Increased vertical spacing
-            '💎 Claim Your Quiztal Tokens',
+            '💎 Claim Your NDOOD Tokens',
             {
                 fontSize: isMobile ? '32px' : '48px', // Larger font size
                 color: '#ffffff',
@@ -490,7 +490,7 @@ export default class TokenClaimScene extends Phaser.Scene {
         const claimInfoText = this.add.text(
             0,
             claimInfoY,
-            'Maximum claim amount: 100 Quiztals\n\nMinimum claim amount: 50 Quiztals', // Added extra line break
+            'Maximum claim amount: 100 NDOOD\n\nMinimum claim amount: 50 NDOOD', // Added extra line break
             {
                 fontSize: isMobile ? '20px' : '22px', // Larger font size
                 color: '#3498db',
@@ -678,19 +678,20 @@ export default class TokenClaimScene extends Phaser.Scene {
 
         const playerDoc = await getDoc(doc(db, "players", this.userId));
         if (playerDoc.exists()) {
-            const balance = playerDoc.data().quiztals || 0;
+            // Updated field name from quiztals to ndood for the new token
+            const balance = playerDoc.data().ndood || playerDoc.data().quiztals || 0;
             const roundedBalance = Math.floor(balance);
             const claimAmount = Math.min(roundedBalance, 100);
             
             // Update minimum check to 50
             if (claimAmount < 50) {  // Changed from 10 to 50
-                this.balanceText.setText(`Available balance: ${roundedBalance} $NiftDOOD\n(Minimum 50 required to claim)`);  // Updated message
+                this.balanceText.setText(`Available balance: ${roundedBalance} NDOOD\n(Minimum 50 required to claim)`);  // Updated message
                 if (this.claimButton) {
                     this.claimButton.setAlpha(0.5);
                     this.claimButton.disableInteractive();
                 }
             } else {
-                this.balanceText.setText(`Available balance: ${roundedBalance} $NiftDOOD\nClaimable amount: ${claimAmount} $NiftDOOD`);
+                this.balanceText.setText(`Available balance: ${roundedBalance} NDOOD\nClaimable amount: ${claimAmount} NDOOD`);
                 if (this.claimButton) {
                     this.claimButton.setAlpha(1);
                     this.claimButton.setInteractive();

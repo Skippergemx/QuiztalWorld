@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import Moblin from '../objects/Moblin';
+import Spmech from '../objects/Spmech';
+import BasePet from '../objects/BasePet';
 import { getPlayerTitle } from '../utils/TitleUtils';
 import { saveQuiztalsToDatabase } from '../utils/Database';
 import QuiztalRewardLog from '../utils/QuiztalRewardLog';
@@ -11,14 +13,20 @@ interface PetConfig {
   interactionRange: number;
 }
 
+// Pet types
+type PetType = 'moblin' | 'spmech01';
+
 export default class PetManager {
   private scene: Phaser.Scene;
   private player: Phaser.Physics.Arcade.Sprite;
-  private networkMonitor: any;
+
   private moblinGiftboxSound?: Phaser.Sound.BaseSound;
   
   // Pet instance
-  private moblin?: Moblin;
+  private pet?: BasePet;
+  
+  // Current pet type
+  private currentPetType: PetType = 'moblin';
   
   // Configuration
   private config: PetConfig = {
@@ -30,48 +38,57 @@ export default class PetManager {
 
   private static instance: PetManager;
 
-  private constructor(scene: Phaser.Scene, player: Phaser.Physics.Arcade.Sprite, networkMonitor: any) {
+  private constructor(scene: Phaser.Scene, player: Phaser.Physics.Arcade.Sprite) {
     this.scene = scene;
     this.player = player;
-    this.networkMonitor = networkMonitor;
+    
+    // Load the current pet preference from localStorage
+    this.loadPetPreference();
   }
 
-  public static getInstance(scene: Phaser.Scene, player: Phaser.Physics.Arcade.Sprite, networkMonitor: any): PetManager {
+  public static getInstance(scene: Phaser.Scene, player: Phaser.Physics.Arcade.Sprite): PetManager {
     if (!PetManager.instance) {
-      PetManager.instance = new PetManager(scene, player, networkMonitor);
+      PetManager.instance = new PetManager(scene, player);
     }
-    PetManager.instance.scene = scene;
-    PetManager.instance.player = player;
-    PetManager.instance.networkMonitor = networkMonitor;
     return PetManager.instance;
   }
 
   /**
-   * Initialize pet system and check if player is eligible for a pet
+   * Load pet preference from localStorage
    */
-  public initializePetSystem(): void {
-    console.log('🐾 PetManager: Initializing pet system...');
-    
-    // Initialize audio
-    this.initializeAudio();
-    
-    // Delay pet creation to ensure all textures are loaded
-    // Use a more robust approach with retries
-    this.waitForTexturesAndCreatePet();
+  private loadPetPreference(): void {
+    try {
+      const petPref = localStorage.getItem('niftdood-pet-preference');
+      if (petPref) {
+        const petType = petPref as PetType;
+        if (petType === 'moblin' || petType === 'spmech01') {
+          this.currentPetType = petType;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load pet preference from localStorage', e);
+    }
   }
 
   /**
-   * Wait for textures to be loaded and then create pet
+   * Save pet preference to localStorage
    */
-  private async waitForTexturesAndCreatePet(retryCount: number = 0): Promise<void> {
-    // Check if textures are loaded
-    const texturesLoaded = this.scene.textures.exists('moblin_idle') && this.scene.textures.exists('moblin_walk');
+  private savePetPreference(): void {
+    try {
+      localStorage.setItem('niftdood-pet-preference', this.currentPetType);
+    } catch (e) {
+      console.warn('Could not save pet preference to localStorage', e);
+    }
+  }
+
+  /**
+   * Wait for textures to load and then create pet
+   */
+  private waitForTexturesAndCreatePet(retryCount: number = 0): void {
+    // Check if required textures are loaded
+    const texturesLoaded = this.arePetTexturesLoaded();
     
-    if (texturesLoaded) {
-      console.log('🐾 PetManager: Textures loaded, creating pet...');
-      this.createPetIfEligible();
-    } else {
-      // If textures are not loaded, retry after a delay
+    if (!texturesLoaded) {
       if (retryCount < 5) { // Max 5 retries
         console.warn(`⚠️ PetManager: Textures not loaded, retrying (${retryCount + 1}/5)...`);
         this.scene.time.delayedCall(200, () => {
@@ -84,7 +101,22 @@ export default class PetManager {
           this.createPetIfEligible();
         });
       }
+    } else {
+      this.createPetIfEligible();
     }
+  }
+
+  /**
+   * Check if pet textures are loaded
+   */
+  private arePetTexturesLoaded(): boolean {
+    // Check textures based on current pet type
+    if (this.currentPetType === 'moblin') {
+      return this.scene.textures.exists('moblin_idle') && this.scene.textures.exists('moblin_walk');
+    } else if (this.currentPetType === 'spmech01') {
+      return this.scene.textures.exists('spmech01_idle') && this.scene.textures.exists('spmech01_walk');
+    }
+    return false;
   }
 
   /**
@@ -93,9 +125,9 @@ export default class PetManager {
   public createPetIfEligible(): void {
     console.log('🐾 PetManager: Checking pet eligibility...');
     
-    // Check if a moblin already exists
-    if (this.moblin) {
-      console.log('ℹ️ PetManager: Moblin already exists, skipping eligibility check');
+    // Check if a pet already exists
+    if (this.pet) {
+      console.log('ℹ️ PetManager: Pet already exists, skipping eligibility check');
       return;
     }
     
@@ -112,7 +144,7 @@ export default class PetManager {
       // Only create pet if player has a title (NFT holder)
       if (titleConfig.text) {
         console.log('🎯 PetManager: Player has NFT title:', titleConfig.text);
-        this.createMoblinPet();
+        this.createPet();
       } else {
         console.log('ℹ️ PetManager: Player does not have NFT title, no pet spawned');
       }
@@ -122,58 +154,66 @@ export default class PetManager {
   }
 
   /**
-   * Create Moblin pet for eligible players
+   * Create pet based on current preference
    */
-  private createMoblinPet(retryCount: number = 0): void {
-    // Check if a moblin already exists
-    if (this.moblin) {
-      console.log('ℹ️ PetManager: Moblin already exists, skipping creation');
+  private createPet(retryCount: number = 0): void {
+    // Check if a pet already exists
+    if (this.pet) {
+      console.log('ℹ️ PetManager: Pet already exists, skipping creation');
       return;
     }
     
     // Double-check textures are loaded
-    if (!this.scene.textures.exists('moblin_idle') || !this.scene.textures.exists('moblin_walk')) {
+    if (!this.arePetTexturesLoaded()) {
       // If textures are not loaded, retry with exponential backoff
       if (retryCount < 5) { // Max 5 retries
         const delay = Math.pow(2, retryCount) * 200; // Exponential backoff: 200, 400, 800, 1600, 3200 ms
-        console.warn(`⚠️ PetManager: Moblin textures not loaded, retrying in ${delay}ms (${retryCount + 1}/5)...`);
+        console.warn(`⚠️ PetManager: Pet textures not loaded, retrying in ${delay}ms (${retryCount + 1}/5)...`);
         
         this.scene.time.delayedCall(delay, () => {
-          this.createMoblinPet(retryCount + 1);
+          this.createPet(retryCount + 1);
         });
       } else {
-        console.error('❌ PetManager: Moblin textures not loaded after 5 retries, skipping pet creation');
+        console.error('❌ PetManager: Pet textures not loaded after 5 retries, skipping pet creation');
       }
       return;
     }
 
     try {
-      console.log('🐾 PetManager: Creating Moblin pet...');
+      console.log(`🐾 PetManager: Creating ${this.currentPetType} pet...`);
       
       const spawnX = this.player.x + this.config.spawnOffset.x;
       const spawnY = this.player.y + this.config.spawnOffset.y;
       
-      this.moblin = new Moblin(this.scene, spawnX, spawnY);
-      this.moblin.setTarget(this.player);
+      // Create pet based on current preference
+      if (this.currentPetType === 'moblin') {
+        this.pet = new Moblin(this.scene, spawnX, spawnY);
+      } else if (this.currentPetType === 'spmech01') {
+        this.pet = new Spmech(this.scene, spawnX, spawnY);
+      }
       
-      // Set up pet collision with NPCs (will be handled by NPCManager)
-      this.setupPetCollisions();
-      
-      // Set up gift box interaction events
-      this.setupGiftBoxEvents();
-      
-      console.log('✅ PetManager: Moblin pet spawned successfully!');
+      if (this.pet) {
+        this.pet.setTarget(this.player);
+        
+        // Set up pet collision with NPCs (will be handled by NPCManager)
+        this.setupPetCollisions();
+        
+        // Set up gift box interaction events
+        this.setupGiftBoxEvents();
+        
+        console.log(`✅ PetManager: ${this.currentPetType} pet spawned successfully!`);
+      }
     } catch (error) {
       // If there's an error creating the pet, retry with exponential backoff
       if (retryCount < 3) { // Max 3 retries for errors
         const delay = Math.pow(2, retryCount) * 300; // Exponential backoff: 300, 600, 1200 ms
-        console.warn(`⚠️ PetManager: Error creating Moblin pet, retrying in ${delay}ms (${retryCount + 1}/3)...`, error);
+        console.warn(`⚠️ PetManager: Error creating ${this.currentPetType} pet, retrying in ${delay}ms (${retryCount + 1}/3)...`, error);
         
         this.scene.time.delayedCall(delay, () => {
-          this.createMoblinPet(retryCount + 1);
+          this.createPet(retryCount + 1);
         });
       } else {
-        console.error('❌ PetManager: Error creating Moblin pet after 3 retries:', error);
+        console.error(`❌ PetManager: Error creating ${this.currentPetType} pet after 3 retries:`, error);
       }
     }
   }
@@ -182,7 +222,7 @@ export default class PetManager {
    * Set up collision detection for the pet (to be called by NPCManager)
    */
   public setupPetCollisions(): void {
-    if (!this.moblin) return;
+    if (!this.pet) return;
     
     console.log('⚡ PetManager: Setting up pet collisions (to be handled by managers)...');
     // Collision setup will be handled by PhysicsManager and NPCManager
@@ -192,43 +232,44 @@ export default class PetManager {
    * Set up gift box interaction events
    */
   private setupGiftBoxEvents(): void {
-    if (!this.moblin) return;
+    if (!this.pet) return;
 
-    this.moblin.on('giftBoxClicked', (moblin: Moblin) => {
-      const distanceToMoblin = Phaser.Math.Distance.Between(
+    // Listen for gift box click events
+    (this.pet as any).on('giftBoxClicked', (pet: BasePet) => {
+      const distanceToPet = Phaser.Math.Distance.Between(
         this.player.x, 
         this.player.y, 
-        moblin.x, 
-        moblin.y
+        pet.x, 
+        pet.y
       );
       
-      if (distanceToMoblin <= this.config.interactionRange) {
+      if (distanceToPet <= this.config.interactionRange) {
         console.log('🎁 PetManager: Gift box clicked, triggering collection');
-        this.interactWithMoblin();
+        this.interactWithPet();
       } else {
-        console.log('❌ PetManager: Player not close enough to moblin to collect gift boxes');
+        console.log('❌ PetManager: Player not close enough to pet to collect gift boxes');
       }
     });
   }
 
   /**
-   * Handle Moblin interaction (gift box collection)
+   * Handle pet interaction (gift box collection)
    */
-  public async handleMoblinInteraction(interactionKey: string): Promise<boolean> {
-    if (interactionKey !== 'O' || !this.moblin) {
+  public async handlePetInteraction(interactionKey: string): Promise<boolean> {
+    if (interactionKey !== 'O' || !this.pet) {
       return false;
     }
 
-    const distanceToMoblin = Phaser.Math.Distance.Between(
+    const distanceToPet = Phaser.Math.Distance.Between(
       this.player.x, 
       this.player.y, 
-      this.moblin.x, 
-      this.moblin.y
+      this.pet.x, 
+      this.pet.y
     );
 
-    if (distanceToMoblin <= this.config.interactionRange) {
+    if (distanceToPet <= this.config.interactionRange) {
       // Check if there are gift boxes to collect first
-      if (this.moblin && this.moblin.getGiftBoxCount() <= 0) {
+      if (this.pet && this.pet.getGiftBoxCount() <= 0) {
         console.log('❌ PetManager: No gift boxes to collect');
         // Show UI feedback to player about no gift boxes
         // Fix: Safely access the playerManager from the scene
@@ -252,55 +293,19 @@ export default class PetManager {
       
       if (playerManager) {
         const currentStamina = playerManager.getCurrentStamina();
-        console.log(`📱 PetManager: Current stamina is ${currentStamina}`);
         if (currentStamina < 10) {
-          console.log('❌ PetManager: Not enough stamina to collect gift boxes (minimum 10 required)');
+          console.log('❌ PetManager: Not enough stamina to interact with pet');
           // Show UI feedback to player about insufficient stamina
-          if (typeof playerManager.showStaminaLowFeedback === 'function') {
-            playerManager.showStaminaLowFeedback();
+          if (typeof playerManager.showInsufficientStaminaFeedback === 'function') {
+            playerManager.showInsufficientStaminaFeedback(10);
           }
           return false;
         }
-        
-        // Deduct stamina for interaction
-        if (typeof playerManager.deductStaminaForInteraction === 'function') {
-          playerManager.deductStaminaForInteraction();
-        }
-      } else {
-        console.warn('❌ PetManager: Could not access PlayerManager for stamina check');
       }
 
-      console.log('🎁 PetManager: Triggering Moblin gift box collection');
-      await this.interactWithMoblin();
-      return true;
-    } else {
-      console.log('❌ PetManager: Player not in range of Moblin');
-      return false;
-    }
-  }
-
-  /**
-   * Process gift box collection
-   */
-  private async interactWithMoblin(): Promise<void> {
-    // Check network connectivity before allowing interactions
-    if (this.networkMonitor && typeof this.networkMonitor.getIsOnline === 'function') {
-      if (!this.networkMonitor.getIsOnline()) {
-        console.log('📡 PetManager: Network offline - preventing Moblin interaction');
-        return;
-      }
-    }
-    
-    if (!this.moblin) {
-      console.log('❌ PetManager: No moblin found');
-      return;
-    }
-
-    const giftBoxCount = this.moblin.getGiftBoxCount();
-    if (giftBoxCount > 0) {
       try {
         // Collect all gift boxes
-        const collected = await this.moblin.collectAllGiftBoxes();
+        const collected = await this.pet.collectAllGiftBoxes();
         
         // Calculate rewards
         const totalReward = this.calculateGiftBoxRewards(collected);
@@ -312,12 +317,23 @@ export default class PetManager {
         this.showGiftBoxCollectionFeedback(totalReward);
         
         console.log(`🎁 PetManager: Collected ${collected} gift boxes and earned ${totalReward} Niftdoods!`);
+        return true;
       } catch (error) {
         console.error('❌ PetManager: Error collecting gift boxes:', error);
+        return false;
       }
     } else {
-      console.log('ℹ️ PetManager: No gift boxes to collect');
+      console.log('❌ PetManager: Player not close enough to pet');
+      return false;
     }
+  }
+
+  /**
+   * Interact with pet (called from gift box click)
+   */
+  private async interactWithPet(): Promise<void> {
+    // This is now handled by handlePetInteraction
+    await this.handlePetInteraction('O');
   }
 
   /**
@@ -327,76 +343,68 @@ export default class PetManager {
     let totalReward = 0;
     
     for (let i = 0; i < collected; i++) {
-      totalReward += Phaser.Math.FloatBetween(
-        this.config.giftBoxRewardRange.min, 
+      const reward = Phaser.Math.FloatBetween(
+        this.config.giftBoxRewardRange.min,
         this.config.giftBoxRewardRange.max
       );
+      totalReward += reward;
     }
     
-    return parseFloat(totalReward.toFixed(2));
+    // Round to 2 decimal places
+    return Math.round(totalReward * 100) / 100;
   }
 
   /**
-   * Process and save gift box rewards
+   * Process gift box rewards
    */
-  private async processGiftBoxRewards(totalReward: number): Promise<void> {
-    const userStr = localStorage.getItem('niftdood-player');
-    if (!userStr) {
-      console.warn('⚠️ PetManager: No user data found for reward processing');
-      return;
-    }
-
+  private async processGiftBoxRewards(amount: number): Promise<void> {
+    if (amount <= 0) return;
+    
     try {
-      const user = JSON.parse(userStr);
-      if (user?.uid) {
-        const playerId = user.uid;
-        
-        // Validate reward amount before saving
-        if (typeof totalReward !== 'number' || isNaN(totalReward)) {
-          console.error("❌ Invalid reward amount:", totalReward);
-          return;
+      // Get player ID
+      let playerId = '';
+      try {
+        const userDataStr = localStorage.getItem('niftdood-player');
+        if (userDataStr) {
+          const user = JSON.parse(userDataStr);
+          playerId = user.uid || '';
         }
-
-        // If reward is too large, cap it at the maximum allowed value
-        let rewardToSave = totalReward;
-        if (totalReward > 10) {
-          console.warn(`⚠️ PetManager: Reward amount ${totalReward} exceeds maximum allowed value of 10. Capping to 10.`);
-          rewardToSave = 10;
-        } else if (totalReward < 0.01) {
-          console.warn(`⚠️ PetManager: Reward amount ${totalReward} is below minimum allowed value of 0.01. Setting to minimum.`);
-          rewardToSave = 0.01;
+      } catch (e) {
+        console.warn('Could not parse user from localStorage', e);
+      }
+      
+      if (playerId) {
+        // Save reward to database
+        await saveQuiztalsToDatabase(playerId, amount, 'MoblinPet');
+        
+        // Log reward
+        QuiztalRewardLog.logReward('PetGiftBox', amount);
+        
+        // Update player balance (if playerManager is available)
+        let playerManager = null;
+        if (this.scene && (this.scene as any).playerManager) {
+          playerManager = (this.scene as any).playerManager;
         }
-
-        // Save to database
-        await saveQuiztalsToDatabase(playerId, rewardToSave, 'Moblin');
         
-        // Log to local session tracker
-        QuiztalRewardLog.logReward('Moblin', rewardToSave);
-        
-        console.log('✅ PetManager: Rewards processed successfully');
+        if (playerManager && typeof playerManager.addQuiztals === 'function') {
+          playerManager.addQuiztals(amount);
+        }
       }
     } catch (error) {
-      // Handle Firebase permissions error gracefully
-      if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
-        console.warn('⚠️ PetManager: Insufficient permissions to save rewards, logging locally only');
-        // Still log to local session tracker
-        QuiztalRewardLog.logReward('Moblin', totalReward);
-      } else {
-        console.error('❌ PetManager: Error processing gift box rewards:', error);
-      }
+      console.error('❌ PetManager: Error processing gift box rewards:', error);
     }
   }
 
   /**
-   * Show visual feedback for gift box collection
+   * Show gift box collection feedback
    */
   private showGiftBoxCollectionFeedback(amount: number): void {
-    if (!this.moblin) return;
-
+    if (!this.pet) return;
+    
     // Create floating text feedback
     const feedbackText = this.scene.add.text(
-      this.moblin.x,
-      this.moblin.y - 50,
+      this.pet.x,
+      this.pet.y - 50,
       `+${amount} Niftdoods!`,
       {
         fontSize: '14px',
@@ -436,8 +444,8 @@ export default class PetManager {
    * Update pet system each frame
    */
   update(): void {
-    // Add safety check for moblin
-    if (!this.moblin) return;
+    // Add safety check for pet
+    if (!this.pet) return;
 
     try {
       // Update pet behavior (now properly handling async)
@@ -456,14 +464,14 @@ export default class PetManager {
    * Update pet behavior (separated from async handling)
    */
   private updatePetBehavior(): void {
-    // Add safety check for moblin and scene
-    if (!this.moblin || !this.scene) return;
+    // Add safety check for pet and scene
+    if (!this.pet || !this.scene) return;
     
-    // Call moblin update without awaiting (to prevent blocking)
-    // The async nature of moblin.update is handled internally
-    this.moblin.update().catch(error => {
+    // Call pet update without awaiting (to prevent blocking)
+    // The async nature of pet.update is handled internally
+    this.pet.update().catch(error => {
       // Catch any async errors without breaking the game loop
-      console.warn('PetManager: Async error in moblin update', error);
+      console.warn('PetManager: Async error in pet update', error);
     });
   }
 
@@ -471,31 +479,21 @@ export default class PetManager {
    * Check if pet needs to teleport to player
    */
   private checkPetTeleport(): void {
-    if (!this.moblin) return;
+    if (!this.pet) return;
 
     const distanceToPlayer = Phaser.Math.Distance.Between(
       this.player.x,
       this.player.y,
-      this.moblin.x,
-      this.moblin.y
+      this.pet.x,
+      this.pet.y
     );
 
     if (distanceToPlayer > this.config.teleportDistance) {
-      this.moblin.teleportToTarget();
+      this.pet.teleportToTarget();
     }
   }
 
-  /**
-   * Initialize audio resources
-   */
-  private initializeAudio(): void {
-    try {
-      this.moblinGiftboxSound = this.scene.sound.add('moblin-giftbox');
-      console.log('🔊 PetManager: Audio initialized successfully');
-    } catch (error) {
-      console.error('❌ PetManager: Error initializing audio:', error);
-    }
-  }
+
 
   /**
    * Play gift box collection sound
@@ -513,34 +511,35 @@ export default class PetManager {
   /**
    * Get pet instance (for external access)
    */
-  public getPet(): Moblin | undefined {
-    return this.moblin;
+  public getPet(): BasePet | undefined {
+    return this.pet;
   }
 
   /**
    * Check if player has a pet
    */
   public hasPet(): boolean {
-    return !!this.moblin;
+    return !!this.pet;
   }
 
   /**
    * Get pet status information
    */
   public getPetStatus(): any {
-    if (!this.moblin) {
+    if (!this.pet) {
       return { hasPet: false };
     }
 
     return {
       hasPet: true,
-      position: { x: this.moblin.x, y: this.moblin.y },
-      giftBoxCount: this.moblin.getGiftBoxCount(),
+      type: this.currentPetType,
+      position: { x: this.pet.x, y: this.pet.y },
+      giftBoxCount: this.pet.getGiftBoxCount(),
       distanceFromPlayer: Phaser.Math.Distance.Between(
         this.player.x,
         this.player.y,
-        this.moblin.x,
-        this.moblin.y
+        this.pet.x,
+        this.pet.y
       )
     };
   }
@@ -559,9 +558,9 @@ export default class PetManager {
   public recreatePet(): void {
     console.log('🔄 PetManager: Recreating pet...');
     
-    if (this.moblin) {
-      this.moblin.destroy();
-      this.moblin = undefined;
+    if (this.pet) {
+      this.pet.destroy();
+      this.pet = undefined;
     }
     
     this.createPetIfEligible();
@@ -574,10 +573,10 @@ export default class PetManager {
     console.log('🔄 PetManager: Refreshing pet after teleportation...');
     
     // Destroy existing pet if it exists
-    if (this.moblin) {
+    if (this.pet) {
       try {
-        this.moblin.destroy();
-        this.moblin = undefined;
+        this.pet.destroy();
+        this.pet = undefined;
       } catch (e) {
         console.warn('⚠️ PetManager: Error destroying existing pet', e);
       }
@@ -587,6 +586,258 @@ export default class PetManager {
     this.scene.time.delayedCall(300, () => {
       this.waitForTexturesAndCreatePet();
     });
+  }
+
+  /**
+   * Switch to a different pet type
+   */
+  public switchPet(petType: PetType): void {
+    console.log(`🔄 PetManager: Switching pet to ${petType}...`);
+    
+    // Update current pet type
+    this.currentPetType = petType;
+    
+    // Save preference
+    this.savePetPreference();
+    
+    // Recreate pet with new type
+    if (this.pet) {
+      this.pet.destroy();
+      this.pet = undefined;
+    }
+    
+    this.createPetIfEligible();
+  }
+
+  /**
+   * Get available pet types
+   */
+  public getAvailablePetTypes(): PetType[] {
+    return ['moblin', 'spmech01'];
+  }
+
+  /**
+   * Get current pet type
+   */
+  public getCurrentPetType(): PetType {
+    return this.currentPetType;
+  }
+
+  /**
+   * Show pet selection UI
+   */
+  public showPetSelectionUI(): void {
+    console.log('🎨 PetManager: Showing pet selection UI...');
+    
+    // Get available pet types
+    const petTypes = this.getAvailablePetTypes();
+    console.log('🐾 PetManager: Available pet types:', petTypes);
+    
+    // Check if there are any pet types available
+    if (petTypes.length === 0) {
+      console.warn('⚠️ PetManager: No pet types available for selection');
+      return;
+    }
+    
+    // Create a modal dialog for pet selection
+    const centerX = this.scene.scale.width / 2;
+    const centerY = this.scene.scale.height / 2;
+    
+    // Create background overlay
+    const overlay = this.scene.add.rectangle(
+      0, 0,
+      this.scene.scale.width,
+      this.scene.scale.height,
+      0x000000,
+      0.7
+    ).setOrigin(0.5);
+    
+    // Create dialog container
+    const dialog = this.scene.add.container(centerX, centerY);
+    
+    // Create dialog background
+    const windowWidth = 600;
+    const windowHeight = 400;
+    
+    const windowBorder = this.scene.add.rectangle(
+      0, 0,
+      windowWidth, windowHeight,
+      0x34495e
+    ).setStrokeStyle(3, 0x3498db);
+    
+    const windowInner = this.scene.add.rectangle(
+      0, 0,
+      windowWidth - 10, windowHeight - 10,
+      0x2c3e50
+    );
+    
+    // Create header
+    const headerY = -170;
+    const headerBg = this.scene.add.rectangle(
+      0, headerY,
+      windowWidth - 10, 50,
+      0x3498db,
+      0.2
+    );
+    
+    const title = this.scene.add.text(
+      0, headerY,
+      'Choose Your Pet',
+      {
+        fontSize: '20px',
+        color: '#ffffff',
+        fontStyle: 'bold'
+      }
+    ).setOrigin(0.5);
+    
+    // Create close button
+    const closeBtn = this.scene.add.container(270, headerY);
+    const closeBtnBg = this.scene.add.circle(0, 0, 15, 0xe74c3c);
+    const closeBtnText = this.scene.add.text(
+      0, 0,
+      '✖',
+      {
+        fontSize: '12px',
+        color: '#ffffff'
+      }
+    ).setOrigin(0.5);
+    
+    closeBtn.add([closeBtnBg, closeBtnText]);
+    closeBtn.setInteractive(
+      new Phaser.Geom.Circle(0, 0, 15),
+      Phaser.Geom.Circle.Contains
+    );
+    
+    closeBtn
+      .setInteractive({ useHandCursor: true })
+      .on('pointerover', () => {
+        closeBtnBg.setFillStyle(0xc0392b);
+      })
+      .on('pointerout', () => {
+        closeBtnBg.setFillStyle(0xe74c3c);
+      })
+      .on('pointerdown', () => this.closePetSelectionUI(overlay, dialog));
+    
+    // Create pet options
+    const startY = -80; // Position buttons in the visible area
+    const spacing = 120;
+    
+    petTypes.forEach((petType, index) => {
+      const y = startY + index * spacing;
+      
+      // Create pet container
+      const petContainer = this.scene.add.container(0, y);
+      
+      // Create background for pet option
+      const petBg = this.scene.add.rectangle(
+        0, 0,
+        400, 100,
+        this.currentPetType === petType ? 0xf1c40f : 0x34495e
+      ).setStrokeStyle(2, 0x3498db);
+      
+      // Create pet preview using idle animation sprite
+      let petSprite: Phaser.GameObjects.Sprite | null = null;
+      let petTextureKey = '';
+      
+      if (petType === 'moblin') {
+        petTextureKey = 'moblin_idle';
+      } else if (petType === 'spmech01') {
+        petTextureKey = 'spmech01_idle';
+      }
+      
+      if (petTextureKey && this.scene.textures.exists(petTextureKey)) {
+        petSprite = this.scene.add.sprite(-150, 0, petTextureKey);
+        petSprite.setFrame(0); // Show first frame
+        petSprite.setScale(1.5); // Scale up for better visibility
+      }
+      
+      // Pet name
+      const petName = this.scene.add.text(
+        0, 0,
+        petType.charAt(0).toUpperCase() + petType.slice(1),
+        {
+          fontSize: '18px',
+          color: '#ffffff',
+          fontStyle: 'bold'
+        }
+      ).setOrigin(0.5);
+      
+      // Add visual indicator for current pet
+      let currentIndicator: Phaser.GameObjects.Text | null = null;
+      if (this.currentPetType === petType) {
+        currentIndicator = this.scene.add.text(150, 0, '✓ Selected', {
+          fontSize: '14px',
+          color: '#f1c40f',
+          fontStyle: 'bold'
+        }).setOrigin(0.5);
+      }
+      
+      // Add elements to container
+      const elements: Phaser.GameObjects.GameObject[] = [petBg, petName];
+      if (petSprite) {
+        elements.push(petSprite);
+      }
+      if (currentIndicator) {
+        elements.push(currentIndicator);
+      }
+      petContainer.add(elements);
+      
+      // Make container interactive
+      petBg.setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => {
+          console.log(`🐾 PetManager: Selected pet type: ${petType}`);
+          this.switchPet(petType);
+          
+          // Close the dialog
+          this.closePetSelectionUI(overlay, dialog);
+        })
+        .on('pointerover', () => {
+          petBg.setFillStyle(0xf1c40f);
+        })
+        .on('pointerout', () => {
+          petBg.setFillStyle(this.currentPetType === petType ? 0xf1c40f : 0x34495e);
+        });
+      
+      dialog.add(petContainer);
+    });
+    
+    dialog.add([
+      overlay,
+      windowBorder,
+      windowInner,
+      headerBg,
+      title,
+      closeBtn
+    ]);
+    
+    // Set depth to ensure it's on top
+    dialog.setDepth(1000);
+    overlay.setDepth(999);
+    
+    // Add subtle entrance animation
+    dialog.setScale(0.8);
+    dialog.setAlpha(0);
+    this.scene.tweens.add({
+      targets: dialog,
+      scale: 1,
+      alpha: 1,
+      duration: 300,
+      ease: 'Back.easeOut'
+    });
+    
+    // Add click handler to overlay to close dialog
+    overlay.setInteractive()
+      .on('pointerdown', () => {
+        this.closePetSelectionUI(overlay, dialog);
+      });
+  }
+
+  /**
+   * Close pet selection UI
+   */
+  private closePetSelectionUI(overlay: Phaser.GameObjects.Rectangle, dialog: Phaser.GameObjects.Container): void {
+    overlay.destroy();
+    dialog.destroy();
   }
 
   /**
@@ -600,34 +851,11 @@ export default class PetManager {
       audioLoaded: !!this.moblinGiftboxSound,
       texturesAvailable: {
         moblinIdle: this.scene.textures.exists('moblin_idle'),
-        moblinWalk: this.scene.textures.exists('moblin_walk')
+        moblinWalk: this.scene.textures.exists('moblin_walk'),
+        spmech01Idle: this.scene.textures.exists('spmech01_idle'),
+        spmech01Walk: this.scene.textures.exists('spmech01_walk')
       }
     };
-  }
-
-  /**
-   * Check if pet should be recreated (useful after scene changes)
-   */
-  public checkAndRecreatePet(): void {
-    console.log('🐾 PetManager: Checking if pet needs to be recreated...');
-    
-    // If no pet exists but player should have one, create it
-    if (!this.moblin) {
-      const nftsStr = localStorage.getItem('niftdood-nfts');
-      if (nftsStr) {
-        try {
-          const nfts = JSON.parse(nftsStr);
-          const titleConfig = getPlayerTitle(nfts);
-          
-          if (titleConfig.text) {
-            console.log('🐾 PetManager: Player should have a pet, recreating...');
-            this.waitForTexturesAndCreatePet();
-          }
-        } catch (error) {
-          console.error('❌ PetManager: Error checking pet eligibility:', error);
-        }
-      }
-    }
   }
 
   /**
@@ -636,9 +864,9 @@ export default class PetManager {
   public destroy(): void {
     console.log('🧹 PetManager: Cleaning up pet resources...');
     
-    if (this.moblin) {
-      this.moblin.destroy();
-      this.moblin = undefined;
+    if (this.pet) {
+      this.pet.destroy();
+      this.pet = undefined;
     }
     
     if (this.moblinGiftboxSound) {

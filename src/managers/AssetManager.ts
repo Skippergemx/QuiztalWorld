@@ -75,6 +75,9 @@ export default class AssetManager {
     
     // Load monster assets
     this.loadMonsterAssets(isMobile);
+    
+    // Load pet selection assets
+    this.loadPetSelectionAssets();
   }
 
   /**
@@ -333,16 +336,26 @@ export default class AssetManager {
   /**
    * Load pet-related assets
    */
-  private loadPetAssets(_isMobile: boolean = false): void {
-    // For mobile, we might want to load lower quality versions of pet assets
-    if (_isMobile) {
-      // Load compressed versions for mobile if available
+  private loadPetAssets(isMobile: boolean = false): void {
+    if (isMobile) {
+      // Load optimized versions for mobile
       this.scene.load.spritesheet('moblin_walk', 'assets/pets/moblin_walk.png', {
         frameWidth: 32,
         frameHeight: 53
       });
 
       this.scene.load.spritesheet('moblin_idle', 'assets/pets/moblin_idle.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+      
+      // Load Spmech assets
+      this.scene.load.spritesheet('spmech01_walk', 'assets/pets/spmech01_walk.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+
+      this.scene.load.spritesheet('spmech01_idle', 'assets/pets/spmech01_idle.png', {
         frameWidth: 32,
         frameHeight: 53
       });
@@ -357,7 +370,27 @@ export default class AssetManager {
         frameWidth: 32,
         frameHeight: 53
       });
+      
+      // Load Spmech assets
+      this.scene.load.spritesheet('spmech01_walk', 'assets/pets/spmech01_walk.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
+
+      this.scene.load.spritesheet('spmech01_idle', 'assets/pets/spmech01_idle.png', {
+        frameWidth: 32,
+        frameHeight: 53
+      });
     }
+  }
+
+  /**
+   * Load pet selection UI assets
+   */
+  private loadPetSelectionAssets(): void {
+    // Load pet selection images
+    this.scene.load.image('SPMECH', 'assets/pets/SPMECH.png');
+    this.scene.load.image('SPMECH01', 'assets/pets/SPMECH01.png');
   }
 
   /**
@@ -447,6 +480,8 @@ export default class AssetManager {
       'glow',
       'moblin_walk',
       'moblin_idle',
+      'spmech01_walk',
+      'spmech01_idle',
       'moblin-giftbox',
       'bgm',
       'Correct_Answer',
@@ -456,7 +491,9 @@ export default class AssetManager {
       'mobster_idle02',
       'mobster_walk02',
       'mobster_idle03',
-      'mobster_walk03'
+      'mobster_walk03',
+      'SPMECH',
+      'SPMECH01'
     ];
 
     return requiredAssets.every(key => this.scene.textures.exists(key) || this.scene.cache.audio.exists(key));
@@ -470,9 +507,11 @@ export default class AssetManager {
     const requiredTextures = [
       'joystick', 'joystick-base', 'button-interact', 'glow',
       'moblin_walk', 'moblin_idle',
+      'spmech01_walk', 'spmech01_idle',
       'mobster_idle', 'mobster_walk',
       'mobster_idle02', 'mobster_walk02',
-      'mobster_idle03', 'mobster_walk03'
+      'mobster_idle03', 'mobster_walk03',
+      'SPMECH', 'SPMECH01'
     ];
     const requiredAudio = ['moblin-giftbox', 'bgm', 'Correct_Answer', 'Wrong_Answer'];
 
