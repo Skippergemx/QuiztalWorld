@@ -81,26 +81,9 @@ export default abstract class BasePet extends Phaser.Physics.Arcade.Sprite {
 
     // Make the pet interactive after it's created
     private makeInteractive() {
+        // Pet is interactive but no longer shows selection UI on click
+        // Selection is now only available via 'P' key
         this.setInteractive({ useHandCursor: true });
-        this.on('pointerdown', () => {
-            // When the pet is clicked, show the pet selection UI
-            console.log(`${this.getPetType()} clicked - showing pet selection UI`);
-            
-            // Check if scene exists before accessing it
-            if (!this.scene) {
-                console.warn('Scene not available for pet interaction');
-                return;
-            }
-            
-            // Get the PetManager instance from the scene
-            const petManager = (this.scene as any).petManager;
-            if (petManager && typeof petManager.showPetSelectionUI === 'function') {
-                // Always show pet selection UI when pet is clicked, regardless of gift boxes
-                petManager.showPetSelectionUI();
-            } else {
-                console.warn('PetManager not found or showPetSelectionUI method not available');
-            }
-        });
     }
 
     private createAnimations() {

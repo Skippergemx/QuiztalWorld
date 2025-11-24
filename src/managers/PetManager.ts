@@ -591,7 +591,7 @@ export default class PetManager {
   /**
    * Switch to a different pet type
    */
-  public switchPet(petType: PetType): void {
+  public switchPet(petType: PetType, onComplete?: () => void): void {
     console.log(`🔄 PetManager: Switching pet to ${petType}...`);
     
     // Update current pet type
@@ -600,13 +600,29 @@ export default class PetManager {
     // Save preference
     this.savePetPreference();
     
-    // Recreate pet with new type
-    if (this.pet) {
-      this.pet.destroy();
-      this.pet = undefined;
-    }
-    
-    this.createPetIfEligible();
+    // Defer the pet switching to the next frame to prevent blocking
+    this.scene.time.delayedCall(1, () => {
+      // Recreate pet with new type
+      if (this.pet) {
+        try {
+          this.pet.destroy();
+        } catch (e) {
+          console.warn('⚠️ PetManager: Error destroying existing pet', e);
+        } finally {
+          this.pet = undefined;
+        }
+      }
+      
+      // Add a small delay to ensure cleanup is complete before creating new pet
+      this.scene.time.delayedCall(50, () => {
+        this.createPetIfEligible();
+        // Call the completion callback if provided
+        if (onComplete) {
+          // Add another small delay to ensure the pet is fully created
+          this.scene.time.delayedCall(100, onComplete);
+        }
+      });
+    });
   }
 
   /**
@@ -786,10 +802,9 @@ export default class PetManager {
       petBg.setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
           console.log(`🐾 PetManager: Selected pet type: ${petType}`);
-          this.switchPet(petType);
-          
-          // Close the dialog
-          this.closePetSelectionUI(overlay, dialog);
+          this.switchPet(petType, () => {
+            this.closePetSelectionUI(overlay, dialog);
+          });
         })
         .on('pointerover', () => {
           petBg.setFillStyle(0xf1c40f);

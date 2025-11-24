@@ -12,9 +12,14 @@ export default class PetSelectionScene extends Phaser.Scene {
     }
 
     create() {
-        // Get reference to PetManager from the GameScene
+        // Get reference to PetManager from the current active scene
         const gameScene = this.scene.get('GameScene') as any;
-        if (gameScene && gameScene.petManager) {
+        const explorationScene = this.scene.get('ExplorationScene') as any;
+        
+        // Check which scene is active and get the PetManager from it
+        if (explorationScene && explorationScene.petManager) {
+            this.petManager = explorationScene.petManager;
+        } else if (gameScene && gameScene.petManager) {
             this.petManager = gameScene.petManager;
         }
 
@@ -38,9 +43,6 @@ export default class PetSelectionScene extends Phaser.Scene {
     }
 
     private closePetSelection(): void {
-        // Resume the game scene
-        this.scene.resume('GameScene');
-        
         // Stop the pet selection scene
         this.scene.stop('PetSelectionScene');
         
@@ -51,7 +53,7 @@ export default class PetSelectionScene extends Phaser.Scene {
     private createPetWindow(centerX: number, centerY: number): void {
         this.petWindow = this.add.container(centerX, centerY);
 
-        // Create semi-transparent overlay
+        // Create semi-transparent overlay that blocks input to underlying scene
         const overlay = this.add.rectangle(
             0, 0,
             this.scale.width,
@@ -59,6 +61,9 @@ export default class PetSelectionScene extends Phaser.Scene {
             0x000000,
             0.7
         ).setOrigin(0.5);
+        
+        // Make overlay interactive to block input to underlying scene
+        overlay.setInteractive();
 
         // Adjust window size for mobile
         const windowWidth = this.isMobile ? this.scale.width * 0.95 : 800;
@@ -225,12 +230,32 @@ export default class PetSelectionScene extends Phaser.Scene {
             petBg.setInteractive({ useHandCursor: true })
                 .on('pointerdown', () => {
                     console.log(`🐾 PetSelectionScene: Selected pet type: ${petType}`);
-                    if (this.petManager) {
-                        this.petManager.switchPet(petType as any);
-                    }
                     
-                    // Close the dialog
-                    this.closePetSelection();
+                    // Show loading indicator
+                    const loadingText = this.add.text(0, 0, 'Switching pet...', {
+                        fontSize: '16px',
+                        color: '#ffffff',
+                        fontStyle: 'bold'
+                    }).setOrigin(0.5);
+                    
+                    // Disable all pet options during switching
+                    this.petWindow.getAll().forEach(child => {
+                        if (child instanceof Phaser.GameObjects.Rectangle) {
+                            child.setInteractive(false);
+                        }
+                    });
+                    
+                    if (this.petManager) {
+                        this.petManager.switchPet(petType as any, () => {
+                            // Remove loading indicator
+                            loadingText.destroy();
+                            this.closePetSelection();
+                        });
+                    } else {
+                        // If no petManager, close immediately
+                        loadingText.destroy();
+                        this.closePetSelection();
+                    }
                 })
                 .on('pointerover', () => {
                     petBg.setFillStyle(0xf1c40f);

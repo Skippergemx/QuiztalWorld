@@ -608,10 +608,8 @@ export default class ExplorationScene extends Phaser.Scene {
   private openPetSelection(): void {
     console.log('🐾 ExplorationScene: Opening pet selection scene');
     
-    // Pause the exploration scene
-    this.scene.pause('ExplorationScene');
-    
-    // Launch the pet selection scene
+    // Instead of pausing the scene, we'll launch the pet selection scene
+    // and let it handle blocking interaction
     this.scene.launch('PetSelectionScene');
   }
 
